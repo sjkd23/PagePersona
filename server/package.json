@@ -7,13 +7,10 @@
     "dev": "tsc && ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "all": "tsc && node dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "validate": "node ../scripts/validate-environment.js",
-    "precommit": "npm run validate && npm run test"
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +25,6 @@
     "dotenv": "^17.0.0",
     "express": "^4.21.0",
     "express-jwt": "^8.5.1",
-    "express-oauth-server": "^2.0.0",
     "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.2.0",
     "mongoose": "^8.16.1",

@@ -18,9 +18,6 @@ export default function TransformationHistory({
   isOpen,
   onToggle
 }: TransformationHistoryProps) {
-  // Debug log to ensure component is rendering
-  console.log('TransformationHistory rendering:', { historyCount: history.length, isOpen });
-
   const formatDate = (date: Date) => {
     const now = new Date()
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))

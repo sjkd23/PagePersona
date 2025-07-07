@@ -19,9 +19,6 @@ export default function PageTransformer() {
   const { getAccessToken } = useAuth()
   const { history, addToHistory, removeFromHistory, clearHistory } = useTransformationHistory()
 
-  // Debug log
-  console.log('PageTransformer history:', history.length, 'isHistoryOpen:', isHistoryOpen)
-
   // Set up Auth0 token getter for API calls
   useEffect(() => {
     setTokenGetter(getAccessToken)
