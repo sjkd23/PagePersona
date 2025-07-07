@@ -1,10 +1,53 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth0';
-import ApiService, { setTokenGetter } from '../../utils/api';
-import type { UserProfile } from '../../utils/api';
+import { useNameSync } from '../../hooks/useNameSync';
+import ApiService, { setTokenGetter } from '../../lib/apiClient';
+import type { UserProfile } from '../../lib/apiClient';
+import { formatProfileField, hasValidName, formatFullName } from '../../utils/profileUtils';
+import './UserProfileEnhanced.css';
+
+// Usage limits based on membership
+const getUsageLimit = (membership: string): number => {
+  switch (membership) {
+    case 'premium':
+      return 500;
+    case 'admin':
+      return 10000;
+    default:
+      return 50;
+  }
+};
+
+// Get membership display information
+const getMembershipInfo = (membership: string) => {
+  switch (membership) {
+    case 'premium':
+      return { 
+        icon: '⭐', 
+        label: 'Premium', 
+        class: 'premium',
+        benefits: 'All personas • Priority support • Custom personas'
+      };
+    case 'admin':
+      return { 
+        icon: '👑', 
+        label: 'Admin', 
+        class: 'admin',
+        benefits: 'Custom integrations • Dedicated support • White-label options'
+      };
+    default:
+      return { 
+        icon: '🆓', 
+        label: 'Free', 
+        class: 'free',
+        benefits: 'Basic personas • Community support'
+      };
+  }
+};
 
 export default function UserProfileEnhanced() {
   const { user, logout, getAccessToken } = useAuth();
+  const { forceNameSync, extractNamesFromAuth0 } = useNameSync();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,11 +76,67 @@ export default function UserProfileEnhanced() {
         setLoading(true);
         const response = await ApiService.getUserProfile();
         setProfile(response.data);
+        
         setEditForm({
           firstName: response.data.firstName || '',
           lastName: response.data.lastName || '',
           preferences: response.data.preferences
         });
+
+        // Log for debugging
+        console.log('📋 Profile data loaded:', {
+          mongoFirstName: response.data.firstName,
+          mongoLastName: response.data.lastName,
+          firstNameType: typeof response.data.firstName,
+          lastNameType: typeof response.data.lastName,
+          firstNameLength: response.data.firstName ? response.data.firstName.length : 'null/undefined',
+          lastNameLength: response.data.lastName ? response.data.lastName.length : 'null/undefined',
+          displayFirstName: (response.data.firstName && response.data.firstName.trim() !== '') ? response.data.firstName : 'Not provided',
+          displayLastName: (response.data.lastName && response.data.lastName.trim() !== '') ? response.data.lastName : 'Not provided',
+          fullProfileData: response.data
+        });
+
+        // Auto-sync names if they're missing or empty
+        if (!hasValidName(response.data.firstName, response.data.lastName)) {
+          console.log('🔄 Names are missing, attempting auto-sync...');
+          const syncResult = await forceNameSync();
+          
+          if (syncResult.success) {
+            console.log('✅ Auto-sync successful, refetching profile...');
+            // Refetch profile after successful sync
+            const updatedResponse = await ApiService.getUserProfile();
+            setProfile(updatedResponse.data);
+            setEditForm({
+              firstName: updatedResponse.data.firstName || '',
+              lastName: updatedResponse.data.lastName || '',
+              preferences: updatedResponse.data.preferences
+            });
+          } else {
+            console.warn('⚠️ Auto-sync failed:', syncResult.error);
+            // Fallback: try manual update with Auth0 data
+            const { firstName, lastName } = extractNamesFromAuth0();
+            if (firstName || lastName) {
+              console.log('🔧 Attempting manual update with Auth0 data...');
+              try {
+                const updateResult = await ApiService.updateUserProfile({
+                  firstName,
+                  lastName
+                });
+                if (updateResult.success) {
+                  setProfile(updateResult.data);
+                  setEditForm({
+                    firstName: updateResult.data.firstName || '',
+                    lastName: updateResult.data.lastName || '',
+                    preferences: updateResult.data.preferences
+                  });
+                  console.log('✅ Manual update successful');
+                }
+              } catch (updateError) {
+                console.error('❌ Manual update failed:', updateError);
+              }
+            }
+          }
+        }
       } catch (err) {
         console.error('Failed to fetch profile:', err);
         setError('Failed to load profile data');
@@ -47,7 +146,7 @@ export default function UserProfileEnhanced() {
     };
 
     fetchProfile();
-  }, [user]);
+  }, [user, forceNameSync, extractNamesFromAuth0]);
 
   const handleSaveProfile = async () => {
     try {
@@ -71,10 +170,10 @@ export default function UserProfileEnhanced() {
 
   if (loading && !profile) {
     return (
-      <div className="flex justify-center items-center min-h-96">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
+      <div className="profile-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p className="loading-text">Loading profile...</p>
         </div>
       </div>
     );
@@ -82,177 +181,181 @@ export default function UserProfileEnhanced() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">{error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="mt-2 text-red-600 hover:text-red-800 underline"
-        >
-          Try again
-        </button>
+      <div className="profile-container">
+        <div className="error-container">
+          <p className="error-text">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="error-button"
+          >
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-500 to-blue-600 px-6 py-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            {user.picture ? (
-              <img 
-                src={user.picture} 
-                alt={user.name || 'User'} 
-                className="w-20 h-20 rounded-full border-4 border-white shadow-lg"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full border-4 border-white shadow-lg bg-gray-300 flex items-center justify-center">
-                <span className="text-gray-600 text-2xl font-bold">
+    <div className="profile-container">
+      <div className="profile-card">
+        {/* Header */}
+        <div className="profile-header">
+          <div className="profile-header-content">
+            <div className="profile-info">
+              {user.picture ? (
+                <img 
+                  src={user.picture} 
+                  alt={user.name || 'User'} 
+                  className="profile-avatar"
+                />
+              ) : (
+                <div className="profile-avatar-placeholder">
                   {(user.name || user.nickname || 'U')[0].toUpperCase()}
-                </span>
+                </div>
+              )}
+              <div className="profile-details">
+                <h1>
+                  {hasValidName(profile?.firstName, profile?.lastName)
+                    ? formatFullName(profile?.firstName, profile?.lastName)
+                    : user.name || user.nickname || 'User'
+                  }
+                </h1>
+                <p className="email">{profile?.email || user.email}</p>
+                <p className="member-since">
+                  Member since {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'Unknown'}
+                </p>
               </div>
-            )}
-            <div>
-              <h1 className="text-2xl font-bold text-white">
-                {profile?.firstName && profile?.lastName 
-                  ? `${profile.firstName} ${profile.lastName}`
-                  : user.name || user.nickname || 'User'
-                }
-              </h1>
-              <p className="text-purple-100">{profile?.email || user.email}</p>
-              <p className="text-purple-200 text-sm">
-                Member since {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'Unknown'}
-              </p>
             </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            {!editing ? (
-              <button
-                onClick={() => setEditing(true)}
-                className="bg-white/20 hover:bg-white/30 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200"
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <div className="flex space-x-2">
+            <div className="profile-actions">
+              {!editing ? (
                 <button
-                  onClick={handleSaveProfile}
-                  disabled={loading}
-                  className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200"
+                  onClick={() => setEditing(true)}
+                  className="btn btn-secondary"
                 >
-                  Save
+                  Edit Profile
                 </button>
-                <button
-                  onClick={() => setEditing(false)}
-                  className="bg-white/20 hover:bg-white/30 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
+              ) : (
+                <>
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={loading}
+                    className="btn btn-success"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="btn btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Information */}
-          <div className="lg:col-span-2">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Information</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={editForm.firstName}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter first name"
-                  />
-                ) : (
-                  <div className="p-3 bg-gray-50 rounded-lg border">
-                    {profile?.firstName || 'Not provided'}
-                  </div>
-                )}
+        {/* Membership Status Section */}
+        <div className="membership-status-section">
+          <div className="membership-status-card">
+            <div className="membership-info">
+              <div className="membership-tier">
+                {(() => {
+                  const membershipInfo = getMembershipInfo(profile?.membership || 'free');
+                  return (
+                    <>
+                      <span className="membership-icon">{membershipInfo.icon}</span>
+                      <span className="membership-name">{membershipInfo.label} Member</span>
+                    </>
+                  );
+                })()}
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    value={editForm.lastName}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Enter last name"
-                  />
-                ) : (
-                  <div className="p-3 bg-gray-50 rounded-lg border">
-                    {profile?.lastName || 'Not provided'}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <div className="p-3 bg-gray-50 rounded-lg border">
-                  {profile?.email || 'Not provided'}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <div className="p-3 bg-gray-50 rounded-lg border">
-                  {profile?.username || 'Auto-generated'}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Verified
-                </label>
-                <div className="p-3 bg-gray-50 rounded-lg border">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    profile?.isEmailVerified 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {profile?.isEmailVerified ? '✓ Verified' : '⚠ Not verified'}
-                  </span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Account Role
-                </label>
-                <div className="p-3 bg-gray-50 rounded-lg border">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">
-                    {profile?.role || 'User'}
-                  </span>
-                </div>
+              <div className="membership-benefits">
+                {getMembershipInfo(profile?.membership || 'free').benefits}
               </div>
             </div>
+            <div className="usage-meter">
+              <div className="usage-meter-bar">
+                <div 
+                  className="usage-meter-fill" 
+                  style={{
+                    width: `${Math.min(100, ((profile?.usage.monthlyUsage || 0) / getUsageLimit(profile?.membership || 'free')) * 100)}%`
+                  }}
+                ></div>
+              </div>
+              <div className="usage-meter-text">
+                {profile?.usage.monthlyUsage || 0} / {getUsageLimit(profile?.membership || 'free')} transformations used
+              </div>
+            </div>
+          </div>
+        </div>
 
-            {/* Preferences */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Preferences</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Theme
-                  </label>
+        {/* Content */}
+        <div className="profile-content">
+          <div className="content-grid">
+            {/* Profile Information */}
+            <div>
+              <h2 className="section-title">Personal Information</h2>
+              
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label">First Name</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editForm.firstName}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
+                      className="form-input"
+                      placeholder="Enter first name"
+                    />
+                  ) : (
+                  <div className="form-value">
+                      {formatProfileField(profile?.firstName)}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Last Name</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={editForm.lastName}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
+                      className="form-input"
+                      placeholder="Enter last name"
+                    />
+                  ) : (
+                  <div className="form-value">
+                      {formatProfileField(profile?.lastName)}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Email Address</label>
+                  <div className="form-value">
+                    {profile?.email || 'Not provided'}
+                  </div>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Account Status</label>
+                  <div className="form-value">
+                    <span className={`status-badge ${
+                      profile?.isEmailVerified ? 'status-verified' : 'status-warning'
+                    }`}>
+                      {profile?.isEmailVerified ? '✓ Verified Account' : '⚠ Pending Verification'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preferences */}
+              <h3 className="section-subtitle">Account Preferences</h3>
+              <div className="form-grid">
+                <div className="form-field">
+                  <label className="form-label">Display Theme</label>
                   {editing ? (
                     <select
                       value={editForm.preferences.theme}
@@ -260,22 +363,20 @@ export default function UserProfileEnhanced() {
                         ...prev,
                         preferences: { ...prev.preferences, theme: e.target.value as 'light' | 'dark' }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="form-input"
                     >
-                      <option value="light">Light</option>
-                      <option value="dark">Dark</option>
+                      <option value="light">Light Theme</option>
+                      <option value="dark">Dark Theme</option>
                     </select>
                   ) : (
-                    <div className="p-3 bg-gray-50 rounded-lg border capitalize">
-                      {profile?.preferences.theme || 'Light'}
+                    <div className="form-value">
+                      {profile?.preferences.theme === 'dark' ? 'Dark Theme' : 'Light Theme'}
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Language
-                  </label>
+                <div className="form-field">
+                  <label className="form-label">Language</label>
                   {editing ? (
                     <select
                       value={editForm.preferences.language}
@@ -283,7 +384,7 @@ export default function UserProfileEnhanced() {
                         ...prev,
                         preferences: { ...prev.preferences, language: e.target.value }
                       }))}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="form-input"
                     >
                       <option value="en">English</option>
                       <option value="es">Spanish</option>
@@ -291,22 +392,20 @@ export default function UserProfileEnhanced() {
                       <option value="de">German</option>
                     </select>
                   ) : (
-                    <div className="p-3 bg-gray-50 rounded-lg border">
+                    <div className="form-value">
                       {profile?.preferences.language === 'en' ? 'English' : 
                        profile?.preferences.language === 'es' ? 'Spanish' :
                        profile?.preferences.language === 'fr' ? 'French' :
                        profile?.preferences.language === 'de' ? 'German' :
-                       profile?.preferences.language || 'English'}
+                       'English'}
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Notifications
-                  </label>
+                <div className="form-field">
+                  <label className="form-label">Email Notifications</label>
                   {editing ? (
-                    <label className="flex items-center space-x-2 p-3 border border-gray-300 rounded-lg">
+                    <label className="checkbox-container">
                       <input
                         type="checkbox"
                         checked={editForm.preferences.notifications}
@@ -314,16 +413,14 @@ export default function UserProfileEnhanced() {
                           ...prev,
                           preferences: { ...prev.preferences, notifications: e.target.checked }
                         }))}
-                        className="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        className="checkbox"
                       />
-                      <span className="text-sm text-gray-700">Enable notifications</span>
+                      <span>Receive email notifications</span>
                     </label>
                   ) : (
-                    <div className="p-3 bg-gray-50 rounded-lg border">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        profile?.preferences.notifications 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
+                    <div className="form-value">
+                      <span className={`status-badge ${
+                        profile?.preferences.notifications ? 'status-enabled' : 'status-disabled'
                       }`}>
                         {profile?.preferences.notifications ? '✓ Enabled' : '✗ Disabled'}
                       </span>
@@ -332,67 +429,35 @@ export default function UserProfileEnhanced() {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Usage Stats */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Usage Statistics</h2>
-            
-            <div className="space-y-4">
-              <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600">
-                    {profile?.usage.totalTransformations || 0}
-                  </div>
-                  <div className="text-sm text-purple-800 font-medium">
-                    Total Transformations
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {profile?.usage.monthlyUsage || 0}
-                  </div>
-                  <div className="text-sm text-blue-800 font-medium">
-                    This Month
-                  </div>
-                </div>
-              </div>
-
-              {profile?.usage.lastTransformation && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <div className="text-sm text-gray-600">Last transformation:</div>
-                  <div className="text-sm font-medium text-gray-900">
-                    {new Date(profile.usage.lastTransformation).toLocaleDateString()}
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div className="text-sm text-gray-600">Usage resets:</div>
-                <div className="text-sm font-medium text-gray-900">
-                  {profile?.usage.usageResetDate ? 
-                    new Date(profile.usage.usageResetDate).toLocaleDateString() : 
-                    'Unknown'
-                  }
-                </div>
-              </div>
-            </div>
-
-            {/* Account Actions */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Actions</h3>
+            {/* Sidebar */}
+            <div>
+              <h2 className="section-title">Usage Overview</h2>
               
-              <div className="space-y-3">
-                <button
-                  onClick={logout}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200"
-                >
-                  Sign Out
-                </button>
+              <div className="stats-container">
+                <div className="stat-card remaining-transformations">
+                  <div className="stat-number">
+                    {Math.max(0, getUsageLimit(profile?.membership || 'free') - (profile?.usage.monthlyUsage || 0))}
+                  </div>
+                  <div className="stat-label">
+                    Transformations Remaining This Month
+                  </div>
+                  <div className="stat-sublabel">
+                    {profile?.usage.monthlyUsage || 0} / {getUsageLimit(profile?.membership || 'free')} used
+                  </div>
+                </div>
               </div>
+
+              {/* Account Actions */}
+              <h3 className="section-title" style={{ marginTop: '3rem' }}>Account Settings</h3>
+              
+              <button
+                onClick={logout}
+                className="btn btn-danger"
+                style={{ width: '100%' }}
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         </div>

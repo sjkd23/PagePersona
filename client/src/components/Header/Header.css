@@ -1,0 +1,126 @@
+/* Header Module Styles */
+
+/* Header Component Styles */
+.app-header {
+  background: #A4BCD9;
+  padding: 1.5rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #294769;
+  margin: 0;
+}
+
+.logo-icon {
+  width: 3rem;
+  height: 3rem;
+  background: #294769;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(41, 71, 105, 0.3);
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.welcome-text {
+  color: #294769;
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+.nav-btn {
+  padding: 0.75rem 1.75rem;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  text-transform: none;
+}
+
+.nav-btn.secondary {
+  background: transparent;
+  color: #294769;
+  border: 2px solid #294769;
+}
+
+.nav-btn.secondary:hover {
+  background: #294769;
+  border-color: #294769;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.nav-btn.primary {
+  background: #294769;
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 15px rgba(41, 71, 105, 0.3);
+}
+
+.nav-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(41, 71, 105, 0.4);
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.8rem;
+  }
+  
+  .nav-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  .nav-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .welcome-text {
+    order: -1;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

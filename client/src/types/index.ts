@@ -28,3 +28,6 @@ export interface LoadingState {
   isLoading: boolean
   error?: string | null
 }
+
+// Re-export shared types
+export type { ApiResponse } from './api-response.js';

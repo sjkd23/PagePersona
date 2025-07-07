@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { useAuth0, Auth0Provider as Auth0ProviderBase, User } from '@auth0/auth0-react';
 import { syncUserWithBackend } from '../utils/userSync';
 import type { UserProfile } from '../utils/userSync';
-import { setTokenGetter } from '../utils/api';
+import { setTokenGetter } from '../lib/apiClient';
 
 const domain = import.meta.env.VITE_AUTH0_DOMAIN;
 const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;

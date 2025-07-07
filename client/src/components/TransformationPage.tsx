@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import type { Persona, WebpageContent } from '../types/personas'
 import { useAuth } from '../hooks/useAuth0'
-import ApiService, { setTokenGetter } from '../utils/api'
+import ApiService, { setTokenGetter } from '../lib/apiClient'
+import { logger } from '../utils/logger'
+import TransformationHistory from './TransformationHistory'
+import { useTransformationHistory } from '../hooks/useTransformationHistory'
 
 export default function TransformationPage() {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
@@ -14,7 +17,16 @@ export default function TransformationPage() {
   const [error, setError] = useState<string | null>(null)
   const [loadingPersonas, setLoadingPersonas] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const { getAccessToken } = useAuth()
+
+  const {
+    history,
+    addToHistory,
+    removeFromHistory,
+    clearHistory
+  } = useTransformationHistory()
 
   // Set up Auth0 token getter for API calls
   useEffect(() => {
@@ -29,8 +41,8 @@ export default function TransformationPage() {
         setError(null)
         const response = await ApiService.getPersonas()
         
-        if (response.success) {
-          const frontendPersonas: Persona[] = response.personas.map(p => ({
+        if (response.success && response.data) {
+          const frontendPersonas: Persona[] = response.data.personas.map(p => ({
             id: p.id,
             name: p.name,
             description: p.description,
@@ -42,7 +54,7 @@ export default function TransformationPage() {
           setError('Failed to load personas')
         }
       } catch (err) {
-        console.error('Error loading personas:', err)
+        logger.component.error('TransformationPage', 'Error loading personas', err)
         setError('Failed to connect to server')
       } finally {
         setLoadingPersonas(false)
@@ -64,6 +76,20 @@ export default function TransformationPage() {
       'zen-master': { primary: '#4CAF50', secondary: '#C8E6C9', accent: '#795548' }
     }
     return themeMap[id] || { primary: '#6B73FF', secondary: '#9096FF', accent: '#FF6B6B' }
+  }
+
+  const handleRestoreTransformation = (item: WebpageContent) => {
+    setContent(item)
+    setSelectedPersona(item.persona)
+    // For URL mode, restore the original URL; for text mode, restore the original text content
+    if (item.originalUrl === 'Direct Text Input') {
+      setUrl(item.originalContent)
+      setInputMode('text')
+    } else {
+      setUrl(item.originalUrl)
+      setInputMode('url')
+    }
+    setIsHistoryOpen(false)
   }
 
   const handleTransform = async () => {
@@ -100,14 +126,42 @@ export default function TransformationPage() {
           timestamp: new Date()
         }
         setContent(transformedContent)
+        addToHistory(transformedContent)
       } else {
         setError(response.error || `Failed to transform the ${inputMode === 'url' ? 'webpage' : 'text'}`)
       }
     } catch (err) {
-      console.error('Transform error:', err)
+      logger.component.error('TransformationPage', 'Transform error', err)
       setError(`Failed to transform the ${inputMode === 'url' ? 'webpage' : 'text'}. Please check your connection and try again.`)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const copyToClipboard = async () => {
+    if (!content?.transformedContent) return
+
+    try {
+      await navigator.clipboard.writeText(content.transformedContent)
+      setCopySuccess(true)
+      // Hide the tooltip after 2 seconds
+      setTimeout(() => setCopySuccess(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea')
+      textArea.value = content.transformedContent
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      try {
+        document.execCommand('copy')
+        setCopySuccess(true)
+        setTimeout(() => setCopySuccess(false), 2000)
+      } catch (fallbackErr) {
+        console.error('Fallback copy failed: ', fallbackErr)
+      }
+      document.body.removeChild(textArea)
     }
   }
 
@@ -567,6 +621,68 @@ export default function TransformationPage() {
                         </ReactMarkdown>
                       </div>
                     </div>
+                    
+                    {/* Copy to Clipboard Button */}
+                    <div style={{ marginTop: '12px', position: 'relative' }}>
+                      <button
+                        onClick={copyToClipboard}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '8px 12px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          backgroundColor: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                      >
+                        <svg style={{ width: '14px', height: '14px' }} viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                          <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                        </svg>
+                        Copy to Clipboard
+                      </button>
+                      
+                      {/* Success Tooltip */}
+                      {copySuccess && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '-35px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          backgroundColor: '#065f46',
+                          color: 'white',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          whiteSpace: 'nowrap',
+                          zIndex: 10,
+                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                          animation: 'fadeIn 0.2s ease-in-out'
+                        }}>
+                          Copied to clipboard!
+                          <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 0,
+                            height: 0,
+                            borderLeft: '4px solid transparent',
+                            borderRight: '4px solid transparent',
+                            borderTop: '4px solid #065f46'
+                          }}></div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '40px 0', color: '#6b7280' }}>
@@ -615,6 +731,60 @@ export default function TransformationPage() {
           </div>
         )}
       </div>
+
+      {/* TransformationHistory sidebar */}
+      <TransformationHistory
+        history={history}
+        isOpen={isHistoryOpen}
+        onToggle={() => setIsHistoryOpen(prev => !prev)}
+        onRestoreTransformation={handleRestoreTransformation}
+        onRemoveItem={removeFromHistory}
+        onClearHistory={clearHistory}
+      />
+
+      {/* History toggle button */}
+      <button
+        onClick={() => setIsHistoryOpen(prev => !prev)}
+        style={{
+          position: 'fixed',
+          top: '90px',
+          left: isHistoryOpen ? '320px' : '0',
+          zIndex: 10000,
+          backgroundColor: isHistoryOpen ? '#1f2937' : '#3b82f6',
+          color: 'white',
+          padding: '12px 16px',
+          borderRadius: isHistoryOpen ? '8px 0 0 8px' : '0 8px 8px 0',
+          fontSize: '16px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          border: 'none',
+          transition: 'all 0.3s ease-in-out',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          minWidth: '50px',
+          justifyContent: 'center'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = isHistoryOpen ? '#111827' : '#2563eb'
+          e.currentTarget.style.transform = 'scale(1.05)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = isHistoryOpen ? '#1f2937' : '#3b82f6'
+          e.currentTarget.style.transform = 'scale(1)'
+        }}
+        title={isHistoryOpen ? 'Close History' : 'Open History'}
+      >
+        <span style={{ fontSize: '18px' }}>
+          {isHistoryOpen ? '←' : '📜'}
+        </span>
+        {!isHistoryOpen && (
+          <span style={{ fontSize: '12px', fontWeight: '500' }}>
+            History
+          </span>
+        )}
+      </button>
 
       {/* Full Screen Modal */}
       {isModalOpen && content && (
@@ -737,6 +907,68 @@ export default function TransformationPage() {
                 >
                   {content.transformedContent}
                 </ReactMarkdown>
+                
+                {/* Copy to Clipboard Button for Modal */}
+                <div style={{ marginTop: '20px', position: 'relative' }}>
+                  <button
+                    onClick={copyToClipboard}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '10px 16px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
+                  >
+                    <svg style={{ width: '16px', height: '16px' }} viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                      <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                    </svg>
+                    Copy to Clipboard
+                  </button>
+                  
+                  {/* Success Tooltip for Modal */}
+                  {copySuccess && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-45px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      backgroundColor: '#065f46',
+                      color: 'white',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      whiteSpace: 'nowrap',
+                      zIndex: 10,
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      animation: 'fadeIn 0.2s ease-in-out'
+                    }}>
+                      Copied to clipboard!
+                      <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: 0,
+                        height: 0,
+                        borderLeft: '6px solid transparent',
+                        borderRight: '6px solid transparent',
+                        borderTop: '6px solid #065f46'
+                      }}></div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -774,6 +1006,16 @@ export default function TransformationPage() {
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
         }
       `}</style>
     </div>

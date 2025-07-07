@@ -4,10 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "tsc && ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "all": "tsc && node dist/index.js"
+    "all": "tsc && node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "validate": "node ../scripts/validate-environment.js",
+    "precommit": "npm run validate && npm run test"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +34,9 @@
     "mongoose": "^8.16.1",
     "node-cache": "^5.1.2",
     "openai": "^5.8.2",
-    "url": "^0.11.4"
+    "redis": "^5.5.6",
+    "url": "^0.11.4",
+    "zod": "^3.25.74"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -39,7 +47,12 @@
     "@types/mongoose": "^5.11.0",
     "@types/node": "^24.0.7",
     "@types/node-cache": "^4.1.3",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "supertest": "^7.1.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { Persona } from '../types/personas'
-import ApiService from '../utils/api'
+import ApiService from '../lib/apiClient'
 
 interface PersonaSelectorProps {
   selectedPersona: string | null
@@ -19,9 +19,9 @@ export default function PersonaSelector({ selectedPersona, onPersonaSelect }: Pe
         setError(null)
         const response = await ApiService.getPersonas()
         
-        if (response.success) {
+        if (response.success && response.data) {
           // Convert backend persona format to frontend format
-          const frontendPersonas: Persona[] = response.personas.map(p => ({
+          const frontendPersonas: Persona[] = response.data.personas.map(p => ({
             id: p.id,
             name: p.name,
             description: p.description,
@@ -30,7 +30,7 @@ export default function PersonaSelector({ selectedPersona, onPersonaSelect }: Pe
           }))
           setPersonas(frontendPersonas)
         } else {
-          setError('Failed to load personas')
+          setError(response.error || 'Failed to load personas')
         }
       } catch (err) {
         console.error('Error loading personas:', err)
@@ -98,10 +98,38 @@ export default function PersonaSelector({ selectedPersona, onPersonaSelect }: Pe
         </div>
         <p className="text-red-600 text-sm mb-3">{error}</p>
         <button 
-          onClick={() => window.location.reload()}
+          onClick={() => {
+            setError(null)
+            setLoading(true)
+            // Retry loading personas
+            const loadPersonas = async () => {
+              try {
+                const response = await ApiService.getPersonas()
+                
+                if (response.success && response.data) {
+                  const frontendPersonas: Persona[] = response.data.personas.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    description: p.description,
+                    emoji: getPersonaEmoji(p.id),
+                    theme: getPersonaTheme(p.id)
+                  }))
+                  setPersonas(frontendPersonas)
+                } else {
+                  setError(response.error || 'Failed to load personas')
+                }
+              } catch (err) {
+                console.error('Error loading personas:', err)
+                setError('Failed to connect to server')
+              } finally {
+                setLoading(false)
+              }
+            }
+            loadPersonas()
+          }}
           className="text-blue-600 hover:text-blue-800 text-sm font-medium"
         >
-          Retry
+          Try Again
         </button>
       </div>
     )
@@ -117,6 +145,7 @@ export default function PersonaSelector({ selectedPersona, onPersonaSelect }: Pe
             const persona = personas.find(p => p.id === e.target.value)
             if (persona) onPersonaSelect(persona)
           }}
+          aria-label="Select a persona"
           className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
         >
           <option value="">Select a persona...</option>

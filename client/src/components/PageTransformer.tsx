@@ -4,8 +4,10 @@ import PersonaSelector from './PersonaSelector'
 import UrlInput from './UrlInput'
 import ContentDisplay from './ContentDisplay'
 import Footer from './Footer'
+import TransformationHistory from './TransformationHistory'
 import { useAuth } from '../hooks/useAuth0'
-import ApiService, { setTokenGetter } from '../utils/api'
+import { useTransformationHistory } from '../hooks/useTransformationHistory'
+import ApiService, { setTokenGetter } from '../lib/apiClient'
 
 export default function PageTransformer() {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
@@ -13,7 +15,12 @@ export default function PageTransformer() {
   const [isLoading, setIsLoading] = useState(false)
   const [content, setContent] = useState<WebpageContent | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const { getAccessToken } = useAuth()
+  const { history, addToHistory, removeFromHistory, clearHistory } = useTransformationHistory()
+
+  // Debug log
+  console.log('PageTransformer history:', history.length, 'isHistoryOpen:', isHistoryOpen)
 
   // Set up Auth0 token getter for API calls
   useEffect(() => {
@@ -28,6 +35,14 @@ export default function PageTransformer() {
   const handleUrlChange = (newUrl: string) => {
     setUrl(newUrl)
     setError(null)
+  }
+
+  const handleRestoreTransformation = (historyContent: WebpageContent) => {
+    setContent(historyContent)
+    setSelectedPersona(historyContent.persona)
+    setUrl(historyContent.originalUrl)
+    setError(null)
+    setIsHistoryOpen(false)
   }
 
   const formatUrl = (inputUrl: string) => {
@@ -63,6 +78,8 @@ export default function PageTransformer() {
         }
 
         setContent(transformedContent)
+        // Add to history after successful transformation
+        addToHistory(transformedContent)
       } else {
         setError(response.error || 'Failed to transform the webpage')
       }
@@ -83,20 +100,34 @@ export default function PageTransformer() {
       {/* Progress Steps Header */}
       <div className="bg-white border-b border-gray-200 py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-2">
-            <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
-              <span className="text-blue-600 font-medium">1</span>
-              <span>Choose your persona</span>
-              <span className="text-gray-400">•</span>
-              <span className={selectedPersona ? 'text-blue-600 font-medium' : 'text-gray-400'}>2</span>
-              <span className={selectedPersona ? 'text-gray-800' : 'text-gray-400'}>Enter URL or text</span>
-              <span className="text-gray-400">•</span>
-              <span className={canTransform ? 'text-orange-600 font-medium' : 'text-gray-400'}>3</span>
-              <span className={canTransform ? 'text-gray-800' : 'text-gray-400'}>Generate</span>
-              <span className="text-gray-400">•</span>
-              <span className={content ? 'text-green-600 font-medium' : 'text-gray-400'}>4</span>
-              <span className={content ? 'text-gray-800' : 'text-gray-400'}>View result</span>
+          <div className="flex items-center justify-between mb-2">
+            <div></div> {/* Left spacer */}
+            <div className="text-center">
+              <div className="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                <span className="text-blue-600 font-medium">1</span>
+                <span>Choose your persona</span>
+                <span className="text-gray-400">•</span>
+                <span className={selectedPersona ? 'text-blue-600 font-medium' : 'text-gray-400'}>2</span>
+                <span className={selectedPersona ? 'text-gray-800' : 'text-gray-400'}>Enter URL or text</span>
+                <span className="text-gray-400">•</span>
+                <span className={canTransform ? 'text-orange-600 font-medium' : 'text-gray-400'}>3</span>
+                <span className={canTransform ? 'text-gray-800' : 'text-gray-400'}>Generate</span>
+                <span className="text-gray-400">•</span>
+                <span className={content ? 'text-green-600 font-medium' : 'text-gray-400'}>4</span>
+                <span className={content ? 'text-gray-800' : 'text-gray-400'}>View result</span>
+              </div>
             </div>
+            {/* History Button */}
+            <button
+              onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+              className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-3 py-2 text-sm font-medium flex items-center gap-2 transition-colors"
+              title="View Transformation History"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              History ({history.length})
+            </button>
           </div>
         </div>
       </div>
@@ -182,6 +213,16 @@ export default function PageTransformer() {
       </main>
 
       <Footer />
+
+      {/* Transformation History Sidebar */}
+      <TransformationHistory
+        history={history}
+        onRestoreTransformation={handleRestoreTransformation}
+        onRemoveItem={removeFromHistory}
+        onClearHistory={clearHistory}
+        isOpen={isHistoryOpen}
+        onToggle={() => setIsHistoryOpen(!isHistoryOpen)}
+      />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import type { ApiResponse } from './api-response';
 
 // Extended Express Request with Auth0 user info
 export interface AuthenticatedRequest extends Request {
@@ -67,12 +68,4 @@ export interface UsageSummary {
     start: Date;
     end: Date;
   };
-}
-
-// API Response types
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
 }

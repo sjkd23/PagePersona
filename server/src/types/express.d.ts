@@ -1,69 +1,59 @@
-import { IMongoUser } from '../models/MongoUser';
-
-interface Auth0User {
-  sub: string;
-  email?: string;
-  email_verified?: boolean;
-  given_name?: string;
-  family_name?: string;
-  name?: string;
-  nickname?: string;
-  picture?: string;
-  [key: string]: any;
-}
+import { IMongoUser } from '../models/mongo-user';
+import { Auth0JwtPayload, ProcessedAuth0User } from './common';
 
 interface UserContext {
+  jwtPayload: Auth0JwtPayload;
+  auth0User: ProcessedAuth0User;
   mongoUser: IMongoUser;
-  auth0User: Auth0User;
-  userId: string;
 }
 
 declare global {
   namespace Express {
     interface Request {
       /**
-       * Clean, typed user context structure (RECOMMENDED)
+       * ✅ UNIFIED USER CONTEXT (CURRENT STANDARD)
+       * 
+       * Contains all user-related data in a single, well-typed object.
+       * This is the preferred way to access user data throughout the application.
        * 
        * @example
        * ```ts
-       * // Access user data via clean context
-       * const { mongoUser, auth0User, userId } = req.userContext!;
+       * // Access user data via unified context
+       * const { jwtPayload, auth0User, mongoUser } = req.userContext!;
        * 
-       * // Type-safe access
+       * // Type-safe access to specific data
        * const email = req.userContext!.mongoUser.email;
-       * const auth0Sub = req.userContext!.auth0User.sub;
+       * const auth0Sub = req.userContext!.jwtPayload.sub;
+       * const username = req.userContext!.mongoUser.username;
        * ```
        */
       userContext?: UserContext;
 
       /**
-       * @deprecated Use `req.userContext.mongoUser` instead
-       * @description Legacy field kept for backward compatibility. Will be removed in v2.0
-       * 
-       * @example
-       * ```ts
-       * // OLD (deprecated)
-       * const user = req.user;
-       * 
-       * // NEW (recommended)
-       * const user = req.userContext!.mongoUser;
-       * ```
+       * @deprecated Legacy: Use `req.userContext.jwtPayload` instead
+       * Raw JWT payload from Auth0 verification middleware
        */
-      user?: IMongoUser;
+      user?: Auth0JwtPayload;
 
       /**
-       * @deprecated Use `req.userContext.auth0User` instead
-       * @description Legacy field kept for backward compatibility. Will be removed in v2.0
+       * @deprecated Legacy: Use `req.userContext.mongoUser` instead  
+       * MongoDB user document from sync middleware
        */
-      auth0User?: Auth0User;
+      mongoUser?: IMongoUser;
 
       /**
-       * @deprecated Use `req.userContext.userId` instead
-       * @description Legacy field kept for backward compatibility. Will be removed in v2.0
+       * @deprecated Legacy: Use `req.userContext.auth0User` instead
+       * Processed Auth0 user data
+       */
+      auth0User?: ProcessedAuth0User;
+
+      /**
+       * @deprecated Legacy: Use `req.userContext.mongoUser._id.toString()` instead
+       * String representation of MongoDB user ID
        */
       userId?: string;
     }
   }
 }
 
-export { UserContext, Auth0User };
+export { UserContext };
