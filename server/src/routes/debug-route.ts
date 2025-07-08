@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { redisClient } from '../utils/redis-client';
 import { HttpStatus } from '../constants/http-status';
-import { isUsingRedisStore } from '../middleware/rate-limit-middleware';
+import { isUsingRedisStore } from '../middleware/rate-limit-middleware-refactored';
 import { logger } from '../utils/logger';
 
 const router = Router();

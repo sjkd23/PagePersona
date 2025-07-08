@@ -83,26 +83,11 @@ export default function UserProfileEnhanced() {
           preferences: response.data.preferences
         });
 
-        // Log for debugging
-        console.log('📋 Profile data loaded:', {
-          mongoFirstName: response.data.firstName,
-          mongoLastName: response.data.lastName,
-          firstNameType: typeof response.data.firstName,
-          lastNameType: typeof response.data.lastName,
-          firstNameLength: response.data.firstName ? response.data.firstName.length : 'null/undefined',
-          lastNameLength: response.data.lastName ? response.data.lastName.length : 'null/undefined',
-          displayFirstName: (response.data.firstName && response.data.firstName.trim() !== '') ? response.data.firstName : 'Not provided',
-          displayLastName: (response.data.lastName && response.data.lastName.trim() !== '') ? response.data.lastName : 'Not provided',
-          fullProfileData: response.data
-        });
-
         // Auto-sync names if they're missing or empty
         if (!hasValidName(response.data.firstName, response.data.lastName)) {
-          console.log('🔄 Names are missing, attempting auto-sync...');
           const syncResult = await forceNameSync();
           
           if (syncResult.success) {
-            console.log('✅ Auto-sync successful, refetching profile...');
             // Refetch profile after successful sync
             const updatedResponse = await ApiService.getUserProfile();
             setProfile(updatedResponse.data);
@@ -112,11 +97,9 @@ export default function UserProfileEnhanced() {
               preferences: updatedResponse.data.preferences
             });
           } else {
-            console.warn('⚠️ Auto-sync failed:', syncResult.error);
             // Fallback: try manual update with Auth0 data
             const { firstName, lastName } = extractNamesFromAuth0();
             if (firstName || lastName) {
-              console.log('🔧 Attempting manual update with Auth0 data...');
               try {
                 const updateResult = await ApiService.updateUserProfile({
                   firstName,
@@ -129,7 +112,6 @@ export default function UserProfileEnhanced() {
                     lastName: updateResult.data.lastName || '',
                     preferences: updateResult.data.preferences
                   });
-                  console.log('✅ Manual update successful');
                 }
               } catch (updateError) {
                 console.error('❌ Manual update failed:', updateError);

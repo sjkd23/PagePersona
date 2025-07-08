@@ -13,9 +13,15 @@ export default function HowItWorksSection() {
         <HowItWorksStep stepNumber={1} title="Choose your persona" />
         <PersonaAvatarsDemo />
 
+        {/* Single gradient divider after step 1 */}
+        <div className="step-divider step-divider-full"></div>
+
         {/* Row 2 - Step 2 and URL Input */}
         <HowItWorksStep stepNumber={2} title="Enter URL" subtitle="(or text)" />
         <UrlInputDemo />
+
+        {/* Single gradient divider after step 2 */}
+        <div className="step-divider step-divider-full"></div>
 
         {/* Row 3 - Step 3 and Generate Button */}
         <HowItWorksStep stepNumber={3} title="Generate your text" />
@@ -24,7 +30,8 @@ export default function HowItWorksSection() {
 
       {/* Right Section - Step 4 with Output */}
       <div className="step-four-section">
-        <HowItWorksStep stepNumber={4} title="Read converted text" className="step-four" />
+        {/* Removed step-four-divider */}
+        <HowItWorksStep stepNumber={4} title="Read your new site/text!" className="step-four" />
         <OutputDemo />
       </div>
     </div>

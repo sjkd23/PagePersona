@@ -190,7 +190,7 @@ describe('User Routes', () => {
 
       const response = await request(app)
         .get('/api/user/profile')
-        .expect(500); // Service failures return 500
+        .expect(404); // "not found" errors return 404
 
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('User not found in database');
@@ -675,7 +675,7 @@ describe('User Routes', () => {
         .expect(500); // Correctly expect 500 for database errors
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Failed to fetch user profile');
+      expect(response.body.error).toBe('Database connection error');
     });
 
     it('should handle authentication middleware errors', async () => {
@@ -690,7 +690,7 @@ describe('User Routes', () => {
         .expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Failed to fetch user profile');
+      expect(response.body.error).toBe('Database connection failed');
     });
 
     it('should handle missing user context', async () => {

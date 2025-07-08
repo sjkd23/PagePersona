@@ -11,7 +11,7 @@
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 class ClientLogger {
@@ -39,7 +39,7 @@ class ClientLogger {
   /**
    * Debug level logging - only shown in development or when DEBUG=true
    */
-  debug(message: string, ...args: any[]): void {
+  debug(message: string, ...args: unknown[]): void {
     if (this.isDebugMode) {
       console.debug(this.getLevelPrefix('debug'), message, ...args);
     }
@@ -48,21 +48,21 @@ class ClientLogger {
   /**
    * Info level logging - general information
    */
-  info(message: string, ...args: any[]): void {
+  info(message: string, ...args: unknown[]): void {
     console.info(this.getLevelPrefix('info'), message, ...args);
   }
 
   /**
    * Warning level logging - for concerning but non-critical issues
    */
-  warn(message: string, ...args: any[]): void {
+  warn(message: string, ...args: unknown[]): void {
     console.warn(this.getLevelPrefix('warn'), message, ...args);
   }
 
   /**
    * Error level logging - for errors and exceptions
    */
-  error(message: string, error?: Error | any, ...args: any[]): void {
+  error(message: string, error?: Error | unknown, ...args: unknown[]): void {
     if (error) {
       console.error(this.getLevelPrefix('error'), message, error, ...args);
     } else {
@@ -76,38 +76,38 @@ class ClientLogger {
 
   // Component specific logging
   component = {
-    info: (component: string, message: string, ...args: any[]) => 
+    info: (component: string, message: string, ...args: unknown[]) => 
       this.info(`[${component}] ${message}`, ...args),
-    warn: (component: string, message: string, ...args: any[]) => 
+    warn: (component: string, message: string, ...args: unknown[]) => 
       this.warn(`[${component}] ${message}`, ...args),
-    error: (component: string, message: string, error?: Error | any, ...args: any[]) => 
+    error: (component: string, message: string, error?: Error | unknown, ...args: unknown[]) => 
       this.error(`[${component}] ${message}`, error, ...args),
-    debug: (component: string, message: string, ...args: any[]) => 
+    debug: (component: string, message: string, ...args: unknown[]) => 
       this.debug(`[${component}] ${message}`, ...args)
   };
 
   // API call specific logging
   api = {
-    info: (message: string, ...args: any[]) => this.info(`[API] ${message}`, ...args),
-    warn: (message: string, ...args: any[]) => this.warn(`[API] ${message}`, ...args),
-    error: (message: string, error?: Error | any, ...args: any[]) => this.error(`[API] ${message}`, error, ...args),
-    debug: (message: string, ...args: any[]) => this.debug(`[API] ${message}`, ...args)
+    info: (message: string, ...args: unknown[]) => this.info(`[API] ${message}`, ...args),
+    warn: (message: string, ...args: unknown[]) => this.warn(`[API] ${message}`, ...args),
+    error: (message: string, error?: Error | unknown, ...args: unknown[]) => this.error(`[API] ${message}`, error, ...args),
+    debug: (message: string, ...args: unknown[]) => this.debug(`[API] ${message}`, ...args)
   };
 
   // Authentication specific logging
   auth = {
-    info: (message: string, ...args: any[]) => this.info(`[Auth] ${message}`, ...args),
-    warn: (message: string, ...args: any[]) => this.warn(`[Auth] ${message}`, ...args),
-    error: (message: string, error?: Error | any, ...args: any[]) => this.error(`[Auth] ${message}`, error, ...args),
-    debug: (message: string, ...args: any[]) => this.debug(`[Auth] ${message}`, ...args)
+    info: (message: string, ...args: unknown[]) => this.info(`[Auth] ${message}`, ...args),
+    warn: (message: string, ...args: unknown[]) => this.warn(`[Auth] ${message}`, ...args),
+    error: (message: string, error?: Error | unknown, ...args: unknown[]) => this.error(`[Auth] ${message}`, error, ...args),
+    debug: (message: string, ...args: unknown[]) => this.debug(`[Auth] ${message}`, ...args)
   };
 
   // User sync specific logging
   sync = {
-    info: (message: string, ...args: any[]) => this.info(`[Sync] ${message}`, ...args),
-    warn: (message: string, ...args: any[]) => this.warn(`[Sync] ${message}`, ...args),
-    error: (message: string, error?: Error | any, ...args: any[]) => this.error(`[Sync] ${message}`, error, ...args),
-    debug: (message: string, ...args: any[]) => this.debug(`[Sync] ${message}`, ...args)
+    info: (message: string, ...args: unknown[]) => this.info(`[Sync] ${message}`, ...args),
+    warn: (message: string, ...args: unknown[]) => this.warn(`[Sync] ${message}`, ...args),
+    error: (message: string, error?: Error | unknown, ...args: unknown[]) => this.error(`[Sync] ${message}`, error, ...args),
+    debug: (message: string, ...args: unknown[]) => this.debug(`[Sync] ${message}`, ...args)
   };
 }
 

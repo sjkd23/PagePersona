@@ -9,12 +9,6 @@ const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
 const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 const NODE_ENV = process.env.NODE_ENV;
 
-console.log('🔧 JWT Configuration:', {
-  AUTH0_DOMAIN: AUTH0_DOMAIN || 'NOT SET',
-  AUTH0_AUDIENCE: AUTH0_AUDIENCE || 'NOT SET',
-  NODE_ENV: NODE_ENV || 'development'
-});
-
 // Don't throw error immediately - handle gracefully in middleware
 if (!AUTH0_DOMAIN) {
   console.warn('⚠️ AUTH0_DOMAIN environment variable is not set - Auth0 features will be disabled');
@@ -39,12 +33,6 @@ const createJwtConfig = (audience?: string) => {
     requestProperty: 'user', // This sets req.user
     ...(audience && { audience })
   };
-  
-  console.log('🔧 JWT Config created:', {
-    issuer: config.issuer,
-    audience: audience || 'NO AUDIENCE',
-    jwksUri: `https://${AUTH0_DOMAIN}/.well-known/jwks.json`
-  });
   
   return config;
 };
@@ -81,12 +69,6 @@ const createEnhancedJwtVerifier = (config: unknown) => {
     const token = authHeader.substring(7);
     const tokenParts = token.split('.');
     
-    console.log('🔍 Token analysis:', {
-      tokenLength: token.length,
-      parts: tokenParts.length,
-      validJWTStructure: tokenParts.length === 3
-    });
-    
     if (tokenParts.length !== 3) {
       console.log('❌ Invalid JWT structure');
       res.status(HttpStatus.UNAUTHORIZED).json({
@@ -100,7 +82,6 @@ const createEnhancedJwtVerifier = (config: unknown) => {
     // Try to decode header to check if it's a valid JWT
     try {
       const header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
-      console.log('🔍 JWT Header:', header);
     } catch (error) {
       console.log('❌ Invalid JWT header encoding');
       res.status(HttpStatus.UNAUTHORIZED).json({
@@ -128,10 +109,6 @@ const createEnhancedJwtVerifier = (config: unknown) => {
         return;
       }
       
-      console.log('✅ JWT verification successful:', {
-        user: req.user ? { sub: req.user.sub, email: req.user.email } : 'No user data'
-      });
-      
       next();
     });
   };
@@ -157,7 +134,6 @@ export const verifyAuth0TokenStrict = (() => {
       };
     }
     
-    console.log('🔒 Using STRICT JWT verification with audience:', AUTH0_AUDIENCE);
     return createEnhancedJwtVerifier(createJwtConfig(AUTH0_AUDIENCE));
   } catch (error) {
     console.error('❌ Failed to create strict JWT verifier:', error);
@@ -181,7 +157,6 @@ export const verifyAuth0TokenPermissive = (() => {
       };
     }
     
-    console.log('⚠️  Using PERMISSIVE JWT verification (no audience requirement)');
     return createEnhancedJwtVerifier(createJwtConfig());
   } catch (error) {
     console.error('❌ Failed to create permissive JWT verifier:', error);
@@ -203,10 +178,8 @@ export const verifyAuth0Token = (() => {
   
   // In development, use audience if available, otherwise permissive
   if (AUTH0_AUDIENCE) {
-    console.log('🔧 Development mode with audience configured - using strict verification');
     return verifyAuth0TokenStrict;
   } else {
-    console.log('🔧 Development mode without audience - using permissive verification');
     return verifyAuth0TokenPermissive;
   }
 })();

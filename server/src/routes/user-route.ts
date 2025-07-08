@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import { MongoUser } from '../models/mongo-user';
 import { verifyAuth0Token, syncAuth0User } from '../middleware/auth0-middleware';
-import { createSuccessResponse, createErrorResponse, safeLogUser } from '../utils/userSerializer';
-import { syncRateLimit, profileUpdateRateLimit, testEndpointRateLimit } from '../middleware/rate-limit-middleware';
+import * as userSerializer from '../utils/userSerializer';
+import { syncRateLimit, profileUpdateRateLimit, testEndpointRateLimit } from '../middleware/rate-limit-middleware-refactored';
 import { validateBody, validateQuery } from '../middleware/zod-validation';
 import { userSchemas } from '../middleware/validation-schemas';
 import { HttpStatus } from '../constants/http-status';
@@ -16,43 +16,33 @@ router.get('/profile', validateQuery(userSchemas.profileQuery), verifyAuth0Token
     const mongoUser = req.userContext?.mongoUser;
     
     if (!mongoUser || !mongoUser._id) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User profile not found'));
+      res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User profile not found'));
       return;
     }
-
-    // Enhanced debug logging for name investigation
-    console.log('🔍 Profile Request Debug:', {
-      userId: mongoUser._id.toString(),
-      email: mongoUser.email,
-      firstName: mongoUser.firstName,
-      lastName: mongoUser.lastName,
-      firstNameType: typeof mongoUser.firstName,
-      lastNameType: typeof mongoUser.lastName,
-      firstNameLength: mongoUser.firstName ? mongoUser.firstName.length : 'null/undefined',
-      lastNameLength: mongoUser.lastName ? mongoUser.lastName.length : 'null/undefined',
-      auth0Data: req.userContext?.auth0User ? {
-        name: req.userContext.auth0User.name,
-        givenName: req.userContext.auth0User.givenName,
-        familyName: req.userContext.auth0User.familyName
-      } : 'Not available'
-    });
 
     const result = await userService.getUserProfile(mongoUser._id.toString());
     
     if (result.success) {
-      console.log('📋 Serialized Profile Data:', {
-        firstName: result.data.firstName,
-        lastName: result.data.lastName,
-        firstNameType: typeof result.data.firstName,
-        lastNameType: typeof result.data.lastName
-      });
-      res.json(createSuccessResponse(result.data));
+      res.json(userSerializer.createSuccessResponse(result.data));
     } else {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse(result.error || 'Failed to fetch user profile'));
+      // map known errors
+      const errMsg = result.error || 'Failed to fetch user profile';
+      const status = errMsg.includes('not found')
+        ? HttpStatus.NOT_FOUND
+        : errMsg.includes('Validation')
+        ? HttpStatus.BAD_REQUEST
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+      res.status(status).json(userSerializer.createErrorResponse(errMsg));
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user profile:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to fetch user profile'));
+    const errMsg = error instanceof Error ? error.message : 'Failed to fetch user profile';
+    const status = errMsg.includes('not found')
+      ? HttpStatus.NOT_FOUND
+      : errMsg.includes('Validation')
+      ? HttpStatus.BAD_REQUEST
+      : HttpStatus.INTERNAL_SERVER_ERROR;
+    res.status(status).json(userSerializer.createErrorResponse(errMsg));
   }
 });
 
@@ -63,20 +53,20 @@ router.put('/profile', profileUpdateRateLimit, validateBody(userSchemas.updatePr
     const updates = req.body;
 
     if (!mongoUser) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User profile not found'));
+      res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User profile not found'));
       return;
     }
 
     const result = await userService.updateUserProfile(mongoUser, updates);
     
     if (result.success) {
-      res.json(createSuccessResponse(result.data, result.message));
+      res.json(userSerializer.createSuccessResponse(result.data, result.message));
     } else {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse(result.error || 'Failed to update user profile'));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(result.error || 'Failed to update user profile'));
     }
   } catch (error) {
     console.error('❌ Error updating user profile:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to update user profile'));
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to update user profile'));
   }
 });
 
@@ -86,43 +76,56 @@ router.get('/usage', verifyAuth0Token, syncAuth0User, async (req: Request, res: 
     const mongoUser = req.userContext?.mongoUser;
     
     if (!mongoUser) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found'));
+      res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User not found'));
       return;
     }
 
     const result = await userService.getUserUsage(mongoUser);
     
     if (result.success) {
-      res.json(createSuccessResponse(result.data));
+      res.json(userSerializer.createSuccessResponse(result.data));
     } else {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse(result.error || 'Failed to fetch user usage'));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(result.error || 'Failed to fetch user usage'));
     }
   } catch (error) {
     console.error('❌ Error fetching user usage:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to fetch user usage'));
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to fetch user usage'));
   }
 });
 
 // Sync user with MongoDB (triggers automatic user creation/update)
 router.post('/sync', syncRateLimit, verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
   try {
-    const mongoUser = req.userContext?.mongoUser;
+    const auth0User = req.userContext?.auth0User;
     
-    if (!mongoUser) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User sync failed - user not found'));
+    if (!auth0User) {
+      res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User sync failed - user not found'));
       return;
     }
 
-    const result = await userService.syncUser(mongoUser);
+    const serviceResult = await userService.syncUser(auth0User);
+    // support raw or structured result
+    const success = typeof serviceResult.success === 'boolean' ? serviceResult.success : true;
+    const userData = success ? (serviceResult.data ?? serviceResult) : null;
+    const message = success && (serviceResult as any).message ? (serviceResult as any).message : undefined;
     
-    if (result.success) {
-      res.json(createSuccessResponse(result.data, result.message));
+    if (success) {
+      // serialize and respond
+      const serialized = userSerializer.createSuccessResponse(userData && userSerializer.serializeMongoUser(userData), message);
+      res.json(serialized);
     } else {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse(result.error || 'Failed to sync user'));
+      const errMsg = (serviceResult as any).error || 'Failed to sync user';
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(errMsg));
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error syncing user:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to sync user'));
+    const errMsg = error instanceof Error ? error.message : 'Failed to sync user';
+    const status = errMsg.includes('not found')
+      ? HttpStatus.NOT_FOUND
+      : errMsg.includes('Validation')
+      ? HttpStatus.BAD_REQUEST
+      : HttpStatus.INTERNAL_SERVER_ERROR;
+    res.status(status).json(userSerializer.createErrorResponse(errMsg));
   }
 });
 
@@ -130,9 +133,6 @@ router.post('/sync', syncRateLimit, verifyAuth0Token, syncAuth0User, async (req:
 if (process.env.NODE_ENV !== 'production') {
   // Test endpoint to verify JWT authentication with audience
   router.get('/test-auth', testEndpointRateLimit, verifyAuth0Token, (req: Request, res: Response): void => {
-    console.log('🧪 Test auth endpoint called - JWT verification successful');
-    console.log('🧪 Auth0 user info:', req.userContext?.auth0User);
-    
     const authUser = req.userContext?.auth0User;
     const jwtPayload = req.userContext?.jwtPayload;
     const { sub, email } = authUser || {};
@@ -153,8 +153,6 @@ if (process.env.NODE_ENV !== 'production') {
 
   // Test endpoint without JWT verification (for connectivity testing)
   router.get('/test-no-auth', (req: Request, res: Response): void => {
-    console.log('🧪 No-auth test endpoint called - server connectivity OK');
-    
     res.json({
       success: true,
       message: 'Server connectivity test successful',
@@ -165,31 +163,17 @@ if (process.env.NODE_ENV !== 'production') {
 
   // Test endpoint to debug JWT verification (development only)
   router.get('/test-jwt-debug', (req: Request, res: Response): void => {
-    console.log('🧪 JWT Debug endpoint called');
-    
     const authHeader = req.headers.authorization;
-    console.log('🔍 Authorization header:', authHeader ? 'Present' : 'Missing');
     
     if (authHeader) {
-      console.log('🔍 Header preview:', authHeader.substring(0, 30) + '...');
-      
       // Check JWT structure
       const token = authHeader.replace('Bearer ', '');
       const parts = token.split('.');
-      console.log('🔍 JWT parts:', parts.length);
       
       if (parts.length === 3) {
         try {
           const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-          
-          console.log('🔍 JWT Header:', header);
-          console.log('🔍 JWT Payload (sub, aud, exp):', {
-            sub: payload.sub,
-            aud: payload.aud,
-            exp: payload.exp,
-            expired: Date.now() / 1000 > payload.exp
-          });
         } catch (e) {
           console.log('❌ JWT decode failed:', e instanceof Error ? e.message : 'Unknown error');
         }
@@ -206,8 +190,6 @@ if (process.env.NODE_ENV !== 'production') {
 
   // Test endpoint to check Auth0 configuration (development only)
   router.get('/test-auth-config', (req: Request, res: Response): void => {
-    console.log('🧪 Auth config test endpoint called');
-    
     const config = {
       AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || 'NOT SET',
       AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'NOT SET',
@@ -227,12 +209,10 @@ if (process.env.NODE_ENV !== 'production') {
   router.get('/test-serialize-user', testEndpointRateLimit, async (req: Request, res: Response): Promise<void> => {
     // Only available in development
     if (process.env.NODE_ENV === 'production') {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('Endpoint not found'));
+      res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('Endpoint not found'));
       return;
     }
 
-    console.log('🧪 SerializeUser robustness test endpoint called');
-    
     try {
       // Run a simple test inline instead of importing
       const { serializeMongoUser } = await import('../utils/userSerializer.js');
@@ -251,8 +231,6 @@ if (process.env.NODE_ENV !== 'production') {
       } as any;
       
       const serialized = serializeMongoUser(testUser);
-      console.log('✅ SerializeUser test completed successfully');
-      console.log('Serialized user:', JSON.stringify(serialized, null, 2));
     
       res.json({
         success: true,
@@ -272,7 +250,7 @@ if (process.env.NODE_ENV !== 'production') {
   // Debug endpoint to check user name data (development only)
   router.get('/debug/name-data', verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
     if (process.env.NODE_ENV === 'production') {
-      res.status(HttpStatus.FORBIDDEN).json(createErrorResponse('Debug endpoint not available in production'));
+      res.status(HttpStatus.FORBIDDEN).json(userSerializer.createErrorResponse('Debug endpoint not available in production'));
       return;
     }
 
@@ -282,7 +260,7 @@ if (process.env.NODE_ENV !== 'production') {
       const jwtPayload = req.userContext?.jwtPayload;
       
       if (!mongoUser) {
-        res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found'));
+        res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User not found'));
         return;
       }
 
@@ -315,17 +293,17 @@ if (process.env.NODE_ENV !== 'production') {
       };
 
       console.log('🔍 User name debug data:', debugData);
-      res.json(createSuccessResponse(debugData, 'Debug data retrieved'));
+      res.json(userSerializer.createSuccessResponse(debugData, 'Debug data retrieved'));
     } catch (error) {
       console.error('❌ Error fetching debug data:', error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to fetch debug data'));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to fetch debug data'));
     }
   });
 
   // Force sync names from Auth0 (development only)
   router.post('/debug/force-name-sync', verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
     if (process.env.NODE_ENV === 'production') {
-      res.status(HttpStatus.FORBIDDEN).json(createErrorResponse('Debug endpoint not available in production'));
+      res.status(HttpStatus.FORBIDDEN).json(userSerializer.createErrorResponse('Debug endpoint not available in production'));
       return;
     }
 
@@ -334,7 +312,7 @@ if (process.env.NODE_ENV !== 'production') {
       const auth0User = req.userContext?.auth0User;
       
       if (!mongoUser || !auth0User) {
-        res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User data not found'));
+        res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User data not found'));
         return;
       }
 
@@ -365,17 +343,17 @@ if (process.env.NODE_ENV !== 'production') {
       };
 
       console.log('🔄 Forced name sync completed:', result);
-      res.json(createSuccessResponse(result, 'Name sync completed'));
+      res.json(userSerializer.createSuccessResponse(result, 'Name sync completed'));
     } catch (error) {
       console.error('❌ Error forcing name sync:', error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to force name sync'));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to force name sync'));
     }
   });
 
   // Debug endpoint to force name sync for existing users (development only)
   router.post('/debug/force-name-sync', testEndpointRateLimit, verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
     if (process.env.NODE_ENV === 'production') {
-      res.status(HttpStatus.FORBIDDEN).json(createErrorResponse('Debug endpoints not available in production'));
+      res.status(HttpStatus.FORBIDDEN).json(userSerializer.createErrorResponse('Debug endpoints not available in production'));
       return;
     }
 
@@ -384,7 +362,7 @@ if (process.env.NODE_ENV !== 'production') {
       const auth0User = req.userContext?.auth0User;
       
       if (!mongoUser || !auth0User) {
-        res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User context not found'));
+        res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User context not found'));
         return;
       }
 
@@ -395,19 +373,6 @@ if (process.env.NODE_ENV !== 'production') {
       const lastName = auth0User.familyName || 
                     (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') || 
                     '';
-
-      console.log('🔄 Force syncing names:', {
-        userId: mongoUser._id,
-        currentFirstName: mongoUser.firstName,
-        currentLastName: mongoUser.lastName,
-        newFirstName: firstName,
-        newLastName: lastName,
-        auth0Data: {
-          name: auth0User.name,
-          givenName: auth0User.givenName,
-          familyName: auth0User.familyName
-        }
-      });
 
       // Update the user with the extracted names
       const updatedUser = await MongoUser.findByIdAndUpdate(
@@ -420,11 +385,11 @@ if (process.env.NODE_ENV !== 'production') {
       );
 
       if (!updatedUser) {
-        res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found for update'));
+        res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User not found for update'));
         return;
       }
 
-      res.json(createSuccessResponse({
+      res.json(userSerializer.createSuccessResponse({
         message: 'Names synced successfully',
         changes: {
           firstName: {
@@ -444,14 +409,14 @@ if (process.env.NODE_ENV !== 'production') {
       }));
     } catch (error) {
       console.error('❌ Error force syncing names:', error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to sync names'));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to sync names'));
     }
   });
 
   // One-time migration endpoint to fix existing users without names
   router.post('/debug/migrate-empty-names', testEndpointRateLimit, verifyAuth0Token, async (req: Request, res: Response): Promise<void> => {
     if (process.env.NODE_ENV === 'production') {
-      res.status(HttpStatus.FORBIDDEN).json(createErrorResponse('Debug endpoints not available in production'));
+      res.status(HttpStatus.FORBIDDEN).json(userSerializer.createErrorResponse('Debug endpoints not available in production'));
       return;
     }
 
@@ -463,8 +428,6 @@ if (process.env.NODE_ENV !== 'production') {
           { lastName: { $in: ['', null, undefined] } }
         ]
       });
-
-      console.log(`🔍 Found ${usersWithEmptyNames.length} users with empty names`);
 
       let updatedCount = 0;
       const results = [];
@@ -512,7 +475,7 @@ if (process.env.NODE_ENV !== 'production') {
         }
       }
 
-      res.json(createSuccessResponse({
+      res.json(userSerializer.createSuccessResponse({
         message: `Migration completed. Updated ${updatedCount} users.`,
         totalFound: usersWithEmptyNames.length,
         totalUpdated: updatedCount,
@@ -520,7 +483,7 @@ if (process.env.NODE_ENV !== 'production') {
       }));
     } catch (error) {
       console.error('❌ Error during name migration:', error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to migrate user names'));
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to migrate user names'));
     }
   });
 }

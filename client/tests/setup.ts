@@ -10,7 +10,7 @@ beforeAll(() => {
   
   // Suppress console.error for expected test errors to reduce noise
   const originalError = console.error
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     // Suppress specific test error messages that are expected
     const message = args[0]
     if (typeof message === 'string') {

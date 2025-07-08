@@ -44,19 +44,6 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
     logger.sync.info('Starting user sync with backend');
     logger.sync.debug('Token preview', { preview: accessToken.substring(0, 50) + '...' });
     
-    // Test server connectivity first
-    try {
-      const testRes = await fetch(`${API_URL}/user/test-no-auth`);
-      if (!testRes.ok) {
-        logger.sync.error('Server connectivity test failed');
-        return null;
-      }
-      logger.sync.info('Server connectivity OK');
-    } catch (error) {
-      logger.sync.error('Cannot reach server', error);
-      return null;
-    }
-    
     // Debug JWT structure
     const tokenParts = accessToken.split('.');
     if (tokenParts.length === 3) {
@@ -74,7 +61,7 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
           logger.sync.error('Token is expired');
           return null;
         }
-      } catch (e) {
+      } catch {
         logger.sync.error('Cannot decode JWT payload');
       }
     }

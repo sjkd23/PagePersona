@@ -11,6 +11,7 @@ interface HeaderProps {
   onLogout?: () => void
   onHome?: () => void
   onProfile?: () => void
+  onTransform?: () => void
   userName?: string
 }
 
@@ -22,17 +23,25 @@ export default function Header({
   onLogout,
   onHome,
   onProfile,
+  onTransform,
   userName 
 }: HeaderProps) {
   return (
     <header className="app-header">
       <div className="header-content">
         <Logo onHome={onHome} />
+        <button 
+          className="nav-btn transform" 
+          onClick={onTransform}
+        >
+          Transform
+        </button>
         {isAuthenticated ? (
           <AuthenticatedNav
             onHome={onHome}
             onProfile={onProfile}
             onLogout={onLogout}
+            onTransform={onTransform}
             userName={userName}
           />
         ) : (
@@ -40,6 +49,7 @@ export default function Header({
             onLogin={onLogin}
             onSignup={onSignup}
             onNavigation={onNavigation}
+            onTransform={onTransform}
           />
         )}
       </div>

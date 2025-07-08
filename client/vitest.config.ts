@@ -13,7 +13,15 @@ export default defineConfig({
     exclude: ['node_modules', 'dist'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'html', 'json'],
+      reporter: ['text', 'html', 'json', 'lcov'],
+      // Coverage thresholds for client-side code
+      thresholds: {
+        lines: 85,        // Slightly lower for UI components
+        functions: 85,
+        branches: 80,     // UI branching can be complex
+        statements: 85
+      },
+      all: true,
       exclude: [
         'node_modules/',
         'dist/',
@@ -21,7 +29,22 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/main.tsx', // entry point
         '**/*.test.tsx',
-        '**/*.test.ts'
+        '**/*.test.ts',
+        // Static data and configuration
+        'src/data/personas.ts',
+        'src/config/auth.ts',
+        // Type definitions
+        'src/types/**/*.ts',
+        // Style files
+        '**/*.css',
+        // Assets
+        'src/assets/**/*',
+        // Generated files
+        'src/vite-env.d.ts'
+      ],
+      include: [
+        'src/**/*.tsx',
+        'src/**/*.ts'
       ]
     },
     setupFiles: ['./tests/setup.ts', './tests/test-globals.ts']

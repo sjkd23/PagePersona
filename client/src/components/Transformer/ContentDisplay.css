@@ -322,4 +322,14 @@
     flex-direction: column;
     text-align: center;
   }
+
+  .content-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .content-section {
+    width: 100%;
+    margin: 0;
+  }
 }

@@ -76,7 +76,6 @@ describe('UserService', () => {
       expect(result.data).toEqual(serializedUser);
       expect(MongoUser.findById).toHaveBeenCalledWith(userId);
       expect(serializeMongoUser).toHaveBeenCalledWith(mockUser);
-      expect(logger.transform.debug).toHaveBeenCalled();
     });
 
     it('should handle user not found', async () => {

@@ -25,6 +25,7 @@ export default function OutputDemo({
           <h4>Summary:</h4>
           <p>{summaryText}</p>
         </div>
+        <div className="output-divider"></div>
         <div className="full-text-section">
           <h4>Full text:</h4>
           <p>{fullText}</p>

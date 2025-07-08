@@ -4,7 +4,6 @@ export { default as LandingPage } from './LandingPage';
 // Section components
 export { default as HowItWorksSection } from './HowItWorksSection';
 export { default as CTASection } from './CTASection';
-export { default as LandingFooter } from './LandingFooter';
 
 // Step components
 export { default as HowItWorksStep } from './HowItWorksStep';

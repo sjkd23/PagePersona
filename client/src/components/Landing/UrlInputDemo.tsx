@@ -1,20 +1,15 @@
 interface UrlInputDemoProps {
-  placeholder?: string;
   className?: string;
-  showCursor?: boolean;
 }
 
-export default function UrlInputDemo({ 
-  placeholder = "https://example.com", 
-  className = '',
-  showCursor = true 
-}: UrlInputDemoProps) {
+export default function UrlInputDemo({ className = '' }: UrlInputDemoProps) {
   return (
     <div className={`visual-item ${className}`}>
-      <div className="url-input-demo">
-        <input type="text" placeholder={placeholder} disabled />
-        {showCursor && <div className="cursor-icon">🖱️</div>}
-      </div>
+      <img
+        src="/images/URL_img.png"
+        alt="URL input demo with mouse cursor"
+        className="url-input-demo-image"
+      />
     </div>
   );
 }

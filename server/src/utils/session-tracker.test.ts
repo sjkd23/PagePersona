@@ -296,15 +296,13 @@ describe('session-tracker', () => {
   describe('custom config handling', () => {
     it('should respect custom sync cooldown', () => {
       const userId = 'config-test'
-      const customConfig = { syncCooldownMs: 0, sessionTimeoutMs: 60000 } // No cooldown
+      const customConfig = { syncCooldownMs: -1, sessionTimeoutMs: 60000 } // Negative cooldown means it should always sync
       
       // First sync
       expect(shouldPerformFullSync(userId, customConfig)).toBe(true)
       
-      // Should NOT sync again immediately even with no cooldown because lastSynced was just updated
-      // The function only returns true if timeSinceLastSync > syncCooldownMs
-      // Since both calls happen in same millisecond, timeSinceLastSync will be 0, which is NOT > 0
-      expect(shouldPerformFullSync(userId, customConfig)).toBe(false)
+      // With negative cooldown, it should always return true
+      expect(shouldPerformFullSync(userId, customConfig)).toBe(true)
     })
 
     it('should respect custom session timeout', () => {

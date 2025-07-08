@@ -31,15 +31,6 @@ export class UserService {
         }
       }
 
-      logger.transform.debug('Fetched user profile', {
-        userId: user._id,
-        auth0Id: user.auth0Id,
-        email: user.email,
-        hasUsage: !!user.usage,
-        hasCreatedAt: !!user.createdAt,
-        hasUpdatedAt: !!user.updatedAt
-      })
-
       return {
         success: true,
         data: serializeMongoUser(user)

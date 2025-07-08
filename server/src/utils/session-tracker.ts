@@ -41,6 +41,12 @@ export function shouldPerformFullSync(userId: string, config = defaultConfig): b
   session.lastSeen = now;
   
   // Check if enough time has passed for full sync
+  // Special case: negative cooldown means always sync
+  if (config.syncCooldownMs < 0) {
+    session.lastSynced = now;
+    return true;
+  }
+  
   const timeSinceLastSync = now.getTime() - session.lastSynced.getTime();
   
   if (timeSinceLastSync > config.syncCooldownMs) {

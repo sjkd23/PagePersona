@@ -18,7 +18,7 @@ export function useTransformationHistory() {
       if (savedHistory) {
         const parsedHistory = JSON.parse(savedHistory)
         // Ensure timestamps are Date objects
-        const historyWithDates = parsedHistory.map((item: any) => ({
+        const historyWithDates = parsedHistory.map((item: WebpageContent) => ({
           ...item,
           timestamp: new Date(item.timestamp)
         }))

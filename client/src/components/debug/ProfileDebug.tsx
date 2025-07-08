@@ -8,9 +8,27 @@ interface ProfileDebugProps {
   onProfileUpdate: (newProfile: UserProfile) => void;
 }
 
+interface DebugTestResult {
+  [key: string]: unknown;
+}
+
+interface DebugResults {
+  timestamp: string;
+  auth0User: unknown;
+  currentProfile: UserProfile | null;
+  tests: {
+    currentProfileData?: DebugTestResult;
+    auth0Data?: DebugTestResult;
+    freshApiCall?: DebugTestResult;
+    forceSync?: DebugTestResult;
+    manualUpdate?: DebugTestResult;
+  };
+  error?: unknown;
+}
+
 export default function ProfileDebug({ profile, onProfileUpdate }: ProfileDebugProps) {
   const { user, getAccessToken } = useAuth();
-  const [debugResults, setDebugResults] = useState<any>(null);
+  const [debugResults, setDebugResults] = useState<DebugResults | null>(null);
   const [loading, setLoading] = useState(false);
 
   const runDebugTests = async () => {
@@ -18,7 +36,7 @@ export default function ProfileDebug({ profile, onProfileUpdate }: ProfileDebugP
     setDebugResults(null);
 
     try {
-      const results: any = {
+      const results: DebugResults = {
         timestamp: new Date().toISOString(),
         auth0User: user,
         currentProfile: profile,
@@ -113,7 +131,13 @@ export default function ProfileDebug({ profile, onProfileUpdate }: ProfileDebugP
 
     } catch (error) {
       console.error('❌ Debug error:', error);
-      setDebugResults({ error: error });
+      setDebugResults({
+        timestamp: new Date().toISOString(),
+        auth0User: null,
+        currentProfile: null,
+        tests: {},
+        error: error
+      });
     } finally {
       setLoading(false);
     }

@@ -1,20 +1,17 @@
 interface GenerateButtonDemoProps {
-  buttonText?: string;
   className?: string;
-  showCursor?: boolean;
 }
 
 export default function GenerateButtonDemo({ 
-  buttonText = "Generate", 
-  className = '',
-  showCursor = true 
+  className = ''
 }: GenerateButtonDemoProps) {
   return (
     <div className={`visual-item ${className}`}>
-      <button className="generate-btn" disabled>
-        {buttonText}
-        {showCursor && <div className="cursor-icon">🖱️</div>}
-      </button>
+      <img
+        src="/images/Generate_img.png"
+        alt="Generate button with cursor click demo"
+        className="generate-button-image"
+      />
     </div>
   );
 }

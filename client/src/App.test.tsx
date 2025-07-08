@@ -10,8 +10,16 @@ vi.mock('@auth0/auth0-react', () => ({
 }));
 
 // Mock useAuth hook
+interface TestUser {
+  id?: string
+  email?: string
+  name?: string
+  nickname?: string
+  sub?: string
+}
+
 const mockUseAuth = {
-  user: null as any,
+  user: null as TestUser | null,
   isAuthenticated: false,
   isLoading: false,
   login: vi.fn(),
@@ -21,7 +29,7 @@ const mockUseAuth = {
 
 vi.mock('./hooks/useAuth0', () => ({
   useAuth: vi.fn(() => mockUseAuth),
-  AuthProvider: vi.fn(({ children }) => children)
+  Auth0Provider: vi.fn(({ children }) => children)
 }));
 
 // Mock components
@@ -39,7 +47,7 @@ vi.mock('./components/Header', () => ({
   ))
 }));
 
-vi.mock('./components/LandingPage', () => ({
+vi.mock('./components/Landing/LandingPage', () => ({
   default: vi.fn(({ onShowLogin, onShowSignup }) => (
     <div data-testid="landing-page">
       <button onClick={onShowLogin} data-testid="show-login">Show Login</button>
@@ -48,7 +56,7 @@ vi.mock('./components/LandingPage', () => ({
   ))
 }));
 
-vi.mock('./components/TransformationPage', () => ({
+vi.mock('./components/Transformer/TransformationPage', () => ({
   default: vi.fn(() => <div data-testid="transformation-page">Transformation Page</div>)
 }));
 
@@ -64,7 +72,7 @@ vi.mock('./components/auth/UserProfileEnhanced', () => ({
   default: vi.fn(() => <div data-testid="user-profile">User Profile</div>)
 }));
 
-vi.mock('./components/ErrorBoundary', () => ({
+vi.mock('./components/Transformer/ErrorBoundary', () => ({
   default: vi.fn(({ children }) => children)
 }));
 
@@ -312,7 +320,7 @@ describe('App Component', () => {
 
     it('should handle undefined user gracefully', () => {
       mockUseAuth.isAuthenticated = true;
-      mockUseAuth.user = undefined;
+      mockUseAuth.user = null;
       
       expect(() => render(<App />)).not.toThrow();
     });

@@ -5,81 +5,13 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { IMongoUser } from '../models/mongo-user';
+import { Auth0JwtPayload, ProcessedAuth0User } from './user-types';
 
 // ============================================================================
-// AUTH0 & USER TYPES
+// AUTH0 & USER TYPES (re-exported from user-types.ts)
 // ============================================================================
 
-/**
- * Raw Auth0 JWT payload structure
- * Represents the decoded JWT token from Auth0
- */
-export interface Auth0JwtPayload {
-  /** Unique Auth0 user identifier (required) */
-  sub: string;
-  
-  /** User's email address */
-  email?: string;
-  
-  /** Whether the email has been verified */
-  email_verified?: boolean;
-  
-  /** User's given name (first name) */
-  given_name?: string;
-  
-  /** User's family name (last name) */
-  family_name?: string;
-  
-  /** User's full name */
-  name?: string;
-  
-  /** User's nickname/username */
-  nickname?: string;
-  
-  /** Profile picture URL */
-  picture?: string;
-  
-  /** User's locale/language preference */
-  locale?: string;
-  
-  /** Timestamp when user was last updated */
-  updated_at?: string;
-  
-  /** JWT audience */
-  aud?: string | string[];
-  
-  /** JWT issuer */
-  iss?: string;
-  
-  /** JWT issued at timestamp */
-  iat?: number;
-  
-  /** JWT expiration timestamp */
-  exp?: number;
-  
-  /** Any custom Auth0 claims - keyed by full claim URL */
-  [key: string]: unknown;
-}
-
-/**
- * Processed Auth0 user information after safe extraction
- * Used throughout the application for consistent Auth0 user access
- */
-export interface ProcessedAuth0User {
-  sub: string;
-  email?: string;
-  emailVerified?: boolean;
-  name?: string;
-  givenName?: string;
-  familyName?: string;
-  nickname?: string;
-  picture?: string;
-  locale?: string;
-  updatedAt?: string;
-  /** Allow additional properties for compatibility with Auth0User */
-  [key: string]: unknown;
-}
-
+export { Auth0JwtPayload, ProcessedAuth0User } from './user-types';
 /**
  * Complete user context passed through requests
  * Combines MongoDB user data with Auth0 information
@@ -141,7 +73,7 @@ export type AsyncRouteHandler = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-) => Promise<void | Response>;
+) => Promise<void>;
 
 // ============================================================================
 // ERROR TYPES

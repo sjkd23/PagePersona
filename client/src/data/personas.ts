@@ -1,92 +1,70 @@
-import type { Persona } from '../types/personas'
+// personas.ts
+import type { Persona } from '../types/personas';
 
-export const AVAILABLE_PERSONAS: Persona[] = [
+export const personas: Persona[] = [
   {
-    id: 'eli5',
-    name: 'Explain Like I\'m 5',
-    emoji: '',
-    description: 'Simple, fun explanations anyone can understand',
+    id: "eli5",
+    label: "Explain Like I'm Five",
+    name: "Explain Like I'm Five",
+    description: "Super simple and easy, like you're five!",
+    exampleTexts: "So imagine your brain is like a sponge...",
+    avatarUrl: "/avatars/eli5.png",
     theme: {
-      primary: '#FF6B6B',
-      secondary: '#FFE66D',
-      accent: '#4ECDC4'
-    }
+      primary: "#FFB347",    // Crayon orange
+      secondary: "#FFDB58",  // Yellow school bus
+      accent: "#87CEEB",     // Soft sky blue
+    },
   },
   {
-    id: 'anime-hero',
-    name: 'Anime Hero',
-    emoji: '',
-    description: 'Dramatic, heroic, and full of determination!',
+    id: "medieval-knight",
+    label: "Medieval Knight",
+    name: "Medieval Knight",
+    description: "Chivalrous, formal, and full of noble speech!",
+    exampleTexts: "Hark! Let it be known across the land...",
+    avatarUrl: "/avatars/knight.png",
     theme: {
-      primary: '#FF4757',
-      secondary: '#FF6B7A',
-      accent: '#FFA726'
-    }
+      primary: "#6B4C3B",    // Brown leather
+      secondary: "#D3C49E",  // Parchment beige
+      accent: "#A29C9B",     // Steel grey
+    },
   },
   {
-    id: 'medieval-knight',
-    name: 'Medieval Knight',
-    emoji: '',
-    description: 'Honorable, noble, and speaking in ye olde tongue',
+    id: "anime-hacker",
+    label: "Anime Hacker",
+    name: "Anime Hacker",
+    description: "Stylish, snarky, and fast as light!",
+    exampleTexts: "System breach complete. Let’s rewrite the truth.",
+    avatarUrl: "/avatars/hacker.png",
     theme: {
-      primary: '#8B4513',
-      secondary: '#DAA520',
-      accent: '#C0C0C0'
-    }
+      primary: "#0F0F0F",    // Hacker black
+      secondary: "#33FF33",  // Terminal green
+      accent: "#FF00AA",     // Neon pink pop
+    },
   },
   {
-    id: 'hacker',
-    name: 'Elite Hacker',
-    emoji: '',
-    description: 'Tech-savvy, mysterious, speaks in code',
+    id: "plague-doctor",
+    label: "Plague Doctor",
+    name: "Plague Doctor",
+    description: "Cryptic, archaic, and full of ominous insight.",
+    exampleTexts: "Ah yes... the affliction is spreading faster than expected.",
+    avatarUrl: "/avatars/plague-doctor.png",
     theme: {
-      primary: '#00FF41',
-      secondary: '#008F11',
-      accent: '#000000'
-    }
+      primary: "#2E2E2E",    // Dark cloak
+      secondary: "#A88F74",  // Aged parchment
+      accent: "#4D5C57",     // Mysterious fog green
+    },
   },
   {
-    id: 'pirate',
-    name: 'Sea Pirate',
-    emoji: '',
-    description: 'Adventurous sailor with a treasure map mindset',
+    id: "robot",
+    label: "Robot",
+    name: "Robot",
+    description: "Logical, precise, and devoid of emotion.",
+    exampleTexts: "Processing complete. Your data has been assimilated.",
+    avatarUrl: "/avatars/robot.png",
     theme: {
-      primary: '#8B4513',
-      secondary: '#DAA520',
-      accent: '#FF6347'
-    }
+      primary: "#1E1E2F",    // Deep circuit gray
+      secondary: "#6D83F2",  // Cool logic blue
+      accent: "#00FFFF",     // Electric cyan
+    },
   },
-  {
-    id: 'scientist',
-    name: 'Mad Scientist',
-    emoji: '',
-    description: 'Experiments with words and wild theories!',
-    theme: {
-      primary: '#9C27B0',
-      secondary: '#E1BEE7',
-      accent: '#4CAF50'
-    }
-  },
-  {
-    id: 'comedian',
-    name: 'Stand-up Comedian',
-    emoji: '',
-    description: 'Makes everything funny and entertaining',
-    theme: {
-      primary: '#FF9800',
-      secondary: '#FFE0B2',
-      accent: '#F44336'
-    }
-  },
-  {
-    id: 'zen-master',
-    name: 'Zen Master',
-    emoji: '',
-    description: 'Calm, wise, speaks in peaceful metaphors',
-    theme: {
-      primary: '#4CAF50',
-      secondary: '#C8E6C9',
-      accent: '#795548'
-    }
-  }
-]
+];

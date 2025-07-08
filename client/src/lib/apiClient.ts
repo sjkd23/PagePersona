@@ -131,7 +131,7 @@ class HttpClient {
     return headers;
   }
 
-  async request<T = any>(
+  async request<T = unknown>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
@@ -156,7 +156,7 @@ class HttpClient {
     }
   }
 
-  async get<T = any>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async get<T = unknown>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'GET',
@@ -178,7 +178,7 @@ class HttpClient {
     }
   }
 
-  async post<T = any>(endpoint: string, body?: any, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async post<T = unknown>(endpoint: string, body?: unknown, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
@@ -201,7 +201,7 @@ class HttpClient {
     }
   }
 
-  async put<T = any>(endpoint: string, body?: any, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async put<T = unknown>(endpoint: string, body?: unknown, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
@@ -224,7 +224,7 @@ class HttpClient {
     }
   }
 
-  async delete<T = any>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'DELETE',

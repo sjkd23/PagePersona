@@ -1,15 +1,11 @@
 // src/hooks/useAuth0.tsx
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth0, Auth0Provider as Auth0ProviderBase, User } from '@auth0/auth0-react';
 import { syncUserWithBackend } from '../utils/userSync';
 import type { UserProfile } from '../utils/userSync';
 import { setTokenGetter } from '../lib/apiClient';
-
-const domain = import.meta.env.VITE_AUTH0_DOMAIN;
-const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
-const redirectUri = window.location.origin;
-const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
+import { domain, clientId, redirectUri, audience } from '../config/auth';
 
 interface CustomClaims {
   'https://pagepersona.com/is_new_user'?: boolean;
@@ -37,6 +33,17 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an Auth0Provider');
+  }
+  return context;
+}
+
+// Export AuthContext for external use
+export { AuthContext };
 
 export function Auth0Provider({ children }: { children: ReactNode }) {
   if (!domain || !clientId) {
@@ -79,7 +86,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
   const [customClaims, setCustomClaims] = useState<CustomClaims | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const getAccessToken = async () => {
+  const getAccessToken = useCallback(async () => {
     try {
       const token = await getAccessTokenSilently({ authorizationParams: { audience } }) as string;
       return token;
@@ -87,9 +94,9 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       console.error('Token error:', error);
       return undefined;
     }
-  };
+  }, [getAccessTokenSilently]);
 
-  const syncUser = async () => {
+  const syncUser = useCallback(async () => {
     if (!isAuthenticated || !user || isSyncing) return;
     setIsSyncing(true);
     try {
@@ -110,14 +117,14 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsSyncing(false);
     }
-  };
+  }, [isAuthenticated, user, isSyncing, getAccessToken]);
 
   useEffect(() => {
     if (isAuthenticated) {
       syncUser();
       setTokenGetter(getAccessToken);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, syncUser, getAccessToken]);
 
   const login = () => loginWithRedirect({ authorizationParams: { audience, screen_hint: 'login' } });
   const signup = () => loginWithRedirect({ authorizationParams: { audience, screen_hint: 'signup' } });
@@ -151,11 +158,3 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an Auth0Provider');
-  return context;
-}
-
-export { Auth0Provider as AuthProvider };

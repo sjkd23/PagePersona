@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { AuthProvider, useAuth } from './hooks/useAuth0';
-import PageTransformer from './components/TransformationPage';
-import LandingPage from './components/LandingPage';
+import { Auth0Provider, useAuth } from './hooks/useAuth0';
+import PageTransformer from './components/Transformer/TransformationPage';
+import LandingPage from './components/Landing/LandingPage';
 import UserProfileEnhanced from './components/auth/UserProfileEnhanced';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './components/Transformer/ErrorBoundary';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 function AppContent() {
   const { user, isAuthenticated, isLoading, login, signup, logout } = useAuth();
@@ -15,9 +16,7 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <span className="text-white font-bold text-2xl">P</span>
-          </div>
+          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -31,11 +30,13 @@ function AppContent() {
           isAuthenticated={false}
           onLogin={login}
           onSignup={signup}
+          onTransform={login} // Changed: Transform triggers login when unauthenticated
         />
         <LandingPage 
           onShowLogin={login}
           onShowSignup={signup}
         />
+        <Footer />
       </div>
     );
   }
@@ -53,10 +54,15 @@ function AppContent() {
             setCurrentPage('landing');
           }}
           onProfile={() => setShowProfile(true)}
+          onTransform={() => {
+            setShowProfile(false);
+            setCurrentPage('transformer');
+          }}
         />
         <div className="max-w-4xl mx-auto px-6 pt-8">
           <UserProfileEnhanced />
         </div>
+        <Footer />
       </div>
     );
   }
@@ -74,6 +80,10 @@ function AppContent() {
             setCurrentPage('landing');
           }}
           onProfile={() => setShowProfile(true)}
+          onTransform={() => {
+            setShowProfile(false);
+            setCurrentPage('transformer');
+          }}
         />
         <LandingPage 
           onShowLogin={() => setCurrentPage('transformer')}
@@ -81,6 +91,7 @@ function AppContent() {
           isAuthenticated={true}
           userName={user.name || user.nickname || 'User'}
         />
+        <Footer />
       </div>
     );
   }
@@ -97,8 +108,13 @@ function AppContent() {
           setCurrentPage('landing');
         }}
         onProfile={() => setShowProfile(true)}
+        onTransform={() => {
+          setShowProfile(false);
+          setCurrentPage('transformer');
+        }}
       />
       <PageTransformer />
+      <Footer />
     </div>
   );
 }
@@ -106,9 +122,9 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
+      <Auth0Provider>
         <AppContent />
-      </AuthProvider>
+      </Auth0Provider>
     </ErrorBoundary>
   );
 }

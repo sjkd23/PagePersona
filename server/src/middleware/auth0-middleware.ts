@@ -93,6 +93,7 @@ export const syncAuth0User = async (
     // Process the Auth0 JWT payload into a standardized format
     const claims = safeGetAuth0Claims(jwtPayload);
     const auth0User: ProcessedAuth0User = {
+      id: claims.sub, // Added to satisfy required property
       sub: claims.sub,
       email: claims.email,
       emailVerified: claims.emailVerified,

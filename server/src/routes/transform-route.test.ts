@@ -131,7 +131,7 @@ describe('transformRoute', () => {
 
       expect(response.body).toEqual({
         success: true,
-        message: 'Transform routes are working'
+        data: { message: 'Transform routes are working' }
       })
     })
   })

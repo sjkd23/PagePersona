@@ -73,3 +73,5 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children
   }
 }
+
+// Remove old component files after modularization

@@ -1,109 +1,40 @@
 // Enhanced rate limiting middleware for sensitive endpoints
 
-import { Request, Response, NextFunction } from 'express';
-import { safeToISOString } from '../utils/userSerializer';
-import { logger } from '../utils/logger';
-import { HttpStatus } from '../constants/http-status';
+import { Request, Response, NextFunction } from 'express'
+import { safeToISOString } from '../utils/userSerializer'
+import { logger } from '../utils/logger'
+import { HttpStatus } from '../constants/http-status'
+import { CacheService, RateLimitStore, RateLimitData, InMemoryStore, RedisStore } from '../services/cacheService'
 
-// Storage interface for rate limit data with burst handling
-interface RateLimitStore {
-  get(key: string): Promise<RateLimitData | null> | RateLimitData | null;
-  set(key: string, value: RateLimitData): Promise<void> | void;
-  delete(key: string): Promise<void> | void;
-  cleanup?(): Promise<void> | void;
-}
+// Import Redis client for cache service initialization
+import { redisClient } from '../utils/redis-client'
 
-interface RateLimitData {
-  count: number;
-  resetTime: number;
-  firstRequestTime?: number; // For burst detection
-  penaltyUntil?: number; // For progressive penalties
-}
+// Create cache service with Redis if available
+const cacheService = new CacheService({
+  useRedis: true,
+  redisClient: redisClient,
+  fallbackToMemory: true
+})
 
-// Enhanced in-memory store with burst detection
-class InMemoryStore implements RateLimitStore {
-  private store = new Map<string, RateLimitData>();
-
-  get(key: string): RateLimitData | null {
-    return this.store.get(key) || null;
-  }
-
-  set(key: string, value: RateLimitData): void {
-    this.store.set(key, value);
-  }
-
-  delete(key: string): void {
-    this.store.delete(key);
-  }
-
-  cleanup(): void {
-    const now = Date.now();
-    this.store.forEach((value, key) => {
-      // Clean up if both reset time and penalty time have passed
-      const shouldCleanup = now > value.resetTime && 
-                           (!value.penaltyUntil || now > value.penaltyUntil);
-      if (shouldCleanup) {
-        this.store.delete(key);
-      }
-    });
-  }
-}
-
-// Enhanced Redis store implementation with burst handling
-class RedisStore implements RateLimitStore {
-  constructor(private redisClient: any) {} // Redis client manager
-
-  async get(key: string): Promise<RateLimitData | null> {
-    try {
-      const data = await this.redisClient.get(`rate_limit:${key}`);
-      return data ? JSON.parse(data) : null;
-    } catch (error) {
-      // Redis errors are already handled in redis-client, just return null for graceful fallback
-      return null;
-    }
-  }
-
-  async set(key: string, value: RateLimitData): Promise<void> {
-    try {
-      const maxTtl = Math.max(
-        Math.ceil((value.resetTime - Date.now()) / 1000),
-        value.penaltyUntil ? Math.ceil((value.penaltyUntil - Date.now()) / 1000) : 0
-      );
-      
-      if (maxTtl > 0) {
-        await this.redisClient.set(`rate_limit:${key}`, JSON.stringify(value), maxTtl);
-      }
-    } catch (error) {
-      // Redis errors are already handled in redis-client, fail silently for graceful fallback
-    }
-  }
-
-  async delete(key: string): Promise<void> {
-    try {
-      await this.redisClient.del(`rate_limit:${key}`);
-    } catch (error) {
-      // Redis errors are already handled in redis-client, fail silently for graceful fallback
-    }
-  }
-
-  // Redis handles expiration automatically
-  async cleanup(): Promise<void> {
-    // No-op for Redis - TTL handles this
-  }
-}
-
-// Import Redis client and create stores
-import { redisClient } from '../utils/redis-client';
-
-// Create stores based on Redis availability
-let defaultStore: RateLimitStore = new InMemoryStore(); // Initialize with in-memory store immediately
 let redisStore: RateLimitStore | null = null;
+let defaultStore: RateLimitStore;
+
+// Initialize stores on module load
+initializeStores().catch(() => {
+  // Fallback is already set to in-memory store, just log
+  defaultStore = new InMemoryStore();
+  logger.info('Rate limiting initialization complete - using in-memory storage. For production scaling, consider setting up Redis.', {
+    impact: 'limited_scaling',
+    fallback: 'in_memory_store',
+    action: 'consider_redis_for_production'
+  });
+});
 
 async function initializeStores() {
   const client = await redisClient.getClient();
   if (client) {
     redisStore = new RedisStore(redisClient);
-    defaultStore = redisStore;
+    defaultStore = redisStore as RateLimitStore;
     logger.info('Rate limiting using Redis storage for enhanced persistence and scaling');
   } else {
     // Keep the in-memory store that was already created
@@ -114,16 +45,6 @@ async function initializeStores() {
     });
   }
 }
-
-// Initialize stores on module load
-initializeStores().catch(() => {
-  // Fallback is already set to in-memory store, just log
-  logger.info('Rate limiting initialization complete - using in-memory storage. For production scaling, consider setting up Redis.', {
-    impact: 'limited_scaling',
-    fallback: 'in_memory_store',
-    action: 'consider_redis_for_production'
-  });
-});
 
 /**
  * Check if Redis store is available and being used

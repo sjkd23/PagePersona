@@ -3,7 +3,7 @@ import { getAllPersonas } from '../data/personas'
 import { optionalAuth0 } from '../middleware/auth0-middleware'
 import { checkUsageLimit } from '../middleware/usage-limit-middleware'
 import { createTieredRateLimit, getUserMembershipTierSync } from '../config/rate-limit-configs'
-import { sendSuccess, sendInternalError, asyncHandler } from '../utils/response-helpers'
+import { sendSuccess, sendInternalError } from '../utils/response-helpers'
 import { validateBody } from '../middleware/zod-validation'
 import { transformSchemas } from '../middleware/validation-schemas'
 import { logger } from '../utils/logger'
@@ -18,16 +18,6 @@ const router = express.Router()
 const transformRateLimit = createTieredRateLimit('transform', getUserMembershipTierSync)
 const apiRateLimit = createTieredRateLimit('api', getUserMembershipTierSync)
 
-// Add debugging middleware to trace all requests to transform routes
-router.use((req: Request, res: Response, next: NextFunction) => {
-  logger.transform.debug(`Route middleware: ${req.method} ${req.path}`, {
-    contentType: req.headers['content-type'],
-    authPresent: !!req.headers.authorization,
-    bodyKeys: Object.keys(req.body || {})
-  });
-  next();
-});
-
 logger.transform.info('Transform routes module loaded');
 logger.transform.info('Registering transform routes', {
   routes: [
@@ -39,11 +29,10 @@ logger.transform.info('Registering transform routes', {
   ]
 });
 
-// Simple test route to verify routing is working
+// Test endpoint for health checks
 router.get('/test', (_req: Request, res: Response) => {
-  logger.transform.debug('Transform test route hit');
-  sendSuccess(res, null, 'Transform routes are working');
-});
+  sendSuccess(res, { message: 'Transform routes are working' })
+})
 
 // Get all available personas
 router.get('/personas', (_req: Request, res: Response) => {
@@ -58,17 +47,16 @@ router.get('/personas', (_req: Request, res: Response) => {
   } catch (error) {
     logger.transform.error('Error fetching personas', error)
     sendInternalError(res, 'Failed to fetch personas')
-    return
   }
 })
 
 // Transform webpage content with selected persona
-router.post('/', transformRateLimit, validateBody(transformSchemas.transformUrl), optionalAuth0, checkUsageLimit(), asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/', /*transformRateLimit,*/ validateBody(transformSchemas.transformUrl), optionalAuth0, checkUsageLimit(), async (req: Request, res: Response): Promise<void> => {
   logger.transform.info('POST /api/transform route hit')
   
   try {
     const { url, persona } = req.body
-    const mongoUser = req.userContext?.mongoUser
+    const mongoUser = (req as any).userContext?.mongoUser
     const userId = mongoUser?._id?.toString()
 
     const transformationService = createTransformationService()
@@ -79,10 +67,11 @@ router.post('/', transformRateLimit, validateBody(transformSchemas.transformUrl)
     })
 
     if (result.success && result.data) {
-      res.json(result.data)
+      res.json(result.data);
+      return;
     } else if (result.data) {
-      // Service handled the error but returned transformation data with success: false
-      res.json(result.data)
+      res.json(result.data);
+      return;
     } else {
       // Service failed completely - return appropriate error status
       const statusCode = result.error?.includes('Invalid URL') ? HttpStatus.BAD_REQUEST :
@@ -95,7 +84,8 @@ router.post('/', transformRateLimit, validateBody(transformSchemas.transformUrl)
       res.status(statusCode).json({
         success: false,
         error: result.error || 'Failed to transform webpage content. Please try again later.'
-      })
+      });
+      return;
     }
 
   } catch (error) {
@@ -107,25 +97,26 @@ router.post('/', transformRateLimit, validateBody(transformSchemas.transformUrl)
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           success: false,
           error: 'OpenAI API key is not configured'
-        })
-        return
+        });
+        return;
       }
     }
     
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: 'Failed to transform webpage content. Please try again later.'
-    })
+    });
+    return;
   }
-}))
+})
 
 // POST /api/transform/text - Transform text content directly with selected persona
-router.post('/text', transformRateLimit, validateBody(transformSchemas.transformText), optionalAuth0, checkUsageLimit(), asyncHandler(async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/text', /*transformRateLimit,*/ validateBody(transformSchemas.transformText), optionalAuth0, checkUsageLimit(), async (req: Request, res: Response): Promise<void> => {
   logger.transform.info('POST /api/transform/text route hit')
 
   try {
     const { text, persona } = req.body
-    const mongoUser = req.userContext?.mongoUser
+    const mongoUser = (req as any).userContext?.mongoUser
     const userId = mongoUser?._id?.toString()
 
     const transformationService = createTransformationService()
@@ -136,12 +127,14 @@ router.post('/text', transformRateLimit, validateBody(transformSchemas.transform
     })
 
     if (result.success && result.data) {
-      res.json(result.data)
+      res.json(result.data);
+      return;
     } else {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: result.error || 'Failed to transform text. Please try again.'
-      })
+      });
+      return;
     }
 
   } catch (error) {
@@ -149,9 +142,10 @@ router.post('/text', transformRateLimit, validateBody(transformSchemas.transform
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       error: 'Failed to transform text. Please try again.'
-    })
+    });
+    return;
   }
-}))
+})
 
 // Debug/development endpoints (non-production only)
 if (process.env.NODE_ENV !== 'production') {
@@ -163,7 +157,6 @@ if (process.env.NODE_ENV !== 'production') {
     } catch (error) {
       logger.transform.error('Error getting cache stats', error)
       sendInternalError(res, 'Failed to get cache statistics')
-      return
     }
   })
 
@@ -175,7 +168,6 @@ if (process.env.NODE_ENV !== 'production') {
     } catch (error) {
       logger.transform.error('Error clearing cache', error)
       sendInternalError(res, 'Failed to clear cache')
-      return
     }
   })
 }

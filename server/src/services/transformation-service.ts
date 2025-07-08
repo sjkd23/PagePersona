@@ -179,7 +179,6 @@ export class TransformationService {
   private async trackUsage(userId: string): Promise<void> {
     try {
       await incrementUserUsage(userId, { logSuccess: true })
-      logger.transform.debug('Usage tracking completed', { userId })
     } catch (error) {
       logger.transform.warn('Failed to track usage', { userId, error })
       // Don't throw - usage tracking failure shouldn't break the main flow
@@ -192,7 +191,6 @@ export class TransformationService {
   private async trackFailedAttempt(userId: string): Promise<void> {
     try {
       await incrementUserFailedAttempt(userId, { logSuccess: true })
-      logger.transform.debug('Failed attempt tracking completed', { userId })
     } catch (error) {
       logger.transform.warn('Failed to track failed attempt', { userId, error })
       // Don't throw - tracking failure shouldn't break the main flow

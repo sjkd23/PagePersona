@@ -1,5 +1,5 @@
 import { IMongoUser } from '../models/mongo-user';
-import { Auth0JwtPayload, ProcessedAuth0User } from './common';
+import { Auth0JwtPayload, ProcessedAuth0User } from './user-types';
 
 interface UserContext {
   jwtPayload: Auth0JwtPayload;

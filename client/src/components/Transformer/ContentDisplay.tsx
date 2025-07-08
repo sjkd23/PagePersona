@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Persona, WebpageContent } from '../types/personas'
+import type { Persona, WebpageContent } from '../../types/personas'
 import './ContentDisplay.css'
 
 interface ContentDisplayProps {
@@ -44,7 +44,7 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
         <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mb-3"></div>
         <div className="space-y-1 text-gray-600 text-sm">
           <p>🔍 Fetching content...</p>
-          <p>✨ Applying {selectedPersona?.name} persona...</p>
+          <p>✨ Applying {selectedPersona?.label} persona...</p>
         </div>
       </div>
     )
@@ -60,14 +60,14 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
   }
 
   return (
-    <div className="space-y-4">
+    <div className="content-container space-y-4">
       {/* Persona Info */}
       <div className="flex items-center space-x-2">
         <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-200">
-          <span className="text-sm font-bold text-gray-600">{content.persona.name.charAt(0)}</span>
+          <span className="text-sm font-bold text-gray-600">{content.persona.label.charAt(0)}</span>
         </div>
         <div>
-          <div className="font-medium text-gray-900 text-sm">{content.persona.name}</div>
+          <div className="font-medium text-gray-900 text-sm">{content.persona.label}</div>
           <div className="text-xs text-gray-500">Transformed content</div>
         </div>
       </div>

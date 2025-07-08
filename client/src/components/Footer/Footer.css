@@ -1,52 +1,100 @@
-/* Footer Component Styles */
-.app-footer {
-  background: #8da3b8;
-  margin-top: 4rem;
+/* Global Footer Component Styles */
+.global-footer {
+  margin-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.footer-content {
+.global-footer__container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+}
+
+.global-footer__content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #2c3e50;
 }
 
-.footer-content p {
+.global-footer__content p {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 500;
 }
 
-.footer-links {
+.global-footer__links {
   display: flex;
   gap: 2rem;
 }
 
-.footer-links a {
-  color: #2c3e50;
+.global-footer__links a {
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.footer-links a:hover {
-  color: #34495e;
+.global-footer__links a:hover {
   text-decoration: underline;
 }
 
+/* Default variant styles */
+.global-footer--default {
+  background: #8da3b8;
+}
+
+.global-footer--default .global-footer__content p,
+.global-footer--default .global-footer__links a {
+  color: #2c3e50;
+}
+
+.global-footer--default .global-footer__links a:hover {
+  color: #34495e;
+}
+
+/* Landing variant styles */
+.global-footer--landing {
+  background: #A4BCD9;
+  border-top: 1px solid rgba(226, 232, 240, 0.3);
+  padding: 1.5rem 2rem;
+}
+
+.global-footer--landing .global-footer__container {
+  max-width: 1000px;
+  padding: 0;
+}
+
+.global-footer--landing .global-footer__content {
+  justify-content: center;
+  text-align: center;
+}
+
+.global-footer--landing .global-footer__content p {
+  color: #294769;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.global-footer__divider {
+  margin: 0 0.75rem;
+  color: #4a5568;
+  font-weight: 300;
+}
+
+.global-footer__powered-by {
+  font-weight: 400;
+  color: #4a5568;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
-  .footer-content {
+  .global-footer__content {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
 
-  .footer-links {
+  .global-footer__links {
     gap: 1rem;
   }
 }

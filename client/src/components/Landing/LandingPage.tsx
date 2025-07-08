@@ -2,7 +2,6 @@ import './LandingPage.css';
 import type { LandingPageProps } from './types';
 import HowItWorksSection from './HowItWorksSection';
 import CTASection from './CTASection';
-import LandingFooter from './LandingFooter';
 
 export default function LandingPage({ 
   onShowLogin, 
@@ -22,8 +21,6 @@ export default function LandingPage({
           onShowSignup={onShowSignup}
         />
       </section>
-
-      <LandingFooter />
     </div>
   );
 }

@@ -7,7 +7,7 @@
  * - message: optional success or informational message
  * - error: optional error message when success is false
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;

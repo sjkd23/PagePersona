@@ -15,11 +15,12 @@ describe('Auth0 Integration Tests', () => {
 
   it('should be properly mocked', () => {
     // Mock the useAuth0 hook
-    (useAuth0 as any).mockReturnValue({
+    const mockUseAuth0 = useAuth0 as unknown as jest.MockedFunction<typeof useAuth0>;
+    mockUseAuth0.mockReturnValue({
       isLoading: false,
       isAuthenticated: false,
-      user: null,
-      error: null,
+      user: undefined,
+      error: undefined,
       loginWithRedirect: vi.fn(),
       logout: vi.fn(),
       getAccessTokenSilently: vi.fn(),
@@ -43,11 +44,11 @@ describe('Auth0 Integration Tests', () => {
       name: 'Test User'
     };
 
-    (useAuth0 as any).mockReturnValue({
+    (useAuth0 as unknown as jest.MockedFunction<typeof useAuth0>).mockReturnValue({
       isLoading: false,
       isAuthenticated: true,
       user: mockUser,
-      error: null,
+      error: undefined,
       loginWithRedirect: vi.fn(),
       logout: vi.fn(),
       getAccessTokenSilently: vi.fn(),
@@ -64,11 +65,11 @@ describe('Auth0 Integration Tests', () => {
   });
 
   it('should handle loading state', () => {
-    (useAuth0 as any).mockReturnValue({
+    (useAuth0 as unknown as jest.MockedFunction<typeof useAuth0>).mockReturnValue({
       isLoading: true,
       isAuthenticated: false,
-      user: null,
-      error: null,
+      user: undefined,
+      error: undefined,
       loginWithRedirect: vi.fn(),
       logout: vi.fn(),
       getAccessTokenSilently: vi.fn(),

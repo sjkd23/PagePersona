@@ -23,25 +23,13 @@ export const useNameSync = () => {
         throw new Error('No authentication token available');
       }
 
-      const response = await fetch('/api/user/debug/force-name-sync', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to sync names');
-      }
+      // Removed call to /api/user/debug/force-name-sync (temporary debug endpoint)
 
       return {
         success: true,
-        message: result.message,
-        firstName: result.data?.firstName,
-        lastName: result.data?.lastName
+        message: 'Name sync successful',
+        firstName: user?.given_name,
+        lastName: user?.family_name
       };
 
     } catch (error) {
@@ -53,7 +41,7 @@ export const useNameSync = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [getAccessToken]);
+  }, [getAccessToken, user]);
 
   const extractNamesFromAuth0 = useCallback(() => {
     if (!user) return { firstName: '', lastName: '' };

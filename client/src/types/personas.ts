@@ -1,8 +1,10 @@
 export interface Persona {
   id: string
+  label: string
   name: string
-  emoji: string
   description: string
+  exampleTexts: string
+  avatarUrl: string
   theme: {
     primary: string
     secondary: string
