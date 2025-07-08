@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth0';
+import { useAuth } from '../../hooks/useAuthContext';
 import ApiService from '../../lib/apiClient';
 import type { UserProfile } from '../../lib/apiClient';
 

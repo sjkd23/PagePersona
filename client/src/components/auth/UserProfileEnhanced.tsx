@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth0';
+import { useAuth } from '../../hooks/useAuthContext';
 import { useNameSync } from '../../hooks/useNameSync';
 import ApiService, { setTokenGetter } from '../../lib/apiClient';
 import type { UserProfile } from '../../lib/apiClient';

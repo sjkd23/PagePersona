@@ -5,7 +5,7 @@ import UrlInput from '../Transformer/UrlInput'
 import ContentDisplay from './ContentDisplay'
 import Footer from '../Footer'
 import TransformationHistory from '../Transformer/TransformationHistory'
-import { useAuth } from '../../hooks/useAuth0'
+import { useAuth } from '../../hooks/useAuthContext'
 import { useTransformationHistory } from '../../hooks/useTransformationHistory'
 import ApiService, { setTokenGetter } from '../../lib/apiClient'
 

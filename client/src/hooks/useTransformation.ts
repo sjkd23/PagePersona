@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Persona, WebpageContent } from '../types/personas'
-import { useAuth } from './useAuth0'
+import { useAuth } from './useAuthContext'
 import ApiService, { setTokenGetter } from '../lib/apiClient'
 import { logger } from '../utils/logger'
 import { useTransformationHistory } from './useTransformationHistory'
@@ -295,12 +295,11 @@ export function useTransformation() {
             error: response.error || `Failed to transform the ${state.inputMode === 'url' ? 'webpage' : 'text'}` 
           }))
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Don't set error state if the request was aborted
-        if (err.name === 'AbortError' || abortSignal.aborted) {
+        if (err && typeof err === 'object' && 'name' in err && (err as any).name === 'AbortError' || abortSignal.aborted) {
           return
         }
-        
         logger.component.error('useTransformation', 'Transform error', err)
         safeSetState(prev => ({ 
           ...prev, 

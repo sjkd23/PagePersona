@@ -1,5 +1,5 @@
 // src/hooks/useAuth0.tsx
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth0, Auth0Provider as Auth0ProviderBase, User } from '@auth0/auth0-react';
 import { syncUserWithBackend } from '../utils/userSync';
@@ -32,18 +32,7 @@ interface AuthContextType {
   getCustomClaims: () => Promise<CustomClaims | null>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an Auth0Provider');
-  }
-  return context;
-}
-
-// Export AuthContext for external use
-export { AuthContext };
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function Auth0Provider({ children }: { children: ReactNode }) {
   if (!domain || !clientId) {
@@ -158,3 +147,5 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+export type { AuthContextType };

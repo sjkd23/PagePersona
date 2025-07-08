@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../hooks/useAuth0';
+import { useAuth } from '../../hooks/useAuthContext';
 
 /**
  * Debug component to display Auth0 user data

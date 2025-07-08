@@ -24,12 +24,12 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import PageTransformer from './PageTransformer'
-import * as useAuthModule from '../../hooks/useAuth0'
+import * as useAuthModule from '../../hooks/useAuthContext'
 import * as useTransformationHistoryModule from '../../hooks/useTransformationHistory'
 import ApiService from '../../lib/apiClient'
 
 // Mock dependencies
-vi.mock('../../hooks/useAuth0')
+vi.mock('../../hooks/useAuthContext')
 vi.mock('../../hooks/useTransformationHistory')
 vi.mock('../../lib/apiClient')
 vi.mock('../PersonaSelector', () => ({

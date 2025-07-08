@@ -44,7 +44,7 @@ export default function TransformationPage() {
     }
   }
 
-  const handleHistoryRestore = (item: any) => {
+  const handleHistoryRestore = (item: import('../../types/personas').WebpageContent) => {
     actions.handleRestoreTransformation(item)
     setIsHistoryOpen(false)
   }

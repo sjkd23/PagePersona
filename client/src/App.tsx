@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Auth0Provider, useAuth } from './hooks/useAuth0';
+import { Auth0Provider } from './hooks/useAuth0';
+import { useAuth } from './hooks/useAuthContext';
 import PageTransformer from './components/Transformer/TransformationPage';
 import LandingPage from './components/Landing/LandingPage';
 import UserProfileEnhanced from './components/auth/UserProfileEnhanced';

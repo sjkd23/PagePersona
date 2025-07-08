@@ -27,9 +27,35 @@ const mockUseAuth = {
   logout: vi.fn()
 };
 
-vi.mock('./hooks/useAuth0', () => ({
+// Mock the AuthContext and useAuth hook
+vi.mock('./hooks/useAuth0', () => {
+  const mockAuthContext = {
+    user: null,
+    userProfile: null,
+    isAuthenticated: false,
+    isLoading: false,
+    isSyncing: false,
+    error: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    signup: vi.fn(),
+    getAccessToken: vi.fn(),
+    refreshUserProfile: vi.fn(),
+    isNewUser: null,
+    isFirstLogin: null,
+    profileSyncError: null,
+    getCustomClaims: vi.fn()
+  };
+  
+  return {
+    Auth0Provider: vi.fn(({ children }) => children),
+    AuthContext: mockAuthContext
+  };
+});
+
+vi.mock('./hooks/useAuthContext', () => ({
   useAuth: vi.fn(() => mockUseAuth),
-  Auth0Provider: vi.fn(({ children }) => children)
+  AuthContext: vi.fn()
 }));
 
 // Mock components
@@ -74,6 +100,10 @@ vi.mock('./components/auth/UserProfileEnhanced', () => ({
 
 vi.mock('./components/Transformer/ErrorBoundary', () => ({
   default: vi.fn(({ children }) => children)
+}));
+
+vi.mock('./components/Footer', () => ({
+  default: vi.fn(() => <div data-testid="footer">Footer</div>)
 }));
 
 describe('App Component', () => {

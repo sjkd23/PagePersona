@@ -1,4 +1,4 @@
-import { useAuth } from '../../hooks/useAuth0';
+import { useAuth } from '../../hooks/useAuthContext';
 
 interface Auth0LoginProps {
   onBack: () => void;

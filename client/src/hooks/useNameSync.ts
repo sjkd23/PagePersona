@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from './useAuth0';
+import { useAuth } from './useAuthContext';
 
 interface NameSyncResult {
   success: boolean;
