@@ -1,0 +1,201 @@
+/* ResultDisplay.css */
+
+/* Markdown Component Styles for ResultDisplay */
+.result-markdown-p {
+  margin: 0 0 12px 0;
+}
+
+.result-markdown-strong {
+  font-weight: 600;
+}
+
+.result-markdown-em {
+  font-style: italic;
+}
+
+.result-markdown-h1 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 14px 0;
+  color: #1f2937;
+}
+
+.dark .result-markdown-h1 {
+  color: #f1f5f9;
+}
+
+.result-markdown-h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #1f2937;
+}
+
+.dark .result-markdown-h2 {
+  color: #f1f5f9;
+}
+
+.result-markdown-h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: #1f2937;
+}
+
+.dark .result-markdown-h3 {
+  color: #f1f5f9;
+}
+
+.result-markdown-ul,
+.result-markdown-ol {
+  margin: 0 0 12px 0;
+  padding-left: 20px;
+}
+
+.result-markdown-li {
+  margin: 0 0 4px 0;
+}
+
+.result-markdown-blockquote {
+  margin: 0 0 12px 0;
+  padding-left: 16px;
+  border-left: 3px solid #d1d5db;
+  font-style: italic;
+}
+
+.dark .result-markdown-blockquote {
+  border-left-color: #64748b;
+}
+
+.result-markdown-code {
+  background-color: #e5e7eb;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.dark .result-markdown-code {
+  background-color: #374151;
+}
+
+/* Modal markdown styles */
+.result-modal-h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #1f2937;
+}
+
+.dark .result-modal-h1 {
+  color: #f1f5f9;
+}
+
+.result-modal-h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 14px 0;
+  color: #1f2937;
+}
+
+.dark .result-modal-h2 {
+  color: #f1f5f9;
+}
+
+.result-modal-h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #1f2937;
+}
+
+.dark .result-modal-h3 {
+  color: #f1f5f9;
+}
+
+.result-modal-code {
+  background-color: #f3f4f6;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.dark .result-modal-code {
+  background-color: #374151;
+}
+
+/* Fullscreen markdown styles */
+.result-fullscreen-p {
+  margin: 0 0 16px 0;
+}
+
+.result-fullscreen-h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: #1f2937;
+}
+
+.dark .result-fullscreen-h1 {
+  color: #f1f5f9;
+}
+
+.result-fullscreen-h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 18px 0;
+  color: #1f2937;
+}
+
+.dark .result-fullscreen-h2 {
+  color: #f1f5f9;
+}
+
+.result-fullscreen-h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  color: #1f2937;
+}
+
+.dark .result-fullscreen-h3 {
+  color: #f1f5f9;
+}
+
+.result-fullscreen-ul,
+.result-fullscreen-ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+
+.result-fullscreen-li {
+  margin: 0 0 6px 0;
+}
+
+.result-fullscreen-blockquote {
+  margin: 0 0 16px 0;
+  padding-left: 20px;
+  border-left: 4px solid #d1d5db;
+  font-style: italic;
+  background-color: #f9fafb;
+  padding: 16px 20px;
+  border-radius: 6px;
+}
+
+.dark .result-fullscreen-blockquote {
+  border-left-color: #64748b;
+  background-color: #334155;
+}
+
+.result-fullscreen-code {
+  background-color: #f3f4f6;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.dark .result-fullscreen-code {
+  background-color: #374151;
+}

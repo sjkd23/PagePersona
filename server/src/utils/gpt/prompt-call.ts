@@ -8,7 +8,24 @@ const promptCall = async (req: Request, res: Response): Promise<void> => {
   
   try {
     const chatService = createChatService();
-    const result = await chatService.sendChatMessages(req.body);
+    
+    // Transform the validated request body into the format expected by chat service
+    const { message, context, model, temperature, maxTokens } = req.body;
+    
+    const messages = [];
+    if (context) {
+      messages.push({ role: "system" as const, content: context });
+    }
+    messages.push({ role: "user" as const, content: message });
+    
+    const chatRequest = {
+      messages,
+      model,
+      maxTokens,
+      temperature
+    };
+    
+    const result = await chatService.sendChatMessages(chatRequest);
 
     if (result.success) {
       res.status(HttpStatus.OK).json({

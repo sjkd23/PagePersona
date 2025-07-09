@@ -1,0 +1,64 @@
+/* Output Demo Card */
+.output-card {
+  background: white;
+  border-radius: 0.75rem;
+  border: 2px solid #e2e8f0;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.dark .output-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.output-header {
+  padding-top: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.output-content {
+  padding: 3rem;
+  padding-top: 0;
+}
+
+.output-content p {
+  font-style: italic;
+}
+
+.summary-section,
+.full-text-section {
+  margin-bottom: 2rem;
+}
+
+.summary-section:last-child,
+.full-text-section:last-child {
+  margin-bottom: 0;
+}
+
+.output-content h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  color: #294769;
+}
+
+.output-content p {
+  font-size: 1.1rem;
+  color: #294769;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.dark .output-content h4 {
+  color: #e2e8f0;
+}
+
+.dark .output-content p {
+  color: #e2e8f0;
+}

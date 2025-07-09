@@ -1,38 +1,14 @@
-export interface Persona {
-  id: string
-  label: string
-  name: string
-  description: string
-  exampleTexts: string
-  avatarUrl: string
-  theme: {
-    primary: string
-    secondary: string
-    accent: string
-  }
-}
+// Re-export shared persona types - this file is deprecated, use @shared/types/personas instead
+export type { 
+  BasePersona,
+  ServerPersona,
+  ClientPersona,
+  TransformRequest,
+  TransformResponse,
+  WebpageContent
+} from '@shared/types/personas'
 
-export interface WebpageContent {
-  originalUrl: string
-  originalTitle: string
-  originalContent: string
-  transformedContent: string
-  persona: Persona
-  timestamp: Date
-}
+import type { ClientPersona } from '@shared/types/personas'
 
-export interface TransformRequest {
-  url: string
-  persona: string
-}
-
-export interface TransformResponse {
-  success: boolean
-  originalContent: {
-    title: string
-    content: string
-    url: string
-  }
-  transformedContent: string
-  error?: string
-}
+// Legacy alias for existing client code
+export type Persona = ClientPersona

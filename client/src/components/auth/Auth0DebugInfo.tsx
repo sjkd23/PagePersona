@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuthContext';
+import './Auth0DebugInfo.css';
 
 /**
  * Debug component to display Auth0 user data
@@ -15,39 +16,20 @@ export const Auth0DebugInfo: React.FC = () => {
 
   if (!user) {
     return (
-      <div style={{ 
-        background: '#f0f0f0', 
-        padding: '1rem', 
-        margin: '1rem 0', 
-        borderRadius: '8px',
-        fontSize: '0.875rem'
-      }}>
+      <div className="debug-container-no-user">
         <h3>🔍 Auth0 Debug: No user data</h3>
       </div>
     );
   }
 
   return (
-    <div style={{ 
-      background: '#f8f9fa', 
-      padding: '1rem', 
-      margin: '1rem 0', 
-      borderRadius: '8px',
-      fontSize: '0.875rem',
-      border: '1px solid #dee2e6'
-    }}>
-      <h3 style={{ margin: '0 0 1rem 0', color: '#495057' }}>🔍 Auth0 Debug Info</h3>
+    <div className="debug-container">
+      <h3 className="debug-title">🔍 Auth0 Debug Info</h3>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+      <div className="debug-grid">
         <div>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#6c757d' }}>Auth0 User Object:</h4>
-          <pre style={{ 
-            background: 'white', 
-            padding: '0.5rem', 
-            borderRadius: '4px',
-            overflow: 'auto',
-            fontSize: '0.75rem'
-          }}>
+          <h4 className="debug-section-title">Auth0 User Object:</h4>
+          <pre className="debug-pre">
             {JSON.stringify({
               name: user.name,
               given_name: user.given_name,
@@ -62,14 +44,8 @@ export const Auth0DebugInfo: React.FC = () => {
         </div>
 
         <div>
-          <h4 style={{ margin: '0 0 0.5rem 0', color: '#6c757d' }}>MongoDB Profile:</h4>
-          <pre style={{ 
-            background: 'white', 
-            padding: '0.5rem', 
-            borderRadius: '4px',
-            overflow: 'auto',
-            fontSize: '0.75rem'
-          }}>
+          <h4 className="debug-section-title">MongoDB Profile:</h4>
+          <pre className="debug-pre">
             {userProfile ? JSON.stringify({
               firstName: userProfile.firstName,
               lastName: userProfile.lastName,
@@ -80,14 +56,9 @@ export const Auth0DebugInfo: React.FC = () => {
         </div>
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <h4 style={{ margin: '0 0 0.5rem 0', color: '#6c757d' }}>Extracted Names:</h4>
-        <div style={{ 
-          background: 'white', 
-          padding: '0.5rem', 
-          borderRadius: '4px',
-          fontSize: '0.875rem'
-        }}>
+      <div className="debug-extracted">
+        <h4 className="debug-section-title">Extracted Names:</h4>
+        <div className="debug-extracted-content">
           <p><strong>From Auth0 given_name:</strong> {user.given_name || 'Not provided'}</p>
           <p><strong>From Auth0 family_name:</strong> {user.family_name || 'Not provided'}</p>
           <p><strong>From Auth0 name split:</strong> 

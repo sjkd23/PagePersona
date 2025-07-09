@@ -1,0 +1,94 @@
+/* Auth0DebugInfo.css */
+
+.debug-container {
+  background: #f8f9fa;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  border: 1px solid #dee2e6;
+}
+
+.debug-container-no-user {
+  background: #f0f0f0;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.debug-title {
+  margin: 0 0 1rem 0;
+  color: #495057;
+}
+
+.debug-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.debug-section-title {
+  margin: 0 0 0.5rem 0;
+  color: #6c757d;
+}
+
+.debug-pre {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  overflow: auto;
+  font-size: 0.75rem;
+}
+
+.debug-extracted {
+  margin-top: 1rem;
+}
+
+.debug-extracted-content {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.debug-extracted-content p {
+  margin: 0.25rem 0;
+}
+
+/* Dark mode support */
+.dark .debug-container {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.dark .debug-container-no-user {
+  background: #374151;
+  color: #e2e8f0;
+}
+
+.dark .debug-title {
+  color: #f1f5f9;
+}
+
+.dark .debug-section-title {
+  color: #cbd5e1;
+}
+
+.dark .debug-pre {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .debug-extracted-content {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .debug-grid {
+    grid-template-columns: 1fr;
+  }
+}

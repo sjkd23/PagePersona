@@ -1,0 +1,13 @@
+/* Results Section Styles */
+.results-header {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.card-header .step-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+}

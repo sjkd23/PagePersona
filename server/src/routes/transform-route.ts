@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express'
 import { getAllPersonas } from '../data/personas'
+import { getAllClientPersonas } from '../../../shared/constants/personas'
 import { optionalAuth0 } from '../middleware/auth0-middleware'
 import { checkUsageLimit } from '../middleware/usage-limit-middleware'
 import { createTieredRateLimit, getUserMembershipTierSync } from '../config/rate-limit-configs'
@@ -37,11 +38,8 @@ router.get('/test', (_req: Request, res: Response) => {
 // Get all available personas
 router.get('/personas', (_req: Request, res: Response) => {
   try {
-    const personas = getAllPersonas().map(persona => ({
-      id: persona.id,
-      name: persona.name,
-      description: persona.description
-    }))
+    // Return client personas with all UI fields (avatarUrl, theme, etc.)
+    const personas = getAllClientPersonas()
 
     sendSuccess(res, { personas })
   } catch (error) {

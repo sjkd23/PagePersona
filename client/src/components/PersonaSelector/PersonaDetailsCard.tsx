@@ -9,12 +9,11 @@ interface PersonaDetailsCardProps {
 
 const PersonaDetailsCard: React.FC<PersonaDetailsCardProps> = ({ persona, selected, onClick }) => (
   <div
-    className={`persona-card${selected ? ' selected' : ''}`}
+    className={`persona-card${selected ? ' selected' : ''} ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
     onClick={onClick}
     tabIndex={0}
     role="button"
     aria-pressed={selected}
-    style={{ cursor: onClick ? 'pointer' : 'default' }}
   >
     <img src={persona.avatarUrl} alt={persona.label} className="persona-avatar" />
     <div className="persona-name">{persona.label}</div>

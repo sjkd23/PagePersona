@@ -16,6 +16,7 @@ export interface TransformationState {
   loadingPersonas: boolean
   urlError: string | null
   textError: string | null
+  hasClickedGenerate: boolean
 }
 
 export interface TransformationActions {
@@ -65,30 +66,13 @@ const validateUrl = (inputUrl: string): string | null => {
 }
 
 const validateText = (inputText: string): string | null => {
+  if (inputText.trim().length < 50) {
+    return `Text must be at least 50 characters (currently ${inputText.trim().length} characters)`
+  }
   if (inputText.length > MAX_TEXT_LENGTH) {
     return `Text must be ${MAX_TEXT_LENGTH} characters or less (currently ${inputText.length} characters)`
   }
   return null
-}
-
-const getPersonaTheme = (id: string) => {
-  interface ThemeColors {
-    primary: string
-    secondary: string
-    accent: string
-  }
-  
-  const themeMap: { [key: string]: ThemeColors } = {
-    'eli5': { primary: '#FF6B6B', secondary: '#FFE66D', accent: '#4ECDC4' },
-    'anime-hero': { primary: '#FF4757', secondary: '#FF6B7A', accent: '#FFA726' },
-    'medieval-knight': { primary: '#8B4513', secondary: '#DAA520', accent: '#C0C0C0' },
-    'hacker': { primary: '#00FF41', secondary: '#008F11', accent: '#000000' },
-    'pirate': { primary: '#8B4513', secondary: '#DAA520', accent: '#FF6347' },
-    'scientist': { primary: '#9C27B0', secondary: '#E1BEE7', accent: '#4CAF50' },
-    'comedian': { primary: '#FF9800', secondary: '#FFE0B2', accent: '#F44336' },
-    'zen-master': { primary: '#4CAF50', secondary: '#C8E6C9', accent: '#795548' }
-  }
-  return themeMap[id] || { primary: '#6B73FF', secondary: '#9096FF', accent: '#FF6B6B' }
 }
 
 export function useTransformation() {
@@ -106,7 +90,8 @@ export function useTransformation() {
     error: null,
     loadingPersonas: true,
     urlError: null,
-    textError: null
+    textError: null,
+    hasClickedGenerate: false
   })
 
   const { getAccessToken } = useAuth()
@@ -127,15 +112,8 @@ export function useTransformation() {
         if (!isMountedRef.current) return // Early exit if unmounted
         
         if (response.success && response.data) {
-          const frontendPersonas: Persona[] = response.data.personas.map(p => ({
-            id: p.id,
-            label: p.name || p.id,
-            name: p.name || p.id,
-            description: p.description || '',
-            exampleTexts: '',
-            avatarUrl: `/avatars/${p.id}.png`,
-            theme: getPersonaTheme(p.id)
-          }))
+          // Backend now returns complete ClientPersona objects
+          const frontendPersonas: Persona[] = response.data.personas
           safeSetState(prev => ({ ...prev, personas: frontendPersonas }))
         } else {
           safeSetState(prev => ({ ...prev, error: 'Failed to load personas' }))
@@ -249,7 +227,7 @@ export function useTransformation() {
       abortControllerRef.current = new AbortController()
       const abortSignal = abortControllerRef.current.signal
 
-      safeSetState(prev => ({ ...prev, isLoading: true, error: null }))
+      safeSetState(prev => ({ ...prev, isLoading: true, error: null, hasClickedGenerate: true }))
 
       try {
         let response
@@ -318,7 +296,8 @@ export function useTransformation() {
         content: item,
         selectedPersona: item.persona,
         urlError: null,
-        textError: null
+        textError: null,
+        hasClickedGenerate: true
       }))
       
       if (item.originalUrl === 'Direct Text Input') {

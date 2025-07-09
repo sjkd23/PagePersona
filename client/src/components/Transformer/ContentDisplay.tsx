@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Persona, WebpageContent } from '../../types/personas'
-import './ContentDisplay.css'
+import './styles/ContentDisplay.css'
 
 interface ContentDisplayProps {
   content: WebpageContent | null
@@ -63,8 +63,12 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
     <div className="content-container space-y-4">
       {/* Persona Info */}
       <div className="flex items-center space-x-2">
-        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-200">
-          <span className="text-sm font-bold text-gray-600">{content.persona.label.charAt(0)}</span>
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-200 overflow-hidden">
+          <img 
+            src={content.persona.avatarUrl} 
+            alt={content.persona.label}
+            className="w-full h-full rounded-full object-cover"
+          />
         </div>
         <div>
           <div className="font-medium text-gray-900 text-sm">{content.persona.label}</div>

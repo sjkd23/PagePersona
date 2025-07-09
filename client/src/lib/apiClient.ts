@@ -9,6 +9,7 @@
  */
 
 import type { ApiResponse } from '../types/api-response.js';
+import type { ClientPersona } from '../types/personas';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -50,11 +51,7 @@ export interface TransformResponse {
 export interface PersonaResponse {
   success: boolean;
   data?: {
-    personas: {
-      id: string;
-      name: string;
-      description: string;
-    }[];
+    personas: ClientPersona[];
   };
   error?: string;
 }

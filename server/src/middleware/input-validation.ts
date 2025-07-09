@@ -86,8 +86,8 @@ export function validateText(text: string): { isValid: boolean; error?: string }
   }
 
   // Check reasonable length limits
-  if (trimmedText.length < 10) {
-    return { isValid: false, error: 'Text must be at least 10 characters long' };
+  if (trimmedText.length < 50) {
+    return { isValid: false, error: 'Text must be at least 50 characters long' };
   }
 
   if (trimmedText.length > 50000) {

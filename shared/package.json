@@ -1,0 +1,21 @@
+{
+  "name": "@pagepersonai/shared",
+  "version": "1.0.0",
+  "description": "Shared types and constants for PagePersonAI client and server",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./types": "./types/index.ts",
+    "./constants": "./constants/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

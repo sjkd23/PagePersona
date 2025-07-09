@@ -7,6 +7,36 @@
     font-family: 'Segoe UI', system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
+    
+    /* Light mode colors */
+    --background: #f9fafb;
+    --foreground: #111827;
+    --card: #ffffff;
+    --card-foreground: #111827;
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    --secondary: #e5e7eb;
+    --secondary-foreground: #374151;
+    --muted: #f3f4f6;
+    --muted-foreground: #6b7280;
+    --border: #e5e7eb;
+    --input: #ffffff;
+  }
+
+  .dark {
+    /* Dark mode colors */
+    --background: #0f172a;
+    --foreground: #f1f5f9;
+    --card: #1e293b;
+    --card-foreground: #f1f5f9;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #334155;
+    --secondary-foreground: #e2e8f0;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --border: #334155;
+    --input: #1e293b;
   }
 
   * {
@@ -14,29 +44,31 @@
   }
 
   body {
-    background-color: #f9fafb;
-    color: #111827;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     -webkit-font-smoothing: antialiased;
     margin: 0;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
 @layer components {
   .btn-primary {
-    background-color: #2563eb;
-    color: white;
+    background-color: var(--primary);
+    color: var(--primary-foreground);
     font-weight: 500;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     border: none;
     cursor: pointer;
   }
   
   .btn-primary:hover {
-    background-color: #1d4ed8;
+    opacity: 0.9;
+    transform: translateY(-1px);
   }
   
   .btn-primary:disabled {
@@ -45,38 +77,43 @@
   }
   
   .btn-secondary {
-    background-color: #e5e7eb;
-    color: #374151;
+    background-color: var(--secondary);
+    color: var(--secondary-foreground);
     font-weight: 500;
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     border: none;
     cursor: pointer;
   }
   
   .btn-secondary:hover {
-    background-color: #d1d5db;
+    opacity: 0.8;
   }
   
   .card {
-    background-color: white;
+    background-color: var(--card);
+    color: var(--card-foreground);
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border);
     padding: 1.5rem;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
   
   .input-field {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
     outline: none;
+    background-color: var(--input);
+    color: var(--foreground);
+    transition: all 0.2s;
   }
   
   .input-field:focus {
-    box-shadow: 0 0 0 2px #3b82f6;
+    box-shadow: 0 0 0 2px var(--primary);
     border-color: transparent;
   }
 }
@@ -85,6 +122,11 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: linear-gradient(135deg, var(--background) 0%, var(--muted) 100%);
+  transition: background 0.3s ease;
+}
+
+.dark body {
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
 }
 
@@ -115,14 +157,14 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
-  color: inherit;
+  background-color: var(--muted);
+  color: var(--foreground);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: var(--primary);
 }
 
 button:focus,

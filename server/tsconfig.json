@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
-    "rootDir": "src",
     "outDir": "dist",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -18,9 +17,14 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "typeRoots": ["node_modules/@types", "src/types"]
+    "typeRoots": ["node_modules/@types", "src/types"],
+    "baseUrl": "..",
+    "paths": {
+      "@shared/*": ["shared/*"],
+      "@shared": ["shared/index"]
+    }
   },
-  "include": ["src/**/*", "src/types/**/*"],
+  "include": ["src/**/*", "src/types/**/*", "../shared/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts"],
   "ts-node": {
     "files": true

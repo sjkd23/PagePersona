@@ -1,4 +1,4 @@
-// ...moved and refactored code from PersonaSelector.tsx...
+import './PersonaSelector.css'
 import { useState, useEffect } from 'react'
 import type { Persona } from '../../types/personas'
 import ApiService from '../../lib/apiClient'
@@ -6,7 +6,6 @@ import PersonaDropdown from './PersonaDropdown'
 import PersonaDetails from './PersonaDetails'
 import PersonaLoadingState from './PersonaLoadingState'
 import PersonaErrorState from './PersonaErrorState'
-import { getPersonaTheme } from './personaUtils'
 
 interface PersonaSelectorProps {
   selectedPersona: string | null
@@ -24,28 +23,8 @@ const PersonaSelector = ({ selectedPersona, onPersonaSelect }: PersonaSelectorPr
       setError(null)
       const response = await ApiService.getPersonas()
       if (response.success && response.data) {
-        interface PersonaData {
-          id: string;
-          label?: string;
-          name?: string;
-          description: string;
-          exampleTexts?: string;
-          avatarUrl?: string;
-          theme?: {
-            primary: string;
-            secondary: string;
-            accent: string;
-          };
-        }
-        const frontendPersonas: Persona[] = response.data.personas.map((p: PersonaData) => ({
-          id: p.id,
-          label: p.label || p.name || p.id, // fallback to name or id if label doesn't exist
-          name: p.label || p.name || p.id, // ensure name is present
-          description: p.description,
-          exampleTexts: p.exampleTexts || '',
-          avatarUrl: p.avatarUrl || `/avatars/${p.id}.png`,
-          theme: p.theme || getPersonaTheme(p.id)
-        }))
+        // Backend now returns complete ClientPersona objects
+        const frontendPersonas: Persona[] = response.data.personas
         setPersonas(frontendPersonas)
       } else {
         setError(response.error || 'Failed to load personas')

@@ -15,6 +15,13 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path mapping for shared types */
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "@shared": ["../shared/index"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

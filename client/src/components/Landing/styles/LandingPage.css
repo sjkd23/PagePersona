@@ -1,0 +1,87 @@
+/* Landing Page Main Layout */
+.landing-page {
+  min-height: calc(100vh - 120px);
+  background: #F3F5F7;
+  color: #294769;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark .landing-page {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.main-content {
+  padding: 4rem 2rem;
+  min-height: calc(100vh - 200px);
+}
+
+.content-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 5rem;
+  padding-top: 2rem;
+}
+
+/* Visual Items */
+.visual-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.visual-item img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Demo Images */
+.url-input-demo-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  transform: translateY(-1rem);
+}
+
+.generate-button-image {
+  max-width: 85%;
+  height: auto;
+  display: block;
+  transform: translate3d(1rem, 0.75rem, 0);
+}
+
+/* Dividers */
+.step-divider-full {
+  grid-column: 1 / span 2;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      #A4BCD9 15%,
+      #294769 50%,
+      #A4BCD9 85%,
+      transparent 100%);
+  margin: 1.5rem 0;
+  opacity: 0.6;
+  border-radius: 1px;
+}
+
+.output-divider {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      #A4BCD9 15%,
+      #294769 50%,
+      #A4BCD9 85%,
+      transparent 100%);
+  margin: 2rem 0 2rem 0;
+  opacity: 0.7;
+  border-radius: 1px;
+}

@@ -217,6 +217,14 @@ export class TransformationService {
       if (error.message.includes('forbidden') || error.message.includes('403')) {
         return 'Access to this webpage is forbidden. The site may block automated requests.'
       }
+
+      if (error.message.includes('Text too short to process')) {
+        return 'Text must be at least 50 characters long to generate content.'
+      }
+
+      if (error.message.includes('Content too short')) {
+        return 'Content is too short for meaningful transformation. Please provide at least 50 characters.'
+      }
       
       return error.message
     }

@@ -1,10 +1,3 @@
-// Common types for Landing page components
-export interface Persona {
-  id: string;
-  name: string;
-  imagePath: string;
-  alt: string;
-}
 
 export interface CTAProps {
   onShowLogin: () => void;

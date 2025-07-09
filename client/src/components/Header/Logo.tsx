@@ -4,8 +4,10 @@ interface LogoProps {
 
 export default function Logo({ onHome }: LogoProps) {
   return (
-    <div className="logo" onClick={onHome} style={{ cursor: onHome ? 'pointer' : 'default' }}>
-      <div className="logo-icon">P</div>
+    <div className={`logo ${onHome ? 'cursor-pointer' : 'cursor-default'}`} onClick={onHome}>
+      <div className="logo-icon">
+        <img src="/images/PagePersonAI_logo.png" alt="PagePersonAI Logo" />
+      </div>
       <h1>PagePersona</h1>
     </div>
   )

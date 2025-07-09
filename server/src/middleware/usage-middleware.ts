@@ -4,7 +4,7 @@ import type { AuthenticatedRequest } from '../types/common';
 import { logger } from '../utils/logger';
 
 // Middleware to track API usage
-export const trackUsage = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const trackUsage = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const startTime = Date.now();
   const originalSend = res.send;
 
@@ -38,7 +38,8 @@ export const trackUsage = async (req: AuthenticatedRequest, res: Response, next:
       }
 
       // Record usage asynchronously using MongoDB system (don't block response)
-      setImmediate(async () => {
+     // Use direct execution in tests or setImmediate in production
+     const recordUsage = async () => {
         try {
           // Use the MongoDB-based usage tracking
           await incrementUserUsage(userId, { 
@@ -60,7 +61,15 @@ export const trackUsage = async (req: AuthenticatedRequest, res: Response, next:
         } catch (error) {
           logger.usage.error('Error recording usage:', error);
         }
-      });
+     };
+
+     // In test environment, run synchronously; otherwise use setImmediate
+     if (process.env.NODE_ENV === 'test') {
+       // Execute immediately for tests
+       recordUsage();
+     } else {
+       setImmediate(recordUsage);
+     }
     }
 
     // Call the original send function

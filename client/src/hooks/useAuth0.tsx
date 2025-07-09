@@ -106,14 +106,15 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsSyncing(false);
     }
-  }, [isAuthenticated, user, isSyncing, getAccessToken]);
+  }, [isAuthenticated, user, getAccessToken]);
 
+  // Only sync once when user becomes authenticated and we don't have a profile yet
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user && !userProfile && !isSyncing) {
       syncUser();
       setTokenGetter(getAccessToken);
     }
-  }, [isAuthenticated, syncUser, getAccessToken]);
+  }, [isAuthenticated, user]);
 
   const login = () => loginWithRedirect({ authorizationParams: { audience, screen_hint: 'login' } });
   const signup = () => loginWithRedirect({ authorizationParams: { audience, screen_hint: 'signup' } });

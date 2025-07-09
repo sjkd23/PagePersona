@@ -1,100 +1,82 @@
-/* Global Footer Component Styles */
-.global-footer {
-  margin-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+/* Footer Component Styles */
+.footer {
+  background: #8da3b8;
+  transition: background-color 0.3s ease;
 }
 
-.global-footer__container {
+.dark .footer {
+  background: #1e293b;
+}
+
+.footer__container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.global-footer__content {
+.footer__content {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
-.global-footer__content p {
+.footer__content p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
+  color: #2c3e50;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
 }
 
-.global-footer__links {
+.dark .footer__content p {
+  color: #e2e8f0;
+}
+
+.footer__links {
   display: flex;
   gap: 2rem;
 }
 
-.global-footer__links a {
+.footer__links a {
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
+  color: #2c3e50;
   transition: color 0.2s ease;
 }
 
-.global-footer__links a:hover {
+.dark .footer__links a {
+  color: #e2e8f0;
+}
+
+.footer__links a:hover {
   text-decoration: underline;
-}
-
-/* Default variant styles */
-.global-footer--default {
-  background: #8da3b8;
-}
-
-.global-footer--default .global-footer__content p,
-.global-footer--default .global-footer__links a {
-  color: #2c3e50;
-}
-
-.global-footer--default .global-footer__links a:hover {
   color: #34495e;
 }
 
-/* Landing variant styles */
-.global-footer--landing {
-  background: #A4BCD9;
-  border-top: 1px solid rgba(226, 232, 240, 0.3);
-  padding: 1.5rem 2rem;
+.dark .footer__links a:hover {
+  color: #cbd5e1;
 }
 
-.global-footer--landing .global-footer__container {
-  max-width: 1000px;
-  padding: 0;
-}
-
-.global-footer--landing .global-footer__content {
-  justify-content: center;
-  text-align: center;
-}
-
-.global-footer--landing .global-footer__content p {
-  color: #294769;
-  font-size: 0.95rem;
-  letter-spacing: 0.3px;
-}
-
-.global-footer__divider {
-  margin: 0 0.75rem;
-  color: #4a5568;
-  font-weight: 300;
-}
-
-.global-footer__powered-by {
+.footer__powered-by {
   font-weight: 400;
   color: #4a5568;
+  transition: color 0.3s ease;
 }
 
-/* Responsive styles */
+.dark .footer__powered-by {
+  color: #94a3b8;
+}
+
 @media (max-width: 768px) {
-  .global-footer__content {
+  .footer__content {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-
-  .global-footer__links {
+  .footer__links {
     gap: 1rem;
   }
 }

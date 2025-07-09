@@ -1,4 +1,4 @@
-import './LandingPage.css';
+import './styles/index.css';
 import type { LandingPageProps } from './types';
 import HowItWorksSection from './HowItWorksSection';
 import CTASection from './CTASection';

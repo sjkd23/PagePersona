@@ -1,0 +1,43 @@
+/* Error Component Styles */
+
+/* Compact Error Message */
+.error-message-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  max-width: 400px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .error-message-compact {
+  background: linear-gradient(135deg, #1f1415 0%, #291415 100%);
+  border-color: #f87171;
+}
+
+.error-icon-small {
+  width: 18px;
+  height: 18px;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+
+.dark .error-icon-small {
+  color: #f87171;
+}
+
+.error-text-small {
+  margin: 0;
+  font-size: 14px;
+  color: #dc2626;
+  font-weight: 500;
+  flex: 1;
+}
+
+.dark .error-text-small {
+  color: #f87171;
+}

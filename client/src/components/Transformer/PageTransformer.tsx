@@ -8,6 +8,7 @@ import TransformationHistory from '../Transformer/TransformationHistory'
 import { useAuth } from '../../hooks/useAuthContext'
 import { useTransformationHistory } from '../../hooks/useTransformationHistory'
 import ApiService, { setTokenGetter } from '../../lib/apiClient'
+import './styles/PageTransformer.css'
 
 export default function PageTransformer() {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null)
@@ -50,7 +51,14 @@ export default function PageTransformer() {
   }
 
   const handleTransform = async () => {
-    if (!selectedPersona || !url.trim()) return
+    if (!selectedPersona) {
+      setError('Please choose a persona before transforming.')
+      return
+    }
+    if (!url.trim()) {
+      setError('Please enter a URL or text to transform.')
+      return
+    }
 
     setIsLoading(true)
     setError(null)
@@ -77,15 +85,26 @@ export default function PageTransformer() {
         setContent(transformedContent)
         // Add to history after successful transformation
         addToHistory(transformedContent)
+      } else if ((response as any).limitExceeded) {
+        // User has hit their limit
+        const remaining = `${(response as any).currentUsage}/${(response as any).usageLimit}`
+        setError(`Monthly limit reached (${remaining}). Please upgrade to continue.`)
       } else {
-        setError(response.error || 'Failed to transform the webpage')
+        // Show server-provided message or generic error
+        const msg = (response as any).message || response.error || 'Failed to transform the webpage'
+        setError(msg)
       }
       
       setIsLoading(false)
 
     } catch (err) {
       console.error('Transform error:', err)
-      setError('Failed to transform the webpage. Please check your connection and try again.')
+      // Handle usage limit HTTP 429
+      if (err instanceof Error && err.message.includes('429')) {
+        setError("You've hit your monthly limit. Upgrade to continue.")
+      } else {
+        setError('Failed to transform the webpage. Please check your connection and try again.')
+      }
       setIsLoading(false)
     }
   }

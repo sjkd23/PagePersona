@@ -1,4 +1,10 @@
 import type { Persona } from '../../types/personas'
+import InputModeToggle from './InputModeToggle'
+import ValidationError from './ValidationError'
+import TextInput from './TextInput'
+import TextArea from './TextArea'
+import CharacterCount from './CharacterCount'
+import './styles/TransformerForm.css'
 
 interface TransformerFormProps {
   selectedPersona: Persona | null
@@ -33,6 +39,9 @@ export default function TransformerForm({
   onTransform,
   isValidInput
 }: TransformerFormProps) {
+  const currentError = inputMode === 'url' ? urlError : textError
+  const hasError = Boolean(currentError)
+
   return (
     <div className="right-column">
       {/* Persona Selection Card */}
@@ -51,13 +60,13 @@ export default function TransformerForm({
               <select 
                 value={selectedPersona?.id || ''}
                 onChange={(e) => {
-                  const persona = personas.find(p => p.id === e.target.value)
-                  onPersonaSelect(persona || null)
+                  const selected = personas.find(p => p.id === e.target.value)
+                  onPersonaSelect(selected || null)
                 }}
                 className="persona-select"
               >
                 <option value="">Select a persona...</option>
-                {personas.map((persona) => (
+                {personas.map(persona => (
                   <option key={persona.id} value={persona.id}>
                     {persona.label}
                   </option>
@@ -68,17 +77,15 @@ export default function TransformerForm({
                 <div className="persona-preview">
                   <div className="persona-info">
                     <div className="persona-avatar">
-                      <span className="persona-avatar-initial">
-                        {selectedPersona.label.charAt(0)}
-                      </span>
+                      <img 
+                        src={selectedPersona.avatarUrl} 
+                        alt={selectedPersona.label}
+                        className="w-full h-full rounded-full object-cover"
+                      />
                     </div>
                     <div className="persona-details">
-                      <h3 className="persona-name">
-                        {selectedPersona.label}
-                      </h3>
-                      <p className="persona-description">
-                        {selectedPersona.description}
-                      </p>
+                      <h3 className="persona-name">{selectedPersona.label}</h3>
+                      <p className="persona-description">{selectedPersona.description}</p>
                     </div>
                   </div>
                   
@@ -119,66 +126,44 @@ export default function TransformerForm({
           <h2 className="card-title">Enter URL or text</h2>
         </div>
         <div className="card-content">
-          <div className="mode-toggle">
-            <div className="mode-buttons">
-              <button
-                onClick={() => onModeChange('url')}
-                className={`mode-button ${inputMode === 'url' ? 'mode-button-active' : 'mode-button-inactive'}`}
-              >
-                URL
-              </button>
-              <button
-                onClick={() => onModeChange('text')}
-                className={`mode-button ${inputMode === 'text' ? 'mode-button-active' : 'mode-button-inactive'}`}
-              >
-                Text
-              </button>
-            </div>
-          </div>
+          <InputModeToggle 
+            mode={inputMode} 
+            onModeChange={onModeChange} 
+            disabled={isLoading}
+          />
 
           {inputMode === 'url' ? (
             <div>
-              <input
-                type="text"
+              <TextInput
                 value={url}
-                onChange={(e) => onInputChange(e.target.value)}
+                onChange={onInputChange}
                 placeholder="Enter the URL..."
                 disabled={isLoading}
-                className={`input-field ${urlError ? 'input-url-error' : 'input-url'}`}
+                hasError={hasError}
+                className="url-input"
               />
-              {urlError && (
-                <div className="input-error">
-                  <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{urlError}</span>
-                </div>
-              )}
+              <ValidationError error={urlError} />
             </div>
           ) : (
             <div>
-              <textarea
+              <TextArea
                 value={url}
-                onChange={(e) => onInputChange(e.target.value)}
+                onChange={onInputChange}
                 placeholder="Paste your text here..."
                 disabled={isLoading}
                 rows={4}
                 maxLength={maxTextLength}
-                className={`input-field ${textError ? 'input-textarea-error' : 'input-textarea'}`}
+                hasError={hasError}
+                className="text-input"
               />
               <div className="character-count-container">
-                <div className={`character-count ${textError ? 'character-count-error' : (url.length > maxTextLength * 0.9 ? 'character-count-warning' : 'character-count-normal')}`}>
-                  {url.length} / {maxTextLength} characters
-                </div>
-                {textError && (
-                  <div className="input-error">
-                    <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>{textError}</span>
-                  </div>
-                )}
+                <CharacterCount 
+                  current={url.length} 
+                  max={maxTextLength} 
+                  hasError={hasError}
+                />
               </div>
+              <ValidationError error={textError} />
             </div>
           )}
         </div>
@@ -201,7 +186,13 @@ export default function TransformerForm({
                 <span>Generating...</span>
               </>
             ) : (
-              !selectedPersona || !url.trim() ? 'Select persona and enter URL first' : 'Generate'
+              (() => {
+                if (!selectedPersona) return 'Select a persona first';
+                if (!url.trim()) return inputMode === 'url' ? 'Enter a URL first' : 'Enter text first';
+                if (inputMode === 'text' && textError) return '50 character minimum required';
+                if (inputMode === 'url' && urlError) return 'Valid URL required';
+                return 'Generate';
+              })()
             )}
           </button>
         </div>

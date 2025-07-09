@@ -1,24 +1,43 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Auth0Provider } from './hooks/useAuth0';
 import { useAuth } from './hooks/useAuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransformer from './components/Transformer/TransformationPage';
 import LandingPage from './components/Landing/LandingPage';
-import UserProfileEnhanced from './components/auth/UserProfileEnhanced';
+import UserProfile from './components/auth/UserProfile';
 import ErrorBoundary from './components/Transformer/ErrorBoundary';
 import Header from './components/Header';
 import Footer from './components/Footer';
 
 function AppContent() {
-  const { user, isAuthenticated, isLoading, login, signup, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, login, signup } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
   const [currentPage, setCurrentPage] = useState<'landing' | 'transformer'>('landing');
+  
+  // Extract full name from user object
+  const fullName = useMemo(() => {
+    if (!user) return 'User';
+    
+    // First try to use given_name and family_name
+    if (user.given_name && user.family_name) {
+      return `${user.given_name} ${user.family_name}`;
+    }
+    
+    // If not available, try to parse the name field
+    if (user.name) {
+      return user.name;
+    }
+    
+    // Fallback to nickname or email
+    return user.nickname || user.email?.split('@')[0] || 'User';
+  }, [user]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div className="w-16 h-16 border-4 border-purple-200 dark:border-purple-400 border-t-purple-600 dark:border-t-purple-300 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
         </div>
       </div>
     );
@@ -45,11 +64,10 @@ function AppContent() {
   // If user wants to see profile, show profile component
   if (showProfile) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Header 
           isAuthenticated={true}
-          userName={user.name || user.nickname || 'User'}
-          onLogout={logout}
+          userName={fullName}
           onHome={() => {
             setShowProfile(false);
             setCurrentPage('landing');
@@ -61,7 +79,7 @@ function AppContent() {
           }}
         />
         <div className="max-w-4xl mx-auto px-6 pt-8">
-          <UserProfileEnhanced />
+          <UserProfile />
         </div>
         <Footer />
       </div>
@@ -71,11 +89,10 @@ function AppContent() {
   // If on landing page (when authenticated)
   if (currentPage === 'landing') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
         <Header 
           isAuthenticated={true}
-          userName={user.name || user.nickname || 'User'}
-          onLogout={logout}
+          userName={fullName}
           onHome={() => {
             setShowProfile(false);
             setCurrentPage('landing');
@@ -90,20 +107,19 @@ function AppContent() {
           onShowLogin={() => setCurrentPage('transformer')}
           onShowSignup={() => setCurrentPage('transformer')}
           isAuthenticated={true}
-          userName={user.name || user.nickname || 'User'}
+          userName={fullName}
         />
         <Footer />
       </div>
     );
   }
 
-  // Default: show the main page transformer with home and logout buttons
+  // Default: show the main page transformer
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-blue-50 dark:bg-gray-900">
       <Header 
         isAuthenticated={true}
-        userName={user.name || user.nickname || 'User'}
-        onLogout={logout}
+        userName={fullName}
         onHome={() => {
           setShowProfile(false);
           setCurrentPage('landing');
@@ -123,9 +139,11 @@ function AppContent() {
 function App() {
   return (
     <ErrorBoundary>
-      <Auth0Provider>
-        <AppContent />
-      </Auth0Provider>
+      <ThemeProvider>
+        <Auth0Provider>
+          <AppContent />
+        </Auth0Provider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

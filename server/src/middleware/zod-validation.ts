@@ -179,7 +179,7 @@ export const commonSchemas = {
 
   // Text content validation
   text: z.string()
-    .min(10, 'Text must be at least 10 characters long')
+    .min(50, 'Text must be at least 50 characters long')
     .max(50000, 'Text cannot exceed 50,000 characters')
     .trim(),
 

@@ -1,0 +1,8 @@
+/* Test file to validate CSS import structure */
+@import './index.css';
+
+/* This file validates that all CSS modules are properly imported */
+.test-validation {
+  /* This should inherit all the styles from the organized CSS files */
+  display: block;
+}

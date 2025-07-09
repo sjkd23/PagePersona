@@ -1,37 +1,42 @@
-import type { Persona } from './types';
+import { getClientPersona } from '../../../../shared/constants/personas'
+import type { ClientPersona } from '../../../../shared/types/personas'
+
+interface PersonaAvatar {
+  id: string;
+  name: string;
+  imagePath: string;
+  alt: string;
+  className: string;
+}
 
 interface PersonaAvatarsDemoProps {
-  personas?: Persona[];
+  personas?: PersonaAvatar[];
   className?: string;
 }
 
-const defaultPersonas: Persona[] = [
-  {
-    id: 'professional',
-    name: 'Plague Doctor',
-    imagePath: '/images/persona_avatars/Plague_Doctor_avatar.png',
-    alt: 'Plague Doctor'
-  },
-  {
-    id: 'casual',
-    name: 'Explain It Like I\'m Five',
-    imagePath: '/images/persona_avatars/Explain_It_Like_Im_Five_avatar.png',
-    alt: 'Explain It Like I\'m Five'
-  },
-  {
-    id: 'technical',
-    name: 'Anime Hacker',
-    imagePath: '/images/persona_avatars/Anime_Hacker_avatar.png',
-    alt: 'Anime Hacker'
-  }
-];
+const personaIds = ['plague-doctor', 'eli5', 'anime-hacker'] as const;
+
+const defaultPersonas: PersonaAvatar[] = personaIds
+  .map(id => getClientPersona(id))
+  .filter((persona): persona is ClientPersona => Boolean(persona))
+  .map(persona => ({
+    id: persona.id,
+    name: persona.label,
+    imagePath: persona.avatarUrl,
+    alt: persona.label,
+    className:
+      persona.id === 'plague-doctor' ? 'plague_doctor' :
+      persona.id === 'eli5' ? 'eli5' :
+      persona.id === 'anime-hacker' ? 'anime_hacker' :
+      persona.id.replace(/[^a-z0-9\-]/gi, '_') // e.g. 'plague-doctor', 'eli5', 'anime-hacker'
+  }));
 
 export default function PersonaAvatarsDemo({ personas = defaultPersonas, className = '' }: PersonaAvatarsDemoProps) {
   return (
     <div className={`visual-item ${className}`}>
       <div className="persona-avatars">
         {personas.map((persona) => (
-          <div key={persona.id} className={`avatar ${persona.id}`}>
+          <div key={persona.id} className={`avatar ${persona.className}`}>
             <img src={persona.imagePath} alt={persona.alt} />
           </div>
         ))}

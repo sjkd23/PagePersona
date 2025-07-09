@@ -1,6 +1,7 @@
-import '../Transformer/TransformationHistory.css'
+
 import type { HistoryItem } from '../../hooks/useTransformationHistory'
 import type { WebpageContent } from '../../types/personas'
+import "./styles/TransformationHistory.css"
 
 interface TransformationHistoryProps {
   history: HistoryItem[]
@@ -51,12 +52,12 @@ export default function TransformationHistory({
       <div
         className={`transformation-history-sidebar${isOpen ? '' : ' closed'}`}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className="transformation-history-container">
           {/* Header */}
           <div className="transformation-history-header">
             <div className="transformation-history-header-row">
               <h3 className="transformation-history-title">
-                <span style={{ fontSize: '24px' }}>📜</span>
+                <span className="transformation-history-icon">📜</span>
                 History
               </h3>
               {history.length > 0 && (
@@ -97,9 +98,11 @@ export default function TransformationHistory({
                     {/* Persona Info */}
                     <div className="transformation-history-persona-row">
                       <div className="transformation-history-persona-avatar">
-                        <span className="transformation-history-persona-avatar-initial">
-                          {item.persona.label.charAt(0)}
-                        </span>
+                        <img 
+                          src={item.persona.avatarUrl} 
+                          alt={item.persona.label}
+                          className="w-full h-full rounded-full object-cover"
+                        />
                       </div>
                       <div className="transformation-history-persona-info">
                         <div className="transformation-history-persona-name">

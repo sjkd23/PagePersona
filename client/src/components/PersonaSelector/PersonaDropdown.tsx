@@ -15,7 +15,7 @@ const PersonaDropdown: React.FC<PersonaDropdownProps> = ({ personas, selectedPer
       if (persona) onSelect(persona)
     }}
     aria-label="Select a persona"
-    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors duration-200"
   >
     <option value="">Select a persona...</option>
     {personas.map(persona => (

@@ -1,0 +1,223 @@
+/* Card Component Styles */
+
+/* Enhanced Card Spacing */
+.card-content {
+  padding: 32px;
+}
+
+.card-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
+  transition: all 0.3s ease;
+}
+
+.dark .card-header {
+  border-bottom-color: #334155;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.card-header-with-action {
+  padding: 24px 32px;
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.card-header-with-action .step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dark .card-header-with-action {
+  border-bottom-color: #334155;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.card-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  transition: color 0.3s ease;
+}
+
+.dark .card-title {
+  color: #f1f5f9;
+}
+
+/* Enhanced step card styling */
+.step-card .card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: auto;
+}
+
+.step-card .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* Text Box Styling for Content */
+.content-text-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #334155;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.dark .content-text-box {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-color: #334155;
+  color: #e2e8f0;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.content-text-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.content-text-box::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.dark .content-text-box::-webkit-scrollbar-track {
+  background: #475569;
+}
+
+.content-text-box::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark .content-text-box::-webkit-scrollbar-thumb {
+  background: #64748b;
+}
+
+.content-text-box::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark .content-text-box::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Enhanced Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+  transition: all 0.3s ease;
+}
+
+.dark .empty-state {
+  color: #94a3b8;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-color: #475569;
+}
+
+.empty-state-text {
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.dark .empty-state-text {
+  color: #94a3b8;
+}
+
+/* Source info styling */
+.source-info {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  transition: color 0.3s ease;
+}
+
+.dark .source-info {
+  color: #94a3b8;
+}
+
+/* Copy Tooltip */
+.copy-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.copy-success-tooltip {
+  background: #10b981;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: fadeInOut 2s ease-in-out;
+  z-index: 10;
+}
+
+/* Loading States */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.dark .loading-spinner {
+  border-color: #475569;
+  border-top-color: #60a5fa;
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 16px;
+  color: #6b7280;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.dark .loading-text {
+  color: #94a3b8;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}

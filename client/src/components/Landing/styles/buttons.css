@@ -1,0 +1,55 @@
+/* Button Styles */
+.btn-primary {
+  background: #294769;
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary:hover {
+  background: #1e3651;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #294769;
+  padding: 0.625rem 1.25rem;
+  border: 2px solid #294769;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: #294769;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-tertiary {
+  background: #6c757d;
+  color: white;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-tertiary:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
