@@ -158,7 +158,7 @@ export class CacheService {
    * 
    * @returns Cache statistics including key counts and hit/miss ratios
    */
-  getCacheStats() {
+  getCacheStats(): { scrapeCache: { keys: number; stats: object }; transformCache: { keys: number; stats: object } } {
     return {
       scrapeCache: {
         keys: this.scrapeCache.keys().length,

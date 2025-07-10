@@ -1,7 +1,8 @@
 {
-  "name": "client",
+  "name": "pagepersonai-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "PagePersonAI Frontend - Transform web content with AI-powered personas",
   "type": "module",
   "scripts": {
     "dev": "tsc -b && vite",

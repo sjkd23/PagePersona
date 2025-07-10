@@ -96,7 +96,8 @@ export function validateQuery<T>(schema: ZodSchema<T>) {
         return;
       }
 
-      req.query = result.data as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any).query = result.data;
       next();
     } catch (error) {
       logger.validation.error('Query validation middleware error', error);
@@ -138,6 +139,7 @@ export function validateParams<T>(schema: ZodSchema<T>) {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       req.params = result.data as any;
       next();
     } catch (error) {

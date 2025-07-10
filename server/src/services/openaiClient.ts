@@ -163,7 +163,7 @@ export class OpenAIClientService {
     }
   }
 
-  getModelInfo() {
+  getModelInfo(): { defaultModel: string; supportedModels: string[]; maxTokens: number; temperature: number } {
     return {
       defaultModel: 'gpt-4o',
       supportedModels: ['gpt-4o', 'gpt-4', 'gpt-3.5-turbo'],

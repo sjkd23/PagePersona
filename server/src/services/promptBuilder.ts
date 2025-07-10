@@ -98,7 +98,7 @@ export class PromptBuilderService {
    * @param persona - Persona configuration object
    * @returns Complete system prompt string
    */
-  private static buildSystemPrompt(persona: any): string {
+  private static buildSystemPrompt(persona: { id: string; systemPrompt: string }): string {
     // Combine base prompt with persona-specific instructions
     const baseInstructions = BASE_SYSTEM_PROMPT || 'You are a helpful assistant that transforms content.'
     
@@ -156,7 +156,7 @@ Transform this content now with your unique style AND proper formatting!`
     }
   }
 
-  static getPromptMetrics(prompt: PromptComponents) {
+  static getPromptMetrics(prompt: PromptComponents): { systemPromptLength: number; userPromptLength: number; totalLength: number; estimatedTokens: number } {
     return {
       systemPromptLength: prompt.systemPrompt.length,
       userPromptLength: prompt.userPrompt.length,

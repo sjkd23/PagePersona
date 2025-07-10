@@ -76,9 +76,14 @@ export function createTieredRateLimit(
  * Get user membership tier synchronously
  * This is a simplified version for compatibility
  */
-export function getUserMembershipTierSync(req: Request | any): string {
+export function getUserMembershipTierSync(req: Request | { membership?: string; user?: { membership?: string } }): string {
+  // Type guard to check if req has membership property
+  const hasDirectMembership = (obj: unknown): obj is { membership: string } => {
+    return typeof obj === 'object' && obj !== null && 'membership' in obj;
+  };
+
   // If req is passed directly from test with membership property
-  if (req.membership) {
+  if (hasDirectMembership(req)) {
     // Handle unknown membership by returning free
     if (req.membership === 'unknown') {
       return 'free';
@@ -87,7 +92,7 @@ export function getUserMembershipTierSync(req: Request | any): string {
   }
   
   // Check user context for mongo user - check both membership and role
-  const userContext = (req as any).userContext;
+  const userContext = (req as Request & { userContext?: { mongoUser?: { membership?: string; role?: string } } }).userContext;
   
   if (userContext?.mongoUser?.membership) {
     const membership = userContext.mongoUser.membership;
@@ -101,9 +106,10 @@ export function getUserMembershipTierSync(req: Request | any): string {
     if (role === 'premium') return 'premium';
   }
   
-  // Check headers for testing
-  if (req.headers && req.headers['x-user-tier']) {
-    const headerTier = req.headers['x-user-tier'] as string;
+  // Check headers for testing (only if it's a Request object)
+  const requestObj = req as Request;
+  if (requestObj.headers && requestObj.headers['x-user-tier']) {
+    const headerTier = requestObj.headers['x-user-tier'] as string;
     return headerTier === 'unknown' ? 'free' : headerTier;
   }
   

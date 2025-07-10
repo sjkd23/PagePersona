@@ -22,7 +22,7 @@ import { logger } from '../utils/logger';
  * Defines the structure and instance methods for user documents
  * stored in MongoDB with comprehensive tracking and management fields.
  */
-export interface IMongoUser extends Document {
+export interface IMongoUser extends Document, Record<string, unknown> {
   auth0Id: string;
   email: string;
   username: string;

@@ -22,7 +22,7 @@ import ProfileHeader from './ProfileHeader';
 import MembershipStatus from './MembershipStatus';
 import ProfileForm from './ProfileForm';
 import ProfileStats from './ProfileStats';
-import type { ProfileEditForm } from './types';
+import type { ProfileEditForm, UserPreferences } from './types';
 
 // Import styles
 import './UserProfile.css';
@@ -177,7 +177,7 @@ export default function EnhancedUserProfile() {
   /**
    * Handle form field changes
    */
-  const handleFormChange = (field: keyof ProfileEditForm, value: any) => {
+  const handleFormChange = (field: keyof ProfileEditForm, value: string | UserPreferences) => {
     setEditForm(prev => ({
       ...prev,
       [field]: value

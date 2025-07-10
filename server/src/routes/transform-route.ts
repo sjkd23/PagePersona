@@ -14,12 +14,10 @@
  * - DELETE /cache: Development cache clearing
  */
 
-import express, { Request, Response, NextFunction } from 'express'
-import { getAllPersonas } from '../../../shared/constants/personas'
+import express, { Request, Response } from 'express'
 import { getAllClientPersonas } from '../../../shared/constants/personas'
 import { optionalAuth0 } from '../middleware/auth0-middleware'
 import { checkUsageLimit } from '../middleware/usage-limit-middleware'
-import { createTieredRateLimit, getUserMembershipTierSync } from '../config/simple-rate-limit-configs'
 import { sendSuccess, sendInternalError } from '../utils/response-helpers'
 import { validateBody } from '../middleware/zod-validation'
 import { transformSchemas } from '../middleware/validation-schemas'
@@ -30,10 +28,6 @@ import { cacheService } from '../services/cache-service'
 import { ErrorCode, ErrorMapper } from '../../../shared/types/errors'
 
 const router = express.Router()
-
-// Create tiered rate limiters based on membership level
-const transformRateLimit = createTieredRateLimit('transform', getUserMembershipTierSync)
-const apiRateLimit = createTieredRateLimit('api', getUserMembershipTierSync)
 
 logger.transform.info('Transform routes module loaded');
 logger.transform.info('Registering transform routes', {
@@ -99,7 +93,7 @@ router.post('/', /*transformRateLimit,*/ validateBody(transformSchemas.transform
   
   try {
     const { url, persona } = req.body
-    const mongoUser = (req as any).userContext?.mongoUser
+    const mongoUser = (req as Request & { userContext?: { mongoUser?: { _id?: { toString(): string } } } }).userContext?.mongoUser
     const userId = mongoUser?._id?.toString()
 
     const transformationService = createTransformationService()
@@ -180,7 +174,7 @@ router.post('/text', /*transformRateLimit,*/ validateBody(transformSchemas.trans
 
   try {
     const { text, persona } = req.body
-    const mongoUser = (req as any).userContext?.mongoUser
+    const mongoUser = (req as Request & { userContext?: { mongoUser?: { _id?: { toString(): string } } } }).userContext?.mongoUser
     const userId = mongoUser?._id?.toString()
 
     const transformationService = createTransformationService()

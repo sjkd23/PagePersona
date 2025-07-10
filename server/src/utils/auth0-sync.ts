@@ -1,7 +1,6 @@
 // Auth0 to MongoDB field synchronization utilities
 
 import { IMongoUser } from '../models/mongo-user';
-import { logger } from '../utils/logger';
 import type { 
   ProcessedAuth0User, 
   FieldMapping, 
@@ -90,17 +89,38 @@ export function syncAuth0Fields(mongoUser: IMongoUser, auth0User: ProcessedAuth0
 
 /**
  * Log sync results for debugging and monitoring
+ * Only logs in non-production environments
  */
 export function logSyncResults(userId: string, result: SyncResult): void {
-  if (result.changedFields.length > 0) {
-    console.log(`🔄 User ${userId} - Fields updated:`, result.changedFields);
+  // Only log in non-production environments
+  if (process.env.NODE_ENV === 'production') {
+    return;
   }
-  
-  if (result.errors && result.errors.length > 0) {
-    console.log(`⚠️  User ${userId} - Sync errors:`, result.errors);
-  }
-  
-  if (result.changedFields.length === 0 && (!result.errors || result.errors.length === 0)) {
-    console.log(`✅ User ${userId} - No changes needed (lastLoginAt updated)`);
+
+  try {
+    const { updated, changedFields, errors } = result;
+
+    // Log field changes if any
+    if (changedFields && changedFields.length > 0) {
+      console.log(
+        `🔄 User ${userId} - Fields updated:`,
+        changedFields
+      );
+    }
+
+    // Log errors if any
+    if (errors && errors.length > 0) {
+      console.log(
+        `⚠️  User ${userId} - Sync errors:`,
+        errors
+      );
+    }
+
+    // Log no changes needed if updated but no field changes
+    if (updated && (!changedFields || changedFields.length === 0) && (!errors || errors.length === 0)) {
+      console.log(`✅ User ${userId} - No changes needed (lastLoginAt updated)`);
+    }
+  } catch (error) {
+    console.error(`❌ Error logging sync results for ${userId}:`, error);
   }
 }

@@ -13,7 +13,7 @@ export default function UnauthenticatedCTA({ onShowSignup, onShowLogin }: Unauth
         <button onClick={onShowSignup} className="btn-primary">
           Sign Up
         </button>
-        <button onClick={onShowLogin} className="btn-secondary">
+        <button onClick={onShowLogin} className="btn-primary">
           Log In
         </button>
       </div>

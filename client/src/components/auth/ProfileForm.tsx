@@ -24,7 +24,7 @@ interface ProfileFormProps {
   /** Whether the profile is in editing mode */
   editing: boolean;
   /** Handler for form field changes */
-  onFormChange: (field: keyof ProfileEditForm, value: any) => void;
+  onFormChange: (field: keyof ProfileEditForm, value: string | ProfileEditForm['preferences']) => void;
   /** Whether the form is in loading state */
   isLoading?: boolean;
 }
@@ -49,7 +49,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   /**
    * Handle preference changes
    */
-  const handlePreferenceChange = (key: keyof ProfileEditForm['preferences'], value: any) => {
+  const handlePreferenceChange = (key: keyof ProfileEditForm['preferences'], value: boolean | string) => {
     onFormChange('preferences', {
       ...editForm.preferences,
       [key]: value

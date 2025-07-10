@@ -107,8 +107,14 @@ testRedisConnection();
 // Initialize session cleanup
 startSessionCleanup();
 
+// CORS Configuration
+const allowedOrigins: string[] = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()).filter(origin => origin.length > 0)
+    : ['http://localhost:3000', 'http://localhost:5173']; // Default for development
+
 // Middleware
-app.use(cors());
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 // Health check endpoints

@@ -13,7 +13,7 @@
  * - Type-safe response data handling
  */
 
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
 import { logger } from './logger';
 import type { ApiResponse } from '../../../shared/types/api';
 import type { AuthenticatedRequest, ErrorHandlerFunction, AsyncRouteHandler } from '../types/common';
@@ -102,7 +102,7 @@ export function sendInternalError(res: Response, error: string = 'Internal serve
  * Middleware to catch and format unhandled route errors
  * Conforms to Express's standard error handler signature: (err, req, res, next)
  */
-export const errorHandler: ErrorHandlerFunction = (err, req, res, next) => {
+export const errorHandler: ErrorHandlerFunction = (err, req, res, _next) => {
   logger.error('Unhandled route error', err as Error, {
     route: `${req.method} ${req.originalUrl}`,
     timestamp: new Date().toISOString()
@@ -123,7 +123,7 @@ export const errorHandler: ErrorHandlerFunction = (err, req, res, next) => {
   
   // Handle errors with status codes
   if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
-    const message = (err as any).message || 'Resource not found';
+    const message = (err as { message?: string }).message || 'Resource not found';
     sendNotFound(res, message);
     return;
   }
@@ -143,8 +143,8 @@ export const errorHandler: ErrorHandlerFunction = (err, req, res, next) => {
 /**
  * Async route wrapper to catch promise rejections
  */
-export function asyncHandler(fn: AsyncRouteHandler) {
-  return (req: AuthenticatedRequest, res: Response, next: any) => {
+export function asyncHandler(fn: AsyncRouteHandler): (req: AuthenticatedRequest, res: Response, next: NextFunction) => void {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 }

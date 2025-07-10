@@ -105,7 +105,7 @@ export class PerformanceUtils {
    * @param wait - Wait time in milliseconds
    * @param immediate - Execute immediately
    */
-  static debounce<T extends (...args: any[]) => any>(
+  static debounce<T extends (...args: never[]) => unknown>(
     func: T,
     wait: number,
     immediate?: boolean
@@ -133,13 +133,13 @@ export class PerformanceUtils {
    * @param func - Function to throttle
    * @param limit - Time limit in milliseconds
    */
-  static throttle<T extends (...args: any[]) => any>(
+  static throttle<T extends (...args: never[]) => unknown>(
     func: T,
     limit: number
   ): (...args: Parameters<T>) => void {
     let inThrottle: boolean;
     
-    return function executedFunction(this: any, ...args: Parameters<T>) {
+    return function executedFunction(this: unknown, ...args: Parameters<T>) {
       if (!inThrottle) {
         func.apply(this, args);
         inThrottle = true;
@@ -163,7 +163,7 @@ export class PerformanceUtils {
     new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
       entries.forEach((entry) => {
-        const fidEntry = entry as any; // Type assertion for FID entry
+        const fidEntry = entry as PerformanceEntry & { processingStart: number; startTime: number };
         console.log('FID:', fidEntry.processingStart - fidEntry.startTime);
       });
     }).observe({ entryTypes: ['first-input'] });
@@ -172,8 +172,8 @@ export class PerformanceUtils {
     let clsValue = 0;
     new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
-      entries.forEach((entry: any) => {
-        if (!entry.hadRecentInput) {
+      entries.forEach((entry: PerformanceEntry & { value?: number; hadRecentInput?: boolean }) => {
+        if (!entry.hadRecentInput && entry.value) {
           clsValue += entry.value;
           console.log('CLS:', clsValue);
         }

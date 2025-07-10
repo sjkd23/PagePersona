@@ -137,9 +137,9 @@ class RedisClientManager {
 
     try {
       return await client.get(key);
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!this.silentMode) {
-        logger.auth.warn('Redis GET error:', { error: error.message });
+        logger.auth.warn('Redis GET error:', { error: error instanceof Error ? error.message : 'Unknown error' });
         this.silentMode = true;
       }
       return null;
@@ -164,9 +164,9 @@ class RedisClientManager {
         await client.set(key, value);
       }
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!this.silentMode) {
-        logger.auth.warn('Redis SET error:', { error: error.message });
+        logger.auth.warn('Redis SET error:', { error: error instanceof Error ? error.message : 'Unknown error' });
         this.silentMode = true;
       }
       return false;
@@ -183,9 +183,9 @@ class RedisClientManager {
     try {
       await client.del(key);
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (!this.silentMode) {
-        logger.auth.warn('Redis DEL error:', { error: error.message });
+        logger.auth.warn('Redis DEL error:', { error: error instanceof Error ? error.message : 'Unknown error' });
         this.silentMode = true;
       }
       return false;
@@ -199,9 +199,9 @@ class RedisClientManager {
         if (!this.silentMode) {
           logger.auth.info('Redis connection closed successfully');
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         if (!this.silentMode) {
-          logger.auth.warn('Error disconnecting Redis:', { error: error.message });
+          logger.auth.warn('Error disconnecting Redis:', { error: error instanceof Error ? error.message : 'Unknown error' });
         }
       }
       this.client = null;

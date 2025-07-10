@@ -14,7 +14,7 @@ export interface AnalyticsEvent {
   category: string;
   label?: string;
   value?: number;
-  custom_parameters?: Record<string, any>;
+  custom_parameters?: Record<string, string | number | boolean | undefined>;
 }
 
 export interface PageViewData {
@@ -159,7 +159,7 @@ export class AnalyticsUtils {
    * @param action - Engagement action
    * @param details - Additional details
    */
-  static trackEngagement(action: string, details?: Record<string, any>): void {
+  static trackEngagement(action: string, details?: Record<string, string | number | boolean>): void {
     this.trackEvent({
       action,
       category: 'user_engagement',
@@ -273,7 +273,7 @@ export class AnalyticsUtils {
     document.head.appendChild(script2);
   }
 
-  private static async sendToCustomAnalytics(eventType: string, data: any): Promise<void> {
+  private static async sendToCustomAnalytics(eventType: string, data: Record<string, unknown>): Promise<void> {
     const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT;
     if (!analyticsEndpoint) return;
 
@@ -324,7 +324,7 @@ export function useAnalytics(userId?: string, hasConsent: boolean = true): void 
 
 // Global gtag type declaration
 declare global {
-  function gtag(...args: any[]): void;
+  function gtag(...args: unknown[]): void;
 }
 
 export default AnalyticsUtils;

@@ -11,7 +11,7 @@
  * - GET /stats: Retrieve system statistics and metrics
  */
 
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { MongoUser } from '../models/mongo-user';
 import { verifyAuth0Token, syncAuth0User } from '../middleware/auth0-middleware';
 import { createSuccessResponse, createErrorResponse, serializeMongoUser } from '../utils/userSerializer';
@@ -34,7 +34,7 @@ const router = express.Router();
  * @throws {401} Unauthorized if no user authentication
  * @throws {403} Forbidden if user lacks admin role
  */
-const requireAdmin = (req: Request, res: Response, next: any) => {
+const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   const user = req.userContext?.mongoUser;
   
   if (!user) {

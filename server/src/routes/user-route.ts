@@ -22,7 +22,7 @@
  */
 
 import express, { Request, Response } from 'express';
-import { MongoUser } from '../models/mongo-user';
+import { MongoUser, type IMongoUser } from '../models/mongo-user';
 import { verifyAuth0Token, syncAuth0User } from '../middleware/auth0-middleware';
 import * as userSerializer from '../utils/userSerializer';
 import { syncRateLimit, profileUpdateRateLimit, testEndpointRateLimit } from '../middleware/simple-rate-limit';
@@ -69,7 +69,7 @@ router.get('/profile', validateQuery(userSchemas.profileQuery), verifyAuth0Token
         : HttpStatus.INTERNAL_SERVER_ERROR;
       res.status(status).json(userSerializer.createErrorResponse(errMsg));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching user profile:', error);
     const errMsg = error instanceof Error ? error.message : 'Failed to fetch user profile';
     const status = errMsg.includes('not found')
@@ -143,28 +143,31 @@ router.get('/usage', verifyAuth0Token, syncAuth0User, async (req: Request, res: 
 // Sync user with MongoDB (triggers automatic user creation/update)
 router.post('/sync', syncRateLimit, verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
   try {
-    const auth0User = req.userContext?.auth0User;
+    const mongoUser = req.userContext?.mongoUser;
     
-    if (!auth0User) {
+    if (!mongoUser) {
       res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User sync failed - user not found'));
       return;
     }
 
-    const serviceResult = await userService.syncUser(auth0User);
+    const serviceResult = await userService.syncUser(mongoUser);
     // support raw or structured result
     const success = typeof serviceResult.success === 'boolean' ? serviceResult.success : true;
     const userData = success ? (serviceResult.data ?? serviceResult) : null;
-    const message = success && (serviceResult as any).message ? (serviceResult as any).message : undefined;
+    const message = success && (serviceResult as { message?: string }).message ? (serviceResult as { message?: string }).message : undefined;
     
     if (success) {
       // serialize and respond
-      const serialized = userSerializer.createSuccessResponse(userData && userSerializer.serializeMongoUser(userData), message);
+      const serializedData = userData && typeof userData === 'object' && '_id' in userData && 'auth0Id' in userData 
+        ? userSerializer.serializeMongoUser(userData as IMongoUser) 
+        : null;
+      const serialized = userSerializer.createSuccessResponse(serializedData, message);
       res.json(serialized);
     } else {
-      const errMsg = (serviceResult as any).error || 'Failed to sync user';
+      const errMsg = (serviceResult as { error?: string }).error || 'Failed to sync user';
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(errMsg));
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error syncing user:', error);
     const errMsg = error instanceof Error ? error.message : 'Failed to sync user';
     const status = errMsg.includes('not found')
@@ -219,8 +222,8 @@ if (process.env.NODE_ENV !== 'production') {
       
       if (parts.length === 3) {
         try {
-          const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+          JSON.parse(Buffer.from(parts[0], 'base64').toString());
+          JSON.parse(Buffer.from(parts[1], 'base64').toString());
         } catch (e) {
           logger.info('❌ JWT decode failed:', { error: e instanceof Error ? e.message : 'Unknown error' });
         }
@@ -275,9 +278,10 @@ if (process.env.NODE_ENV !== 'production') {
         usage: { totalTransformations: 5, monthlyUsage: 2, usageResetDate: new Date() },
         createdAt: new Date(),
         updatedAt: new Date()
-      } as any;
+      } as unknown;
       
-      const serialized = serializeMongoUser(testUser);
+      // Test serialization without storing result
+      serializeMongoUser(testUser as IMongoUser);
     
       res.json({
         success: true,

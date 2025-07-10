@@ -1,8 +1,8 @@
 {
-  "name": "server",
+  "name": "pagepersonai-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "PagePersonAI Backend API - AI-powered content transformation service",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsc && ts-node src/index.ts",
     "build": "tsc",
@@ -13,9 +13,9 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["ai", "content-transformation", "openai", "personas", "web-scraping", "typescript", "express"],
+  "author": "PagePersonAI Team",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "auth0": "^4.27.0",

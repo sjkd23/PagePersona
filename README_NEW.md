@@ -451,7 +451,6 @@ OPENAI_MODEL=gpt-4
 
 # Optional Services
 REDIS_URL=redis://localhost:6379
-ALLOWED_ORIGINS=https://pagepersonai.com,https://www.pagepersonai.com
 LOG_LEVEL=info
 ```
 

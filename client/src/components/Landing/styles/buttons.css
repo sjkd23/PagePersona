@@ -18,10 +18,10 @@
 }
 
 .btn-secondary {
-  background: transparent;
-  color: #294769;
+  background: #294769;
+  color: white;
   padding: 0.625rem 1.25rem;
-  border: 2px solid #294769;
+  border: none;
   border-radius: 0.25rem;
   font-weight: 600;
   font-size: 0.875rem;
@@ -31,8 +31,7 @@
 }
 
 .btn-secondary:hover {
-  background: #294769;
-  color: white;
+  background: #1e3651;
   transform: translateY(-1px);
 }
 

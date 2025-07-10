@@ -111,7 +111,7 @@ const createEnhancedJwtVerifier = (config: Record<string, unknown>) => {
     
     // Validate JWT header encoding
     try {
-      const _header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
+      JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
     } catch (error) {
       logger.info('Invalid JWT header encoding');
       res.status(HttpStatus.UNAUTHORIZED).json({

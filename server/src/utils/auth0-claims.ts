@@ -2,7 +2,6 @@
 // Handles environment variations and provides fallbacks
 
 import type { Auth0JwtPayload } from '../types/common';
-import { logger } from '../utils/logger';
 
 interface SafeAuth0Claims {
   sub: string;
@@ -37,6 +36,7 @@ const STANDARD_CLAIMS = {
  * Environment-specific claim mappings for non-standard claims
  * Configure this per tenant/environment if needed
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ENVIRONMENT_CLAIMS = {
   // Custom claims might have different paths per environment
   customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
@@ -196,34 +196,54 @@ export function validateAuth0User(auth0User: Auth0JwtPayload): { isValid: boolea
 
 /**
  * Debug utility - log all claims for troubleshooting
+ * Only logs in non-production environments
  */
 export function debugAuth0Claims(auth0User: Auth0JwtPayload, userId?: string): void {
-  if (process.env.NODE_ENV === 'production') return;
+  // Only log in non-production environments
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
 
-  const userLabel = userId ? ` for user ${userId}` : '';
-  console.log(`🔍 Auth0 Claims Debug${userLabel}:`);
-  
   try {
+    const userIdText = userId ? ` for user ${userId}` : '';
+    console.log(`🔍 Auth0 Claims Debug${userIdText}:`);
+
+    // Log standard claims
     const standardClaims = safeGetAuth0Claims(auth0User);
-    const customClaims = safeGetCustomClaims(auth0User);
-    
     console.log('📋 Standard Claims:', standardClaims);
+
+    // Log custom claims
+    const customClaims = safeGetCustomClaims(auth0User);
     console.log('🔧 Custom Claims:', customClaims);
-    console.log('📧 Safe Email:', safeGetEmail(auth0User));
-    console.log('👤 Display Name:', safeGetDisplayName(auth0User));
-    
-    // Show any unrecognized claims
-    const knownClaimKeys = [
+
+    // Log safe email
+    const email = safeGetEmail(auth0User);
+    console.log('📧 Safe Email:', email);
+
+    // Log display name
+    const displayName = safeGetDisplayName(auth0User);
+    console.log('👤 Display Name:', displayName);
+
+    // Check for unknown claims
+    const environmentClaims = {
+      customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
+      roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
+      permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions'
+    };
+
+    const knownClaimKeys = new Set([
       ...Object.values(STANDARD_CLAIMS),
-      ...Object.values(ENVIRONMENT_CLAIMS),
-      'iss', 'aud', 'exp', 'iat', 'azp', 'scope' // JWT standard claims
-    ];
+      ...Object.values(environmentClaims),
+      'iss', 'aud', 'iat', 'exp', 'azp', 'scope', 'gty'
+    ]);
+
+    const unknownClaimEntries = Object.entries(auth0User)
+      .filter(([key]) => !knownClaimKeys.has(key))
+      .map(([key, value]) => `${key}: ${value}`);
     
-    const unknownClaims = Object.keys(auth0User).filter(key => !knownClaimKeys.includes(key));
-    if (unknownClaims.length > 0) {
-      console.log('❓ Unknown Claims:', unknownClaims.map(key => `${key}: ${auth0User[key]}`));
+    if (unknownClaimEntries.length > 0) {
+      console.log('❓ Unknown Claims:', unknownClaimEntries);
     }
-    
   } catch (error) {
     console.error('❌ Error debugging Auth0 claims:', error);
   }

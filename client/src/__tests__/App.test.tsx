@@ -14,7 +14,7 @@ import App from '../App'
 import type { AuthContextType } from '../contexts/AuthContext'
 
 // Mock all components
-vi.mock('../hooks/useAuth0', () => ({
+vi.mock('../providers/Auth0Provider', () => ({
   Auth0Provider: ({ children }: { children: React.ReactNode }) => <div data-testid="auth0-provider">{children}</div>
 }))
 
@@ -110,7 +110,7 @@ describe('App', () => {
 
     render(<App />)
     
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Loading PagePersonAI...')).toBeInTheDocument()
     expect(screen.getByTestId('error-boundary')).toBeInTheDocument()
   })
 

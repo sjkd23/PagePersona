@@ -16,7 +16,7 @@
  */
 
 import { useState, useMemo, useEffect } from 'react';
-import { Auth0Provider } from './hooks/useAuth0';
+import { Auth0Provider } from './providers/Auth0Provider';
 import { useAuth } from './hooks/useAuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import PageTransformer from './components/Transformer/TransformationPage';

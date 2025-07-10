@@ -13,7 +13,7 @@
  * - Secure field filtering for updates
  */
 
-import { MongoUser } from '../models/mongo-user'
+import { MongoUser, type IMongoUser } from '../models/mongo-user'
 import { serializeMongoUser, serializeUserUsage } from '../utils/userSerializer'
 import { logger } from '../utils/logger'
 import type { Document } from 'mongoose'
@@ -36,7 +36,7 @@ export interface UserProfileUpdateRequest {
  * Provides consistent response structure across all user service
  * operations with success/error states and optional data payload.
  */
-export interface UserServiceResult<T = any> {
+export interface UserServiceResult<T = unknown> {
   success: boolean
   data?: T
   message?: string
@@ -97,7 +97,7 @@ export class UserService {
    * @returns Promise resolving to updated user data or error
    */
   async updateUserProfile(
-    user: Document & any, 
+    user: Document & Record<string, unknown>, 
     updates: UserProfileUpdateRequest
   ): Promise<UserServiceResult> {
     try {
@@ -114,7 +114,7 @@ export class UserService {
       // Special handling for preferences (merge instead of replace)
       if (updates.preferences) {
         filteredUpdates.preferences = {
-          ...user.preferences,
+          ...(user.preferences || {}),
           ...updates.preferences
         }
       }
@@ -162,7 +162,7 @@ export class UserService {
    * @param user - User document with usage information
    * @returns Promise resolving to usage statistics or error
    */
-  async getUserUsage(user: Document & any): Promise<UserServiceResult> {
+  async getUserUsage(user: Document & Record<string, unknown>): Promise<UserServiceResult> {
     try {
       if (!user) {
         return {
@@ -173,7 +173,7 @@ export class UserService {
 
       return {
         success: true,
-        data: serializeUserUsage(user)
+        data: serializeUserUsage(user as unknown as IMongoUser)
       }
 
     } catch (error) {
@@ -195,7 +195,7 @@ export class UserService {
    * @param user - User document to synchronize
    * @returns Promise resolving to synchronized user data or error
    */
-  async syncUser(user: Document & any): Promise<UserServiceResult> {
+  async syncUser(user: Document & Record<string, unknown>): Promise<UserServiceResult> {
     try {
       if (!user) {
         return {
@@ -212,7 +212,7 @@ export class UserService {
 
       return {
         success: true,
-        data: serializeMongoUser(user),
+        data: serializeMongoUser(user as unknown as IMongoUser),
         message: 'User successfully synced with MongoDB'
       }
 
