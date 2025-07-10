@@ -24,8 +24,8 @@
       "@shared": ["shared/index"]
     }
   },
-  "include": ["src/**/*", "src/types/**/*", "../shared/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts"],
+  "include": ["src/**/*", "src/types/**/*", "../shared/types/**/*", "../shared/constants/personas.ts", "../shared/constants/prompts.ts", "../shared/constants/index.ts", "../shared/index.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts", "**/__tests__/**/*"],
   "ts-node": {
     "files": true
   }
