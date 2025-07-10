@@ -1,14 +1,54 @@
-import { getPersona } from '../data/personas'
-import { BASE_SYSTEM_PROMPT } from '../data/basePrompt'
-import type { ParsedContent } from './parser'
+/**
+ * Prompt Builder Service
+ * 
+ * Constructs structured AI prompts by combining base system instructions,
+ * persona-specific prompts, and user content. Handles prompt composition
+ * for different content types and transformation scenarios with proper
+ * formatting and length management.
+ * 
+ * Features:
+ * - Systematic prompt composition from multiple sources
+ * - Persona-specific instruction integration
+ * - Content type-aware prompt building
+ * - Prompt length tracking and optimization
+ * - Consistent formatting across all prompts
+ */
 
+import { getPersona } from '../../../shared/constants/personas'
+import { BASE_SYSTEM_PROMPT } from '../../../shared/constants/prompts'
+import type { ParsedContent } from './parser'
+import { logger } from '../utils/logger';
+
+/**
+ * Prompt components structure interface
+ * 
+ * Contains all components of a complete AI prompt including system
+ * instructions, user content, and metadata for API usage.
+ */
 export interface PromptComponents {
   systemPrompt: string
   userPrompt: string
   totalLength: number
 }
 
+/**
+ * Prompt Builder Service Class
+ * 
+ * Static service class for constructing AI prompts from various
+ * content sources and persona configurations with proper formatting.
+ */
 export class PromptBuilderService {
+  /**
+   * Build transformation prompt for webpage content
+   * 
+   * Constructs complete AI prompt combining base system instructions,
+   * persona-specific prompts, and parsed webpage content for transformation.
+   * 
+   * @param content - Parsed and validated webpage content
+   * @param personaId - Persona identifier for transformation style
+   * @returns Complete prompt components ready for AI API
+   * @throws Error if persona is not found
+   */
   static buildTransformationPrompt(content: ParsedContent, personaId: string): PromptComponents {
     const persona = getPersona(personaId)
     if (!persona) {
@@ -25,6 +65,17 @@ export class PromptBuilderService {
     }
   }
 
+  /**
+   * Build transformation prompt for direct text content
+   * 
+   * Constructs complete AI prompt for transforming direct text input
+   * using persona-specific instructions and formatting.
+   * 
+   * @param content - Parsed and validated text content
+   * @param personaId - Persona identifier for transformation style
+   * @returns Complete prompt components ready for AI API
+   * @throws Error if persona is not found
+   */
   static buildTextTransformationPrompt(content: ParsedContent, personaId: string): PromptComponents {
     const persona = getPersona(personaId)
     if (!persona) {
@@ -41,6 +92,12 @@ export class PromptBuilderService {
     }
   }
 
+  /**
+   * Build comprehensive system prompt combining base and persona instructions
+   * 
+   * @param persona - Persona configuration object
+   * @returns Complete system prompt string
+   */
   private static buildSystemPrompt(persona: any): string {
     // Combine base prompt with persona-specific instructions
     const baseInstructions = BASE_SYSTEM_PROMPT || 'You are a helpful assistant that transforms content.'
@@ -95,7 +152,7 @@ Transform this content now with your unique style AND proper formatting!`
 
     // Warn if prompts are too long (rough estimate for token limits)
     if (prompt.totalLength > 12000) {
-      console.warn('Combined prompt length is quite long, may exceed token limits')
+      logger.warn('Combined prompt length is quite long, may exceed token limits')
     }
   }
 

@@ -31,7 +31,6 @@ export default defineConfig({
         '**/*.test.tsx',
         '**/*.test.ts',
         // Static data and configuration
-        'src/data/personas.ts',
         'src/config/auth.ts',
         // Type definitions
         'src/types/**/*.ts',

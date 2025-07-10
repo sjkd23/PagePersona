@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import type { Persona, WebpageContent } from '../../types/personas'
+import type { ClientPersona as Persona, WebpageContent } from '../../../../shared/types/personas'
 import PersonaSelector from '../PersonaSelector'
 import UrlInput from '../Transformer/UrlInput'
 import ContentDisplay from './ContentDisplay'
@@ -75,9 +75,9 @@ export default function PageTransformer() {
       if (response.success) {
         const transformedContent: WebpageContent = {
           originalUrl: formattedUrl,
-          originalTitle: response.originalContent.title,
-          originalContent: response.originalContent.content,
-          transformedContent: response.transformedContent,
+          originalTitle: response.originalContent?.title || 'Webpage Content',
+          originalContent: response.originalContent?.content || '',
+          transformedContent: response.transformedContent || '',
           persona: selectedPersona,
           timestamp: new Date()
         }
@@ -85,14 +85,26 @@ export default function PageTransformer() {
         setContent(transformedContent)
         // Add to history after successful transformation
         addToHistory(transformedContent)
-      } else if ((response as any).limitExceeded) {
-        // User has hit their limit
-        const remaining = `${(response as any).currentUsage}/${(response as any).usageLimit}`
-        setError(`Monthly limit reached (${remaining}). Please upgrade to continue.`)
       } else {
-        // Show server-provided message or generic error
-        const msg = (response as any).message || response.error || 'Failed to transform the webpage'
-        setError(msg)
+        // Check for enhanced error response with limit information
+        const errorResponse = response as {
+          success: boolean;
+          error?: string;
+          limitExceeded?: boolean;
+          currentUsage?: number;
+          usageLimit?: number;
+          message?: string;
+        };
+        
+        if (errorResponse.limitExceeded) {
+          // User has hit their limit
+          const remaining = `${errorResponse.currentUsage || 0}/${errorResponse.usageLimit || 'unknown'}`
+          setError(`Monthly limit reached (${remaining}). Please upgrade to continue.`)
+        } else {
+          // Show server-provided message or generic error
+          const msg = errorResponse.message || errorResponse.error || 'Failed to transform the webpage'
+          setError(msg)
+        }
       }
       
       setIsLoading(false)

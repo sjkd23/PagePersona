@@ -1,0 +1,35 @@
+# Robots.txt for PagePersonAI
+User-agent: *
+Allow: /
+
+# Important pages
+Allow: /
+Allow: /transform
+Allow: /about
+Allow: /features
+
+# Disallow private/admin areas
+Disallow: /api/
+Disallow: /admin/
+Disallow: /user/profile/private
+Disallow: /_vite/
+Disallow: /src/
+
+# Sitemap location
+Sitemap: https://pagepersonai.com/sitemap.xml
+
+# Crawl delay (optional - be respectful to search engine bots)
+Crawl-delay: 1
+
+# Specific bot instructions
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1
+
+# Block specific paths for all bots
+Disallow: /temp/
+Disallow: /.env
+Disallow: /package.json
+Disallow: /vite.config.ts

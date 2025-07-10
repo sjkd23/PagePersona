@@ -1,3 +1,14 @@
+/**
+ * GPT Communication Route Handler
+ * 
+ * Provides direct access to OpenAI GPT chat functionality with validation
+ * and structured message handling. Used for real-time chat interactions
+ * and custom AI communication workflows.
+ * 
+ * Routes:
+ * - POST /chat: Send messages to OpenAI GPT with validation
+ */
+
 import express from 'express';
 import { validateBody } from '../middleware/zod-validation';
 import { chatSchemas } from '../middleware/validation-schemas';
@@ -5,7 +16,18 @@ import promptCall from '../utils/gpt/prompt-call';
 
 const router = express.Router();
 
-// POST /api/gpt/chat - Send messages to OpenAI GPT
+/**
+ * Send chat messages to OpenAI GPT
+ * 
+ * Processes validated chat messages and forwards them to the OpenAI GPT
+ * service for response generation. Handles message validation and error
+ * responses according to OpenAI API specifications.
+ * 
+ * @route POST /chat
+ * @param {object} message - Chat message object with role and content
+ * @returns {object} GPT response or error message
+ * @middleware validateBody - Validates message format using chat schema
+ */
 router.post('/chat', validateBody(chatSchemas.chatMessage), promptCall);
 
 export default router;

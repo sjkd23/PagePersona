@@ -81,7 +81,7 @@ describe('utils/themeUtils', () => {
 
   describe('personaColors', () => {
     it('should have light and dark variants for all personas', () => {
-      Object.entries(personaColors).forEach(([_personaId, colors]) => {
+      Object.entries(personaColors).forEach(([, colors]) => {
         expect(colors).toHaveProperty('light')
         expect(colors).toHaveProperty('dark')
         expect(colors).toHaveProperty('accent')

@@ -1,7 +1,17 @@
+/**
+ * Test suite for the main App component
+ * 
+ * This test suite verifies the proper rendering and behavior of the main
+ * App component, including authentication state handling, routing logic,
+ * and provider wrapping. Uses mocked dependencies for isolated testing.
+ * 
+ * @module App.test
+ */
+
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import App from '../App'
-import type { AuthContextType } from '../hooks/useAuth0'
+import type { AuthContextType } from '../contexts/AuthContext'
 
 // Mock all components
 vi.mock('../hooks/useAuth0', () => ({
@@ -37,7 +47,13 @@ vi.mock('../components/Transformer/ErrorBoundary', () => ({
 }))
 
 vi.mock('../components/Header', () => ({
-  default: ({ isAuthenticated, userName, onHome, onProfile, onTransform }: any) => (
+  default: ({ isAuthenticated, userName, onHome, onProfile, onTransform }: {
+    isAuthenticated: boolean;
+    userName: string;
+    onHome: () => void;
+    onProfile: () => void;
+    onTransform: () => void;
+  }) => (
     <div data-testid="header">
       Header - Auth: {String(isAuthenticated)} - User: {userName}
       <button onClick={onHome} data-testid="home-btn">Home</button>

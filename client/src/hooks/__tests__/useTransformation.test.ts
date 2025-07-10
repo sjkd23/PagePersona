@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTransformation } from '../useTransformation'
-import type { AuthContextType } from '../useAuth0'
+import type { AuthContextType } from '../../contexts/AuthContext'
 import ApiService from '../../lib/apiClient'
 
 // Mock dependencies

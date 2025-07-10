@@ -1,16 +1,51 @@
+/**
+ * Content display component for transformed text
+ * 
+ * This component handles the display of transformed content with persona
+ * information, loading states, and user interaction features like copying
+ * to clipboard. It provides visual feedback for user actions and maintains
+ * accessibility standards.
+ * 
+ * @module ContentDisplay
+ */
+
 import { useState } from 'react'
-import type { Persona, WebpageContent } from '../../types/personas'
+import type { ClientPersona as Persona, WebpageContent } from '../../../../shared/types/personas'
 import './styles/ContentDisplay.css'
 
+/**
+ * Props for the ContentDisplay component
+ * 
+ * @interface ContentDisplayProps
+ * @property {WebpageContent | null} content - The transformed content to display
+ * @property {boolean} isLoading - Whether content is currently being processed
+ * @property {Persona | null} selectedPersona - The persona being used for transformation
+ */
 interface ContentDisplayProps {
   content: WebpageContent | null
   isLoading: boolean
   selectedPersona: Persona | null
 }
 
+/**
+ * ContentDisplay component that shows transformed content with interactive features
+ * 
+ * Displays transformed content with persona information, loading states, and
+ * clipboard functionality. Provides visual feedback and graceful fallbacks
+ * for various browser capabilities.
+ * 
+ * @param {ContentDisplayProps} props - Component props
+ * @returns {JSX.Element} The rendered content display component
+ */
 export default function ContentDisplay({ content, isLoading, selectedPersona }: ContentDisplayProps) {
   const [copySuccess, setCopySuccess] = useState(false)
 
+  /**
+   * Copies transformed content to clipboard with fallback support
+   * 
+   * Uses modern clipboard API with fallback to legacy document.execCommand
+   * for broader browser compatibility. Provides visual feedback on success.
+   */
   const copyToClipboard = async () => {
     if (!content?.transformedContent) return
 
@@ -43,8 +78,8 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
       <div className="text-center py-6">
         <div className="inline-block w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin mb-3"></div>
         <div className="space-y-1 text-gray-600 text-sm">
-          <p>🔍 Fetching content...</p>
-          <p>✨ Applying {selectedPersona?.label} persona...</p>
+          <p>Fetching content...</p>
+          <p>Applying {selectedPersona?.label} persona...</p>
         </div>
       </div>
     )
@@ -53,7 +88,7 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
   if (!content) {
     return (
       <div className="text-center py-6">
-        <div className="text-3xl mb-2">📄✨</div>
+        <div className="text-3xl mb-2">📄</div>
         <p className="text-gray-500 text-sm">Your transformed content will appear here</p>
       </div>
     )

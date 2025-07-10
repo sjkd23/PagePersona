@@ -6,3 +6,158 @@
 @import './CTASection.css';
 @import './buttons.css';
 @import './responsive.css';
+
+/* Features Section Styles */
+.features-section {
+  padding: 6rem 2rem;
+  background: #f8fafc;
+}
+
+.dark .features-section {
+  background: #1e293b;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 4rem;
+  color: #1e293b;
+}
+
+.dark .section-title {
+  color: #f1f5f9;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.dark .feature-card {
+  background: #334155;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dark .feature-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.feature-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+.dark .feature-card h3 {
+  color: #f1f5f9;
+}
+
+.feature-card p {
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.dark .feature-card p {
+  color: #cbd5e1;
+}
+
+/* Use Cases Section Styles */
+.use-cases-section {
+  padding: 6rem 2rem;
+  background: white;
+}
+
+.dark .use-cases-section {
+  background: #0f172a;
+}
+
+.use-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.use-case {
+  padding: 2rem;
+  border-left: 4px solid #667eea;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.dark .use-case {
+  background: #1e293b;
+  border-left-color: #818cf8;
+}
+
+.use-case h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+.dark .use-case h3 {
+  color: #f1f5f9;
+}
+
+.use-case p {
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.dark .use-case p {
+  color: #cbd5e1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .features-grid,
+  .use-cases-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .features-section,
+  .use-cases-section {
+    padding: 4rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+}

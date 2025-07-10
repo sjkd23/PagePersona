@@ -139,7 +139,11 @@ export async function getUserUsageStats(userId: string): Promise<{
 /**
  * Get system-wide usage statistics
  */
-export async function getSystemUsageStats() {
+export async function getSystemUsageStats(): Promise<{
+  totalUsers: number;
+  activeUsersThisMonth: number;
+  totalTransformations: number;
+} | null> {
   try {
     return await MongoUser.getUsageStats();
   } catch (error) {

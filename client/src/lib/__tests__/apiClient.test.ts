@@ -75,8 +75,12 @@ describe('ApiService', () => {
         persona: 'professional'
       }
 
-      // Act & Assert
-      await expect(ApiService.transformWebpage(request)).rejects.toThrow()
+      // Act
+      const result = await ApiService.transformWebpage(request)
+
+      // Assert
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Internal server error')
     })
 
     it('should handle network errors', async () => {
@@ -88,8 +92,13 @@ describe('ApiService', () => {
         persona: 'professional'
       }
 
-      // Act & Assert
-      await expect(ApiService.transformWebpage(request)).rejects.toThrow()
+      // Act
+      const result = await ApiService.transformWebpage(request)
+
+      // Assert
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Network error')
+      expect(result.errorCode).toBe('NETWORK_ERROR')
     })
   })
 
@@ -220,11 +229,20 @@ describe('ApiService', () => {
       vi.mocked(fetch).mockResolvedValue({
         ok: false,
         status: 401,
-        json: () => Promise.resolve({ error: 'Unauthorized' })
+        json: () => Promise.resolve({ 
+          success: false, 
+          error: 'Please log in to access your profile',
+          errorCode: 'UNAUTHORIZED'
+        })
       } as Response)
 
-      // Act & Assert
-      await expect(ApiService.getUserProfile()).rejects.toThrow()
+      // Act
+      const result = await ApiService.getUserProfile()
+
+      // Assert
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Please log in to access your profile')
+      expect(result.errorCode).toBe('UNAUTHORIZED')
     })
   })
 
@@ -306,6 +324,7 @@ describe('ApiService', () => {
     it('should perform health check', async () => {
       // Arrange
       const mockResponse = {
+        success: true,
         status: 'healthy',
         timestamp: '2024-01-01T00:00:00.000Z'
       }
@@ -400,8 +419,13 @@ describe('ApiService', () => {
         json: () => Promise.reject(new Error('Invalid JSON'))
       } as Response)
 
-      // Act & Assert
-      await expect(ApiService.healthCheck()).rejects.toThrow()
+      // Act
+      const result = await ApiService.healthCheck()
+
+      // Assert
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Invalid JSON')
+      expect(result.errorCode).toBe('NETWORK_ERROR')
     })
 
     it('should handle malformed responses', async () => {
@@ -412,8 +436,13 @@ describe('ApiService', () => {
         json: () => Promise.resolve(null)
       } as Response)
 
-      // Act & Assert
-      await expect(ApiService.healthCheck()).rejects.toThrow()
+      // Act
+      const result = await ApiService.healthCheck()
+
+      // Assert
+      expect(result.success).toBe(false)
+      expect(result.error).toContain('Cannot read properties of null')
+      expect(result.errorCode).toBe('NETWORK_ERROR')
     })
 
     it('should handle timeout errors', async () => {
@@ -424,8 +453,13 @@ describe('ApiService', () => {
         )
       )
 
-      // Act & Assert
-      await expect(ApiService.healthCheck()).rejects.toThrow()
+      // Act
+      const result = await ApiService.healthCheck()
+
+      // Assert
+      expect(result.success).toBe(false)
+      expect(result.error).toBe('Timeout')
+      expect(result.errorCode).toBe('NETWORK_ERROR')
     })
   })
 

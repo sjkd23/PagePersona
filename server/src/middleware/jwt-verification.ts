@@ -1,20 +1,41 @@
-// JWT verification middleware with environment-specific configurations
+/**
+ * JWT Token Verification Middleware
+ * 
+ * This module provides JWT token verification middleware with environment-specific
+ * configurations. It supports both strict verification (with audience validation)
+ * for production environments and permissive verification for development.
+ * 
+ * Features:
+ * - Environment-aware JWT verification
+ * - Comprehensive token validation and error handling
+ * - Graceful fallback when Auth0 is not configured
+ * - Detailed error reporting for debugging
+ * - Support for both strict and permissive verification modes
+ */
 
 import { expressjwt as jwt } from 'express-jwt';
 import jwks from 'jwks-rsa';
 import { Request, Response, NextFunction } from 'express';
 import { HttpStatus } from '../constants/http-status';
+import { logger } from '../utils/logger';
 
+// Load Auth0 configuration from environment variables
 const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
 const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE;
 const NODE_ENV = process.env.NODE_ENV;
 
-// Don't throw error immediately - handle gracefully in middleware
+// Handle missing Auth0 configuration gracefully
 if (!AUTH0_DOMAIN) {
-  console.warn('⚠️ AUTH0_DOMAIN environment variable is not set - Auth0 features will be disabled');
+  logger.warn('AUTH0_DOMAIN environment variable is not set - Auth0 features will be disabled');
 }
 
-// Base JWT configuration with enhanced logging
+/**
+ * Creates JWT configuration object for token verification
+ * 
+ * @param audience Optional audience claim to validate
+ * @returns JWT configuration object for express-jwt middleware
+ * @throws Error if AUTH0_DOMAIN is not configured
+ */
 const createJwtConfig = (audience?: string) => {
   // Safety check for missing AUTH0_DOMAIN
   if (!AUTH0_DOMAIN) {
@@ -23,30 +44,37 @@ const createJwtConfig = (audience?: string) => {
 
   const config = {
     secret: jwks.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
+      cache: true,                    // Cache JWKS responses for performance
+      rateLimit: true,               // Enable rate limiting
+      jwksRequestsPerMinute: 5,      // Limit requests to prevent abuse
       jwksUri: `https://${AUTH0_DOMAIN}/.well-known/jwks.json`
     }),
-    issuer: `https://${AUTH0_DOMAIN}/`,
-    algorithms: ['RS256'] as any[],
-    requestProperty: 'user', // This sets req.user
-    ...(audience && { audience })
+    issuer: `https://${AUTH0_DOMAIN}/`,    // Expected token issuer
+    algorithms: ['RS256'] as const,           // Only allow RS256 algorithm
+    requestProperty: 'user',               // Attach decoded token to req.user
+    ...(audience && { audience })          // Include audience validation if provided
   };
   
   return config;
 };
 
 /**
- * Enhanced JWT verification middleware
- * Uses unknown type due to complex express-jwt library typing
+ * Creates enhanced JWT verification middleware with comprehensive validation
+ * 
+ * This function wraps the base express-jwt middleware with additional
+ * validation steps and improved error handling.
+ * 
+ * @param config JWT configuration object
+ * @returns Express middleware function for JWT verification
  */
-const createEnhancedJwtVerifier = (config: unknown) => {
+const createEnhancedJwtVerifier = (config: Record<string, unknown>) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const baseVerifier = jwt(config as any);
   
   return (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
     
+    // Check for missing authorization header
     if (!authHeader) {
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
@@ -56,8 +84,9 @@ const createEnhancedJwtVerifier = (config: unknown) => {
       return;
     }
     
+    // Validate authorization header format
     if (!authHeader.startsWith('Bearer ')) {
-      console.log('❌ Invalid authorization header format');
+      logger.info('Invalid authorization header format');
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         error: 'Invalid authorization header format',
@@ -66,11 +95,12 @@ const createEnhancedJwtVerifier = (config: unknown) => {
       return;
     }
     
+    // Extract and validate JWT structure
     const token = authHeader.substring(7);
     const tokenParts = token.split('.');
     
     if (tokenParts.length !== 3) {
-      console.log('❌ Invalid JWT structure');
+      logger.info('Invalid JWT structure');
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         error: 'Invalid JWT token structure',
@@ -79,11 +109,11 @@ const createEnhancedJwtVerifier = (config: unknown) => {
       return;
     }
     
-    // Try to decode header to check if it's a valid JWT
+    // Validate JWT header encoding
     try {
-      const header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
+      const _header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
     } catch (error) {
-      console.log('❌ Invalid JWT header encoding');
+      logger.info('Invalid JWT header encoding');
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         error: 'Invalid JWT header encoding'
@@ -91,14 +121,14 @@ const createEnhancedJwtVerifier = (config: unknown) => {
       return;
     }
     
-    // Now use the base verifier
+    // Perform JWT verification using express-jwt
     baseVerifier(req, res, (err: unknown) => {
       if (err) {
-        console.error('❌ JWT verification failed:', {
+        logger.error('JWT verification failed:', {
           name: err instanceof Error ? err.name : 'Unknown',
           message: err instanceof Error ? err.message : String(err),
-          code: (err as any)?.code,
-          status: (err as any)?.status
+          code: (err as Error & { code?: string })?.code,
+          status: (err as Error & { status?: number })?.status
         });
         
         res.status(HttpStatus.UNAUTHORIZED).json({
@@ -114,69 +144,80 @@ const createEnhancedJwtVerifier = (config: unknown) => {
   };
 };
 /**
- * Strict JWT verification - requires audience (production)
+ * Strict JWT verification middleware - requires audience validation
+ * 
+ * This middleware enforces strict JWT validation including audience claim
+ * verification. Recommended for production environments.
  */
 export const verifyAuth0TokenStrict = (() => {
   try {
     if (!AUTH0_DOMAIN) {
-      console.warn('⚠️ AUTH0_DOMAIN not configured - returning no-op middleware');
+      logger.warn('AUTH0_DOMAIN not configured - returning no-op middleware');
       return (req: Request, res: Response, next: NextFunction) => {
-        console.log('⚠️ JWT verification skipped - AUTH0_DOMAIN not configured');
+        logger.info('JWT verification skipped - AUTH0_DOMAIN not configured');
         next();
       };
     }
     
     if (!AUTH0_AUDIENCE) {
-      console.warn('⚠️ AUTH0_AUDIENCE not configured for strict verification');
+      logger.warn('AUTH0_AUDIENCE not configured for strict verification');
       return (req: Request, res: Response, next: NextFunction) => {
-        console.log('⚠️ Strict JWT verification skipped - AUTH0_AUDIENCE not configured');
+        logger.info('Strict JWT verification skipped - AUTH0_AUDIENCE not configured');
         next();
       };
     }
     
     return createEnhancedJwtVerifier(createJwtConfig(AUTH0_AUDIENCE));
   } catch (error) {
-    console.error('❌ Failed to create strict JWT verifier:', error);
+    logger.error('Failed to create strict JWT verifier:', error);
     return (req: Request, res: Response, next: NextFunction) => {
-      console.log('⚠️ JWT verification skipped due to configuration error');
+      logger.info('JWT verification skipped due to configuration error');
       next();
     };
   }
 })();
 
 /**
- * Permissive JWT verification - no audience required (development)
+ * Permissive JWT verification middleware - no audience validation required
+ * 
+ * This middleware provides JWT validation without requiring audience claims.
+ * Useful for development environments or when audience validation is not needed.
  */
 export const verifyAuth0TokenPermissive = (() => {
   try {
     if (!AUTH0_DOMAIN) {
-      console.warn('⚠️ AUTH0_DOMAIN not configured - returning no-op middleware');
+      logger.warn('AUTH0_DOMAIN not configured - returning no-op middleware');
       return (req: Request, res: Response, next: NextFunction) => {
-        console.log('⚠️ JWT verification skipped - AUTH0_DOMAIN not configured');
+        logger.info('JWT verification skipped - AUTH0_DOMAIN not configured');
         next();
       };
     }
     
     return createEnhancedJwtVerifier(createJwtConfig());
   } catch (error) {
-    console.error('❌ Failed to create permissive JWT verifier:', error);
+    logger.error('Failed to create permissive JWT verifier:', error);
     return (req: Request, res: Response, next: NextFunction) => {
-      console.log('⚠️ JWT verification skipped due to configuration error');
+      logger.info('JWT verification skipped due to configuration error');
       next();
     };
   }
 })();
 
 /**
- * Auto-select appropriate JWT verification based on environment
+ * Environment-aware JWT verification middleware
+ * 
+ * Automatically selects the appropriate JWT verification strategy based on
+ * the current environment and available configuration:
+ * - Production: Always uses strict verification with audience validation
+ * - Development: Uses strict verification if audience is configured, otherwise permissive
  */
 export const verifyAuth0Token = (() => {
-  // In production, always require audience
+  // In production, always require audience validation
   if (NODE_ENV === 'production') {
     return verifyAuth0TokenStrict;
   }
   
-  // In development, use audience if available, otherwise permissive
+  // In development, use audience validation if available, otherwise permissive
   if (AUTH0_AUDIENCE) {
     return verifyAuth0TokenStrict;
   } else {
@@ -185,9 +226,17 @@ export const verifyAuth0Token = (() => {
 })();
 
 /**
- * Get current JWT configuration info
+ * Retrieves current JWT configuration information
+ * 
+ * @returns Object containing current JWT configuration details
  */
-export function getJwtInfo() {
+export function getJwtInfo(): {
+  domain: string | undefined;
+  audience: string;
+  environment: string;
+  strictMode: boolean;
+  jwksUri: string;
+} {
   return {
     domain: AUTH0_DOMAIN,
     audience: AUTH0_AUDIENCE || 'NOT SET',

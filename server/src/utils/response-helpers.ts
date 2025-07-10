@@ -1,16 +1,34 @@
 /**
- * Centralized response helpers for consistent API responses
- * Ensures all routes return the same response format: { success: boolean, message?: string, data?: unknown, error?: string }
+ * Response Helper Utilities
+ * 
+ * Centralized response formatting utilities ensuring consistent API response
+ * structure across all endpoints. Provides standardized success/error response
+ * formats with proper HTTP status codes and structured data formatting.
+ * 
+ * Features:
+ * - Consistent response format across all endpoints
+ * - Standardized error handling and formatting
+ * - HTTP status code management
+ * - Response logging and debugging support
+ * - Type-safe response data handling
  */
 
 import { Response } from 'express';
 import { logger } from './logger';
-import type { ApiResponse } from '../types/api-response';
+import type { ApiResponse } from '../../../shared/types/api';
 import type { AuthenticatedRequest, ErrorHandlerFunction, AsyncRouteHandler } from '../types/common';
 import { HttpStatus } from '../constants/http-status';
 
 /**
- * Send a successful response with optional data and message
+ * Send successful API response with optional data and message
+ * 
+ * Formats and sends a standardized success response with consistent
+ * structure and appropriate HTTP status code.
+ * 
+ * @param res - Express response object
+ * @param data - Optional response data payload
+ * @param message - Optional success message
+ * @param statusCode - HTTP status code (defaults to 200)
  */
 export function sendSuccess<T>(
   res: Response, 

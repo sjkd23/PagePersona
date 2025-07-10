@@ -2,7 +2,7 @@ import { vi } from 'vitest'
 
 // Utility function to properly mock functions that should work with vi.mocked()
 export function createMockFunction<T extends (...args: any[]) => any>() {
-  return vi.fn() as T & { 
+  return vi.fn() as unknown as T & { 
     mockResolvedValue: (value: any) => any
     mockRejectedValue: (value: any) => any
     mockReturnValue: (value: any) => any

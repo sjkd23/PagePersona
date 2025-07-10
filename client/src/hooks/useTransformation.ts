@@ -1,10 +1,51 @@
+/**
+ * Transformation Hook
+ * 
+ * Custom React hook that manages the complete transformation workflow
+ * including persona selection, input validation, API communication,
+ * and state management. Provides centralized logic for content
+ * transformation operations with comprehensive error handling.
+ * 
+ * Features:
+ * - Dual input mode support (URL and text)
+ * - Persona management and selection
+ * - Input validation and error handling
+ * - API communication with authentication
+ * - Transformation history integration
+ * - Loading states and user feedback
+ */
+
 import { useState, useEffect, useRef } from 'react'
-import type { Persona, WebpageContent } from '../types/personas'
+import type { ClientPersona as Persona, WebpageContent } from '../../../shared/types/personas'
 import { useAuth } from './useAuthContext'
 import ApiService, { setTokenGetter } from '../lib/apiClient'
 import { logger } from '../utils/logger'
 import { useTransformationHistory } from './useTransformationHistory'
+import { ErrorCode } from '../../../shared/types/errors'
 
+/**
+ * Enhanced error information structure
+ */
+export interface EnhancedError {
+  message: string
+  code?: ErrorCode
+  title?: string
+  helpText?: string
+  actionText?: string
+  details?: unknown
+  // Usage limit specific
+  currentUsage?: number
+  usageLimit?: number
+  membership?: string
+  upgradeUrl?: string
+  // Rate limit specific
+  retryAfter?: number
+}
+
+/**
+ * Transformation state interface defining all state variables
+ * managed by the transformation workflow
+ */
 export interface TransformationState {
   selectedPersona: Persona | null
   personas: Persona[]
@@ -13,17 +54,23 @@ export interface TransformationState {
   isLoading: boolean
   content: WebpageContent | null
   error: string | null
+  enhancedError: EnhancedError | null
   loadingPersonas: boolean
   urlError: string | null
   textError: string | null
   hasClickedGenerate: boolean
 }
 
+/**
+ * Transformation actions interface defining all available
+ * operations for managing transformation workflow
+ */
 export interface TransformationActions {
   setSelectedPersona: (persona: Persona | null) => void
   setUrl: (url: string) => void
   setInputMode: (mode: 'url' | 'text') => void
   setError: (error: string | null) => void
+  setEnhancedError: (error: EnhancedError | null) => void
   handleInputChange: (value: string) => void
   handleModeChange: (mode: 'url' | 'text') => void
   handleTransform: () => Promise<void>
@@ -33,6 +80,12 @@ export interface TransformationActions {
 
 const MAX_TEXT_LENGTH = 10000
 
+/**
+ * Validate URL format and accessibility constraints
+ * 
+ * @param inputUrl - URL string to validate
+ * @returns Error message or null if valid
+ */
 const validateUrl = (inputUrl: string): string | null => {
   if (!inputUrl.trim()) {
     return null
@@ -88,6 +141,7 @@ export function useTransformation() {
     isLoading: false,
     content: null,
     error: null,
+    enhancedError: null,
     loadingPersonas: true,
     urlError: null,
     textError: null,
@@ -116,7 +170,16 @@ export function useTransformation() {
           const frontendPersonas: Persona[] = response.data.personas
           safeSetState(prev => ({ ...prev, personas: frontendPersonas }))
         } else {
-          safeSetState(prev => ({ ...prev, error: 'Failed to load personas' }))
+          // Create enhanced error for persona loading failure
+          const enhancedError: EnhancedError = {
+            message: response.error || 'Failed to load personas',
+            code: response.errorCode,
+            title: response.title,
+            helpText: response.helpText,
+            actionText: response.actionText,
+            details: response.details
+          }
+          safeSetState(prev => ({ ...prev, error: enhancedError.message, enhancedError }))
         }
       } catch (err) {
         if (!isMountedRef.current) return // Early exit if unmounted
@@ -164,6 +227,10 @@ export function useTransformation() {
 
     setError: (error) => {
       setState(prev => ({ ...prev, error }))
+    },
+
+    setEnhancedError: (enhancedError) => {
+      setState(prev => ({ ...prev, enhancedError, error: enhancedError?.message || null }))
     },
 
     handleInputChange: (value) => {
@@ -264,21 +331,37 @@ export function useTransformation() {
             originalContent: state.inputMode === 'url' ? 
               response.originalContent?.content || '' : 
               state.url.trim(),
-            transformedContent: response.transformedContent,
+            transformedContent: response.transformedContent || '',
             persona: state.selectedPersona,
             timestamp: new Date()
           }
           safeSetState(prev => ({ ...prev, content: transformedContent }))
           addToHistory(transformedContent)
         } else {
+          // Create enhanced error from response
+          const enhancedError: EnhancedError = {
+            message: response.error || `Failed to transform the ${state.inputMode === 'url' ? 'webpage' : 'text'}`,
+            code: response.errorCode,
+            title: response.title,
+            helpText: response.helpText,
+            actionText: response.actionText,
+            details: response.details,
+            currentUsage: response.currentUsage,
+            usageLimit: response.usageLimit,
+            membership: response.membership,
+            upgradeUrl: response.upgradeUrl,
+            retryAfter: response.retryAfter
+          }
+          
           safeSetState(prev => ({ 
             ...prev, 
-            error: response.error || `Failed to transform the ${state.inputMode === 'url' ? 'webpage' : 'text'}` 
+            error: enhancedError.message,
+            enhancedError
           }))
         }
       } catch (err: unknown) {
         // Don't set error state if the request was aborted
-        if (err && typeof err === 'object' && 'name' in err && (err as any).name === 'AbortError' || abortSignal.aborted) {
+        if (err && typeof err === 'object' && 'name' in err && (err as Error).name === 'AbortError' || abortSignal.aborted) {
           return
         }
         logger.component.error('useTransformation', 'Transform error', err)

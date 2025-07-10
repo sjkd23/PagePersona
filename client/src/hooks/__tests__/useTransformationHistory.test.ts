@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useTransformationHistory, type HistoryItem } from '../useTransformationHistory'
-import type { WebpageContent } from '../../types/personas'
+import type { WebpageContent } from '../../../../shared/types/personas'
 
 // Mock localStorage
 const mockLocalStorage = {

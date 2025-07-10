@@ -1,13 +1,50 @@
-import { useState, useEffect } from 'react'
-import type { WebpageContent } from '../types/personas'
+/**
+ * Custom hook for managing transformation history
+ * 
+ * This hook provides persistent storage and management of transformation
+ * history using localStorage. It maintains a limited history of recent
+ * transformations with deduplication and error handling capabilities.
+ * 
+ * @module useTransformationHistory
+ */
 
+import { useState, useEffect } from 'react'
+import type { WebpageContent } from '../../../shared/types/personas'
+
+/**
+ * Local storage key for transformation history
+ */
 const HISTORY_KEY = 'transformation-history'
+
+/**
+ * Maximum number of history items to retain
+ */
 const MAX_HISTORY_ITEMS = 5
 
+/**
+ * Extended interface for history items with unique identifiers
+ * 
+ * @interface HistoryItem
+ * @extends WebpageContent
+ * @property {string} id - Unique identifier for the history item
+ */
 export interface HistoryItem extends WebpageContent {
   id: string
 }
 
+/**
+ * Hook for managing transformation history with persistent storage
+ * 
+ * Provides CRUD operations for transformation history with automatic
+ * localStorage synchronization, deduplication, and error handling.
+ * Maintains a maximum number of items and ensures data integrity.
+ * 
+ * @returns {object} History management interface
+ * @returns {HistoryItem[]} returns.history - Current history items
+ * @returns {function} returns.addToHistory - Add new transformation to history
+ * @returns {function} returns.removeFromHistory - Remove specific item from history
+ * @returns {function} returns.clearHistory - Clear all history items
+ */
 export function useTransformationHistory() {
   const [history, setHistory] = useState<HistoryItem[]>([])
 
@@ -40,6 +77,15 @@ export function useTransformationHistory() {
     }
   }, [history])
 
+  /**
+   * Adds a new transformation result to history
+   * 
+   * Creates a unique ID for the item and prevents duplicates by
+   * removing any existing item with the same URL and persona.
+   * Maintains the maximum history size by removing oldest items.
+   * 
+   * @param {WebpageContent} content - The transformation result to add
+   */
   const addToHistory = (content: WebpageContent) => {
     const historyItem: HistoryItem = {
       ...content,
@@ -57,10 +103,18 @@ export function useTransformationHistory() {
     })
   }
 
+  /**
+   * Removes a specific item from history by ID
+   * 
+   * @param {string} id - The unique identifier of the item to remove
+   */
   const removeFromHistory = (id: string) => {
     setHistory(prevHistory => prevHistory.filter(item => item.id !== id))
   }
 
+  /**
+   * Clears all history items and removes from localStorage
+   */
   const clearHistory = () => {
     setHistory([])
     localStorage.removeItem(HISTORY_KEY)

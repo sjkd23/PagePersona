@@ -2,7 +2,11 @@ import { vi } from 'vitest';
 
 // Mock the imports used in TransformerForm
 vi.mock('../InputModeToggle', () => ({
-  default: ({ mode, onModeChange, disabled }: any) => (
+  default: ({ mode, onModeChange, disabled }: {
+    mode: 'url' | 'text';
+    onModeChange: (mode: 'url' | 'text') => void;
+    disabled: boolean;
+  }) => (
     <div className="mode-toggle" data-testid="mode-toggle">
       <button
         onClick={() => onModeChange('url')}
@@ -25,11 +29,18 @@ vi.mock('../InputModeToggle', () => ({
 }));
 
 vi.mock('../ValidationError', () => ({
-  default: ({ error }: any) => error ? <div data-testid="error">{error}</div> : null,
+  default: ({ error }: { error: string | null }) => error ? <div data-testid="error">{error}</div> : null,
 }));
 
 vi.mock('../TextInput', () => ({
-  default: ({ value, onChange, placeholder, disabled, hasError, 'data-testid': testId }: any) => (
+  default: ({ value, onChange, placeholder, disabled, hasError, 'data-testid': testId }: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+    disabled: boolean;
+    hasError: boolean;
+    'data-testid': string;
+  }) => (
     <input
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -42,7 +53,15 @@ vi.mock('../TextInput', () => ({
 }));
 
 vi.mock('../TextArea', () => ({
-  default: ({ value, onChange, placeholder, disabled, maxLength, hasError, 'data-testid': testId }: any) => (
+  default: ({ value, onChange, placeholder, disabled, maxLength, hasError, 'data-testid': testId }: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+    disabled: boolean;
+    maxLength: number;
+    hasError: boolean;
+    'data-testid': string;
+  }) => (
     <textarea
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -56,7 +75,11 @@ vi.mock('../TextArea', () => ({
 }));
 
 vi.mock('../CharacterCount', () => ({
-  default: ({ current, max, hasError }: any) => (
+  default: ({ current, max, hasError }: {
+    current: number;
+    max: number;
+    hasError: boolean;
+  }) => (
     <div 
       data-testid="character-count"
       className={hasError ? 'character-count-error' : ''}
@@ -78,7 +101,17 @@ vi.mock('../InputField', () => ({
     maxLength, 
     disabled,
     'data-testid': testId 
-  }: any) => {
+  }: {
+    mode: 'url' | 'text';
+    value: string;
+    onModeChange: (mode: 'url' | 'text') => void;
+    onChange: (value: string) => void;
+    urlError: string | null;
+    textError: string | null;
+    maxLength: number;
+    disabled: boolean;
+    'data-testid'?: string;
+  }) => {
     const currentError = mode === 'url' ? urlError : textError;
     
     return (

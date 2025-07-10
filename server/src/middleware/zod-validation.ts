@@ -1,6 +1,20 @@
 /**
- * 🛡️ Zod-based validation middleware for API endpoints
- * Provides type-safe input validation using Zod schemas
+ * Zod-Based Validation Middleware
+ * 
+ * This module provides comprehensive type-safe input validation using Zod schemas
+ * for API endpoints. It includes middleware factories for validating request bodies,
+ * query parameters, and route parameters with detailed error reporting.
+ * 
+ * Features:
+ * - Type-safe validation with automatic TypeScript inference
+ * - Detailed error formatting for client consumption
+ * - Comprehensive logging for debugging and monitoring
+ * - Reusable validation middleware factories
+ * - Common schema definitions for consistent validation patterns
+ * - Security-focused URL validation with private IP blocking
+ * 
+ * The middleware automatically transforms and validates request data,
+ * ensuring downstream handlers receive properly typed and validated inputs.
  */
 
 import { Request, Response, NextFunction } from 'express';
@@ -9,7 +23,14 @@ import { HttpStatus } from '../constants/http-status';
 import { logger } from '../utils/logger';
 
 /**
- * Generic validation middleware factory that validates request body against a Zod schema
+ * Generic validation middleware factory for request body validation
+ * 
+ * Creates Express middleware that validates request bodies against a Zod schema.
+ * The middleware automatically transforms the data and provides detailed error
+ * messages for validation failures.
+ * 
+ * @param schema Zod schema to validate the request body against
+ * @returns Express middleware function
  */
 export function validateBody<T>(schema: ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -46,7 +67,13 @@ export function validateBody<T>(schema: ZodSchema<T>) {
 }
 
 /**
- * Validate query parameters against a Zod schema
+ * Validation middleware factory for query parameter validation
+ * 
+ * Creates Express middleware that validates query string parameters against
+ * a Zod schema with automatic type transformation and error handling.
+ * 
+ * @param schema Zod schema to validate the query parameters against
+ * @returns Express middleware function
  */
 export function validateQuery<T>(schema: ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -82,7 +109,13 @@ export function validateQuery<T>(schema: ZodSchema<T>) {
 }
 
 /**
- * Validate route parameters against a Zod schema
+ * Validation middleware factory for route parameter validation
+ * 
+ * Creates Express middleware that validates route parameters (e.g., :id, :username)
+ * against a Zod schema with proper error handling and logging.
+ * 
+ * @param schema Zod schema to validate the route parameters against
+ * @returns Express middleware function
  */
 export function validateParams<T>(schema: ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -118,7 +151,13 @@ export function validateParams<T>(schema: ZodSchema<T>) {
 }
 
 /**
- * Format Zod error into a more user-friendly structure
+ * Format Zod validation errors into a user-friendly structure
+ * 
+ * Transforms Zod's nested error structure into a flat object where
+ * each key represents a field path and the value is an array of error messages.
+ * 
+ * @param error ZodError instance from failed validation
+ * @returns Formatted error object with field-specific error messages
  */
 function formatZodError(error: ZodError): Record<string, string[]> {
   const formatted: Record<string, string[]> = {};
@@ -139,9 +178,15 @@ function formatZodError(error: ZodError): Record<string, string[]> {
 
 /**
  * Common validation schemas for reuse across the application
+ * 
+ * This collection provides standardized validation schemas for frequently
+ * used data types, ensuring consistency across the API and reducing duplication.
  */
 export const commonSchemas = {
-  // URL validation with security checks
+  /** 
+   * URL validation with security checks and automatic protocol addition
+   * Blocks private/local IP addresses and ensures valid domain structure
+   */
   url: z.string()
     .min(1, 'URL is required')
     .transform((url) => {
@@ -157,7 +202,7 @@ export const commonSchemas = {
         const parsedUrl = new URL(url);
         const hostname = parsedUrl.hostname;
         
-        // Block local/private URLs
+        // Block local and private IP address ranges for security
         if (hostname === 'localhost' || 
             hostname === '127.0.0.1' || 
             hostname.startsWith('192.168.') ||
@@ -172,29 +217,41 @@ export const commonSchemas = {
       }
     }, 'Private or local URLs are not allowed'),
 
-  // Persona ID validation
+  /** 
+   * Persona identifier validation
+   * Allows alphanumeric characters, hyphens, and underscores with specific formatting rules
+   */
   persona: z.string()
     .min(1, 'Persona is required')
     .regex(/^[a-zA-Z0-9][a-zA-Z0-9-_]*[a-zA-Z0-9]$|^[a-zA-Z0-9]$/, 'Invalid persona format'),
 
-  // Text content validation
+  /** 
+   * Text content validation for transformation requests
+   * Enforces minimum length for meaningful content and maximum for processing limits
+   */
   text: z.string()
     .min(50, 'Text must be at least 50 characters long')
     .max(50000, 'Text cannot exceed 50,000 characters')
     .trim(),
 
-  // Optional style parameter
+  /** Optional style parameter for content transformation */
   style: z.string().optional(),
 
-  // MongoDB ObjectId validation
+  /** 
+   * MongoDB ObjectId validation
+   * Ensures 24-character hexadecimal string format
+   */
   objectId: z.string()
     .regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId format'),
 
-  // Email validation
+  /** Standard email address validation */
   email: z.string()
     .email('Invalid email format'),
 
-  // Username validation
+  /** 
+   * Username validation with character restrictions
+   * Allows letters, numbers, underscores, and hyphens only
+   */
   username: z.string()
     .min(3, 'Username must be at least 3 characters')
     .max(30, 'Username cannot exceed 30 characters')

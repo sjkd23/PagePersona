@@ -1,12 +1,38 @@
+/**
+ * Chat Service for OpenAI Communication
+ * 
+ * Provides structured chat-based communication with OpenAI API for
+ * conversational AI interactions. Handles message threading, response
+ * processing, and error management for chat-based AI workflows.
+ * 
+ * Features:
+ * - Multi-message conversation handling
+ * - Configurable chat parameters and models
+ * - Comprehensive error handling and recovery
+ * - Usage tracking and token management
+ * - Response validation and formatting
+ */
+
 import OpenAI from 'openai'
 import { logger } from '../utils/logger'
-import type { OpenAIError } from '../types/common'
 
+/**
+ * Chat message structure interface
+ * 
+ * Defines the format for individual messages in a conversation
+ * thread with role-based message typing.
+ */
 interface ChatMessage {
   role: "system" | "user" | "assistant"
   content: string
 }
 
+/**
+ * Chat request configuration interface
+ * 
+ * Contains conversation messages and optional parameters for
+ * customizing chat completion behavior and response generation.
+ */
 export interface ChatRequest {
   messages: ChatMessage[]
   model?: string
@@ -14,6 +40,12 @@ export interface ChatRequest {
   temperature?: number
 }
 
+/**
+ * Chat response structure interface
+ * 
+ * Standardized format for chat completion responses including
+ * success status, generated content, and usage statistics.
+ */
 export interface ChatResponse {
   success: boolean
   message?: string
@@ -25,6 +57,12 @@ export interface ChatResponse {
   error?: string
 }
 
+/**
+ * Chat Service Class
+ * 
+ * Manages conversational interactions with OpenAI API including
+ * message threading, response processing, and error handling.
+ */
 export class ChatService {
   private openai: OpenAI
 
@@ -33,7 +71,13 @@ export class ChatService {
   }
 
   /**
-   * Send chat messages to OpenAI and get response
+   * Send chat messages to OpenAI and process response
+   * 
+   * Handles complete chat interaction workflow including message
+   * validation, API communication, and response processing.
+   * 
+   * @param request - Chat request with messages and configuration
+   * @returns Promise resolving to structured chat response
    */
   async sendChatMessages(request: ChatRequest): Promise<ChatResponse> {
     const { 

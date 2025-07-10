@@ -1,3 +1,13 @@
+/**
+ * Transformer components barrel file
+ * 
+ * Centralizes exports for all Transformer-related components, providing
+ * a clean import interface for consumers and maintaining component
+ * organization within the transformation feature module.
+ * 
+ * @module Transformer/index
+ */
+
 // Barrel file for Transformer components
 export { default as ContentDisplay } from './ContentDisplay'
 export { default as ErrorBoundary } from './ErrorBoundary'

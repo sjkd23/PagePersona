@@ -20,8 +20,9 @@
 // ==========================================
 
 import { IMongoUser } from '../models/mongo-user';
-import type { ProcessedAuth0User, DateLike } from '../types/common';
-import { safeGetAuth0Claims, safeGetEmail, safeGetDisplayName } from './auth0-claims';
+import type { DateLike, Auth0JwtPayload } from '../types/common';
+import { safeGetAuth0Claims, safeGetEmail } from './auth0-claims';
+import { logger } from './logger';
 
 // ==========================================
 // TYPE DEFINITIONS
@@ -107,7 +108,7 @@ export interface NormalizedUserContext {
 export function serializeMongoUser(user: IMongoUser): SerializedUser {
   // Safety check: Log the user object if any critical fields are missing for debugging
   if (!user?._id || !user?.auth0Id || !user?.email || !user?.username) {
-    console.warn('serializeMongoUser: Incomplete user object detected:', {
+    logger.warn('serializeMongoUser: Incomplete user object detected:', {
       hasId: !!user?._id,
       hasAuth0Id: !!user?.auth0Id,
       hasEmail: !!user?.email,
@@ -169,7 +170,7 @@ export function serializeMongoUser(user: IMongoUser): SerializedUser {
  * Serialize Auth0 user data to a normalized format
  * Handles raw Auth0 JWT payloads or processed user objects
  */
-export function serializeAuth0User(auth0User: any): SerializedAuth0User {
+export function serializeAuth0User(auth0User: Auth0JwtPayload): SerializedAuth0User {
   if (!auth0User) {
     throw new Error('Auth0 user object is required for serialization');
   }
@@ -191,7 +192,7 @@ export function serializeAuth0User(auth0User: any): SerializedAuth0User {
       updatedAt: claims.updatedAt
     };
   } catch (error) {
-    console.error('Failed to serialize Auth0 user:', error);
+    logger.error('Failed to serialize Auth0 user:', error);
     throw new Error(`Auth0 user serialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -202,7 +203,7 @@ export function serializeAuth0User(auth0User: any): SerializedAuth0User {
  */
 export function normalizeUserContext(context: {
   mongoUser: IMongoUser;
-  auth0User?: any;
+  auth0User?: Auth0JwtPayload;
   userId: string;
   isNewUser?: boolean;
 }): NormalizedUserContext {
@@ -238,7 +239,7 @@ export function normalizeUserContext(context: {
  * Create a user context from Auth0 user data for new user creation
  * This helps bridge Auth0 data to MongoDB user structure
  */
-export function createUserContextFromAuth0(auth0User: any): {
+export function createUserContextFromAuth0(auth0User: Auth0JwtPayload): {
   email: string;
   firstName?: string;
   lastName?: string;
@@ -308,7 +309,11 @@ export function serializeUserSummary(user: IMongoUser): SerializedUserSummary {
 /**
  * Standard success response wrapper
  */
-export function createSuccessResponse<T>(data: T, message?: string) {
+export function createSuccessResponse<T>(data: T, message?: string): {
+  success: true;
+  message?: string;
+  data: T;
+} {
   return {
     success: true,
     ...(message && { message }),
@@ -319,7 +324,11 @@ export function createSuccessResponse<T>(data: T, message?: string) {
 /**
  * Standard error response wrapper
  */
-export function createErrorResponse(error: string, statusCode?: number) {
+export function createErrorResponse(error: string, statusCode?: number): {
+  success: false;
+  error: string;
+  statusCode?: number;
+} {
   return {
     success: false,
     error,
@@ -344,7 +353,7 @@ export function createErrorResponse(error: string, statusCode?: number) {
  */
 export function safeLogUser(user: unknown, label: string = 'User object'): void {
   if (!user || typeof user !== 'object') {
-    console.log(`${label}: Invalid or null user`);
+    logger.debug(`${label}: Invalid or null user`);
     return;
   }
 
@@ -364,9 +373,9 @@ export function safeLogUser(user: unknown, label: string = 'User object'): void 
       // Add any other critical fields for debugging
       type: userRecord.constructor?.name || typeof user
     };
-    console.log(`${label}:`, JSON.stringify(safeUser, null, 2));
+    logger.debug(`${label}`, safeUser);
   } catch (error) {
-    console.log(`${label}: [Error serializing user object]`, error);
+    logger.debug(`${label}: [Error serializing user object]`, { error });
   }
 }
 
@@ -386,13 +395,13 @@ export function safeToISOString(dateValue: DateLike | null | undefined, fallback
     
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      console.warn('safeToISOString: Invalid date detected:', dateValue, 'using fallback');
+      logger.warn('safeToISOString: Invalid date detected', { dateValue, fallback: fallback.toISOString() });
       return fallback.toISOString();
     }
     
     return date.toISOString();
   } catch (error) {
-    console.warn('safeToISOString: Error converting date:', dateValue, error);
+    logger.warn('safeToISOString: Error converting date', { dateValue, error });
     return fallback.toISOString();
   }
 }
@@ -409,13 +418,13 @@ export function safeDate(dateValue: DateLike, fallback: Date = new Date()): Date
     const date = new Date(dateValue);
     
     if (isNaN(date.getTime())) {
-      console.warn('safeDate: Invalid date detected:', dateValue, 'using fallback');
+      logger.warn('safeDate: Invalid date detected', { dateValue, fallback: fallback.toISOString() });
       return fallback;
     }
     
     return date;
   } catch (error) {
-    console.warn('safeDate: Error creating date:', dateValue, error);
+    logger.warn('safeDate: Error creating date', { dateValue, error });
     return fallback;
   }
 }

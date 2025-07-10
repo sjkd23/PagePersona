@@ -1,3 +1,27 @@
+/**
+ * Content Parser Service
+ * 
+ * Provides comprehensive text processing and content cleaning utilities
+ * for preparing web content and direct text input for AI transformation.
+ * Handles text normalization, length validation, and content optimization
+ * to ensure high-quality input for AI processing.
+ * 
+ * Features:
+ * - Intelligent text cleaning and normalization
+ * - Content length validation and truncation
+ * - Word count calculation and analysis
+ * - Title extraction and cleaning
+ * - Content summary generation
+ */
+
+import { logger } from '../utils/logger';
+
+/**
+ * Parsed content structure interface
+ * 
+ * Standardized format for processed content ready for AI transformation
+ * with cleaned text, metadata, and optional summary information.
+ */
 export interface ParsedContent {
   cleanedText: string
   title: string
@@ -5,20 +29,37 @@ export interface ParsedContent {
   summary?: string
 }
 
+/**
+ * Content Parser Service Class
+ * 
+ * Static service class providing text processing utilities for
+ * content preparation and optimization before AI transformation.
+ */
 export class ParserService {
   private static readonly MAX_CONTENT_LENGTH = 8000
   private static readonly MIN_CONTENT_LENGTH = 50
 
+  /**
+   * Parse and clean webpage content for AI processing
+   * 
+   * Processes raw webpage content through comprehensive cleaning,
+   * validation, and optimization pipeline to prepare for transformation.
+   * 
+   * @param title - Original webpage title
+   * @param rawContent - Raw extracted webpage content
+   * @returns Parsed and cleaned content structure
+   * @throws Error if content is too short or invalid
+   */
   static parseWebContent(title: string, rawContent: string): ParsedContent {
-    // Clean and normalize the text
+    // Clean and normalize the text content
     const cleanedText = this.cleanText(rawContent)
     
-    // Validate content length
+    // Validate minimum content length requirements
     if (cleanedText.length < this.MIN_CONTENT_LENGTH) {
       throw new Error('Content too short to process')
     }
 
-    // Truncate if necessary
+    // Apply maximum length truncation if necessary
     const finalText = cleanedText.length > this.MAX_CONTENT_LENGTH
       ? cleanedText.substring(0, this.MAX_CONTENT_LENGTH) + '...'
       : cleanedText
@@ -33,6 +74,16 @@ export class ParserService {
     }
   }
 
+  /**
+   * Parse and clean direct text input for AI processing
+   * 
+   * Processes user-provided text input through the same cleaning
+   * and validation pipeline as webpage content.
+   * 
+   * @param text - Direct text input from user
+   * @returns Parsed and cleaned content structure
+   * @throws Error if text is too short or invalid
+   */
   static parseDirectText(text: string): ParsedContent {
     const cleanedText = this.cleanText(text)
     
@@ -121,7 +172,7 @@ export class ParserService {
     }
 
     if (content.wordCount > 2000) {
-      console.warn('Content is quite long and may result in truncated transformation')
+      logger.warn('Content is quite long and may result in truncated transformation')
     }
   }
 }

@@ -1,15 +1,33 @@
+/**
+ * Debug and Testing Route Handler
+ * 
+ * Provides debugging endpoints for testing infrastructure components
+ * like Redis connectivity, rate limiting stores, and service availability.
+ * Essential for development troubleshooting and production health checks.
+ * 
+ * Routes:
+ * - GET /redis: Test Redis connectivity and rate limiting store status
+ */
+
 import { Router, Request, Response } from 'express';
 import { redisClient } from '../utils/redis-client';
 import { HttpStatus } from '../constants/http-status';
-import { isUsingRedisStore } from '../middleware/rate-limit-middleware-refactored';
+import { isUsingRedisStore } from '../middleware/simple-rate-limit';
 import { logger } from '../utils/logger';
 
 const router = Router();
 
 /**
- * Debug route to test Redis connectivity
- * Sets a test key, reads it back, and returns the result
- * Used to verify Redis is working in the live application
+ * Test Redis connectivity and rate limiting configuration
+ * 
+ * Performs a complete Redis connectivity test by setting a temporary key,
+ * reading it back, and cleaning up. Reports on both Redis availability
+ * and the current rate limiting store configuration.
+ * 
+ * @route GET /redis
+ * @returns {object} Redis connectivity status and rate limiting store info
+ * @throws {503} Service unavailable if Redis operations fail
+ * @throws {500} Internal server error for unexpected failures
  */
 router.get('/redis', async (req: Request, res: Response) => {
   try {

@@ -1,4 +1,16 @@
-// System monitoring and diagnostics route
+/**
+ * System Monitoring and Diagnostics Route Handler
+ * 
+ * Provides endpoints for monitoring application health, authentication status,
+ * session statistics, and comprehensive system diagnostics. Critical for
+ * production monitoring and development debugging.
+ * 
+ * Routes:
+ * - GET /health: Basic health check (production-safe)
+ * - GET /auth0: Auth0 configuration status (dev/staging only)
+ * - GET /sessions: Active session statistics (dev/staging only)
+ * - GET /full: Comprehensive system status (dev/staging only)
+ */
 
 import { Router } from 'express';
 import { getEnvironmentInfo } from '../utils/env-validation';
@@ -8,7 +20,14 @@ import { getSessionStats } from '../utils/session-tracker';
 const router = Router();
 
 /**
- * GET /api/monitor/health - Basic health check (always available)
+ * Basic application health check endpoint
+ * 
+ * Provides essential system metrics for load balancers and monitoring
+ * systems. Always available regardless of environment configuration.
+ * 
+ * @route GET /health
+ * @returns {object} Health status with uptime, memory usage, and system info
+ * @access Public
  */
 router.get('/health', (_req, res) => {
   res.json({
@@ -20,10 +39,14 @@ router.get('/health', (_req, res) => {
   });
 });
 
-// Detailed monitoring endpoints (development/staging only)
+// Advanced monitoring endpoints (development and staging environments only)
 if (process.env.NODE_ENV !== 'production') {
   /**
-   * GET /api/monitor/auth0 - Auth0 configuration status
+   * Auth0 configuration and JWT verification status
+   * 
+   * @route GET /auth0
+   * @returns {object} Current Auth0 environment configuration and JWT settings
+   * @access Development/staging environments only
    */
   router.get('/auth0', (_req, res) => {
     const envInfo = getEnvironmentInfo();
@@ -37,7 +60,11 @@ if (process.env.NODE_ENV !== 'production') {
   });
 
   /**
-   * GET /api/monitor/sessions - Active session statistics
+   * Active session statistics and user tracking
+   * 
+   * @route GET /sessions
+   * @returns {object} Current session counts and user activity metrics
+   * @access Development/staging environments only
    */
   router.get('/sessions', (_req, res) => {
     const sessionStats = getSessionStats();
@@ -49,7 +76,14 @@ if (process.env.NODE_ENV !== 'production') {
   });
 
   /**
-   * GET /api/monitor/full - Comprehensive system status
+   * Comprehensive system status and diagnostics
+   * 
+   * Combines health, authentication, session, and migration status
+   * information for complete system overview during development.
+   * 
+   * @route GET /full
+   * @returns {object} Complete system status including all subsystems
+   * @access Development/staging environments only
    */
   router.get('/full', (_req, res) => {
     const envInfo = getEnvironmentInfo();

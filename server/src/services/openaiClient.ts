@@ -1,6 +1,28 @@
+/**
+ * OpenAI Client Service
+ * 
+ * Provides a structured interface for OpenAI API communication with
+ * comprehensive request/response handling, error management, and
+ * configuration management. Abstracts OpenAI API complexity with
+ * sensible defaults and detailed logging.
+ * 
+ * Features:
+ * - Structured OpenAI API communication
+ * - Configurable generation parameters
+ * - Comprehensive error handling and retry logic
+ * - Usage tracking and token counting
+ * - Request/response logging for debugging
+ */
+
 import OpenAI from 'openai'
 import { logger } from '../utils/logger'
 
+/**
+ * OpenAI request configuration interface
+ * 
+ * Defines all available parameters for OpenAI completion requests
+ * with optional overrides for model, tokens, and generation settings.
+ */
 export interface OpenAIRequest {
   systemPrompt: string
   userPrompt: string
@@ -11,6 +33,12 @@ export interface OpenAIRequest {
   frequencyPenalty?: number
 }
 
+/**
+ * OpenAI response structure interface
+ * 
+ * Standardizes OpenAI API responses with content, usage statistics,
+ * and completion metadata for consistent handling across the application.
+ */
 export interface OpenAIResponse {
   content: string
   usage?: {
@@ -21,6 +49,12 @@ export interface OpenAIResponse {
   finishReason?: string
 }
 
+/**
+ * OpenAI Client Service Class
+ * 
+ * Manages all OpenAI API interactions with proper authentication,
+ * request formatting, response processing, and error handling.
+ */
 export class OpenAIClientService {
   private openai: OpenAI
 
@@ -31,6 +65,16 @@ export class OpenAIClientService {
     this.openai = new OpenAI({ apiKey })
   }
 
+  /**
+   * Generate AI completion using OpenAI API
+   * 
+   * Sends structured prompts to OpenAI API and processes responses
+   * with comprehensive error handling and usage tracking.
+   * 
+   * @param request - OpenAI request configuration with prompts and parameters
+   * @returns Promise resolving to structured OpenAI response
+   * @throws Error for API failures or invalid responses
+   */
   async generateCompletion(request: OpenAIRequest): Promise<OpenAIResponse> {
     const {
       systemPrompt,

@@ -1,6 +1,33 @@
-// User synchronization utilities with backend integration
+/**
+ * User synchronization utilities for backend integration
+ * 
+ * This module provides functionality to synchronize user profile data
+ * between the client application and backend services, including profile
+ * retrieval, creation, and validation with comprehensive error handling.
+ * 
+ * @module userSync
+ */
+
 import { logger } from './logger';
 
+/**
+ * User profile interface representing complete user data
+ * 
+ * @interface UserProfile
+ * @property {string} id - Unique user identifier
+ * @property {string} auth0Id - Auth0 authentication provider ID
+ * @property {string} email - User's email address
+ * @property {string} username - User's chosen username
+ * @property {string} [firstName] - User's first name
+ * @property {string} [lastName] - User's last name
+ * @property {string} [avatar] - URL to user's avatar image
+ * @property {boolean} isEmailVerified - Email verification status
+ * @property {string} role - User's role in the system
+ * @property {object} preferences - User preference settings
+ * @property {object} usage - User usage statistics
+ * @property {string} createdAt - Account creation timestamp
+ * @property {string} updatedAt - Last update timestamp
+ */
 export interface UserProfile {
   id: string;
   auth0Id: string;
@@ -25,6 +52,15 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+/**
+ * Response interface for user synchronization operations
+ * 
+ * @interface UserSyncResponse
+ * @property {boolean} success - Whether the operation succeeded
+ * @property {UserProfile} [profile] - User profile data (legacy field)
+ * @property {UserProfile} [data] - User profile data
+ * @property {string} [error] - Error message if operation failed
+ */
 export interface UserSyncResponse {
   success: boolean;
   profile?: UserProfile;
@@ -32,8 +68,21 @@ export interface UserSyncResponse {
   error?: string;
 }
 
+/**
+ * API base URL for backend requests
+ */
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+/**
+ * Synchronizes user profile data with the backend service
+ * 
+ * Attempts to retrieve existing user profile or create a new one through
+ * the sync endpoint. Includes JWT validation, token expiry checking, and
+ * comprehensive error handling with detailed logging.
+ * 
+ * @param {string} accessToken - JWT access token for authentication
+ * @returns {Promise<UserProfile | null>} User profile data or null if failed
+ */
 export async function syncUserWithBackend(accessToken: string): Promise<UserProfile | null> {
   if (!accessToken || accessToken.split('.').length !== 3) {
     logger.sync.error('Invalid JWT token format');

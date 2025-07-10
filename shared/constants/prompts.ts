@@ -1,3 +1,25 @@
+/**
+ * AI Prompt Templates
+ * 
+ * Contains the base system prompts used for AI content transformation.
+ * These prompts define the core behavior and structure requirements
+ * for all persona-based content transformations.
+ * 
+ * @module PromptConstants
+ */
+
+/**
+ * Base system prompt template used by all personas for content transformation.
+ * 
+ * This prompt establishes:
+ * - Core safety guidelines to prevent prompt injection
+ * - Required response structure (Summary + Full Text)
+ * - Formatting and style requirements
+ * - General behavioral guidelines
+ * 
+ * Individual personas extend this base with their specific tone and personality
+ * instructions via their toneModifier and systemPrompt fields.
+ */
 export const BASE_SYSTEM_PROMPT = `
 You are an assistant that transforms webpage content into a creative, easy-to-read format.
 

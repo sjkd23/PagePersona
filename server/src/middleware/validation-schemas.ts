@@ -1,23 +1,40 @@
 /**
- * 🛡️ Validation schemas for API endpoints
- * Defines Zod schemas for all major API routes
+ * API Validation Schemas
+ * 
+ * This module defines comprehensive Zod validation schemas for all API endpoints
+ * in the PagePersonAI application. It provides type-safe request validation with
+ * detailed error messages and business rule enforcement.
+ * 
+ * Schema Categories:
+ * - Transform endpoints (URL and text transformation)
+ * - User management endpoints (profile updates, queries)
+ * - Chat/GPT endpoints (AI conversation handling)
+ * - Authentication endpoints (login, registration, password management)
+ * - Common route parameters (IDs, usernames)
+ * - Query parameters (pagination, search, date ranges)
+ * 
+ * All schemas use consistent validation patterns and error messages
+ * to provide a uniform API experience.
  */
 
 import { z } from 'zod';
 import { commonSchemas } from './zod-validation';
 
 /**
- * Transform endpoint schemas
+ * Validation schemas for content transformation endpoints
+ * 
+ * These schemas validate requests to transform web content and text
+ * using different personas and styling options.
  */
 export const transformSchemas = {
-  // POST /api/transform - Transform webpage with URL
+  /** Schema for URL-based content transformation requests */
   transformUrl: z.object({
     url: commonSchemas.url,
     persona: commonSchemas.persona,
     style: commonSchemas.style,
   }),
 
-  // POST /api/transform/text - Transform text content directly
+  /** Schema for direct text transformation requests */
   transformText: z.object({
     text: commonSchemas.text,
     persona: commonSchemas.persona,
@@ -26,10 +43,13 @@ export const transformSchemas = {
 };
 
 /**
- * User endpoint schemas
+ * Validation schemas for user management endpoints
+ * 
+ * These schemas handle user profile operations, updates, and queries
+ * with comprehensive field validation and business rules.
  */
 export const userSchemas = {
-  // PUT /api/user/profile - Update user profile
+  /** Schema for user profile update requests */
   updateProfile: z.object({
     firstName: z.string()
       .max(50, 'First name cannot exceed 50 characters')
@@ -54,17 +74,20 @@ export const userSchemas = {
     { message: 'At least one field must be provided for update' }
   ),
 
-  // GET /api/user/profile - Query params for user profile
+  /** Schema for user profile query parameters */
   profileQuery: z.object({
     include: z.enum(['stats', 'preferences', 'history']).optional(),
   }),
 };
 
 /**
- * Chat/GPT endpoint schemas
+ * Validation schemas for chat and AI interaction endpoints
+ * 
+ * These schemas validate requests to AI chat services with proper
+ * message formatting, context handling, and model configuration.
  */
 export const chatSchemas = {
-  // POST /api/gpt/chat - Send chat message
+  /** Schema for chat message requests to AI models */
   chatMessage: z.object({
     message: z.string()
       .min(1, 'Message is required')
@@ -77,10 +100,13 @@ export const chatSchemas = {
 };
 
 /**
- * Authentication endpoint schemas
+ * Validation schemas for authentication endpoints
+ * 
+ * These schemas handle user authentication operations including
+ * registration, login, and password management with security requirements.
  */
 export const authSchemas = {
-  // POST /api/auth/register - User registration
+  /** Schema for user registration requests */
   register: z.object({
     email: commonSchemas.email,
     username: commonSchemas.username,
@@ -93,18 +119,18 @@ export const authSchemas = {
       .max(100, 'Display name cannot exceed 100 characters'),
   }),
 
-  // POST /api/auth/login - User login
+  /** Schema for user login requests */
   login: z.object({
     email: commonSchemas.email,
     password: z.string().min(1, 'Password is required'),
   }),
 
-  // POST /api/auth/reset-password - Password reset
+  /** Schema for password reset requests */
   resetPassword: z.object({
     email: commonSchemas.email,
   }),
 
-  // POST /api/auth/change-password - Change password
+  /** Schema for password change requests */
   changePassword: z.object({
     currentPassword: z.string().min(1, 'Current password is required'),
     newPassword: z.string()
@@ -115,25 +141,31 @@ export const authSchemas = {
 };
 
 /**
- * Common route parameter schemas
+ * Validation schemas for common route parameters
+ * 
+ * These schemas validate path parameters used across multiple endpoints
+ * such as object IDs and usernames.
  */
 export const paramSchemas = {
-  // MongoDB ObjectId parameter
+  /** Schema for MongoDB ObjectId path parameters */
   objectId: z.object({
     id: commonSchemas.objectId,
   }),
 
-  // Username parameter
+  /** Schema for username path parameters */
   username: z.object({
     username: commonSchemas.username,
   }),
 };
 
 /**
- * Common query parameter schemas
+ * Validation schemas for common query parameters
+ * 
+ * These schemas handle query string parameters for pagination,
+ * searching, filtering, and other common operations.
  */
 export const querySchemas = {
-  // Pagination parameters
+  /** Schema for pagination query parameters */
   pagination: z.object({
     page: z.string().regex(/^\d+$/, 'Page must be a number').transform(Number).refine(n => n >= 1, 'Page must be at least 1').optional(),
     limit: z.string().regex(/^\d+$/, 'Limit must be a number').transform(Number).refine(n => n >= 1 && n <= 100, 'Limit must be between 1 and 100').optional(),
@@ -141,13 +173,13 @@ export const querySchemas = {
     sortBy: z.string().min(1).max(50).optional(),
   }),
 
-  // Search parameters
+  /** Schema for search query parameters */
   search: z.object({
     q: z.string().min(1, 'Search query is required').max(200, 'Search query cannot exceed 200 characters'),
     type: z.enum(['user', 'content', 'transformation']).optional(),
   }),
 
-  // Date range parameters
+  /** Schema for date range query parameters */
   dateRange: z.object({
     startDate: z.string().datetime('Invalid start date format').optional(),
     endDate: z.string().datetime('Invalid end date format').optional(),

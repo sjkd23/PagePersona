@@ -1,11 +1,10 @@
 
 import type { HistoryItem } from '../../hooks/useTransformationHistory'
-import type { WebpageContent } from '../../types/personas'
 import "./styles/TransformationHistory.css"
 
 interface TransformationHistoryProps {
   history: HistoryItem[]
-  onRestoreTransformation: (content: WebpageContent) => void
+  onRestoreTransformation: (content: HistoryItem) => void
   onRemoveItem: (id: string) => void
   onClearHistory: () => void
   isOpen: boolean

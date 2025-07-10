@@ -1,41 +1,64 @@
 /**
  * Unified API Client for PagePersonAI
  * 
- * This module consolidates all API communication functionality including:
- * - Auth0 authenticated requests
- * - General-purpose HTTP methods
- * - Specific business logic endpoints
+ * Comprehensive HTTP client providing centralized API communication with
+ * Auth0 authentication integration, error handling, and response formatting.
+ * Consolidates all server communication into a single, consistent interface
+ * with type-safe request/response handling.
+ * 
+ * Features:
+ * - Auth0 authenticated request handling
+ * - Automatic token injection and refresh
  * - Consistent error handling and response formatting
+ * - Type-safe API endpoint methods
+ * - Request/response logging and debugging
+ * - Environment-based configuration
  */
 
-import type { ApiResponse } from '../types/api-response.js';
-import type { ClientPersona } from '../types/personas';
+import type { ApiResponse } from '../../../shared/types/api';
+import type { ClientPersona } from '../../../shared/types/personas';
+import { ErrorCode } from '../../../shared/types/errors';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Global token getter function - will be set by Auth0 provider
+// Global token getter function - configured by Auth0 provider
 let getAccessTokenFunction: (() => Promise<string | undefined>) | null = null;
 
+/**
+ * Configure authentication token provider
+ * 
+ * Sets the token getter function used for authenticating API requests.
+ * Must be called by Auth0 provider during application initialization.
+ * 
+ * @param tokenGetter - Function returning current access token
+ */
 export function setTokenGetter(tokenGetter: () => Promise<string | undefined>) {
   getAccessTokenFunction = tokenGetter;
 }
 
-// Type definitions
+/**
+ * Content transformation request structure
+ */
 export interface TransformRequest {
   url: string;
   persona: string;
 }
 
-export interface TransformResponse {
-  success: boolean;
-  originalContent: {
+/**
+ * Content transformation response structure
+ * 
+ * Complete transformation result including original content,
+ * transformed output, persona information, and usage statistics.
+ */
+export interface TransformResponse extends EnhancedApiResponse {
+  originalContent?: {
     title: string;
     content: string;
     url: string;
     wordCount: number;
   };
-  transformedContent: string;
-  persona: {
+  transformedContent?: string;
+  persona?: {
     id: string;
     name: string;
     description: string;
@@ -45,15 +68,12 @@ export interface TransformResponse {
     completion_tokens: number;
     total_tokens: number;
   };
-  error?: string;
 }
 
-export interface PersonaResponse {
-  success: boolean;
+export interface PersonaResponse extends EnhancedApiResponse {
   data?: {
     personas: ClientPersona[];
   };
-  error?: string;
 }
 
 export interface UserProfile {
@@ -83,19 +103,22 @@ export interface UserProfile {
   lastLoginAt?: string;
 }
 
-export interface UserProfileResponse {
-  success: boolean;
-  data: UserProfile;
+export interface UserProfileResponse extends EnhancedApiResponse {
+  data?: UserProfile;
 }
 
-export interface UsageStatsResponse {
-  success: boolean;
-  data: {
+export interface UsageStatsResponse extends EnhancedApiResponse {
+  data?: {
     totalTransformations: number;
     monthlyUsage: number;
     lastTransformation?: string;
     usageResetDate: string;
   };
+}
+
+export interface HealthCheckResponse extends EnhancedApiResponse {
+  status?: string;
+  timestamp?: string;
 }
 
 export interface TransformTextRequest {
@@ -141,15 +164,37 @@ class HttpClient {
 
     try {
       const response = await fetch(url, config);
+      const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Return enhanced error information from server
+        return {
+          success: false,
+          error: data.error || 'Request failed',
+          errorCode: data.errorCode,
+          title: data.title,
+          helpText: data.helpText,
+          actionText: data.actionText,
+          details: data.details,
+          timestamp: data.timestamp,
+          currentUsage: data.currentUsage,
+          usageLimit: data.usageLimit,
+          membership: data.membership,
+          upgradeUrl: data.upgradeUrl,
+          retryAfter: data.retryAfter,
+          penaltyDuration: data.penaltyDuration
+        } as T;
       }
       
-      return await response.json();
+      return { success: true, ...data } as T;
     } catch (error) {
       console.error('API request failed:', error);
-      throw error;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+        errorCode: ErrorCode.NETWORK_ERROR,
+        timestamp: new Date()
+      } as T;
     }
   }
 
@@ -302,8 +347,8 @@ class ApiClient {
 
   // General utility methods
   general = {
-    healthCheck: async (): Promise<{ status: string }> => {
-      return this.http.request<{ status: string }>('/health');
+    healthCheck: async (): Promise<HealthCheckResponse> => {
+      return this.http.request<HealthCheckResponse>('/health');
     }
   };
 
@@ -332,7 +377,7 @@ class ApiClient {
     return this.transform.text(request);
   }
 
-  async healthCheck(): Promise<{ status: string }> {
+  async healthCheck(): Promise<HealthCheckResponse> {
     return this.general.healthCheck();
   }
 }
@@ -392,3 +437,27 @@ export const getUserProfile = async (
   }
   return result;
 };
+
+/**
+ * Enhanced API response base structure
+ * 
+ * Includes user-friendly error information and metadata
+ */
+export interface EnhancedApiResponse {
+  success: boolean;
+  error?: string;
+  errorCode?: ErrorCode;
+  title?: string;
+  helpText?: string;
+  actionText?: string;
+  details?: unknown;
+  timestamp?: Date | string;
+  // Usage limit specific fields
+  currentUsage?: number;
+  usageLimit?: number;
+  membership?: string;
+  upgradeUrl?: string;
+  // Rate limit specific fields
+  retryAfter?: number;
+  penaltyDuration?: number;
+}

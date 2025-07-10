@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Persona } from '../../types/personas'
+import type { ClientPersona as Persona } from '../../../../shared/types/personas'
 import './PersonaSelector.css'
 
 interface PersonaDetailsProps {
@@ -21,7 +21,7 @@ const PersonaDetails: React.FC<PersonaDetailsProps> = ({ persona }) => (
         <div className="text-gray-600 text-xs leading-relaxed">{persona.description}</div>
         {Array.isArray(persona.exampleTexts) && persona.exampleTexts.length > 0 && (
           <ul className="text-gray-500 text-xs mt-1 italic pl-4 list-disc">
-            {persona.exampleTexts.map((text, idx) => (
+            {persona.exampleTexts.map((text: string, idx: number) => (
               <li key={idx}>{text}</li>
             ))}
           </ul>

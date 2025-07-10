@@ -145,17 +145,16 @@ export function clearAllSessions(): void {
 }
 
 /**
- * Clean up expired sessions to prevent memory leaks
- * @deprecated Use pruneStaleSessions() instead
- */
-function cleanExpiredSessions(timeoutMs: number): void {
-  pruneStaleSessions(timeoutMs);
-}
-
-/**
  * Get session statistics for monitoring
  */
-export function getSessionStats() {
+export function getSessionStats(): {
+  activeSessions: number;
+  sessions: Array<{
+    userId: string;
+    lastSeen: Date;
+    lastSynced: Date | null;
+  }>;
+} {
   return {
     activeSessions: userSessions.size,
     sessions: Array.from(userSessions.entries()).map(([userId, session]) => ({

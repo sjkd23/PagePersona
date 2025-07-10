@@ -33,7 +33,7 @@ export interface Auth0JwtPayload {
   exp: number;
   
   /** Additional custom claims from Auth0 rules/actions */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

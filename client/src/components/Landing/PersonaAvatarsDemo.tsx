@@ -28,7 +28,7 @@ const defaultPersonas: PersonaAvatar[] = personaIds
       persona.id === 'plague-doctor' ? 'plague_doctor' :
       persona.id === 'eli5' ? 'eli5' :
       persona.id === 'anime-hacker' ? 'anime_hacker' :
-      persona.id.replace(/[^a-z0-9\-]/gi, '_') // e.g. 'plague-doctor', 'eli5', 'anime-hacker'
+      persona.id.replace(/[^a-z0-9-]/gi, '_') // e.g. 'plague-doctor', 'eli5', 'anime-hacker'
   }));
 
 export default function PersonaAvatarsDemo({ personas = defaultPersonas, className = '' }: PersonaAvatarsDemoProps) {

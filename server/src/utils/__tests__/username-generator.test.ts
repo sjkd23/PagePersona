@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { generateUsernameFromAuth0 } from '../username-generator'
+import type { ProcessedAuth0User } from '../../types/common'
 
 describe('usernameGenerator', () => {
   describe('generateUsernameFromAuth0', () => {
     it('should generate username from nickname', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'auth0|123456789abcdef',
         sub: 'auth0|123456789abcdef',
         nickname: 'johndoe',
         name: 'John Doe',
@@ -18,7 +20,8 @@ describe('usernameGenerator', () => {
     })
 
     it('should fallback to name when nickname is invalid', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'auth0|987654321fedcba',
         sub: 'auth0|987654321fedcba',
         nickname: '', // invalid
         name: 'Jane Smith',
@@ -32,9 +35,10 @@ describe('usernameGenerator', () => {
     })
 
     it('should fallback to email base when nickname and name are invalid', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'google-oauth2|abc123def456',
         sub: 'google-oauth2|abc123def456',
-        nickname: null,
+        nickname: null as any,
         name: '',
         email: 'testuser@example.com'
       }
@@ -46,9 +50,10 @@ describe('usernameGenerator', () => {
     })
 
     it('should use fallback when all fields are invalid', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'auth0|xyz789',
         sub: 'auth0|xyz789',
-        nickname: null,
+        nickname: null as any,
         name: '',
         email: ''
       }
@@ -60,7 +65,8 @@ describe('usernameGenerator', () => {
     })
 
     it('should handle special characters in nickname', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'auth0|special123',
         sub: 'auth0|special123',
         nickname: 'user@#$%^&*()',
         name: 'User Name',
@@ -74,7 +80,8 @@ describe('usernameGenerator', () => {
     })
 
     it('should handle missing or malformed sub field', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'malformed',
         sub: 'malformed',
         nickname: 'testuser',
         name: 'Test User',
@@ -88,7 +95,8 @@ describe('usernameGenerator', () => {
     })
 
     it('should handle very short sub field', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'a|b',
         sub: 'a|b',
         nickname: 'shortuser',
         name: 'Short User',
@@ -102,7 +110,8 @@ describe('usernameGenerator', () => {
     })
 
     it('should handle undefined auth0User gracefully', () => {
-      const auth0User = {
+      const auth0User: ProcessedAuth0User = {
+        id: 'user',
         sub: undefined,
         nickname: undefined,
         name: undefined,

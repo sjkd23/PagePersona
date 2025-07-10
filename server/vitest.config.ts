@@ -33,19 +33,14 @@ export default defineConfig({
         'eslint.config.js',
         'postcss.config.js',
         'tsconfig*.json',
-        // Data and constants - static data files
-        'src/data/personas.ts',
-        'src/data/basePrompt.ts',
         // Config modules - environment setup
         'src/config/database.ts',
-        'src/config/rate-limit-configs.ts',
         'src/config/web-scraper-config.ts',
         // Type definitions
         'src/types/**/*.ts',
         // Generated or legacy files
         'src/middleware/auth0-middleware-simple.ts', // Legacy
         'src/utils/gpt/prompt-call-new.ts', // Newer version exists
-        'src/services/cacheService.ts' // Duplicate of cache-service.ts
       ],
       // Include specific patterns for comprehensive coverage
       include: [

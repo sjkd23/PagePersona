@@ -3,7 +3,7 @@ import { PromptBuilderService } from '../promptBuilder';
 import type { ParsedContent } from '../parser';
 
 // Mock the personas data
-vi.mock('../../data/personas', () => ({
+vi.mock('../../../shared/constants/personas', () => ({
   getPersona: vi.fn((id: string) => {
     const mockPersonas: { [key: string]: any } = {
       'eli5': {

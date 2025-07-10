@@ -1,11 +1,15 @@
 /**
  * Client-Side Centralized Logger Utility
  * 
- * This logger replaces all console.* usage in the React application
- * with a consistent logging system that includes:
- * - Structured log levels (info, warn, error, debug)
- * - Environment-based debug logging
- * - Browser-friendly formatting
+ * Provides consistent logging across the React application with
+ * structured log levels, environment-aware debug mode, and browser-friendly
+ * formatting. Replaces direct console usage with categorized logging.
+ * 
+ * Features:
+ * - Environment-based debug control
+ * - Structured log levels with visual indicators
+ * - Context-specific log categorization
+ * - Development vs production behavior
  */
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
@@ -14,6 +18,12 @@ interface LogData {
   [key: string]: unknown;
 }
 
+/**
+ * Client Logger Class
+ * 
+ * Manages client-side logging with environment detection and
+ * structured output formatting for development debugging.
+ */
 class ClientLogger {
   private isDevelopment: boolean;
   private isDebugMode: boolean;
@@ -24,7 +34,10 @@ class ClientLogger {
   }
 
   /**
-   * Get level prefix with emoji
+   * Generate level prefix with visual indicators
+   * 
+   * @param level - Log level to format
+   * @returns Formatted prefix string with visual markers
    */
   private getLevelPrefix(level: LogLevel): string {
     const prefixes = {

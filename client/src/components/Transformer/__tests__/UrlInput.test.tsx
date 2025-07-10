@@ -4,7 +4,15 @@ import UrlInput from '../UrlInput';
 
 // Mock InputField component
 vi.mock('../InputField', () => ({
-  default: ({ mode, value, onModeChange, onChange, urlError, textError, disabled }: any) => (
+  default: ({ mode, value, onModeChange, onChange, urlError, textError, disabled }: {
+    mode: 'url' | 'text';
+    value: string;
+    onModeChange: (mode: 'url' | 'text') => void;
+    onChange: (value: string) => void;
+    urlError: string | null;
+    textError: string | null;
+    disabled: boolean;
+  }) => (
     <div data-testid="mock-input-field">
       <button onClick={() => onModeChange('url')}>URL</button>
       <button onClick={() => onModeChange('text')}>Text</button>
@@ -21,7 +29,7 @@ vi.mock('../InputField', () => ({
 }));
 
 vi.mock('../validation', () => ({
-  validateInput: vi.fn((value, mode) => {
+  validateInput: vi.fn((value: string, mode: 'url' | 'text') => {
     if (mode === 'url' && value && !value.startsWith('http')) {
       return { error: 'Invalid URL format' };
     }

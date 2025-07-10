@@ -1,6 +1,8 @@
 /**
- * @fileoverview Comprehensive test suite for rate limiting middleware
- * Tests different user tiers, request limits, and edge cases
+ * @fileoverview Test suite for simple rate limiting middleware
+ * Tests basic rate limiting functionality
+ * 
+ * @vitest-environment node
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
@@ -9,24 +11,13 @@ import request from 'supertest'
 import express from 'express'
 import { 
   createTieredRateLimit, 
-  getUserMembershipTierSync,
-  rateLimitConfig 
-} from '../../config/rate-limit-configs'
-import { redisClient } from '../../utils/redis-client'
+  getUserMembershipTierSync
+} from '../../config/simple-rate-limit-configs'
+import { createSimpleRateLimit } from '../../middleware/simple-rate-limit'
+import { rateLimitConfig as baseRateLimitConfig } from '../../config'
 import { logger } from '../../utils/logger'
 
 // Mock dependencies
-vi.mock('../../utils/redis-client', () => ({
-  redisClient: {
-    get: vi.fn(),
-    set: vi.fn(),
-    del: vi.fn(),
-    incr: vi.fn(),
-    expire: vi.fn(),
-    getClient: vi.fn()
-  }
-}))
-
 vi.mock('../../utils/logger', () => ({
   logger: {
     warn: vi.fn(),
@@ -36,7 +27,21 @@ vi.mock('../../utils/logger', () => ({
   }
 }))
 
-describe('Rate Limiting Middleware', () => {
+// Define test-specific rate limit configuration
+const rateLimitConfig = {
+  transform: {
+    free: { max: 10, windowMs: 60 * 1000 }, // 10 per minute
+    premium: { max: 100, windowMs: 60 * 1000 }, // 100 per minute
+    admin: { max: 1000, windowMs: 60 * 1000 } // 1000 per minute
+  },
+  api: {
+    free: { max: 50, windowMs: 60 * 1000 }, // 50 per minute
+    premium: { max: 500, windowMs: 60 * 1000 }, // 500 per minute
+    admin: { max: 5000, windowMs: 60 * 1000 } // 5000 per minute
+  }
+};
+
+describe('Simple Rate Limiting Middleware', () => {
   let app: express.Application
   let mockRequest: Partial<Request>
   let mockResponse: Partial<Response>
@@ -69,11 +74,7 @@ describe('Rate Limiting Middleware', () => {
     })
 
     it('should apply different limits based on user tier', async () => {
-      // Mock Redis responses for different scenarios
-      const mockedRedisClient = redisClient as any;
-      mockedRedisClient.get.mockResolvedValue(null)
-      mockedRedisClient.incr.mockResolvedValue(1)
-      mockedRedisClient.expire.mockResolvedValue(true)
+      // No need to mock Redis since we're using in-memory store
 
       const rateLimit = createTieredRateLimit('api', getUserMembershipTierSync)
       

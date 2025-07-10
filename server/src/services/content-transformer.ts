@@ -1,15 +1,40 @@
+/**
+ * Content Transformation Service
+ * 
+ * Orchestrates the complete content transformation pipeline from scraped
+ * web content to AI-transformed output. Coordinates scraping, parsing,
+ * prompt building, and OpenAI API communication with comprehensive
+ * error handling and result formatting.
+ * 
+ * Features:
+ * - Complete transformation pipeline orchestration
+ * - Multi-service integration and coordination
+ * - Comprehensive error handling and recovery
+ * - Detailed usage tracking and metrics
+ * - Persona-based content transformation
+ */
+
 import { ScraperService, type ScrapedContent } from './scraper'
 import { ParserService } from './parser'
 import { PromptBuilderService } from './promptBuilder'
 import { OpenAIClientService } from './openaiClient'
-import { getPersona } from '../data/personas'
+import { getPersona } from '../../../shared/constants/personas'
 import { logger } from '../utils/logger'
 
+/**
+ * Transformation request parameters interface
+ */
 export interface TransformationRequest {
   url: string
   persona: string
 }
 
+/**
+ * Comprehensive transformation result structure
+ * 
+ * Contains original content, transformed output, persona information,
+ * usage statistics, and error details for complete transformation tracking.
+ */
 export interface TransformationResult {
   success: boolean
   originalContent: {
@@ -32,6 +57,12 @@ export interface TransformationResult {
   error?: string
 }
 
+/**
+ * Content Transformer Class
+ * 
+ * High-level service that coordinates the complete content transformation
+ * workflow from web scraping through AI-powered content generation.
+ */
 export class ContentTransformer {
   private scraperService: ScraperService
   private openaiService: OpenAIClientService
@@ -42,12 +73,22 @@ export class ContentTransformer {
     this.openaiService = new OpenAIClientService(apiKey)
   }
 
+  /**
+   * Transform scraped content using specified persona
+   * 
+   * Processes scraped web content through the complete transformation
+   * pipeline including content parsing, prompt generation, AI processing,
+   * and result formatting with comprehensive error handling.
+   * 
+   * @param scrapedContent - Pre-scraped webpage content structure
+   * @param personaId - Persona identifier for transformation style
+   * @returns Promise resolving to complete transformation result
+   */
   async transformContent(
     scrapedContent: ScrapedContent, 
     personaId: string
   ): Promise<TransformationResult> {
-    console.log("📊 === ContentTransformer.transformContent() STARTED ===")
-    console.log("📨 transformContent() called with:", {
+    logger.transform.info("Content transformation started", {
       title: scrapedContent?.title || 'MISSING',
       url: scrapedContent?.url || 'MISSING', 
       personaId,
@@ -55,7 +96,7 @@ export class ContentTransformer {
     })
 
     try {
-      // 1. Validate input
+      // Step 1: Validate scraped content input
       if (!scrapedContent || !scrapedContent.content?.trim()) {
         return this.createErrorResult(
           'Invalid scraped content: content is null, undefined, or empty',
@@ -64,14 +105,14 @@ export class ContentTransformer {
         )
       }
 
-      // 2. Parse and clean content
+      // Step 2: Parse and clean webpage content
       const parsedContent = ParserService.parseWebContent(
         scrapedContent.title,
         scrapedContent.content
       )
       ParserService.validateContent(parsedContent)
 
-      // 3. Build prompts
+      // Step 3: Build transformation prompts for AI processing
       const promptComponents = PromptBuilderService.buildTransformationPrompt(
         parsedContent,
         personaId
@@ -103,12 +144,12 @@ export class ContentTransformer {
         usage: openaiResponse.usage
       }
 
-      console.log("🎉 === ContentTransformer.transformContent() COMPLETED SUCCESSFULLY ===")
+      logger.info("🎉 === ContentTransformer.transformContent() COMPLETED SUCCESSFULLY ===")
       return result
 
     } catch (error) {
-      console.error('🚨 === CONTENT TRANSFORMATION ERROR ===')
-      console.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error')
+      logger.error('🚨 === CONTENT TRANSFORMATION ERROR ===')
+      logger.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error')
       
       return this.createErrorResult(
         error instanceof Error ? error.message : 'Unknown transformation error',
@@ -122,8 +163,8 @@ export class ContentTransformer {
     text: string, 
     personaId: string
   ): Promise<TransformationResult> {
-    console.log("📊 === ContentTransformer.transformText() STARTED ===")
-    console.log("📨 transformText() called with:", {
+    logger.info("📊 === ContentTransformer.transformText() STARTED ===")
+    logger.info("📨 transformText() called with:", {
       textLength: text?.length || 0,
       personaId
     })
@@ -165,12 +206,12 @@ export class ContentTransformer {
         usage: openaiResponse.usage
       }
 
-      console.log("🎉 === ContentTransformer.transformText() COMPLETED SUCCESSFULLY ===")
+      logger.info("🎉 === ContentTransformer.transformText() COMPLETED SUCCESSFULLY ===")
       return result
 
     } catch (error) {
-      console.error('🚨 === TEXT TRANSFORMATION ERROR ===')
-      console.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error')
+      logger.error('🚨 === TEXT TRANSFORMATION ERROR ===')
+      logger.error('❌ Error:', error instanceof Error ? error.message : 'Unknown error')
 
       return this.createErrorResult(
         error instanceof Error ? error.message : 'Unknown transformation error',

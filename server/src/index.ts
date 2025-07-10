@@ -1,3 +1,22 @@
+/**
+ * PagePersonAI Server Application
+ * 
+ * Main entry point for the PagePersonAI backend API server.
+ * This Express.js application provides content transformation services using AI personas,
+ * user authentication via Auth0, and various supporting features like rate limiting,
+ * usage tracking, and caching.
+ * 
+ * Key Features:
+ * - AI-powered content transformation with multiple personas
+ * - Auth0 integration for secure user authentication
+ * - Redis-based caching and session management
+ * - MongoDB for persistent data storage
+ * - Rate limiting and usage tracking
+ * - Comprehensive error handling and logging
+ * 
+ * @module ServerApp
+ */
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -18,20 +37,32 @@ import { startSessionCleanup } from './utils/session-tracker';
 import { redisClient } from './utils/redis-client';
 import { logger } from './utils/logger';
 
+// Load environment variables from .env file
 dotenv.config();
 
-// Validate Auth0 configuration
+// Validate critical Auth0 configuration on startup
 ensureSafeAuth0Config();
 
+// Initialize Express application
 const app = express();
-app.disable('x-powered-by'); // Hide Express.js
+app.disable('x-powered-by'); // Security: Hide Express.js version information
 
 const PORT = process.env.PORT || 5000;
 
-// Database connection
+// Establish database connections
 connectToDatabase();
 
-// Redis health check
+/**
+ * Tests Redis connection and sets up graceful fallback to in-memory storage.
+ * 
+ * Redis is used for:
+ * - Session storage and management
+ * - Rate limiting counters
+ * - Caching frequently accessed data
+ * 
+ * If Redis is unavailable, the application continues with in-memory alternatives,
+ * though this limits horizontal scaling and persistence across restarts.
+ */
 const testRedisConnection = async () => {
   try {
     const testKey = 'health:check';
@@ -127,21 +158,33 @@ app.use('*', (_req, res) => {
 
 // Start server
 app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
     console.log(`Server running on http://localhost:${PORT}`);
+    // eslint-disable-next-line no-console
     console.log('Available endpoints:');
+    // eslint-disable-next-line no-console
     console.log('  GET  /api/health - Health check');
+    // eslint-disable-next-line no-console
     console.log('  GET  /api/transform/personas - Available personas');
+    // eslint-disable-next-line no-console
     console.log('  POST /api/transform - Transform content from URL');
+    // eslint-disable-next-line no-console
     console.log('  POST /api/transform/text - Transform text content directly');
+    // eslint-disable-next-line no-console
     console.log('  GET  /api/user/profile - User profile (protected)');
+    // eslint-disable-next-line no-console
     console.log('  PUT  /api/user/profile - Update profile (protected)');
+    // eslint-disable-next-line no-console
     console.log('  GET  /api/debug/redis - Redis connectivity test');
-}).on('error', (err: any) => {
+}).on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
+        // eslint-disable-next-line no-console
         console.error(`Port ${PORT} is already in use`);
+        // eslint-disable-next-line no-console
         console.error('Try: netstat -ano | findstr :' + PORT + ' to find the process');
         process.exit(1);
     } else {
+        // eslint-disable-next-line no-console
         console.error('Server error:', err);
         process.exit(1);
     }

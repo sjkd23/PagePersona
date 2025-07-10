@@ -1,16 +1,51 @@
+/**
+ * User Management Routes
+ * 
+ * This module defines all REST API routes for user management operations including
+ * profile management, usage tracking, synchronization, and debugging endpoints.
+ * 
+ * Route Categories:
+ * - Profile Management: Get and update user profiles
+ * - Usage Statistics: Track and retrieve user usage data
+ * - User Synchronization: Sync users between Auth0 and MongoDB
+ * - Development/Testing: Debug and test endpoints for development
+ * - Debug Utilities: Name synchronization and data migration tools
+ * 
+ * Security Features:
+ * - Auth0 JWT token verification
+ * - Rate limiting for sensitive operations
+ * - Input validation using Zod schemas
+ * - User context synchronization middleware
+ * 
+ * All routes require proper authentication unless explicitly marked as public.
+ * Development and debug routes are conditionally enabled based on environment.
+ */
+
 import express, { Request, Response } from 'express';
 import { MongoUser } from '../models/mongo-user';
 import { verifyAuth0Token, syncAuth0User } from '../middleware/auth0-middleware';
 import * as userSerializer from '../utils/userSerializer';
-import { syncRateLimit, profileUpdateRateLimit, testEndpointRateLimit } from '../middleware/rate-limit-middleware-refactored';
+import { syncRateLimit, profileUpdateRateLimit, testEndpointRateLimit } from '../middleware/simple-rate-limit';
 import { validateBody, validateQuery } from '../middleware/zod-validation';
 import { userSchemas } from '../middleware/validation-schemas';
 import { HttpStatus } from '../constants/http-status';
 import { userService } from '../services/user-service';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 
-// Get current user profile
+/**
+ * GET /api/user/profile
+ * 
+ * Retrieve the current user's profile information including personal details,
+ * preferences, and account settings. Supports optional include parameters
+ * for additional data like stats, preferences, or history.
+ * 
+ * @access Private - Requires Auth0 authentication
+ * @middleware validateQuery - Validates query parameters
+ * @middleware verifyAuth0Token - Verifies JWT token
+ * @middleware syncAuth0User - Syncs user data with MongoDB
+ */
 router.get('/profile', validateQuery(userSchemas.profileQuery), verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
   try {
     const mongoUser = req.userContext?.mongoUser;
@@ -25,7 +60,7 @@ router.get('/profile', validateQuery(userSchemas.profileQuery), verifyAuth0Token
     if (result.success) {
       res.json(userSerializer.createSuccessResponse(result.data));
     } else {
-      // map known errors
+      // Map known errors to appropriate HTTP status codes
       const errMsg = result.error || 'Failed to fetch user profile';
       const status = errMsg.includes('not found')
         ? HttpStatus.NOT_FOUND
@@ -35,7 +70,7 @@ router.get('/profile', validateQuery(userSchemas.profileQuery), verifyAuth0Token
       res.status(status).json(userSerializer.createErrorResponse(errMsg));
     }
   } catch (error: any) {
-    console.error('Error fetching user profile:', error);
+    logger.error('Error fetching user profile:', error);
     const errMsg = error instanceof Error ? error.message : 'Failed to fetch user profile';
     const status = errMsg.includes('not found')
       ? HttpStatus.NOT_FOUND
@@ -46,7 +81,19 @@ router.get('/profile', validateQuery(userSchemas.profileQuery), verifyAuth0Token
   }
 });
 
-// Update user profile
+/**
+ * PUT /api/user/profile
+ * 
+ * Update the current user's profile information including name, bio,
+ * display name, and user preferences. All fields are optional and
+ * only provided fields will be updated.
+ * 
+ * @access Private - Requires Auth0 authentication
+ * @middleware profileUpdateRateLimit - Prevents profile update spam
+ * @middleware validateBody - Validates request body against schema
+ * @middleware verifyAuth0Token - Verifies JWT token
+ * @middleware syncAuth0User - Syncs user data with MongoDB
+ */
 router.put('/profile', profileUpdateRateLimit, validateBody(userSchemas.updateProfile), verifyAuth0Token, syncAuth0User, async (req: Request, res: Response): Promise<void> => {
   try {
     const mongoUser = req.userContext?.mongoUser;
@@ -65,7 +112,7 @@ router.put('/profile', profileUpdateRateLimit, validateBody(userSchemas.updatePr
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(result.error || 'Failed to update user profile'));
     }
   } catch (error) {
-    console.error('❌ Error updating user profile:', error);
+    logger.error('❌ Error updating user profile:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to update user profile'));
   }
 });
@@ -88,7 +135,7 @@ router.get('/usage', verifyAuth0Token, syncAuth0User, async (req: Request, res: 
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(result.error || 'Failed to fetch user usage'));
     }
   } catch (error) {
-    console.error('❌ Error fetching user usage:', error);
+    logger.error('❌ Error fetching user usage:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to fetch user usage'));
   }
 });
@@ -118,7 +165,7 @@ router.post('/sync', syncRateLimit, verifyAuth0Token, syncAuth0User, async (req:
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse(errMsg));
     }
   } catch (error: any) {
-    console.error('Error syncing user:', error);
+    logger.error('Error syncing user:', error);
     const errMsg = error instanceof Error ? error.message : 'Failed to sync user';
     const status = errMsg.includes('not found')
       ? HttpStatus.NOT_FOUND
@@ -175,7 +222,7 @@ if (process.env.NODE_ENV !== 'production') {
           const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
         } catch (e) {
-          console.log('❌ JWT decode failed:', e instanceof Error ? e.message : 'Unknown error');
+          logger.info('❌ JWT decode failed:', { error: e instanceof Error ? e.message : 'Unknown error' });
         }
       }
     }
@@ -238,7 +285,7 @@ if (process.env.NODE_ENV !== 'production') {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error running serializeUser tests:', error);
+      logger.error('Error running serializeUser tests:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: 'Failed to run serializeUser tests',
@@ -292,10 +339,10 @@ if (process.env.NODE_ENV !== 'production') {
         }
       };
 
-      console.log('🔍 User name debug data:', debugData);
+      logger.info('🔍 User name debug data:', debugData);
       res.json(userSerializer.createSuccessResponse(debugData, 'Debug data retrieved'));
     } catch (error) {
-      console.error('❌ Error fetching debug data:', error);
+      logger.error('❌ Error fetching debug data:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to fetch debug data'));
     }
   });
@@ -342,10 +389,10 @@ if (process.env.NODE_ENV !== 'production') {
         }
       };
 
-      console.log('🔄 Forced name sync completed:', result);
+      logger.info('🔄 Forced name sync completed:', result);
       res.json(userSerializer.createSuccessResponse(result, 'Name sync completed'));
     } catch (error) {
-      console.error('❌ Error forcing name sync:', error);
+      logger.error('❌ Error forcing name sync:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to force name sync'));
     }
   });
@@ -408,7 +455,7 @@ if (process.env.NODE_ENV !== 'production') {
         }
       }));
     } catch (error) {
-      console.error('❌ Error force syncing names:', error);
+      logger.error('❌ Error force syncing names:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to sync names'));
     }
   });
@@ -482,7 +529,7 @@ if (process.env.NODE_ENV !== 'production') {
         results: results
       }));
     } catch (error) {
-      console.error('❌ Error during name migration:', error);
+      logger.error('❌ Error during name migration:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(userSerializer.createErrorResponse('Failed to migrate user names'));
     }
   });

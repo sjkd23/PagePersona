@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
+import { logger } from '../utils/logger';
 
 // Load environment variables
 dotenv.config();
@@ -47,9 +48,9 @@ const envSchema = z.object({
 const parseResult = envSchema.safeParse(process.env);
 
 if (!parseResult.success) {
-  console.error('❌ Environment validation failed:');
+  logger.error('❌ Environment validation failed:');
   parseResult.error.errors.forEach(error => {
-    console.error(`  • ${error.path.join('.')}: ${error.message}`);
+    logger.error(`  • ${error.path.join('.')}: ${error.message}`);
   });
   process.exit(1);
 }
@@ -138,12 +139,12 @@ export function validateCriticalConfig(): void {
   const failures = criticalChecks.filter(check => !check.value);
   
   if (failures.length > 0) {
-    console.error('❌ Critical configuration missing:');
+    logger.error('❌ Critical configuration missing:');
     failures.forEach(failure => {
-      console.error(`  • ${failure.name}`);
+      logger.error(`  • ${failure.name}`);
     });
     process.exit(1);
   }
 
-  console.log('✅ All critical configurations validated');
+  logger.info('✅ All critical configurations validated');
 }

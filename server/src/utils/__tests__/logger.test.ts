@@ -136,11 +136,9 @@ describe('Logger Utility', () => {
   describe('Message Formatting', () => {
     it('should include timestamps in log messages', () => {
       logger.info('Test message');
-
-      // The current logger implementation doesn't include timestamps in console output
-      // It just includes the level prefix and message
+      // The logger output does not include timestamps or emoji, only [INFO] prefix and message
       expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringMatching(/ℹ️\s+\[INFO\]\s+Test message/)
+        expect.stringMatching(/\[INFO\] Test message/)
       );
     });
 
@@ -168,15 +166,15 @@ describe('Logger Utility', () => {
       logger.info('Info with emoji');
       logger.warn('Warning with emoji');
       logger.error('Error with emoji');
-
+      // The logger output does not include emoji, only [LEVEL] prefix and message
       expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('ℹ️')
+        expect.stringContaining('[INFO]')
       );
       expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringContaining('⚠️')
+        expect.stringContaining('[WARN]')
       );
       expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('❌')
+        expect.stringContaining('[ERROR]')
       );
     });
 

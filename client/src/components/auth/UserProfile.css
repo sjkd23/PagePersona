@@ -1,3 +1,9 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
 
 .profile-container {
   max-width: 1000px;
@@ -709,24 +715,133 @@
     width: 80px;
     height: 80px;
   }
-  
   .profile-details h1 {
     font-size: 1.5rem;
   }
-  
   .stat-number {
     font-size: 2.5rem;
   }
-  
   .profile-container {
     padding: 1rem;
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
+    min-height: 100vh;
   }
-  
   .profile-header {
     padding: 1.5rem;
+    width: 100vw;
+    max-width: 100vw;
   }
-  
   .profile-content {
     padding: 1.5rem;
+    width: 100vw;
+    max-width: 100vw;
+  }
+  .profile-card,
+  .membership-status-card,
+  .remaining-transformations,
+  .info-card {
+    width: calc(100vw - 2rem);
+    max-width: 100vw;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  .profile-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger,
+  .btn-info {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  .membership-status-card {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    align-items: stretch;
+    width: calc(100vw - 2rem);
+    max-width: 100vw;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: auto;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .remaining-transformations {
+    width: calc(100vw - 2rem);
+    max-width: 100vw;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  .profile-card,
+  .info-card {
+    width: calc(100vw - 2rem);
+    max-width: 100vw;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  .usage-meter {
+    max-width: 100vw !important;
+    width: 100vw !important;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0 auto;
+  }
+  .usage-meter-bar,
+  .usage-meter-fill {
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .membership-status-section {
+    padding: 1rem 0.5rem;
+  }
+  .membership-status-card {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    align-items: stretch;
+  }
+  .remaining-transformations {
+    margin-bottom: 1rem;
+  }
+  .profile-details,
+  .membership-info,
+  .info-card {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .form-field,
+  .form-field-full-width {
+    width: 100%;
+    min-width: 0;
+  }
+  .error-container {
+    margin: 1rem 0;
+  }
+  /* Add space at the bottom for sign out button */
+  body {
+    padding-bottom: 4rem;
   }
 }

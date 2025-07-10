@@ -17,9 +17,9 @@ describe('utils/profileUtils', () => {
     })
 
     it('should handle non-string values', () => {
-      expect(formatProfileField(123 as any)).toBe('Not provided')
-      expect(formatProfileField({} as any)).toBe('Not provided')
-      expect(formatProfileField([] as any)).toBe('Not provided')
+      expect(formatProfileField(123 as unknown as string)).toBe('Not provided')
+      expect(formatProfileField({} as unknown as string)).toBe('Not provided')
+      expect(formatProfileField([] as unknown as string)).toBe('Not provided')
     })
   })
 

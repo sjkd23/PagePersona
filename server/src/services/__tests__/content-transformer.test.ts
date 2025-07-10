@@ -16,7 +16,7 @@ vi.mock('openai', () => {
 })
 
 // Mock personas data
-vi.mock('../data/personas', () => ({
+vi.mock('../../shared/constants/personas', () => ({
   getPersona: vi.fn().mockImplementation((id: string) => {
     if (!id || id.trim() === '') {
       return null

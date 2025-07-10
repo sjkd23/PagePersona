@@ -10,7 +10,7 @@ vi.mock('../content-transformer')
 vi.mock('../../utils/web-scraper')
 vi.mock('../cache-service')
 vi.mock('../../utils/usage-tracking')
-vi.mock('../../data/personas', () => ({
+vi.mock('../../../shared/constants/personas', () => ({
   getPersona: vi.fn().mockReturnValue({
     id: 'test-persona',
     name: 'Test Persona',
@@ -182,7 +182,8 @@ describe('TransformationService', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('API Error')
+      expect(result.error).toBe('An unexpected error occurred')
+      expect(result.errorCode).toBe('UNKNOWN_ERROR')
     })
   })
 })

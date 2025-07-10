@@ -1,17 +1,39 @@
+/**
+ * Transformation Page Component
+ * 
+ * Main interface for content transformation featuring persona selection,
+ * input methods (URL/text), and result display. Manages transformation
+ * workflow state, user interactions, and result history functionality.
+ * 
+ * Features:
+ * - Dual input modes for URL and direct text transformation
+ * - Persona selection with dropdown interface
+ * - Real-time transformation results with copy functionality
+ * - Transformation history with persistence
+ * - Responsive design with accessibility features
+ */
+
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import TransformationHistory from './TransformationHistory'
 import ResultDisplay from './ResultDisplay'
+import ErrorDisplay from './ErrorDisplay'
 import { useTransformation } from '../../hooks/useTransformation'
 import './styles/TransformationPage.css'
 
+/**
+ * Main transformation interface component
+ * 
+ * Orchestrates the complete transformation workflow including input handling,
+ * persona selection, API communication, and result presentation.
+ */
 export default function TransformationPage() {
   const [copySuccess, setCopySuccess] = useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdown when clicking outside
+  // Handle click outside dropdown to close persona selection
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -60,7 +82,7 @@ export default function TransformationPage() {
     }
   }
 
-  const handleHistoryRestore = (item: import('../../types/personas').WebpageContent) => {
+  const handleHistoryRestore = (item: import('../../hooks/useTransformationHistory').HistoryItem) => {
     actions.handleRestoreTransformation(item)
     setIsHistoryOpen(false)
   }
@@ -232,7 +254,7 @@ export default function TransformationPage() {
                             <div className="metadata-section">
                               {Array.isArray(state.selectedPersona.exampleTexts) ? (
                                 <ul className="metadata-example-list">
-                                  {state.selectedPersona.exampleTexts.map((text, idx) => (
+                                  {state.selectedPersona.exampleTexts.map((text: string, idx: number) => (
                                     <li key={idx} className="metadata-example">{text}</li>
                                   ))}
                                 </ul>
@@ -351,20 +373,29 @@ export default function TransformationPage() {
           </div>
           
           {/* Error Message */}
-          {state.error && (
-            <div className="error-message-compact">
-              <svg className="error-icon-small" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <p className="error-text-small">{state.error}</p>
-              <button
-                onClick={() => actions.setError(null)}
-                className="error-close-small"
-                title="Dismiss error"
-              >
-                ×
-              </button>
-            </div>
+          {state.enhancedError ? (
+            <ErrorDisplay
+              error={state.enhancedError.message}
+              errorCode={state.enhancedError.code}
+              title={state.enhancedError.title}
+              helpText={state.enhancedError.helpText}
+              actionText={state.enhancedError.actionText}
+              currentUsage={state.enhancedError.currentUsage}
+              usageLimit={state.enhancedError.usageLimit}
+              membership={state.enhancedError.membership}
+              upgradeUrl={state.enhancedError.upgradeUrl}
+              retryAfter={state.enhancedError.retryAfter}
+              onDismiss={() => actions.setEnhancedError(null)}
+              compact={true}
+              className="transformation-error"
+            />
+          ) : state.error && (
+            <ErrorDisplay
+              error={state.error}
+              onDismiss={() => actions.setError(null)}
+              compact={true}
+              className="transformation-error"
+            />
           )}
           
           <button

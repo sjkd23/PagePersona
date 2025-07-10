@@ -1,9 +1,18 @@
 /**
- * Utility functions for theme styling (light/dark mode)
+ * Theme utility functions and constants for consistent styling
+ * 
+ * This module provides a comprehensive theming system that supports both
+ * light and dark modes, with predefined color schemes for various UI
+ * components and persona-specific styling.
+ * 
+ * @module themeUtils
  */
 
 /**
- * Combines light and dark mode classes for consistent theming
+ * Predefined theme classes for consistent styling across components
+ * 
+ * These classes provide light/dark mode variants for common UI elements
+ * including backgrounds, text colors, borders, and interactive elements.
  */
 export const themeClasses = {
   // Backgrounds
@@ -35,12 +44,11 @@ export const themeClasses = {
 };
 
 /**
- * Get appropriate classes for a component type
+ * Pre-configured component class combinations
+ * 
+ * Common UI component styling patterns that combine multiple theme classes
+ * for consistent appearance across the application.
  */
-export const getComponentClasses = (component: keyof typeof componentClasses) => {
-  return componentClasses[component];
-};
-
 const componentClasses = {
   card: `${themeClasses.backgroundCard} ${themeClasses.textPrimary} ${themeClasses.border} ${themeClasses.shadowCard}`,
   modal: `${themeClasses.backgroundPrimary} ${themeClasses.textPrimary} ${themeClasses.border}`,
@@ -50,7 +58,20 @@ const componentClasses = {
 };
 
 /**
- * Persona-specific color schemes that work in both light and dark modes
+ * Retrieves appropriate CSS classes for a specific component type
+ * 
+ * @param {keyof typeof componentClasses} component - The component type
+ * @returns {string} The combined CSS classes for the component
+ */
+export const getComponentClasses = (component: keyof typeof componentClasses) => {
+  return componentClasses[component];
+};
+
+/**
+ * Persona-specific color schemes compatible with both light and dark modes
+ * 
+ * Each persona has its own color scheme with variants for different contexts
+ * including background, accent colors, and hover states.
  */
 export const personaColors = {
   eli5: {

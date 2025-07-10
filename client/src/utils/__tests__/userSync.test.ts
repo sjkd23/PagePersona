@@ -92,7 +92,7 @@ describe('userSync', () => {
         ok: true,
         status: 200,
         json: vi.fn().mockResolvedValue(mockSuccessResponse),
-      } as any)
+      } as unknown as Response)
 
       const result = await syncUserWithBackend(validToken)
 
@@ -119,13 +119,13 @@ describe('userSync', () => {
         .mockResolvedValueOnce({
           ok: false,
           status: 404,
-        } as any)
+        } as unknown as Response)
         // Second call (sync) returns success
         .mockResolvedValueOnce({
           ok: true,
           status: 200,
           json: vi.fn().mockResolvedValue(mockSuccessResponse),
-        } as any)
+        } as unknown as Response)
 
       const result = await syncUserWithBackend(validToken)
 
@@ -152,12 +152,12 @@ describe('userSync', () => {
         .mockResolvedValueOnce({
           ok: false,
           status: 404,
-        } as any)
+        } as unknown as Response)
         .mockResolvedValueOnce({
           ok: false,
           status: 500,
           text: vi.fn().mockResolvedValue('Internal server error'),
-        } as any)
+        } as unknown as Response)
 
       const result = await syncUserWithBackend(validToken)
 
@@ -176,7 +176,7 @@ describe('userSync', () => {
         ok: false,
         status: 500,
         text: vi.fn().mockResolvedValue('Server error'),
-      } as any)
+      } as unknown as Response)
 
       const result = await syncUserWithBackend(validToken)
 
@@ -215,7 +215,7 @@ describe('userSync', () => {
         ok: true,
         status: 200,
         json: vi.fn().mockResolvedValue(mockSuccessResponse),
-      } as any)
+      } as unknown as Response)
 
       await syncUserWithBackend(validToken)
 
@@ -238,7 +238,7 @@ describe('userSync', () => {
         ok: true,
         status: 200,
         json: vi.fn().mockResolvedValue(responseWithoutData),
-      } as any)
+      } as unknown as Response)
 
       const result = await syncUserWithBackend(validToken)
 
@@ -255,7 +255,7 @@ describe('userSync', () => {
         ok: true,
         status: 200,
         json: vi.fn().mockResolvedValue(unsuccessfulResponse),
-      } as any)
+      } as unknown as Response)
 
       const result = await syncUserWithBackend(validToken)
 

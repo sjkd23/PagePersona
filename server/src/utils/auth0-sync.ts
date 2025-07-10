@@ -1,6 +1,7 @@
 // Auth0 to MongoDB field synchronization utilities
 
 import { IMongoUser } from '../models/mongo-user';
+import { logger } from '../utils/logger';
 import type { 
   ProcessedAuth0User, 
   FieldMapping, 
@@ -59,7 +60,7 @@ export function syncAuth0Fields(mongoUser: IMongoUser, auth0User: ProcessedAuth0
   // Process each field mapping
   for (const mapping of fieldMappings) {
     try {
-      const auth0Value = (auth0User as any)[mapping.auth0Field];
+      const auth0Value = (auth0User as unknown as Record<string, unknown>)[mapping.auth0Field];
       // Safe dynamic property access with type checking
       const mongoValue = (mongoUser as unknown as Record<string, unknown>)[mapping.mongoField];
 

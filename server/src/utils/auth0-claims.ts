@@ -1,7 +1,8 @@
 // Auth0 claim utilities for safe, consistent access to user data
 // Handles environment variations and provides fallbacks
 
-import type { Auth0JwtPayload, ProcessedAuth0User } from '../types/common';
+import type { Auth0JwtPayload } from '../types/common';
+import { logger } from '../utils/logger';
 
 interface SafeAuth0Claims {
   sub: string;
@@ -60,22 +61,22 @@ export function safeGetAuth0Claims(auth0User: Auth0JwtPayload): SafeAuth0Claims 
 
   return {
     sub,
-    email: auth0User[STANDARD_CLAIMS.email],
+    email: auth0User[STANDARD_CLAIMS.email] as string | undefined,
     emailVerified: Boolean(auth0User[STANDARD_CLAIMS.emailVerified]),
-    name: auth0User[STANDARD_CLAIMS.name],
-    givenName: auth0User[STANDARD_CLAIMS.givenName],
-    familyName: auth0User[STANDARD_CLAIMS.familyName],
-    nickname: auth0User[STANDARD_CLAIMS.nickname],
-    picture: auth0User[STANDARD_CLAIMS.picture],
-    locale: auth0User[STANDARD_CLAIMS.locale],
-    updatedAt: auth0User[STANDARD_CLAIMS.updatedAt]
+    name: auth0User[STANDARD_CLAIMS.name] as string | undefined,
+    givenName: auth0User[STANDARD_CLAIMS.givenName] as string | undefined,
+    familyName: auth0User[STANDARD_CLAIMS.familyName] as string | undefined,
+    nickname: auth0User[STANDARD_CLAIMS.nickname] as string | undefined,
+    picture: auth0User[STANDARD_CLAIMS.picture] as string | undefined,
+    locale: auth0User[STANDARD_CLAIMS.locale] as string | undefined,
+    updatedAt: auth0User[STANDARD_CLAIMS.updatedAt] as string | undefined
   };
 }
 
 /**
  * Get custom claims with environment-specific handling
  */
-export function safeGetCustomClaims(auth0User: Auth0JwtPayload) {
+export function safeGetCustomClaims(auth0User: Auth0JwtPayload): Record<string, unknown> {
   if (!auth0User) {
     return {};
   }

@@ -6,6 +6,8 @@
  * safe defaults with proper error handling.
  */
 
+import { logger } from '../utils/logger';
+
 export interface WebScraperConfig {
   /** Maximum content length in characters before truncation */
   maxContentLength: number;
@@ -39,12 +41,12 @@ function safeParseInt(envValue: string | undefined, defaultValue: number, config
   const parsed = parseInt(envValue, 10);
   
   if (Number.isNaN(parsed)) {
-    console.warn(`Invalid ${configName} environment variable: "${envValue}". Using default: ${defaultValue}`);
+    logger.warn(`Invalid ${configName} environment variable: "${envValue}". Using default: ${defaultValue}`);
     return defaultValue;
   }
 
   if (parsed <= 0) {
-    console.warn(`${configName} must be positive. Got: ${parsed}. Using default: ${defaultValue}`);
+    logger.warn(`${configName} must be positive. Got: ${parsed}. Using default: ${defaultValue}`);
     return defaultValue;
   }
 
@@ -79,11 +81,11 @@ export function loadWebScraperConfig(): WebScraperConfig {
 
   // Additional validation
   if (config.maxContentLength > 50000) {
-    console.warn(`MAX_CONTENT_LENGTH is very high (${config.maxContentLength}). This may impact performance.`);
+    logger.warn(`MAX_CONTENT_LENGTH is very high (${config.maxContentLength}). This may impact performance.`);
   }
 
   if (config.requestTimeout > 60000) {
-    console.warn(`REQUEST_TIMEOUT is very high (${config.requestTimeout}ms). This may cause long delays.`);
+    logger.warn(`REQUEST_TIMEOUT is very high (${config.requestTimeout}ms). This may cause long delays.`);
   }
 
   return config;

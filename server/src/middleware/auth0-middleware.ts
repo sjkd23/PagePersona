@@ -1,36 +1,72 @@
 /**
- * 🔐 Auth0 Middleware Suite
+ * Auth0 Authentication and User Synchro    return new Promise<boolean>((resolve) => {
+      verifyAuth0Token(req, res, (err: unknown) => {
+        if (err) {
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          logger.debug('Optional Auth0 verification failed', { e    // Sync user data if token was verified successfully
+    if (tokenVerified && req.user) {
+      logger.debug('User found, attempting sync...');
+      await trySyncAuth0User(req, res);
+    } else {
+      logger.debug('No user to sync');
+    }
+
+    logger.debug('optionalAuth0 middleware completed successfully');
+    next();
+  } catch (error) {
+    logger.error('Optional Auth0 error', { error });
+    logger.debug('Continuing without authentication due to error');
+    next();
+  }
+};ge });
+          resolve(false);
+        } else {
+          logger.debug('Auth0 token verified successfully');
+          resolve(true);
+        }
+      });
+    });
+  } catch (error) {
+    logger.error('Error during token verification', { error });
+    return false;ware
  * 
- * Consolidated Auth0 authentication and user synchronization middleware.
+ * This module provides comprehensive Auth0 integration middleware for
+ * user authentication, token verification, and user data synchronization
+ * between Auth0 and MongoDB.
  * 
- * This file provides:
- * - JWT token verification (re-exported from jwt-verification.ts)
- * - User synchronization between Auth0 and MongoDB
+ * Key Features:
+ * - JWT token verification and validation
+ * - Automatic user synchronization between Auth0 and MongoDB
  * - Optional authentication for public routes
+ * - User context attachment for authenticated requests
+ * - Graceful handling of authentication errors
  * 
- * Usage:
- * - For protected routes: verifyAuth0Token + syncAuth0User
- * - For optional auth routes: optionalAuth0
- * 
- * @see jwt-verification.ts for JWT-specific configuration
+ * Exported Middleware:
+ * - verifyAuth0Token: Strict JWT verification for protected routes
+ * - syncAuth0User: Synchronizes Auth0 user data with MongoDB
+ * - optionalAuth0: Optional authentication for public routes
  */
 
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { MongoUser, IMongoUser } from '../models/mongo-user';
+import { MongoUser } from '../models/mongo-user';
 import { generateUsernameFromAuth0, ensureUniqueUsername } from '../utils/username-generator';
 import { syncAuth0Fields, logSyncResults } from '../utils/auth0-sync';
-import { serializeMongoUser } from '../utils/userSerializer';
 import { shouldPerformFullSync, updateSessionOnly } from '../utils/session-tracker';
 import { HttpStatus } from '../constants/http-status';
 import { ProcessedAuth0User } from '../types/common';
 import { safeGetAuth0Claims } from '../utils/auth0-claims';
+import { logger } from '../utils/logger';
 
 export { verifyAuth0Token } from './jwt-verification';
 
 /**
  * Helper function to verify Auth0 token with error handling
- * Used internally by optionalAuth0 middleware
+ * Used internally by optionalAuth0 middleware for graceful token verification
+ * 
+ * @param req Express request object
+ * @param res Express response object
+ * @returns Promise resolving to true if token is valid, false otherwise
  */
 const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean> => {
   try {
@@ -40,35 +76,50 @@ const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean
       verifyAuth0Token(req, res, (err: unknown) => {
         if (err) {
           const errorMessage = err instanceof Error ? err.message : String(err);
-          console.log('⚠️ Optional Auth0 verification failed:', errorMessage);
+          logger.debug('Optional Auth0 verification failed', { error: errorMessage });
           resolve(false);
         } else {
-          console.log('✅ Auth0 token verified successfully');
+          logger.debug('Auth0 token verified successfully');
           resolve(true);
         }
       });
     });
   } catch (error) {
-    console.error('❌ Error during token verification:', error);
+    logger.error('Error during token verification', { error });
     return false;
   }
 };
 
 /**
  * Helper function to sync Auth0 user with error handling
- * Used internally by optionalAuth0 middleware
+ * Used internally by optionalAuth0 middleware for graceful user synchronization
+ * 
+ * @param req Express request object
+ * @param res Express response object
+ * @returns Promise that resolves when sync is complete
  */
 const trySyncAuth0User = async (req: Request, res: Response): Promise<void> => {
   return new Promise<void>((resolve) => {
     syncAuth0User(req, res, () => {
-      console.log('✅ User sync completed');
+      logger.debug('User sync completed');
       resolve();
     });
   });
 };
 
 /**
- * Middleware to sync Auth0 user with MongoDB and attach user context
+ * Middleware to sync Auth0 user data with MongoDB and attach user context
+ * 
+ * This middleware performs the following operations:
+ * 1. Validates database connection and JWT payload
+ * 2. Creates new users in MongoDB if they don't exist
+ * 3. Synchronizes existing user data with Auth0 claims
+ * 4. Handles name extraction and username generation
+ * 5. Attaches user context to the request object
+ * 
+ * @param req Express request object
+ * @param res Express response object  
+ * @param next Next function to continue middleware chain
  */
 export const syncAuth0User = async (
   req: Request,
@@ -78,7 +129,7 @@ export const syncAuth0User = async (
   try {
     // Check database connection
     if (!mongoose.connection.readyState) {
-      console.error('MongoDB not connected - skipping user sync');
+      logger.error('MongoDB not connected - skipping user sync');
       next();
       return;
     }
@@ -118,7 +169,7 @@ export const syncAuth0User = async (
         async (u) => Boolean(await MongoUser.findOne({ username: u }))
       );
 
-      // Enhanced name extraction from Auth0/Google data
+      // Enhanced name extraction from Auth0/Google authentication data
       const firstName = auth0User.givenName || 
                        auth0User.name?.split(' ')[0] || 
                        (auth0User.email ? auth0User.email.split('@')[0] : '') || 
@@ -127,7 +178,7 @@ export const syncAuth0User = async (
                       (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') || 
                       '';
 
-      console.log('🔍 Creating new user with name data:', {
+      logger.debug('Creating new user with name data', {
         auth0Name: auth0User.name,
         givenName: auth0User.givenName,
         familyName: auth0User.familyName,
@@ -158,12 +209,12 @@ export const syncAuth0User = async (
       });
 
       await mongoUser.save();
-      console.log('✅ New user created with name:', { firstName, lastName });
+      logger.debug('New user created with name', { firstName, lastName });
     } else if (needsFullSync) {
       const syncResult = syncAuth0Fields(mongoUser, auth0User);
       
-      // Add extra logging for name sync
-      console.log('🔄 Syncing existing user names:', {
+      // Log name synchronization details for debugging
+      logger.debug('Syncing existing user names', {
         currentFirstName: mongoUser.firstName,
         currentLastName: mongoUser.lastName,
         auth0GivenName: auth0User.givenName,
@@ -181,8 +232,9 @@ export const syncAuth0User = async (
       const hasEmptyNames = !mongoUser.firstName || !mongoUser.lastName;
       const hasAuth0Names = auth0User.givenName || auth0User.familyName || auth0User.name;
       
+      // Force sync names for users with empty name fields when Auth0 has name data
       if (hasEmptyNames && hasAuth0Names) {
-        console.log('🔧 Force syncing names for user with empty name fields:', {
+        logger.debug('Force syncing names for user with empty name fields', {
           userId: mongoUser._id,
           currentFirstName: mongoUser.firstName,
           currentLastName: mongoUser.lastName,
@@ -204,7 +256,7 @@ export const syncAuth0User = async (
           mongoUser.firstName = firstName;
           mongoUser.lastName = lastName;
           await mongoUser.save();
-          console.log('✅ Names force synced:', { firstName, lastName });
+          logger.debug('Names force synced', { firstName, lastName });
         }
       }
       
@@ -220,7 +272,7 @@ export const syncAuth0User = async (
 
     next();
   } catch (error) {
-    console.error('Error syncing Auth0 user:', error);
+    logger.error('Error syncing Auth0 user', { error });
     
     // For user-facing routes, don't break the entire request chain
     if (req.path.includes('/api/user/')) {
@@ -235,57 +287,67 @@ export const syncAuth0User = async (
   }
 };
 
-// Optional Auth0 middleware for routes that can work without authentication
+/**
+ * Optional Auth0 authentication middleware for routes that can work without authentication
+ * 
+ * This middleware attempts to authenticate users when tokens are present but
+ * gracefully continues without authentication if tokens are missing or invalid.
+ * Useful for public routes that benefit from user context when available.
+ * 
+ * @param req Express request object
+ * @param res Express response object
+ * @param next Next function to continue middleware chain
+ */
 export const optionalAuth0 = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  console.log('🔍 optionalAuth0 middleware called for:', req.path);
+  logger.debug('optionalAuth0 middleware called for', { path: req.path });
   
   try {
     // Check if Auth0 is properly configured
     if (!process.env.AUTH0_DOMAIN) {
-      console.log('⚠️ AUTH0_DOMAIN not configured, skipping auth');
+      logger.debug('AUTH0_DOMAIN not configured, skipping authentication');
       next();
       return;
     }
 
-    // Try to verify token but don't fail if it's missing
+    // Check for authorization header
     const authHeader = req.headers.authorization;
-    console.log('🔑 Auth header present:', !!authHeader);
+    logger.debug('Auth header present', { hasHeader: !!authHeader });
     
     if (!authHeader) {
-      console.log('📝 No auth header, proceeding without authentication');
+      logger.debug('No auth header, proceeding without authentication');
       next();
       return;
     }
 
-    // Try to verify the token
+    // Attempt token verification
     const tokenVerified = await tryVerifyAuth0Token(req, res);
 
-    // If token was verified, sync the user
+    // Sync user data if token was verified successfully
     if (tokenVerified && req.user) {
-      console.log('👤 User found, attempting sync...');
+      logger.debug('User found, attempting sync...');
       await trySyncAuth0User(req, res);
     } else {
-      console.log('👤 No user to sync');
+      logger.debug('No user to sync');
     }
 
-    console.log('✅ optionalAuth0 middleware completed successfully');
+    logger.debug('optionalAuth0 middleware completed successfully');
     next();
   } catch (error) {
-    console.error('❌ Optional Auth0 error:', error);
-    console.log('🔄 Continuing without authentication due to error');
+    logger.error('Optional Auth0 error', { error });
+    logger.debug('Continuing without authentication due to error');
     next(); // Continue without authentication
   }
 };
 
 /**
- * 📋 Exported Auth0 Middleware Functions
+ * Exported Auth0 Middleware Functions
  * 
- * Main exports from this module:
- * - verifyAuth0Token: Strict JWT verification (re-exported)
- * - syncAuth0User: Sync Auth0 user with MongoDB
+ * This module exports the following middleware functions:
+ * - verifyAuth0Token: Strict JWT verification for protected routes
+ * - syncAuth0User: Synchronizes Auth0 user data with MongoDB
  * - optionalAuth0: Optional authentication for public routes
  */

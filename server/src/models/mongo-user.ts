@@ -1,9 +1,27 @@
-// src/models/MongoUser.ts
-// MongoDB User model that syncs with Auth0 users
+/**
+ * MongoDB User Model
+ * 
+ * Defines the user data structure and operations for MongoDB storage,
+ * synchronized with Auth0 authentication system. Includes comprehensive
+ * user management features, usage tracking, and role-based access control.
+ * 
+ * Features:
+ * - Auth0 integration and synchronization
+ * - Usage tracking and monthly limits
+ * - Role and membership management
+ * - User preferences and settings
+ * - Performance-optimized indexing
+ */
 
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { logger } from '../utils/logger';
 
-// Interface for the document instance
+/**
+ * MongoDB User Document Interface
+ * 
+ * Defines the structure and instance methods for user documents
+ * stored in MongoDB with comprehensive tracking and management fields.
+ */
 export interface IMongoUser extends Document {
   auth0Id: string;
   email: string;
@@ -31,14 +49,19 @@ export interface IMongoUser extends Document {
   updatedAt: Date;
   lastLoginAt?: Date;
   
-  // Instance methods
+  // Instance methods for user operations
   incrementUsage(): Promise<void>;
   incrementFailedAttempt(): Promise<void>;
   resetMonthlyUsage(): Promise<void>;
   checkUsageLimit(limit: number): boolean;
 }
 
-// Interface for the model (static methods)
+/**
+ * MongoDB User Model Interface
+ * 
+ * Defines static methods available on the User model for
+ * database operations and administrative functions.
+ */
 export interface IMongoUserModel extends Model<IMongoUser> {
   findByAuth0Id(auth0Id: string): Promise<IMongoUser | null>;
   getUsageStats(): Promise<{
@@ -51,6 +74,13 @@ export interface IMongoUserModel extends Model<IMongoUser> {
   bulkIncrementUsage(userIds: string[]): Promise<number>;
 }
 
+/**
+ * MongoDB User Schema Definition
+ * 
+ * Defines the complete user document structure with validation rules,
+ * default values, indexes, and data constraints for optimal performance
+ * and data integrity in MongoDB storage.
+ */
 const MongoUserSchema = new Schema<IMongoUser>({
   auth0Id: { 
     type: String, 
@@ -94,11 +124,17 @@ const MongoUserSchema = new Schema<IMongoUser>({
   collection: 'users'
 });
 
-// Compound indexes for better performance
+// Performance optimization indexes for common query patterns
 MongoUserSchema.index({ auth0Id: 1, email: 1 });
 MongoUserSchema.index({ createdAt: -1 });
 
-// Instance methods
+/**
+ * Instance method: Increment user transformation usage
+ * 
+ * Atomically increments both total and monthly usage counters with
+ * automatic monthly reset handling to prevent race conditions.
+ * Uses UTC time calculations to avoid timezone-related issues.
+ */
 MongoUserSchema.methods.incrementUsage = async function(this: IMongoUser): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
@@ -289,7 +325,7 @@ MongoUserSchema.statics.incrementUsageById = async function(userId: string): Pro
     
     return resetUpdate.modifiedCount > 0;
   } catch (error) {
-    console.error('Failed to increment usage by ID:', error);
+    logger.error('Failed to increment usage by ID:', error);
     return false;
   }
 };
@@ -337,7 +373,7 @@ MongoUserSchema.statics.incrementFailedAttemptById = async function(userId: stri
     
     return resetUpdate.modifiedCount > 0;
   } catch (error) {
-    console.error('Failed to increment failed attempt by ID:', error);
+    logger.error('Failed to increment failed attempt by ID:', error);
     return false;
   }
 };
@@ -388,7 +424,7 @@ MongoUserSchema.statics.bulkIncrementUsage = async function(userIds: string[]): 
     
     return normalUpdates.modifiedCount + resetUpdates.modifiedCount;
   } catch (error) {
-    console.error('Failed bulk usage increment:', error);
+    logger.error('Failed bulk usage increment:', error);
     return 0;
   }
 };

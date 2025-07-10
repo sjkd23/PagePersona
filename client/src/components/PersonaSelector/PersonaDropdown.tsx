@@ -1,5 +1,5 @@
 import React from 'react'
-import type { Persona } from '../../types/personas'
+import type { ClientPersona as Persona } from '../../../../shared/types/personas'
 
 interface PersonaDropdownProps {
   personas: Persona[]

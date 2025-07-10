@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useLogout } from '../useLogout'
 import { useAuth } from '../useAuth'
-import type { AuthContextType } from '../useAuth0'
+import type { AuthContextType } from '../../contexts/AuthContext'
 
 // Mock useAuth hook
 vi.mock('../useAuth', () => ({

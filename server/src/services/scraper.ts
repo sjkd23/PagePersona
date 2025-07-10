@@ -1,6 +1,28 @@
+/**
+ * Web Scraper Service
+ * 
+ * Provides intelligent web content extraction with HTML parsing,
+ * content cleaning, and metadata extraction. Handles various website
+ * structures and implements robust error handling for reliable
+ * content scraping operations.
+ * 
+ * Features:
+ * - Intelligent content extraction from HTML
+ * - Metadata parsing and extraction
+ * - Configurable scraping options and timeouts
+ * - Content length limiting and validation
+ * - User agent customization for compatibility
+ */
+
 import * as cheerio from 'cheerio'
 import { logger } from '../utils/logger'
 
+/**
+ * Scraped content structure interface
+ * 
+ * Defines the standardized format for extracted webpage content
+ * including main content, metadata, and structural information.
+ */
 export interface ScrapedContent {
   title: string
   content: string
@@ -13,18 +35,37 @@ export interface ScrapedContent {
   }
 }
 
+/**
+ * Scraping configuration options interface
+ * 
+ * Allows customization of scraping behavior including timeouts,
+ * content limits, and user agent strings for different scenarios.
+ */
 export interface ScrapingOptions {
   timeout?: number
   maxContentLength?: number
   userAgent?: string
 }
 
+/**
+ * Default scraping configuration values
+ * 
+ * Provides sensible defaults for web scraping operations with
+ * reasonable timeouts and content limits.
+ */
 const DEFAULT_OPTIONS: ScrapingOptions = {
   timeout: 10000,
   maxContentLength: 50000,
   userAgent: 'Mozilla/5.0 (compatible; PagePersonAI/1.0; +https://pagepersonai.com/bot)'
 }
 
+/**
+ * Web Scraper Service Class
+ * 
+ * Handles complete web content extraction workflow including
+ * HTTP fetching, HTML parsing, content extraction, and metadata
+ * processing with configurable options and error handling.
+ */
 export class ScraperService {
   private options: ScrapingOptions
 
@@ -32,6 +73,16 @@ export class ScraperService {
     this.options = { ...DEFAULT_OPTIONS, ...options }
   }
 
+  /**
+   * Scrape complete content from specified URL
+   * 
+   * Performs full content extraction including title, main content,
+   * and metadata with intelligent parsing and content cleaning.
+   * 
+   * @param url - Target webpage URL to scrape
+   * @returns Promise resolving to structured scraped content
+   * @throws Error for network failures or invalid content
+   */
   async scrapeContent(url: string): Promise<ScrapedContent> {
     logger.info('Starting content scraping', { url })
 

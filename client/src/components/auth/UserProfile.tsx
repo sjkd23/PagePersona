@@ -1,62 +1,52 @@
+/**
+ * User Profile Component
+ * 
+ * This is the main user profile component that orchestrates the display
+ * of user information, membership status, and profile editing capabilities.
+ * It integrates with Auth0 for authentication and provides a comprehensive
+ * user profile management interface.
+ * 
+ * @module UserProfile
+ */
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuthContext';
 import { useNameSync } from '../../hooks/useNameSync';
 import ApiService, { setTokenGetter } from '../../lib/apiClient';
 import type { UserProfile } from '../../lib/apiClient';
 import { formatProfileField, hasValidName, formatFullName } from '../../utils/profileUtils';
+import ErrorDisplay from '../Transformer/ErrorDisplay';
+import { ErrorMapper, type UserFriendlyError } from '../../../../shared/types/errors';
+import type { ProfileEditForm } from './types';
+
+// Import utilities for the legacy component
+import { getMembershipInfo, getUsageLimit } from './utils/membershipUtils';
+
+// Import styles
 import './UserProfile.css';
 
-// Usage limits based on membership
-const getUsageLimit = (membership: string): number => {
-  switch (membership) {
-    case 'premium':
-      return 500;
-    case 'admin':
-      return 10000;
-    default:
-      return 50;
-  }
-};
-
-// Get membership display information
-const getMembershipInfo = (membership: string) => {
-  switch (membership) {
-    case 'premium':
-      return { 
-        icon: '⭐', 
-        label: 'Premium', 
-        class: 'premium',
-        benefits: 'All personas • Priority support • Custom personas'
-      };
-    case 'admin':
-      return { 
-        icon: '👑', 
-        label: 'Admin', 
-        class: 'admin',
-        benefits: 'Custom integrations • Dedicated support • White-label options'
-      };
-    default:
-      return { 
-        icon: '🆓', 
-        label: 'Free', 
-        class: 'free',
-        benefits: 'Basic personas • Community support'
-      };
-  }
-};
-
+/**
+ * Main UserProfile component that provides comprehensive user profile management
+ * 
+ * This component orchestrates the display of user information, handles profile
+ * editing, manages loading and error states, and integrates with Auth0 for
+ * authentication. It uses modular sub-components for better maintainability.
+ * 
+ * @returns JSX element containing the complete user profile interface
+ */
 export default function UserProfile() {
   const { user, logout, getAccessToken } = useAuth();
   const { forceNameSync, extractNamesFromAuth0 } = useNameSync();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [enhancedError, setEnhancedError] = useState<UserFriendlyError | null>(null);
   const [editing, setEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<ProfileEditForm>({
     firstName: '',
     lastName: '',
     preferences: {
-      theme: 'light' as 'light' | 'dark',
+      theme: 'light',
       language: 'en',
       notifications: true
     }
@@ -74,53 +64,62 @@ export default function UserProfile() {
       
       try {
         setLoading(true);
+        setError(null);
+        setEnhancedError(null);
         const response = await ApiService.getUserProfile();
-        setProfile(response.data);
         
-        setEditForm({
-          firstName: response.data.firstName || '',
-          lastName: response.data.lastName || '',
-          preferences: response.data.preferences
-        });
-
-        // Auto-sync names if they're missing or empty
-        if (!hasValidName(response.data.firstName, response.data.lastName)) {
-          const syncResult = await forceNameSync();
+        if (response.data) {
+          setProfile(response.data);
           
-          if (syncResult.success) {
-            // Refetch profile after successful sync
-            const updatedResponse = await ApiService.getUserProfile();
-            setProfile(updatedResponse.data);
-            setEditForm({
-              firstName: updatedResponse.data.firstName || '',
-              lastName: updatedResponse.data.lastName || '',
-              preferences: updatedResponse.data.preferences
-            });
-          } else {
-            // Fallback: try manual update with Auth0 data
-            const { firstName, lastName } = extractNamesFromAuth0();
-            if (firstName || lastName) {
-              try {
-                const updateResult = await ApiService.updateUserProfile({
-                  firstName,
-                  lastName
+          setEditForm({
+            firstName: response.data.firstName || '',
+            lastName: response.data.lastName || '',
+            preferences: response.data.preferences
+          });
+
+          // Auto-sync names if they're missing or empty
+          if (!hasValidName(response.data.firstName, response.data.lastName)) {
+            const syncResult = await forceNameSync();
+            
+            if (syncResult.success) {
+              // Refetch profile after successful sync
+              const updatedResponse = await ApiService.getUserProfile();
+              if (updatedResponse.data) {
+                setProfile(updatedResponse.data);
+                setEditForm({
+                  firstName: updatedResponse.data.firstName || '',
+                  lastName: updatedResponse.data.lastName || '',
+                  preferences: updatedResponse.data.preferences
                 });
-                if (updateResult.success) {
-                  setProfile(updateResult.data);
-                  setEditForm({
-                    firstName: updateResult.data.firstName || '',
-                    lastName: updateResult.data.lastName || '',
-                    preferences: updateResult.data.preferences
+              }
+            } else {
+              // Fallback: try manual update with Auth0 data
+              const { firstName, lastName } = extractNamesFromAuth0();
+              if (firstName || lastName) {
+                try {
+                  const updateResult = await ApiService.updateUserProfile({
+                    firstName,
+                    lastName
                   });
+                  if (updateResult.success && updateResult.data) {
+                    setProfile(updateResult.data);
+                    setEditForm({
+                      firstName: updateResult.data.firstName || '',
+                      lastName: updateResult.data.lastName || '',
+                      preferences: updateResult.data.preferences
+                    });
+                  }
+                } catch (updateError) {
+                  console.error('❌ Manual update failed:', updateError);
                 }
-              } catch (updateError) {
-                console.error('❌ Manual update failed:', updateError);
               }
             }
           }
         }
       } catch (err) {
         console.error('Failed to fetch profile:', err);
+        const mappedError = ErrorMapper.mapError(err);
+        setEnhancedError(mappedError);
         setError('Failed to load profile data');
       } finally {
         setLoading(false);
@@ -133,15 +132,22 @@ export default function UserProfile() {
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
+      setError(null);
+      setEnhancedError(null);
       const response = await ApiService.updateUserProfile({
         firstName: editForm.firstName,
         lastName: editForm.lastName,
         preferences: editForm.preferences
       });
-      setProfile(response.data);
-      setEditing(false);
+      
+      if (response.data) {
+        setProfile(response.data);
+        setEditing(false);
+      }
     } catch (err) {
       console.error('Failed to update profile:', err);
+      const mappedError = ErrorMapper.mapError(err);
+      setEnhancedError(mappedError);
       setError('Failed to update profile');
     } finally {
       setLoading(false);
@@ -161,18 +167,37 @@ export default function UserProfile() {
     );
   }
 
-  if (error) {
+  if (enhancedError || error) {
     return (
       <div className="profile-container">
-        <div className="error-container">
-          <p className="error-text">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="error-button"
-          >
-            Try again
-          </button>
-        </div>
+        {enhancedError ? (
+          <ErrorDisplay
+            error={enhancedError.message}
+            errorCode={enhancedError.code}
+            title={enhancedError.title}
+            helpText={enhancedError.helpText}
+            actionText={enhancedError.actionText}
+            onDismiss={() => {
+              setEnhancedError(null);
+              setError(null);
+            }}
+            onAction={() => window.location.reload()}
+            className="profile-error"
+          />
+        ) : (
+          <div className="error-container">
+            <p className="error-text">{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                window.location.reload();
+              }} 
+              className="error-button"
+            >
+              Try again
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -324,6 +349,13 @@ export default function UserProfile() {
                 </div>
 
                 <div className="form-field">
+                  <label className="form-label">Username</label>
+                  <div className="form-value">
+                    {profile?.username || 'Not set'}
+                  </div>
+                </div>
+
+                <div className="form-field">
                   <label className="form-label">Account Status</label>
                   <div className="form-value">
                     <span className={`status-badge ${
@@ -380,14 +412,13 @@ export default function UserProfile() {
                       {profile?.preferences.language === 'en' ? 'English' : 
                        profile?.preferences.language === 'es' ? 'Spanish' :
                        profile?.preferences.language === 'fr' ? 'French' :
-                       profile?.preferences.language === 'de' ? 'German' :
-                       'English'}
+                       profile?.preferences.language === 'de' ? 'German' : 'English'}
                     </div>
                   )}
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label">Email Notifications</label>
+                  <label className="form-label">Notifications</label>
                   {editing ? (
                     <label className="checkbox-container">
                       <input
@@ -397,17 +428,14 @@ export default function UserProfile() {
                           ...prev,
                           preferences: { ...prev.preferences, notifications: e.target.checked }
                         }))}
-                        className="checkbox"
+                        className="form-checkbox"
                       />
-                      <span>Receive email notifications</span>
+                      <span className="checkmark"></span>
+                      Enable email notifications
                     </label>
                   ) : (
                     <div className="form-value">
-                      <span className={`status-badge ${
-                        profile?.preferences.notifications ? 'status-enabled' : 'status-disabled'
-                      }`}>
-                        {profile?.preferences.notifications ? '✓ Enabled' : '✗ Disabled'}
-                      </span>
+                      {profile?.preferences.notifications ? 'Enabled' : 'Disabled'}
                     </div>
                   )}
                 </div>

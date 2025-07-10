@@ -1,38 +1,20 @@
 // src/hooks/useAuth0.tsx
-import { createContext, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 import type { ReactNode } from 'react';
-import { useAuth0, Auth0Provider as Auth0ProviderBase, User } from '@auth0/auth0-react';
+import { useAuth0, Auth0Provider as Auth0ProviderBase } from '@auth0/auth0-react';
 import { syncUserWithBackend } from '../utils/userSync';
 import type { UserProfile } from '../utils/userSync';
 import { setTokenGetter } from '../lib/apiClient';
 import { domain, clientId, redirectUri, audience } from '../config/auth';
+import { AuthContext, type AuthContextType, type CustomClaims } from '../contexts/AuthContext';
 
-interface CustomClaims {
-  'https://pagepersona.com/is_new_user'?: boolean;
-  'https://pagepersona.com/first_login'?: boolean;
-  'https://pagepersona.com/profile_created_at'?: string;
-  'https://pagepersona.com/profile_sync_error'?: boolean;
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }
-
-interface AuthContextType {
-  user: User | null;
-  userProfile: UserProfile | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  isSyncing: boolean;
-  error: string | null;
-  login: () => void;
-  logout: () => void;
-  signup: () => void;
-  getAccessToken: () => Promise<string | undefined>;
-  refreshUserProfile: () => Promise<void>;
-  isNewUser: boolean | null;
-  isFirstLogin: boolean | null;
-  profileSyncError: boolean | null;
-  getCustomClaims: () => Promise<CustomClaims | null>;
-}
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function Auth0Provider({ children }: { children: ReactNode }) {
   if (!domain || !clientId) {
@@ -106,7 +88,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsSyncing(false);
     }
-  }, [isAuthenticated, user, getAccessToken]);
+  }, [isAuthenticated, user, isSyncing, getAccessToken]);
 
   // Only sync once when user becomes authenticated and we don't have a profile yet
   useEffect(() => {
@@ -114,7 +96,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       syncUser();
       setTokenGetter(getAccessToken);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, userProfile, isSyncing, syncUser, getAccessToken]);
 
   const login = () => loginWithRedirect({ authorizationParams: { audience, screen_hint: 'login' } });
   const signup = () => loginWithRedirect({ authorizationParams: { audience, screen_hint: 'signup' } });
@@ -148,5 +130,3 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-export type { AuthContextType };

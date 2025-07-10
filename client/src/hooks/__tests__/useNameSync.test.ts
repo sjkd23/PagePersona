@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useNameSync } from '../useNameSync'
 import { useAuth } from '../useAuthContext'
-import type { AuthContextType } from '../useAuth0'
+import type { AuthContextType } from '../../contexts/AuthContext'
 
 // Mock useAuth hook
 vi.mock('../useAuthContext', () => ({
@@ -65,7 +65,7 @@ describe('useNameSync', () => {
 
       const { result } = renderHook(() => useNameSync())
 
-      let syncResult: any
+      let syncResult: { success: boolean; message?: string; firstName?: string; lastName?: string; error?: string } | undefined
       await act(async () => {
         syncResult = await result.current.forceNameSync()
       })
@@ -84,7 +84,7 @@ describe('useNameSync', () => {
 
       const { result } = renderHook(() => useNameSync())
 
-      let syncResult: any
+      let syncResult: { success: boolean; message?: string; firstName?: string; lastName?: string; error?: string } | undefined
       await act(async () => {
         syncResult = await result.current.forceNameSync()
       })
@@ -101,7 +101,7 @@ describe('useNameSync', () => {
 
       const { result } = renderHook(() => useNameSync())
 
-      let syncResult: any
+      let syncResult: { success: boolean; message?: string; firstName?: string; lastName?: string; error?: string } | undefined
       await act(async () => {
         syncResult = await result.current.forceNameSync()
       })
@@ -118,7 +118,7 @@ describe('useNameSync', () => {
 
       const { result } = renderHook(() => useNameSync())
 
-      let syncResult: any
+      let syncResult: { success: boolean; message?: string; firstName?: string; lastName?: string; error?: string } | undefined
       await act(async () => {
         syncResult = await result.current.forceNameSync()
       })

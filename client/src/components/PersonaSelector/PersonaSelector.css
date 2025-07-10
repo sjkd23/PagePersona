@@ -306,18 +306,6 @@
   line-height: 1.4;
 }
 
-.metadata-example {
-  margin: 0;
-  font-size: 13px;
-  color: #7c3aed;
-  font-style: italic;
-  line-height: 1.4;
-}
-
-.dark .metadata-example {
-  color: #a78bfa;
-}
-
 .metadata-example-list {
   margin: 8px 0 0 0;
   padding-left: 0;
@@ -328,7 +316,8 @@
   margin: 6px 0;
   padding-left: 16px;
   position: relative;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
   color: #7c3aed;
   font-style: italic;
   line-height: 1.4;

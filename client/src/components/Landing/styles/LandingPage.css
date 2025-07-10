@@ -34,13 +34,6 @@
   min-height: 80px;
 }
 
-.visual-item img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 8px;
-}
-
 /* Demo Images */
 .url-input-demo-image {
   max-width: 100%;

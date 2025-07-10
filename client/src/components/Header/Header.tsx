@@ -1,9 +1,32 @@
+/**
+ * Application Header Component
+ * 
+ * Main navigation header providing application branding, navigation controls,
+ * theme management, and user authentication interface. Adapts layout and
+ * functionality based on authentication state with responsive design
+ * for mobile and desktop experiences.
+ * 
+ * Features:
+ * - Logo and branding with home navigation
+ * - Theme toggle for light/dark mode switching
+ * - Authentication-aware navigation menu
+ * - User profile and account management access
+ * - Transform action quick access
+ * - Responsive mobile menu implementation
+ */
+
 import { useState } from 'react'
 import './Header.css'
 import Logo from './Logo'
 import ThemeToggle from './ThemeToggle'
 import UserMenu from './UserMenu'
 
+/**
+ * Header component props interface
+ * 
+ * Defines all possible navigation actions and authentication state
+ * properties for flexible header configuration across different views.
+ */
 interface HeaderProps {
   isAuthenticated?: boolean
   onLogin?: () => void
@@ -14,6 +37,12 @@ interface HeaderProps {
   userName?: string
 }
 
+/**
+ * Application Header Component
+ * 
+ * Renders the main application navigation header with adaptive layout
+ * based on authentication state and responsive design considerations.
+ */
 export default function Header({ 
   isAuthenticated = false, 
   onLogin, 
@@ -28,13 +57,13 @@ export default function Header({
   return (
     <header className="app-header">
       <div className="header-content">
-        {/* Left side: Logo + Theme Toggle */}
+        {/* Left navigation section: Logo and theme controls */}
         <div className="nav-left">
           <Logo onHome={onHome} />
           <ThemeToggle />
         </div>
 
-        {/* Center: Transform button */}
+        {/* Center navigation section: Primary transform action */}
         <div className="nav-center">
           <button 
             className="nav-btn transform" 
@@ -44,7 +73,7 @@ export default function Header({
           </button>
         </div>
 
-        {/* Right side: User menu or auth buttons */}
+        {/* Right navigation section: User authentication and profile */}
         <div className="nav-right">
           {isAuthenticated ? (
             <>

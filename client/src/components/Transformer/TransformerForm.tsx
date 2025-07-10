@@ -1,4 +1,15 @@
-import type { Persona } from '../../types/personas'
+/**
+ * Main transformation form component
+ * 
+ * This component provides the complete user interface for content transformation,
+ * including persona selection, input mode toggling, content input, and the
+ * transformation trigger. It manages the display of loading states, validation
+ * errors, and persona preview information.
+ * 
+ * @module TransformerForm
+ */
+
+import type { ClientPersona as Persona } from '../../../../shared/types/personas'
 import InputModeToggle from './InputModeToggle'
 import ValidationError from './ValidationError'
 import TextInput from './TextInput'
@@ -6,6 +17,25 @@ import TextArea from './TextArea'
 import CharacterCount from './CharacterCount'
 import './styles/TransformerForm.css'
 
+/**
+ * Props for the TransformerForm component
+ * 
+ * @interface TransformerFormProps
+ * @property {Persona | null} selectedPersona - Currently selected persona
+ * @property {Persona[]} personas - Available personas list
+ * @property {string} url - Current input value (used for both URL and text)
+ * @property {'url' | 'text'} inputMode - Current input mode
+ * @property {boolean} isLoading - Whether transformation is in progress
+ * @property {boolean} loadingPersonas - Whether personas are being loaded
+ * @property {string | null} urlError - Validation error for URL input
+ * @property {string | null} textError - Validation error for text input
+ * @property {number} maxTextLength - Maximum allowed text length
+ * @property {function} onPersonaSelect - Handler for persona selection
+ * @property {function} onInputChange - Handler for input value changes
+ * @property {function} onModeChange - Handler for input mode changes
+ * @property {function} onTransform - Handler for transformation trigger
+ * @property {function} isValidInput - Function to check input validity
+ */
 interface TransformerFormProps {
   selectedPersona: Persona | null
   personas: Persona[]
@@ -23,6 +53,16 @@ interface TransformerFormProps {
   isValidInput: () => boolean
 }
 
+/**
+ * TransformerForm component that provides the complete transformation interface
+ * 
+ * Renders a multi-section form with persona selection, input configuration,
+ * and transformation controls. Manages loading states, validation display,
+ * and dynamic button text based on current form state.
+ * 
+ * @param {TransformerFormProps} props - Component props
+ * @returns {JSX.Element} The rendered transformer form component
+ */
 export default function TransformerForm({
   selectedPersona,
   personas,
