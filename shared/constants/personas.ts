@@ -219,8 +219,8 @@ export const CLIENT_PERSONAS: Record<string, ClientPersona> = Object.fromEntries
 )
 
 // Server functions
-export function getPersona(id: string): ServerPersona | null {
-  return PERSONAS[id] || null
+export function getPersona(id: string): ServerPersona | undefined {
+  return PERSONAS[id] || undefined
 }
 
 export function getAllPersonas(): ServerPersona[] {
@@ -228,8 +228,8 @@ export function getAllPersonas(): ServerPersona[] {
 }
 
 // Client functions
-export function getClientPersona(id: string): ClientPersona | null {
-  return CLIENT_PERSONAS[id] || null
+export function getClientPersona(id: string): ClientPersona | undefined {
+  return CLIENT_PERSONAS[id] || undefined
 }
 
 export function getAllClientPersonas(): ClientPersona[] {
@@ -237,8 +237,8 @@ export function getAllClientPersonas(): ClientPersona[] {
 }
 
 // Full persona functions
-export function getFullPersona(id: string): FullPersona | null {
-  return FULL_PERSONAS[id] || null
+export function getFullPersona(id: string): FullPersona | undefined {
+  return FULL_PERSONAS[id] || undefined
 }
 
 export function getAllFullPersonas(): FullPersona[] {

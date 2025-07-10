@@ -80,10 +80,17 @@ export function safeGetCustomClaims(auth0User: Auth0JwtPayload) {
     return {};
   }
 
+  // Read environment claims dynamically to allow for test overrides
+  const environmentClaims = {
+    customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
+    roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
+    permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions'
+  };
+
   return {
-    customUserId: auth0User[ENVIRONMENT_CLAIMS.customUserId],
-    roles: auth0User[ENVIRONMENT_CLAIMS.roles] || [],
-    permissions: auth0User[ENVIRONMENT_CLAIMS.permissions] || []
+    customUserId: auth0User[environmentClaims.customUserId],
+    roles: auth0User[environmentClaims.roles] || [],
+    permissions: auth0User[environmentClaims.permissions] || []
   };
 }
 
@@ -146,7 +153,7 @@ export function safeGetDisplayName(auth0User: Auth0JwtPayload): string {
     return `User ${sub.slice(-6)}`; // "User abc123"
   }
 
-  return sub.slice(0, 20); // Truncate long subs
+  return sub.slice(0, 19); // Truncate long subs
 }
 
 /**

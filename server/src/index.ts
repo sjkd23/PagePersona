@@ -24,6 +24,8 @@ dotenv.config();
 ensureSafeAuth0Config();
 
 const app = express();
+app.disable('x-powered-by'); // Hide Express.js
+
 const PORT = process.env.PORT || 5000;
 
 // Database connection

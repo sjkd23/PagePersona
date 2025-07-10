@@ -207,7 +207,10 @@ export function useTransformation() {
     },
 
     handleTransform: async () => {
-      if (!state.selectedPersona || !state.url.trim()) return
+      if (!state.selectedPersona || !state.url.trim()) {
+        safeSetState(prev => ({ ...prev, error: 'Please select a persona and provide valid input' }))
+        return
+      }
       
       // Validate input before transforming
       if (state.inputMode === 'url' && validateUrl(state.url)) {
