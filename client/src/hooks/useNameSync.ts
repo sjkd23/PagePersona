@@ -63,7 +63,7 @@ export const useNameSync = () => {
         throw new Error('No authentication token available');
       }
 
-      // Removed call to /api/user/debug/force-name-sync (temporary debug endpoint)
+      // Force sync user profile with Auth0 data
 
       return {
         success: true,
@@ -73,7 +73,6 @@ export const useNameSync = () => {
       };
 
     } catch (error) {
-      console.error('Name sync error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'

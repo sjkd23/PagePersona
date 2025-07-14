@@ -6,7 +6,6 @@ import { AuthContextProvider } from './AuthContextProvider';
 
 export function Auth0Provider({ children }: { children: ReactNode }) {
   if (!domain || !clientId) {
-    console.error('Auth0 configuration missing');
     return null;
   }
 

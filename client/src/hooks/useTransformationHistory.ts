@@ -9,6 +9,18 @@
  */
 
 import { useState, useEffect } from 'react'
+import { logger } from '../utils/logger'
+
+/**
+ * Custom hook for managing transformation history
+ * 
+ * This hook provides persistent storage and management of transformation
+ * history using localStorage. It maintains a limited history of recent
+ * transformations with deduplication and error handling capabilities.
+ * 
+ * @module useTransformationHistory
+ */
+
 import type { WebpageContent } from '../../../shared/types/personas'
 
 /**
@@ -62,7 +74,7 @@ export function useTransformationHistory() {
         setHistory(historyWithDates)
       }
     } catch (error) {
-      console.error('Failed to load transformation history:', error)
+      logger.error('Failed to load transformation history:', error)
       // Clear corrupted data
       localStorage.removeItem(HISTORY_KEY)
     }
@@ -73,7 +85,7 @@ export function useTransformationHistory() {
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history))
     } catch (error) {
-      console.error('Failed to save transformation history:', error)
+      logger.error('Failed to save transformation history:', error)
     }
   }, [history])
 

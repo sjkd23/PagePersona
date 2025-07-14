@@ -1,7 +1,7 @@
 # PagePersonAI
 
-> **Transform any webpage into your favorite writing style using AI-powered personas.**  
-> Convert dry articles into engaging narratives, clear summaries, or whimsical stories—instantly and intelligently.
+Transform any webpage into your favorite writing style using AI-powered personas.  
+Turn boring articles into engaging narratives, clear explanations, or creative stories.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://reactjs.org/)
@@ -13,25 +13,25 @@
 
 ---
 
-## 🌟 Overview
+## What is PagePersonAI?
 
-PagePersonAI is a sophisticated AI-powered content transformation platform that allows users to reimagine any webpage or text through the lens of different writing personas. Whether you want to read a technical article as if it were written by Hemingway, or understand complex concepts through a medieval knight's perspective, PagePersonAI makes content more accessible, engaging, and fun.
+PagePersonAI reimagines web content through different writing personas. Want to read a technical article as if it were written by a medieval knight? Or understand complex topics through simple explanations? This tool makes it happen.
 
-### ✨ Key Features
+### Key Features
 
-- **🤖 AI-Powered Transformations**: Leverages OpenAI's GPT models with carefully crafted persona-specific prompts
-- **🎭 Multiple Personas**: Choose from Hemingway, Medieval Knight, Anime Hero, ELI5, and more
-- **🔗 URL & Text Input**: Transform content directly from URLs or paste text manually  
-- **🔐 Secure Authentication**: Auth0 integration with social logins and JWT-based API security
-- **📊 Usage Tracking**: Smart rate limiting and usage analytics with tier-based access
-- **💾 Intelligent Caching**: Redis-backed caching with MongoDB persistence for optimal performance
-- **🎨 Modern UI/UX**: Responsive React interface with Tailwind CSS and accessibility features
-- **🐳 Production Ready**: Complete Docker containerization and CI/CD pipeline
-- **🧪 Thoroughly Tested**: 670+ tests with comprehensive coverage across frontend and backend
+- **AI-Powered Transformations**: Uses OpenAI's GPT models with custom persona prompts
+- **Multiple Personas**: ELI5, Medieval Knight, Anime Hacker, Plague Doctor, and Robot
+- **Flexible Input**: Transform content from URLs or paste text directly  
+- **Secure Authentication**: Auth0 integration with social logins
+- **Usage Tracking**: Rate limiting and analytics with tier-based access
+- **Smart Caching**: Redis-backed caching with MongoDB persistence
+- **Modern Interface**: Responsive React UI with Tailwind CSS
+- **Production Ready**: Docker containerization and CI/CD pipeline
+- **Well Tested**: Comprehensive test coverage
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TB
@@ -79,7 +79,7 @@ graph TB
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -90,7 +90,7 @@ graph TB
 - **OpenAI** API key
 - **Redis** (optional, graceful fallback)
 
-### 🐳 Docker Deployment (Recommended)
+### Docker Deployment (Recommended)
 
 1. **Clone and configure**:
    ```bash
@@ -118,7 +118,7 @@ graph TB
    - **Backend API**: http://localhost:5000
    - **Health Check**: http://localhost:5000/api/health
 
-### 💻 Local Development
+### Local Development
 
 1. **Install dependencies**:
    ```bash
@@ -145,11 +145,11 @@ graph TB
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 PagePersonAI/
-├── 🎨 client/                    # React frontend application
+├── client/                    # React frontend application
 │   ├── public/                   # Static assets and icons
 │   ├── src/
 │   │   ├── components/           # React components
@@ -167,7 +167,7 @@ PagePersonAI/
 │   ├── nginx.conf              # Production nginx configuration
 │   └── vite.config.ts          # Vite build configuration
 │
-├── 🖥️ server/                    # Express backend API
+├── server/                    # Express backend API
 │   ├── src/
 │   │   ├── config/              # Configuration management
 │   │   ├── controllers/         # Route controllers
@@ -191,25 +191,25 @@ PagePersonAI/
 │   ├── Dockerfile               # Production container definition
 │   └── tsconfig.json           # TypeScript configuration
 │
-├── 🔗 shared/                    # Shared types and constants
+├── shared/                    # Shared types and constants
 │   ├── constants/               # Persona definitions and prompts
 │   ├── types/                   # Shared TypeScript interfaces
 │   └── utils/                   # Shared utility functions
 │
-├── 🐳 DevOps & Deployment
+├── DevOps & Deployment
 │   ├── .github/workflows/       # CI/CD pipeline (GitHub Actions)
 │   ├── docker-compose.yml       # Multi-service orchestration
 │   ├── deploy.sh               # Production deployment script
 │   └── DOCKER.md               # Docker usage guide
 │
-└── 📚 Documentation
+└── Documentation
     ├── README.md               # This comprehensive guide
     └── LICENSE                 # License information
 ```
 
 ---
 
-## 🔧 Core Services & Architecture
+## Core Services & Architecture
 
 ### Frontend Architecture
 
@@ -272,38 +272,35 @@ interface TransformationRequest {
 
 ---
 
-## 🎭 Available Personas
+## Available Personas
 
 Each persona includes carefully crafted system prompts, tone modifiers, and example outputs:
 
 | Persona | Description | Style |
 |---------|-------------|-------|
-| **Hemingway** | Concise, powerful prose with short sentences | Literary minimalism |
+| **ELI5** | Simple, fun explanations anyone can understand | Educational clarity |
 | **Medieval Knight** | Heroic tales of honor and chivalry | Epic fantasy |
-| **Anime Hero** | Energetic, dramatic storytelling | Japanese anime style |
-| **ELI5** | Complex concepts explained simply | Educational clarity |
-| **Detective** | Mysterious, analytical investigation | Noir mystery |
-| **Poet** | Beautiful, metaphorical expression | Lyrical artistry |
-| **Scientist** | Precise, evidence-based explanation | Academic rigor |
-| **Philosopher** | Deep, thoughtful contemplation | Intellectual discourse |
+| **Anime Hacker** | Energetic, tech-savvy digital warrior | Cyberpunk anime |
+| **Plague Doctor** | Mysterious, medieval medical practitioner | Dark historical |
+| **Robot** | Logical, systematic artificial intelligence | Scientific precision |
 
 ---
 
-## 🔐 Security & Authentication
+## Security & Authentication
 
 ### Auth0 Integration
-- **Multi-provider login**: Google, Apple, Magic Link, username/password
-- **JWT-based API security** with automatic token refresh
-- **Custom claims** for user roles and permissions
-- **Secure logout** with token revocation
+- Multi-provider login: Google, Apple, Magic Link, username/password
+- JWT-based API security with automatic token refresh
+- Custom claims for user roles and permissions
+- Secure logout with token revocation
 
-### Security Measures
-- **Input validation** with Zod schemas on all endpoints
-- **Rate limiting** with Redis-backed counters
-- **CORS protection** with configurable origins
-- **SQL injection prevention** through Mongoose ODM
-- **XSS protection** with Content Security Policy headers
-- **Secure headers** including HSTS, X-Frame-Options, X-Content-Type-Options
+### Security Features
+- Input validation with Zod schemas on all endpoints
+- Rate limiting with Redis-backed counters
+- CORS protection with configurable origins
+- SQL injection prevention through Mongoose ODM
+- XSS protection with Content Security Policy headers
+- Secure headers including HSTS, X-Frame-Options, X-Content-Type-Options
 
 ### Usage & Rate Limiting
 ```typescript
@@ -317,27 +314,26 @@ const rateLimits = {
 
 ---
 
-## 🧪 Testing & Quality Assurance
-
-### Comprehensive Test Suite
-- **670+ tests** across frontend and backend
-- **Unit tests** for all services and utilities
-- **Integration tests** for API endpoints
-- **Component tests** for React components
-- **E2E scenarios** for critical user flows
-
-### Code Quality
-- **ESLint** with TypeScript rules and auto-fixing
-- **Prettier** for consistent code formatting
-- **Husky** pre-commit hooks for quality gates
-- **TypeScript strict mode** for maximum type safety
+## Testing & Quality
 
 ### Test Coverage
+- Unit tests for all services and utilities
+- Integration tests for API endpoints
+- Component tests for React components
+- E2E scenarios for critical user flows
+
+### Code Quality
+- ESLint with TypeScript rules
+- Prettier for consistent formatting
+- Husky pre-commit hooks
+- TypeScript strict mode
+
+### Running Tests
 ```bash
 # Run all tests
 npm run test:all
 
-# Generate coverage reports  
+# Coverage reports  
 npm run test:coverage
 
 # Watch mode for development
@@ -346,35 +342,29 @@ npm run test:watch
 
 ---
 
-## 🚀 Deployment & DevOps
+## Deployment
 
-### Docker Containerization
-- **Multi-stage builds** for optimized production images
-- **Security scanning** with non-root containers
-- **Health checks** for all services
-- **Volume persistence** for databases
+### Docker Setup
+- Multi-stage builds for optimized images
+- Security scanning with non-root containers
+- Health checks for all services
+- Volume persistence for databases
 
-### CI/CD Pipeline (GitHub Actions)
-- **Automated testing** on every push and PR
-- **Security scanning** for vulnerabilities
-- **Docker image building** and registry push
-- **Deployment automation** to production environments
+### CI/CD Pipeline
+- Automated testing on every push and PR
+- Security scanning for vulnerabilities
+- Docker image building and registry push
+- Deployment automation
 
-### Monitoring & Observability
-- **Health check endpoints** for uptime monitoring
-- **Structured logging** with Winston
-- **Error tracking** integration ready
-- **Performance metrics** collection
-
-### Scaling Considerations
-- **Horizontal scaling** support with Redis session store
-- **Load balancer ready** with stateless design
-- **Database connection pooling** for optimal performance
-- **CDN integration** for static asset delivery
+### Monitoring
+- Health check endpoints for uptime monitoring
+- Structured logging with Winston
+- Error tracking integration ready
+- Performance metrics collection
 
 ---
 
-## 📊 API Reference
+## API Reference
 
 ### Authentication
 All protected endpoints require JWT bearer token:
@@ -429,7 +419,7 @@ interface ApiResponse<T> {
 
 ---
 
-## 🛠️ Development Guide
+## Development Guide
 
 ### Environment Configuration
 
@@ -447,7 +437,7 @@ JWT_SECRET=your-32-character-secret-key
 
 # AI Integration
 OPENAI_API_KEY=sk-your-openai-key
-OPENAI_MODEL=gpt-4
+OPENAI_MODEL=gpt-4o
 
 # Optional Services
 REDIS_URL=redis://localhost:6379
@@ -508,7 +498,7 @@ export const personaMapping = {
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these guidelines:
 
@@ -526,22 +516,22 @@ We welcome contributions! Please follow these guidelines:
 - Ensure all tests pass before submitting
 
 ### Areas for Contribution
-- 🎭 New persona development
-- 🌐 Internationalization support
-- 📱 Mobile app development
-- 🔌 Third-party integrations
-- 📈 Analytics and insights
-- 🎨 UI/UX improvements
+- New persona development
+- Internationalization support
+- Mobile app development
+- Third-party integrations
+- Analytics and insights
+- UI/UX improvements
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **OpenAI** for providing the GPT models that power our transformations
 - **Auth0** for robust authentication infrastructure  
@@ -552,7 +542,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-## 📞 Support
+## Support
 
 - **Documentation**: [GitHub Wiki](https://github.com/yourusername/PagePersonAI/wiki)
 - **Issues**: [GitHub Issues](https://github.com/yourusername/PagePersonAI/issues)
@@ -561,10 +551,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-<div align="center">
+**Made with care by the PagePersonAI Team**
 
-**Made with ❤️ by the PagePersonAI Team**
-
-⭐ Star us on GitHub if you find this project useful!
-
-</div>
+Star us on GitHub if you find this project useful!

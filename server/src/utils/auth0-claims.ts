@@ -2,6 +2,7 @@
 // Handles environment variations and provides fallbacks
 
 import type { Auth0JwtPayload } from '../types/common';
+import { logger } from './logger';
 
 interface SafeAuth0Claims {
   sub: string;
@@ -206,23 +207,23 @@ export function debugAuth0Claims(auth0User: Auth0JwtPayload, userId?: string): v
 
   try {
     const userIdText = userId ? ` for user ${userId}` : '';
-    console.log(`🔍 Auth0 Claims Debug${userIdText}:`);
+    logger.debug(`Auth0 Claims Debug${userIdText}:`);
 
     // Log standard claims
     const standardClaims = safeGetAuth0Claims(auth0User);
-    console.log('📋 Standard Claims:', standardClaims);
+    logger.debug('Standard Claims:', { claims: standardClaims });
 
     // Log custom claims
     const customClaims = safeGetCustomClaims(auth0User);
-    console.log('🔧 Custom Claims:', customClaims);
+    logger.debug('Custom Claims:', { claims: customClaims });
 
     // Log safe email
     const email = safeGetEmail(auth0User);
-    console.log('📧 Safe Email:', email);
+    logger.debug('Safe Email:', { email });
 
     // Log display name
     const displayName = safeGetDisplayName(auth0User);
-    console.log('👤 Display Name:', displayName);
+    logger.debug('Display Name:', { displayName });
 
     // Check for unknown claims
     const environmentClaims = {
@@ -242,9 +243,9 @@ export function debugAuth0Claims(auth0User: Auth0JwtPayload, userId?: string): v
       .map(([key, value]) => `${key}: ${value}`);
     
     if (unknownClaimEntries.length > 0) {
-      console.log('❓ Unknown Claims:', unknownClaimEntries);
+      logger.debug('Unknown Claims:', { claims: unknownClaimEntries });
     }
   } catch (error) {
-    console.error('❌ Error debugging Auth0 claims:', error);
+    logger.error('Error debugging Auth0 claims:', error);
   }
 }

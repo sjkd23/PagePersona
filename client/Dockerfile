@@ -8,19 +8,17 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY ../shared/package.json ../shared/
 RUN npm ci --only=production
 
 # Build the application
 FROM base AS builder
 WORKDIR /app
 COPY package*.json ./
-COPY ../shared/package.json ../shared/
 RUN npm ci
 
 # Copy source code
 COPY . .
-COPY ../shared ../shared
+COPY --from=deps /app/node_modules ./node_modules
 
 # Build for production
 RUN npm run build

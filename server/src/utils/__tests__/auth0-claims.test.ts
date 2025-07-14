@@ -9,6 +9,19 @@ import {
 } from '../auth0-claims'
 import type { Auth0JwtPayload } from '../../types/common'
 
+// Mock the logger
+vi.mock('../logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+  }
+}))
+
+// Import the mocked logger
+import { logger } from '../logger'
+
 // Mock environment variables
 const mockEnv = {
   AUTH0_CUSTOM_USER_ID_CLAIM: 'https://test.com/user_id',
@@ -21,7 +34,7 @@ const mockEnv = {
 // Set environment variables before any imports
 Object.assign(process.env, mockEnv)
 
-// Mock console methods
+// Mock console methods (for any remaining console calls)
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
 const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -330,11 +343,11 @@ describe('auth0-claims', () => {
       const auth0User = createMockAuth0User()
       debugAuth0Claims(auth0User, 'user-123')
 
-      expect(mockConsoleLog).toHaveBeenCalledWith('🔍 Auth0 Claims Debug for user user-123:')
-      expect(mockConsoleLog).toHaveBeenCalledWith('📋 Standard Claims:', expect.any(Object))
-      expect(mockConsoleLog).toHaveBeenCalledWith('🔧 Custom Claims:', expect.any(Object))
-      expect(mockConsoleLog).toHaveBeenCalledWith('📧 Safe Email:', 'test@example.com')
-      expect(mockConsoleLog).toHaveBeenCalledWith('👤 Display Name:', 'Test User')
+      expect(logger.debug).toHaveBeenCalledWith('Auth0 Claims Debug for user user-123:')
+      expect(logger.debug).toHaveBeenCalledWith('Standard Claims:', { claims: expect.any(Object) })
+      expect(logger.debug).toHaveBeenCalledWith('Custom Claims:', { claims: expect.any(Object) })
+      expect(logger.debug).toHaveBeenCalledWith('Safe Email:', { email: 'test@example.com' })
+      expect(logger.debug).toHaveBeenCalledWith('Display Name:', { displayName: 'Test User' })
     })
 
     it('should not log in production environment', () => {
@@ -353,8 +366,8 @@ describe('auth0-claims', () => {
       const invalidAuth0User = null as any
       debugAuth0Claims(invalidAuth0User)
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
-        '❌ Error debugging Auth0 claims:',
+      expect(logger.error).toHaveBeenCalledWith(
+        'Error debugging Auth0 claims:',
         expect.any(Error)
       )
     })
@@ -366,12 +379,12 @@ describe('auth0-claims', () => {
       })
       debugAuth0Claims(auth0User)
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(
-        '❓ Unknown Claims:',
-        expect.arrayContaining([
+      expect(logger.debug).toHaveBeenCalledWith(
+        'Unknown Claims:',
+        { claims: expect.arrayContaining([
           'unknown-claim: unknown-value',
           'another-unknown: another-value',
-        ])
+        ]) }
       )
     })
 
@@ -379,7 +392,7 @@ describe('auth0-claims', () => {
       const auth0User = createMockAuth0User()
       debugAuth0Claims(auth0User)
 
-      expect(mockConsoleLog).toHaveBeenCalledWith('🔍 Auth0 Claims Debug:')
+      expect(logger.debug).toHaveBeenCalledWith('Auth0 Claims Debug:')
     })
   })
 })

@@ -179,7 +179,7 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse)
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/transform/personas',
+        'http://localhost:5001/api/transform/personas',
         expect.objectContaining({
           headers: expect.objectContaining({
             'Authorization': 'Bearer test-token'
@@ -215,7 +215,7 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse)
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/user/profile',
+        'http://localhost:5001/api/user/profile',
         expect.objectContaining({
           headers: expect.objectContaining({
             'Authorization': 'Bearer test-token'
@@ -310,7 +310,7 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse)
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/user/usage',
+        'http://localhost:5001/api/user/usage',
         expect.objectContaining({
           headers: expect.objectContaining({
             'Authorization': 'Bearer test-token'
@@ -341,7 +341,7 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse)
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/health',
+        'http://localhost:5001/api/health',
         expect.objectContaining({
           headers: expect.objectContaining({
             'Authorization': 'Bearer test-token'

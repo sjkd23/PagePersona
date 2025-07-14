@@ -100,27 +100,35 @@ export function logSyncResults(userId: string, result: SyncResult): void {
   try {
     const { updated, changedFields, errors } = result;
 
-    // Log field changes if any
+    // Log field changes if any (debug only)
     if (changedFields && changedFields.length > 0) {
-      console.log(
-        `🔄 User ${userId} - Fields updated:`,
-        changedFields
-      );
+      if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+        console.log(
+          `🔄 User ${userId} - Fields updated:`,
+          changedFields
+        );
+      }
     }
 
-    // Log errors if any
+    // Log errors if any (debug only)
     if (errors && errors.length > 0) {
-      console.log(
-        `⚠️  User ${userId} - Sync errors:`,
-        errors
-      );
+      if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+        console.log(
+          `⚠️  User ${userId} - Sync errors:`,
+          errors
+        );
+      }
     }
 
-    // Log no changes needed if updated but no field changes
+    // Log no changes needed if updated but no field changes (debug only)
     if (updated && (!changedFields || changedFields.length === 0) && (!errors || errors.length === 0)) {
-      console.log(`✅ User ${userId} - No changes needed (lastLoginAt updated)`);
+      if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+        console.log(`✅ User ${userId} - No changes needed (lastLoginAt updated)`);
+      }
     }
   } catch (error) {
-    console.error(`❌ Error logging sync results for ${userId}:`, error);
+    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+      console.error(`❌ Error logging sync results for ${userId}:`, error);
+    }
   }
 }

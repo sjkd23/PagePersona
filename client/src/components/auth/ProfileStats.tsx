@@ -143,8 +143,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
             className="btn btn-info btn-small"
             style={{ marginTop: '0.75rem', width: '100%' }}
             onClick={() => {
-              // TODO: Implement upgrade flow
-              console.log('Upgrade clicked');
+              // Upgrade flow not implemented yet
             }}
           >
             Upgrade to Premium
@@ -159,8 +158,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
         <div className="info-card">
           <button
             onClick={() => {
-              // TODO: Implement profile export
-              console.log('Export profile data');
+              // Profile export not implemented yet
             }}
             className="btn btn-secondary btn-small"
             style={{ width: '100%', marginBottom: '0.75rem' }}
@@ -170,8 +168,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
           
           <button
             onClick={() => {
-              // TODO: Implement account settings
-              console.log('Open account settings');
+              // Account settings not implemented yet
             }}
             className="btn btn-secondary btn-small"
             style={{ width: '100%', marginBottom: '0.75rem' }}

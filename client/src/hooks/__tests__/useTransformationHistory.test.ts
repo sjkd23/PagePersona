@@ -3,6 +3,19 @@ import { renderHook, act } from '@testing-library/react'
 import { useTransformationHistory, type HistoryItem } from '../useTransformationHistory'
 import type { WebpageContent } from '../../../../shared/types/personas'
 
+// Mock the logger
+vi.mock('../../utils/logger', () => ({
+  logger: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  }
+}))
+
+// Import the mocked logger
+import { logger } from '../../utils/logger'
+
 // Mock localStorage
 const mockLocalStorage = {
   getItem: vi.fn(),
@@ -78,7 +91,7 @@ describe('useTransformationHistory', () => {
       const { result } = renderHook(() => useTransformationHistory())
 
       expect(result.current.history).toEqual([])
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         'Failed to load transformation history:',
         expect.any(Error)
       )
@@ -163,7 +176,7 @@ describe('useTransformationHistory', () => {
         result.current.addToHistory(mockWebpageContent)
       })
 
-      expect(mockConsoleError).toHaveBeenCalledWith(
+      expect(logger.error).toHaveBeenCalledWith(
         'Failed to save transformation history:',
         expect.any(Error)
       )

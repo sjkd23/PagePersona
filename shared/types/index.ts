@@ -31,3 +31,13 @@ export type {
   ChatMessage, 
   ConversationHistory 
 } from './user';
+
+// Error types
+export { 
+  ErrorCode, 
+  ERROR_MESSAGES, 
+  ErrorMapper 
+} from './errors';
+export type { 
+  UserFriendlyError
+} from './errors';

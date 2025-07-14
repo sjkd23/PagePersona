@@ -110,7 +110,6 @@ export default function PageTransformer() {
       setIsLoading(false)
 
     } catch (err) {
-      console.error('Transform error:', err)
       // Handle usage limit HTTP 429
       if (err instanceof Error && err.message.includes('429')) {
         setError("You've hit your monthly limit. Upgrade to continue.")

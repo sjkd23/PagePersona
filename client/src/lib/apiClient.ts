@@ -19,7 +19,7 @@ import type { ApiResponse } from '../../../shared/types/api';
 import type { ClientPersona } from '../../../shared/types/personas';
 import { ErrorCode } from '../../../shared/types/errors';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 // Global token getter function - configured by Auth0 provider
 let getAccessTokenFunction: (() => Promise<string | undefined>) | null = null;
@@ -143,8 +143,8 @@ class HttpClient {
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-      } catch (error) {
-        console.warn('Failed to get Auth0 token:', error);
+      } catch {
+        // Failed to get token - continue without auth
       }
     }
 
@@ -188,7 +188,6 @@ class HttpClient {
       
       return { success: true, ...data } as T;
     } catch (error) {
-      console.error('API request failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',

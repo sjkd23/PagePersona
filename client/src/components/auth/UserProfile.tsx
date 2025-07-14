@@ -109,15 +109,14 @@ export default function UserProfile() {
                       preferences: updateResult.data.preferences
                     });
                   }
-                } catch (updateError) {
-                  console.error('❌ Manual update failed:', updateError);
+                } catch {
+                  // Manual update failed - continue
                 }
               }
             }
           }
         }
       } catch (err) {
-        console.error('Failed to fetch profile:', err);
         const mappedError = ErrorMapper.mapError(err);
         setEnhancedError(mappedError);
         setError('Failed to load profile data');
@@ -145,7 +144,6 @@ export default function UserProfile() {
         setEditing(false);
       }
     } catch (err) {
-      console.error('Failed to update profile:', err);
       const mappedError = ErrorMapper.mapError(err);
       setEnhancedError(mappedError);
       setError('Failed to update profile');

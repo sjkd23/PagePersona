@@ -27,8 +27,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
     try {
       const token = await getAccessTokenSilently({ authorizationParams: { audience } }) as string;
       return token;
-    } catch (error) {
-      console.error('Token error:', error);
+    } catch {
       return undefined;
     }
   }, [getAccessTokenSilently]);
@@ -49,8 +48,8 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
           'https://pagepersona.com/profile_sync_error': claims['https://pagepersona.com/profile_sync_error'],
         });
       }
-    } catch (error) {
-      console.error('Sync error:', error);
+    } catch {
+      // Sync error - continue without sync
     } finally {
       setIsSyncing(false);
     }

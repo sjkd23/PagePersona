@@ -139,7 +139,11 @@ app.use('/api/monitor', monitorRoutes);
 app.use('/api/transform', transformRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/debug', debugRoutes);
+
+// Debug routes only available in development
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/debug', debugRoutes);
+}
 
 app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
 
@@ -164,34 +168,24 @@ app.use('*', (_req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Server running on http://localhost:${PORT}`);
-    // eslint-disable-next-line no-console
-    console.log('Available endpoints:');
-    // eslint-disable-next-line no-console
-    console.log('  GET  /api/health - Health check');
-    // eslint-disable-next-line no-console
-    console.log('  GET  /api/transform/personas - Available personas');
-    // eslint-disable-next-line no-console
-    console.log('  POST /api/transform - Transform content from URL');
-    // eslint-disable-next-line no-console
-    console.log('  POST /api/transform/text - Transform text content directly');
-    // eslint-disable-next-line no-console
-    console.log('  GET  /api/user/profile - User profile (protected)');
-    // eslint-disable-next-line no-console
-    console.log('  PUT  /api/user/profile - Update profile (protected)');
-    // eslint-disable-next-line no-console
-    console.log('  GET  /api/debug/redis - Redis connectivity test');
+    logger.info(`Server running on http://localhost:${PORT}`);
+    logger.info('Available endpoints:');
+    logger.info('  GET  /api/health - Health check');
+    logger.info('  GET  /api/transform/personas - Available personas');
+    logger.info('  POST /api/transform - Transform content from URL');
+    logger.info('  POST /api/transform/text - Transform text content directly');
+    logger.info('  GET  /api/user/profile - User profile (protected)');
+    logger.info('  PUT  /api/user/profile - Update profile (protected)');
+    if (process.env.NODE_ENV !== 'production') {
+      logger.info('  GET  /api/debug/redis - Redis connectivity test');
+    }
 }).on('error', (err: NodeJS.ErrnoException) => {
     if (err.code === 'EADDRINUSE') {
-        // eslint-disable-next-line no-console
-        console.error(`Port ${PORT} is already in use`);
-        // eslint-disable-next-line no-console
-        console.error('Try: netstat -ano | findstr :' + PORT + ' to find the process');
+        logger.error(`Port ${PORT} is already in use`);
+        logger.error('Try: netstat -ano | findstr :' + PORT + ' to find the process');
         process.exit(1);
     } else {
-        // eslint-disable-next-line no-console
-        console.error('Server error:', err);
+        logger.error('Server error:', err);
         process.exit(1);
     }
 });
