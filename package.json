@@ -7,15 +7,15 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write .",
     "prepare": "husky",
-    "start:dev": "cross-env NODE_ENV=development npm run --workspace=client dev & npm run --workspace=server dev",
-    "start:prod": "cross-env NODE_ENV=production npm run --workspace=client build && npm run --workspace=server build && npm run --workspace=server start",
-    "build": "tsc -b shared && tsc -b server && tsc -b client",
-    "test": "npm run --workspace=client test && npm run --workspace=server test"
+    "build": "npm run build --workspace=shared && npm run build --workspace=server && npm run build --workspace=client",
+    "start:dev": "npm run start:dev --workspace=server & npm run dev --workspace=client",
+    "test": "npm test --workspaces",
+    "clean": "rimraf */dist */node_modules/.cache"
   },
   "workspaces": [
-    "client",
+    "shared",
     "server",
-    "shared"
+    "client"
   ],
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.18.0",
@@ -28,7 +28,9 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.8.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -22,6 +22,12 @@ import {
 import { HttpStatus } from '../constants/http-status';
 import { logger } from '../utils/logger';
 import { redisClient } from '../utils/redis-client';
+import { validateRequest } from '../middleware/validation';
+import {
+  updateMembershipSchema,
+  userIdParamSchema,
+  adminStatsQuerySchema,
+} from '../schemas/admin.schema';
 
 const router = express.Router();
 
@@ -130,18 +136,12 @@ router.patch(
   verifyAuth0Token,
   syncAuth0User,
   requireAdmin,
+  validateRequest(userIdParamSchema, 'params'),
+  validateRequest(updateMembershipSchema, 'body'),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
       const { membership } = req.body;
-
-      // Validate membership value
-      if (!['free', 'premium', 'admin'].includes(membership)) {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json(createErrorResponse('Invalid membership type. Must be free, premium, or admin'));
-        return;
-      }
 
       const user = await MongoUser.findById(userId);
       if (!user) {
@@ -197,6 +197,7 @@ router.get(
   verifyAuth0Token,
   syncAuth0User,
   requireAdmin,
+  validateRequest(adminStatsQuerySchema),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const totalUsers = await MongoUser.countDocuments();

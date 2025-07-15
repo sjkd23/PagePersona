@@ -13,6 +13,129 @@ Turn boring articles into engaging narratives, clear explanations, or creative s
 
 ---
 
+## 🏗️ Monorepo Structure
+
+This project is organized as a monorepo using **npm workspaces** for efficient dependency management and development workflow.
+
+```
+PagePersonAI/
+├── package.json                 # Root package.json with workspace configuration
+├── shared/                      # Shared types and constants
+│   ├── src/
+│   │   ├── types/              # TypeScript interfaces
+│   │   └── constants/          # Shared constants (personas, prompts)
+│   └── package.json
+├── server/                      # Express.js API backend
+│   ├── src/
+│   │   ├── controllers/        # Route handlers
+│   │   ├── middleware/         # Authentication, validation, etc.
+│   │   ├── services/           # Business logic
+│   │   └── utils/              # Utility functions
+│   └── package.json
+├── client/                      # React frontend
+│   ├── src/
+│   │   ├── components/         # UI components
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── contexts/           # React contexts
+│   │   └── utils/              # Frontend utilities
+│   └── package.json
+└── docker-compose.yml           # Multi-container setup
+```
+
+### Workspace Benefits
+
+- **Shared Dependencies**: Common packages like TypeScript, ESLint, and Prettier are hoisted to the root
+- **Type Safety**: The `@pagepersonai/shared` package provides consistent types across client and server
+- **Unified Scripts**: Run commands across all workspaces from the root
+- **Efficient Development**: Changes to shared types are immediately available to all workspaces
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ and npm 9+
+- MongoDB instance (local or cloud)
+- Redis instance (optional, for caching)
+- OpenAI API key
+- Auth0 tenant and application
+
+### Installation
+
+```bash
+# Install all dependencies for all workspaces
+npm install
+
+# Build all workspaces
+npm run build
+
+# Run all tests
+npm test
+
+# Start development servers (server + client)
+npm run start:dev
+
+# Run linting across all workspaces
+npm run lint
+
+# Format all code
+npm run format
+```
+
+### Individual Workspace Commands
+
+```bash
+# Work with specific workspaces
+npm run build --workspace=shared
+npm run test --workspace=server
+npm run dev --workspace=client
+
+# Or navigate to workspace directory
+cd server
+npm run start:dev
+
+cd client
+npm run dev
+```
+
+### Environment Setup
+
+Create `.env` files in both `server/` and `client/` directories:
+
+**server/.env**
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/pagepersonai
+REDIS_URL=redis://localhost:6379
+
+# OpenAI
+OPENAI_API_KEY=your_openai_key_here
+
+# Auth0
+AUTH0_DOMAIN=your-domain.auth0.com
+AUTH0_CLIENT_ID=your_client_id
+AUTH0_CLIENT_SECRET=your_client_secret
+AUTH0_AUDIENCE=https://api.pagepersonai.com
+
+# Server
+PORT=3001
+NODE_ENV=development
+```
+
+**client/.env**
+```env
+# Auth0
+VITE_AUTH0_DOMAIN=your-domain.auth0.com
+VITE_AUTH0_CLIENT_ID=your_client_id
+VITE_AUTH0_AUDIENCE=https://api.pagepersonai.com
+
+# API
+VITE_API_URL=http://localhost:3001
+```
+
+---
+
 ## What is PagePersonAI?
 
 PagePersonAI reimagines web content through different writing personas. Want to read a technical article as if it were written by a medieval knight? Or understand complex topics through simple explanations? This tool makes it happen.
@@ -49,561 +172,273 @@ graph TB
         H[Transform Service]
     end
     
-    subgraph "AI Pipeline"
-        I[Web Scraper]
-        J[Content Parser]
-        K[Prompt Builder]
-        L[OpenAI Client]
+    subgraph "Shared Package"
+        I[TypeScript Types]
+        J[Constants & Prompts]
+        K[Persona Definitions]
     end
     
-    subgraph "Data Layer"
-        M[(MongoDB)]
-        N[(Redis Cache)]
+    subgraph "External Services"
+        L[OpenAI API]
+        M[MongoDB]
+        N[Redis Cache]
         O[Auth0]
     end
     
     A --> B
-    B --> O
-    A --> D
+    B --> D
     D --> E
     E --> F
     F --> G
     G --> H
-    H --> I
-    I --> J
-    J --> K
-    K --> L
+    H --> L
     H --> M
     H --> N
+    B --> O
+    
+    A -.-> I
+    H -.-> I
+    H -.-> J
+    H -.-> K
 ```
 
 ---
 
-## Quick Start
+## 🛠️ Development Workflow
 
-### Prerequisites
+### Making Changes
 
-- **Node.js** ≥ 20.0.0
-- **npm** ≥ 9.0.0
-- **MongoDB** (local or cloud)
-- **Auth0** account
-- **OpenAI** API key
-- **Redis** (optional, graceful fallback)
+1. **Shared Types**: Update `shared/src/types/` and run `npm run build --workspace=shared`
+2. **Server Changes**: Work in `server/src/` and use `npm run start:dev --workspace=server`
+3. **Client Changes**: Work in `client/src/` and use `npm run dev --workspace=client`
 
-### Docker Deployment (Recommended)
+### Testing
 
-1. **Clone and configure**:
-   ```bash
-   git clone https://github.com/yourusername/PagePersonAI.git
-   cd PagePersonAI
-   cp .env.docker .env
-   ```
-
-2. **Update environment variables** in `.env`:
-   ```bash
-   OPENAI_API_KEY=your_openai_api_key
-   AUTH0_DOMAIN=your-domain.auth0.com
-   AUTH0_CLIENT_ID=your_client_id
-   AUTH0_AUDIENCE=your_api_identifier
-   MONGODB_URI=mongodb://admin:password@mongodb:27017/pagepersona
-   ```
-
-3. **Deploy with Docker Compose**:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Access your application**:
-   - **Frontend**: http://localhost
-   - **Backend API**: http://localhost:5000
-   - **Health Check**: http://localhost:5000/api/health
-
-### Local Development
-
-1. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-2. **Configure environment**:
-   ```bash
-   # Copy and configure environment files
-   cp .env.development .env.development.local
-   cp .env.production .env.production.local
-   # Edit the .local files with your credentials
-   ```
-
-3. **Start development servers**:
-   ```bash
-   # Start both client and server in development mode
-   npm run start:dev
-   ```
-
-   Or run them separately:
-   ```bash
-   # Terminal 1 - Backend
-   cd server && npm run dev
-   
-   # Terminal 2 - Frontend  
-   cd client && npm run dev
-   ```
-
-4. **For production build**:
-   ```bash
-   npm run start:prod
-   ```
-
-### Getting Started
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/PagePersonAI.git
-   cd PagePersonAI
-   ```
-
-2. **Set up environment variables**:
-   ```bash
-   # Copy template files
-   cp .env.development .env.development.local
-   cp .env.production .env.production.local
-   ```
-
-3. **Configure your environment variables** in `.env.development.local`:
-   ```bash
-   # Required Variables
-   OPENAI_API_KEY=your_openai_api_key
-   AUTH0_DOMAIN=your-domain.auth0.com
-   AUTH0_CLIENT_ID=your_client_id
-   AUTH0_CLIENT_SECRET=your_client_secret
-   AUTH0_AUDIENCE=your_api_identifier
-   MONGODB_URI=mongodb://localhost:27017/pagepersona
-   JWT_SECRET=your-super-secret-jwt-key-change-in-production-min-32-chars
-   
-   # Client Variables (VITE_ prefix)
-   VITE_AUTH0_DOMAIN=your-domain.auth0.com
-   VITE_AUTH0_CLIENT_ID=your_client_id
-   VITE_AUTH0_AUDIENCE=your_api_identifier
-   ```
-
-4. **Install dependencies and start**:
-   ```bash
-   npm install
-   npm run start:dev
-   ```
-
-5. **Access your application**:
-   - **Frontend**: http://localhost:5173
-   - **Backend API**: http://localhost:5000
-   - **Health Check**: http://localhost:5000/api/health
-
----
-
-## Project Structure
-
-```
-PagePersonAI/
-├── client/                    # React frontend application
-│   ├── public/                   # Static assets and icons
-│   ├── src/
-│   │   ├── components/           # React components
-│   │   │   ├── auth/            # Authentication components
-│   │   │   ├── Header/          # Navigation header
-│   │   │   ├── Landing/         # Landing page
-│   │   │   ├── PersonaSelector/ # Persona selection UI
-│   │   │   └── Transformer/     # Main transformation interface
-│   │   ├── contexts/            # React contexts (Auth, Theme)
-│   │   ├── hooks/               # Custom React hooks
-│   │   ├── lib/                 # API client and utilities
-│   │   ├── utils/               # Utility functions
-│   │   └── __tests__/           # Component and integration tests
-│   ├── Dockerfile               # Production container definition
-│   ├── nginx.conf              # Production nginx configuration
-│   └── vite.config.ts          # Vite build configuration
-│
-├── server/                    # Express backend API
-│   ├── src/
-│   │   ├── config/              # Configuration management
-│   │   ├── controllers/         # Route controllers
-│   │   ├── middleware/          # Express middleware
-│   │   │   ├── auth0-middleware.ts     # JWT authentication
-│   │   │   ├── rate-limit-middleware.ts # Rate limiting
-│   │   │   ├── usage-middleware.ts     # Usage tracking
-│   │   │   └── validation-schemas.ts   # Input validation
-│   │   ├── models/              # MongoDB data models
-│   │   ├── routes/              # API route definitions
-│   │   ├── services/            # Core business logic
-│   │   │   ├── content-transformer.ts  # Main transformation pipeline
-│   │   │   ├── openaiClient.ts         # OpenAI API integration
-│   │   │   ├── parser.ts              # Content parsing
-│   │   │   ├── promptBuilder.ts       # AI prompt construction
-│   │   │   ├── scraper.ts             # Web content extraction
-│   │   │   └── user-service.ts        # User management
-│   │   ├── types/               # TypeScript type definitions
-│   │   ├── utils/               # Utility functions and helpers
-│   │   └── __tests__/           # Service and integration tests
-│   ├── Dockerfile               # Production container definition
-│   └── tsconfig.json           # TypeScript configuration
-│
-├── shared/                    # Shared types and constants
-│   ├── constants/               # Persona definitions and prompts
-│   ├── types/                   # Shared TypeScript interfaces
-│   └── utils/                   # Shared utility functions
-│
-├── DevOps & Deployment
-│   ├── .github/workflows/       # CI/CD pipeline (GitHub Actions)
-│   ├── docker-compose.yml       # Multi-service orchestration
-│   ├── deploy.sh               # Production deployment script
-│   └── DOCKER.md               # Docker usage guide
-│
-└── Documentation
-    ├── README.md               # This comprehensive guide
-    └── LICENSE                 # License information
-```
-
----
-
-## Core Services & Architecture
-
-### Frontend Architecture
-
-**Modern React Stack**:
-- **React 19** with hooks and functional components
-- **Vite** for lightning-fast development and optimized builds
-- **TypeScript** for type safety throughout
-- **Tailwind CSS** for responsive, utility-first styling
-- **Auth0 React SDK** for seamless authentication
-- **Vitest** for comprehensive testing
-
-**Key Components**:
-- `TransformationPage`: Main UI for content transformation
-- `PersonaSelector`: Interactive persona selection with previews
-- `AuthProvider`: Centralized authentication state management
-- `ThemeProvider`: Dark/light mode with system preference detection
-
-### Backend Architecture
-
-**Enterprise-Grade Express API**:
-- **Express.js** with TypeScript for robust server-side logic
-- **MongoDB + Mongoose** for flexible data persistence
-- **Redis** for high-performance caching and session management
-- **Zod** for runtime input validation and type safety
-- **JWT + Auth0** for secure authentication and authorization
-
-**Service Layer**:
-```typescript
-// Content Transformation Pipeline
-ScraperService → ParserService → PromptBuilderService → OpenAIClientService
-```
-
-1. **ScraperService**: Extracts clean content from URLs using Puppeteer/Cheerio
-2. **ParserService**: Cleans, normalizes, and validates text content
-3. **PromptBuilderService**: Constructs persona-specific AI prompts
-4. **OpenAIClientService**: Manages OpenAI API communication with error handling
-
-### Data Models
-
-**User Management**:
-```typescript
-interface UserProfile {
-  auth0Id: string;
-  email: string;
-  displayName: string;
-  membershipTier: 'free' | 'premium' | 'admin';
-  usageStats: UsageStats;
-  preferences: UserPreferences;
-}
-```
-
-**Content Transformation**:
-```typescript
-interface TransformationRequest {
-  input: { type: 'url' | 'text'; content: string };
-  persona: PersonaId;
-  options: TransformationOptions;
-}
-```
-
----
-
-## Available Personas
-
-Each persona includes carefully crafted system prompts, tone modifiers, and example outputs:
-
-| Persona | Description | Style |
-|---------|-------------|-------|
-| **ELI5** | Simple, fun explanations anyone can understand | Educational clarity |
-| **Medieval Knight** | Heroic tales of honor and chivalry | Epic fantasy |
-| **Anime Hacker** | Energetic, tech-savvy digital warrior | Cyberpunk anime |
-| **Plague Doctor** | Mysterious, medieval medical practitioner | Dark historical |
-| **Robot** | Logical, systematic artificial intelligence | Scientific precision |
-
----
-
-## Security & Authentication
-
-### Auth0 Integration
-- Multi-provider login: Google, Apple, Magic Link, username/password
-- JWT-based API security with automatic token refresh
-- Custom claims for user roles and permissions
-- Secure logout with token revocation
-
-### Security Features
-- Input validation with Zod schemas on all endpoints
-- Rate limiting with Redis-backed counters
-- CORS protection with configurable origins
-- SQL injection prevention through Mongoose ODM
-- XSS protection with Content Security Policy headers
-- Secure headers including HSTS, X-Frame-Options, X-Content-Type-Options
-
-### Usage & Rate Limiting
-```typescript
-// Tier-based rate limits
-const rateLimits = {
-  free: { requests: 10, window: '1h' },
-  premium: { requests: 100, window: '1h' },
-  admin: { requests: 1000, window: '1h' }
-};
-```
-
----
-
-## Testing & Quality
-
-### Test Coverage
-- Unit tests for all services and utilities
-- Integration tests for API endpoints
-- Component tests for React components
-- E2E scenarios for critical user flows
-
-### Code Quality
-- ESLint with TypeScript rules
-- Prettier for consistent formatting
-- Husky pre-commit hooks
-- TypeScript strict mode
-
-### Running Tests
 ```bash
 # Run all tests
-npm run test:all
+npm test
 
-# Coverage reports  
-npm run test:coverage
+# Run tests for specific workspace
+npm run test --workspace=server
+npm run test --workspace=client
 
-# Watch mode for development
-npm run test:watch
+# Run tests in watch mode
+npm run test:watch --workspace=server
+```
+
+### Code Quality
+
+```bash
+# Lint all workspaces
+npm run lint
+
+# Format all code
+npm run format
+
+# Type check
+npm run type-check --workspace=shared
 ```
 
 ---
 
-## Deployment
+## 🐳 Docker Deployment
 
-### Docker Setup
-- Multi-stage builds for optimized images
-- Security scanning with non-root containers
-- Health checks for all services
-- Volume persistence for databases
+### Development
 
-### CI/CD Pipeline
-- Automated testing on every push and PR
-- Security scanning for vulnerabilities
-- Docker image building and registry push
-- Deployment automation
+```bash
+# Start all services
+docker-compose up
 
-### Monitoring
-- Health check endpoints for uptime monitoring
-- Structured logging with Winston
-- Error tracking integration ready
-- Performance metrics collection
+# Start specific services
+docker-compose up frontend backend
+
+# View logs
+docker-compose logs -f backend
+```
+
+### Production
+
+```bash
+# Build production images
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+
+# Deploy
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
 
 ---
 
-## API Reference
+## 📦 Package Management
+
+### Adding Dependencies
+
+```bash
+# Add to root (shared dev dependencies)
+npm install -D eslint-plugin-example
+
+# Add to specific workspace
+npm install express --workspace=server
+npm install react-router-dom --workspace=client
+
+# Add to shared package
+npm install zod --workspace=shared
+```
+
+### Workspace Scripts
+
+The root `package.json` includes these workspace-aware scripts:
+
+- `npm run build`: Builds all workspaces in dependency order
+- `npm run test`: Runs tests across all workspaces
+- `npm run lint`: Lints all workspaces
+- `npm run start:dev`: Starts development servers
+- `npm run clean`: Cleans build artifacts
+
+---
+
+## 🔧 Configuration
+
+### TypeScript
+
+Each workspace has its own `tsconfig.json` with proper references:
+
+- **Root**: Orchestrates all workspace builds
+- **Shared**: Compiles to `dist/` for consumption by other workspaces
+- **Server**: References shared package, compiles to `dist/`
+- **Client**: References shared package, Vite handles bundling
+
+### Path Mapping
+
+Both server and client are configured to import from the shared package:
+
+```typescript
+// In server or client code
+import { ApiResponse, ErrorCode } from '@pagepersonai/shared';
+import { getAllClientPersonas } from '@pagepersonai/shared';
+```
+
+---
+
+## 🚀 Deployment
+
+### Environment Variables
+
+Make sure to set these in your production environment:
+
+```bash
+# Server
+MONGODB_URI=mongodb://production-uri
+REDIS_URL=redis://production-uri
+OPENAI_API_KEY=prod-key
+AUTH0_DOMAIN=prod-domain.auth0.com
+AUTH0_CLIENT_ID=prod-client-id
+AUTH0_CLIENT_SECRET=prod-client-secret
+
+# Client (build time)
+VITE_AUTH0_DOMAIN=prod-domain.auth0.com
+VITE_AUTH0_CLIENT_ID=prod-client-id
+VITE_API_URL=https://api.yourapp.com
+```
+
+### Build Process
+
+```bash
+# Build all workspaces
+npm run build
+
+# The build artifacts will be in:
+# - shared/dist/
+# - server/dist/
+# - client/dist/
+```
+
+---
+
+## 🧪 Testing
+
+### Test Structure
+
+```
+shared/          # No tests (just types/constants)
+server/src/
+├── __tests__/           # Integration tests
+├── services/__tests__/  # Unit tests for services
+├── utils/__tests__/     # Utility tests
+└── middleware/__tests__/ # Middleware tests
+
+client/src/
+├── __tests__/           # App-level tests
+├── components/__tests__/ # Component tests
+├── hooks/__tests__/     # Hook tests
+└── utils/__tests__/     # Utility tests
+```
+
+### Running Tests
+
+```bash
+# All tests
+npm test
+
+# Watch mode
+npm run test:watch --workspace=server
+
+# Coverage
+npm run test:coverage --workspace=server
+```
+
+---
+
+## 📚 API Documentation
+
+### Endpoints
+
+- `POST /api/transform` - Transform content with selected persona
+- `GET /api/health` - Health check
+- `GET /api/user/profile` - User profile information
+- `POST /api/user/sync` - Sync user data with Auth0
 
 ### Authentication
-All protected endpoints require JWT bearer token:
-```
+
+All API endpoints require a valid Auth0 JWT token in the Authorization header:
+
+```bash
 Authorization: Bearer <jwt_token>
 ```
 
-### Core Endpoints
+---
 
-#### Transform Content
-```http
-POST /api/transform
-Content-Type: application/json
+## 🤝 Contributing
 
-{
-  "url": "https://example.com/article",
-  "persona": "hemingway"
-}
-```
+### Development Setup
 
-#### Transform Text Directly
-```http
-POST /api/transform/text
-Content-Type: application/json
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Ensure all tests pass: `npm test`
+5. Ensure code is formatted: `npm run format`
+6. Submit a pull request
 
-{
-  "text": "Your content here...",
-  "persona": "medieval-knight"
-}
-```
+### Code Style
 
-#### Get Available Personas
-```http
-GET /api/transform/personas
-```
-
-#### User Profile Management
-```http
-GET /api/user/profile
-PUT /api/user/profile
-```
-
-### Response Format
-```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
-```
+- TypeScript strict mode enabled
+- ESLint + Prettier for code formatting
+- Conventional commits for commit messages
+- Test coverage expected for new features
 
 ---
 
-## Development Guide
+## 📄 License
 
-### Environment Configuration
-
-**Server (.env)**:
-```bash
-# Core Configuration
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/pagepersonai
-
-# Authentication  
-AUTH0_DOMAIN=your-domain.auth0.com
-AUTH0_AUDIENCE=https://api.pagepersonai.com
-JWT_SECRET=your-32-character-secret-key
-
-# AI Integration
-OPENAI_API_KEY=sk-your-openai-key
-OPENAI_MODEL=gpt-4o
-
-# Optional Services
-REDIS_URL=redis://localhost:6379
-ALLOWED_ORIGINS=https://pagepersonai.com,https://www.pagepersonai.com
-LOG_LEVEL=info
-```
-
-**Client (.env.local)**:
-```bash
-VITE_API_URL=http://localhost:5000/api
-VITE_AUTH0_DOMAIN=your-domain.auth0.com  
-VITE_AUTH0_CLIENT_ID=your-client-id
-VITE_AUTH0_AUDIENCE=https://api.pagepersonai.com
-```
-
-### Adding New Personas
-
-1. **Define persona in shared constants**:
-```typescript
-// shared/constants/personas.ts
-export const newPersona: FullPersona = {
-  id: 'new-persona',
-  name: 'New Persona',
-  description: 'Description of the persona',
-  systemPrompt: 'AI instruction prompt...',
-  // ... other properties
-};
-```
-
-2. **Add avatar image**:
-```bash
-# Add to client/public/images/persona_avatars/
-new-persona.png
-```
-
-3. **Update persona constants**:
-```typescript
-// shared/constants/personas.ts
-export const FULL_PERSONAS = {
-  // ... existing personas
-  'new-persona': newPersona
-};
-```
-
-### Performance Optimization
-
-**Frontend**:
-- Code splitting with dynamic imports
-- Image optimization with proper formats
-- Lazy loading for non-critical components
-- Service worker for offline functionality
-
-**Backend**:
-- MongoDB indexing for frequent queries
-- Redis caching for expensive operations
-- Connection pooling for database efficiency
-- Response compression middleware
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Contributing
+## 🙏 Acknowledgments
 
-We welcome contributions! Please follow these guidelines:
-
-### Development Workflow
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'Add amazing feature'`
-4. **Push** to the branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
-
-### Code Standards
-- Follow existing TypeScript patterns
-- Add tests for new functionality
-- Update documentation for API changes
-- Ensure all tests pass before submitting
-
-### Areas for Contribution
-- New persona development
-- Internationalization support
-- Mobile app development
-- Third-party integrations
-- Analytics and insights
-- UI/UX improvements
+- OpenAI for the GPT API
+- Auth0 for authentication services
+- The open-source community for amazing tools and libraries
 
 ---
 
-## License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-- **OpenAI** for providing the GPT models that power our transformations
-- **Auth0** for robust authentication infrastructure  
-- **MongoDB** for flexible data storage
-- **Vercel** for inspiration on modern full-stack architecture
-- **Tailwind Labs** for the excellent CSS framework
-- The **open-source community** for the incredible tools that make this possible
-
----
-
-## Support
-
-- **Documentation**: [GitHub Wiki](https://github.com/yourusername/PagePersonAI/wiki)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/PagePersonAI/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/PagePersonAI/discussions)
-- **Email**: support@pagepersonai.com
-
----
-
-**Made with care by the PagePersonAI Team**
-
-Star us on GitHub if you find this project useful!
+*Ready to transform web content? Get started with the installation guide above!*

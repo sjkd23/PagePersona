@@ -19,8 +19,8 @@ import { getAllClientPersonas } from '@pagepersonai/shared';
 import { optionalAuth0 } from '../middleware/auth0-middleware';
 import { checkUsageLimit } from '../middleware/usage-limit-middleware';
 import { sendSuccess, sendInternalError } from '../utils/response-helpers';
-import { validateBody } from '../middleware/zod-validation';
-import { transformSchemas } from '../middleware/validation-schemas';
+import { validateRequest } from '../middleware/validation';
+import { transformSchema, transformTextSchema } from '../schemas/transform.schema';
 import { logger } from '../utils/logger';
 import { HttpStatus } from '../constants/http-status';
 import { createTransformationService } from '../services/transformation-service';
@@ -90,7 +90,7 @@ router.get('/personas', (_req: Request, res: Response) => {
  */
 router.post(
   '/',
-  /*transformRateLimit,*/ validateBody(transformSchemas.transformUrl),
+  /*transformRateLimit,*/ validateRequest(transformSchema, 'body'),
   optionalAuth0,
   checkUsageLimit(),
   async (req: Request, res: Response): Promise<void> => {
@@ -183,7 +183,7 @@ router.post(
  */
 router.post(
   '/text',
-  /*transformRateLimit,*/ validateBody(transformSchemas.transformText),
+  /*transformRateLimit,*/ validateRequest(transformTextSchema, 'body'),
   optionalAuth0,
   checkUsageLimit(),
   async (req: Request, res: Response): Promise<void> => {

@@ -10,10 +10,11 @@
     "./constants": "./constants/index.ts"
   },
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "build": "tsc -b .",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"No tests for shared package\""
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

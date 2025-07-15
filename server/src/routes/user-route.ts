@@ -30,8 +30,8 @@ import {
   profileUpdateRateLimit,
   testEndpointRateLimit,
 } from '../middleware/simple-rate-limit';
-import { validateBody, validateQuery } from '../middleware/zod-validation';
-import { userSchemas } from '../middleware/validation-schemas';
+import { validateRequest } from '../middleware/validation';
+import { userProfileUpdateSchema, userProfileQuerySchema } from '../schemas/user.schema';
 import { HttpStatus } from '../constants/http-status';
 import { userService } from '../services/user-service';
 import { logger } from '../utils/logger';
@@ -52,7 +52,7 @@ const router = express.Router();
  */
 router.get(
   '/profile',
-  validateQuery(userSchemas.profileQuery),
+  validateRequest(userProfileQuerySchema, 'query'),
   verifyAuth0Token,
   syncAuth0User,
   async (req: Request, res: Response): Promise<void> => {
@@ -109,7 +109,7 @@ router.get(
 router.put(
   '/profile',
   profileUpdateRateLimit,
-  validateBody(userSchemas.updateProfile),
+  validateRequest(userProfileUpdateSchema, 'body'),
   verifyAuth0Token,
   syncAuth0User,
   async (req: Request, res: Response): Promise<void> => {

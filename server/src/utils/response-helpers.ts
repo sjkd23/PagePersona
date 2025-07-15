@@ -114,6 +114,14 @@ export const errorHandler: ErrorHandlerFunction = (err, req, res, _next) => {
 
   // Handle specific error types
   if (err && typeof err === 'object' && 'name' in err) {
+    if (err.name === 'ZodError') {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        error: 'Validation failed',
+        issues: (err as any).issues,
+      });
+      return;
+    }
+
     if (err.name === 'ValidationError') {
       sendValidationError(res, (err as Error).message);
       return;

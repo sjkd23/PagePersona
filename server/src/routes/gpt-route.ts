@@ -10,8 +10,8 @@
  */
 
 import express from 'express';
-import { validateBody } from '../middleware/zod-validation';
-import { chatSchemas } from '../middleware/validation-schemas';
+import { validateRequest } from '../middleware/validation';
+import { chatMessageSchema } from '../schemas/chat.schema';
 import promptCall from '../utils/gpt/prompt-call';
 
 const router = express.Router();
@@ -28,6 +28,6 @@ const router = express.Router();
  * @returns {object} GPT response or error message
  * @middleware validateBody - Validates message format using chat schema
  */
-router.post('/chat', validateBody(chatSchemas.chatMessage), promptCall);
+router.post('/chat', validateRequest(chatMessageSchema, 'body'), promptCall);
 
 export default router;
