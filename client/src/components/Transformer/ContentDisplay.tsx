@@ -107,6 +107,7 @@ export default function ContentDisplay({
             src={content.persona.avatarUrl}
             alt={content.persona.label}
             className="w-full h-full rounded-full object-cover"
+            loading="lazy"
           />
         </div>
         <div>

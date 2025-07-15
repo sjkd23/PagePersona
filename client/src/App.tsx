@@ -15,17 +15,20 @@
  * - SEO optimization with structured data
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense, lazy } from 'react';
 import { Auth0Provider } from './providers/Auth0Provider';
 import { useAuth } from './hooks/useAuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import PageTransformer from './components/Transformer/TransformationPage';
-import LandingPage from './components/Landing/LandingPage';
-import UserProfile from './components/auth/UserProfile';
 import ErrorBoundary from './components/Transformer/ErrorBoundary';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { SEOUtils } from './utils/seoUtils';
+import Spinner from './components/common/Spinner';
+
+// Lazy load heavy components
+const PageTransformer = lazy(() => import('./components/Transformer/TransformationPage'));
+const LandingPage = lazy(() => import('./components/Landing/LandingPage'));
+const UserProfile = lazy(() => import('./components/auth/UserProfile'));
 
 /**
  * Application Content Component
@@ -152,7 +155,9 @@ function AppContent() {
           onTransform={login} // Transform action triggers login for unauthenticated users
         />
         <main role="main">
-          <LandingPage onShowLogin={login} onShowSignup={signup} />
+          <Suspense fallback={<Spinner size="large" message="Loading landing page..." />}>
+            <LandingPage onShowLogin={login} onShowSignup={signup} />
+          </Suspense>
         </main>
         <Footer />
       </div>
@@ -177,7 +182,9 @@ function AppContent() {
           }}
         />
         <main role="main" className="max-w-4xl mx-auto px-6 pt-8">
-          <UserProfile />
+          <Suspense fallback={<Spinner size="large" message="Loading profile..." />}>
+            <UserProfile />
+          </Suspense>
         </main>
         <Footer />
       </div>
@@ -202,12 +209,14 @@ function AppContent() {
           }}
         />
         <main role="main">
-          <LandingPage
-            onShowLogin={() => setCurrentPage('transformer')}
-            onShowSignup={() => setCurrentPage('transformer')}
-            isAuthenticated={true}
-            userName={fullName}
-          />
+          <Suspense fallback={<Spinner size="large" message="Loading landing page..." />}>
+            <LandingPage
+              onShowLogin={() => setCurrentPage('transformer')}
+              onShowSignup={() => setCurrentPage('transformer')}
+              isAuthenticated={true}
+              userName={fullName}
+            />
+          </Suspense>
         </main>
         <Footer />
       </div>
@@ -231,7 +240,9 @@ function AppContent() {
         }}
       />
       <main role="main">
-        <PageTransformer />
+        <Suspense fallback={<Spinner size="large" message="Loading transformer..." />}>
+          <PageTransformer />
+        </Suspense>
       </main>
       <Footer />
     </div>

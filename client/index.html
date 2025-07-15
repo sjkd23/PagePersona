@@ -90,6 +90,11 @@
     <link rel="dns-prefetch" href="//api.openai.com" />
     <link rel="dns-prefetch" href="//auth0.com" />
 
+    <!-- Module preload for critical chunks -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+    <link rel="modulepreload" href="/src/App.tsx" />
+    <link rel="modulepreload" href="/src/components/common/Spinner.tsx" />
+
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
       {

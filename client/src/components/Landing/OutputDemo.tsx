@@ -17,7 +17,7 @@ export default function OutputDemo({
     <div className={`output-card ${className}`}>
       <div className="output-header">
         <div className="persona-avatar-large">
-          <img src={avatarSrc} alt={avatarAlt} />
+          <img src={avatarSrc} alt={avatarAlt} loading="lazy" />
         </div>
       </div>
       <div className="output-content">

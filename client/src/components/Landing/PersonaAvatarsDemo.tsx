@@ -43,7 +43,7 @@ export default function PersonaAvatarsDemo({
       <div className="persona-avatars">
         {personas.map((persona) => (
           <div key={persona.id} className={`avatar ${persona.className}`}>
-            <img src={persona.imagePath} alt={persona.alt} />
+            <img src={persona.imagePath} alt={persona.alt} loading="lazy" />
           </div>
         ))}
       </div>

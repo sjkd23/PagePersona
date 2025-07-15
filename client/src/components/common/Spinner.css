@@ -1,0 +1,57 @@
+/**
+ * Spinner Component Styles
+ */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.spinner {
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-small {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 2px;
+}
+
+.spinner-medium {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-width: 3px;
+}
+
+.spinner-large {
+  width: 4rem;
+  height: 4rem;
+  border-width: 4px;
+}
+
+.spinner-message {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Dark mode support */
+.dark .spinner {
+  border-color: #374151;
+  border-top-color: #8b5cf6;
+}
+
+.dark .spinner-message {
+  color: #9ca3af;
+}

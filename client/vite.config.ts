@@ -20,9 +20,11 @@ export default defineConfig({
       output: {
         // Manual chunk splitting for better caching
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'auth-vendor': ['@auth0/auth0-react'],
-          'ui-vendor': ['@headlessui/react', 'react-markdown'],
+          vendor: ['react', 'react-dom'],
+          auth: ['@auth0/auth0-react'],
+          markdown: ['react-markdown'],
+          personas: ['./src/components/PersonaSelector/PersonaSelector.tsx'],
+          ui: ['@headlessui/react'],
         },
       },
     },

@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
-import PersonaSelector from '../PersonaSelector';
 import UrlInput from '../Transformer/UrlInput';
 import ContentDisplay from './ContentDisplay';
 import Footer from '../Footer';
@@ -8,7 +7,11 @@ import TransformationHistory from '../Transformer/TransformationHistory';
 import { useAuth } from '../../hooks/useAuthContext';
 import { useTransformationHistory } from '../../hooks/useTransformationHistory';
 import ApiService, { setTokenGetter } from '../../lib/apiClient';
+import Spinner from '../common/Spinner';
 import './styles/PageTransformer.css';
+
+// Lazy load PersonaSelector
+const PersonaSelector = lazy(() => import('../PersonaSelector'));
 
 export default function PageTransformer() {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
@@ -205,10 +208,12 @@ export default function PageTransformer() {
           {/* Left Column - Persona */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose your persona</h2>
-            <PersonaSelector
-              selectedPersona={selectedPersona?.id || null}
-              onPersonaSelect={handlePersonaSelect}
-            />
+            <Suspense fallback={<Spinner size="medium" message="Loading personas..." />}>
+              <PersonaSelector
+                selectedPersona={selectedPersona?.id || null}
+                onPersonaSelect={handlePersonaSelect}
+              />
+            </Suspense>
           </div>
 
           {/* Right Column - Input and Output */}

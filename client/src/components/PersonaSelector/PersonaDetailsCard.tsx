@@ -43,7 +43,7 @@ const PersonaDetailsCard: React.FC<PersonaDetailsCardProps> = ({ persona, select
     role="button"
     aria-pressed={selected}
   >
-    <img src={persona.avatarUrl} alt={persona.label} className="persona-avatar" />
+    <img src={persona.avatarUrl} alt={persona.label} className="persona-avatar" loading="lazy" />
     <div className="persona-name">{persona.label}</div>
     <div className="persona-description">{persona.description}</div>
     {persona.exampleTexts && (

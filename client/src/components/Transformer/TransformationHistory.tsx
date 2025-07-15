@@ -97,6 +97,7 @@ export default function TransformationHistory({
                           src={item.persona.avatarUrl}
                           alt={item.persona.label}
                           className="w-full h-full rounded-full object-cover"
+                          loading="lazy"
                         />
                       </div>
                       <div className="transformation-history-persona-info">

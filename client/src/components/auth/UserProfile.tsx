@@ -208,7 +208,12 @@ export default function UserProfile() {
           <div className="profile-header-content">
             <div className="profile-info">
               {user.picture ? (
-                <img src={user.picture} alt={user.name || 'User'} className="profile-avatar" />
+                <img
+                  src={user.picture}
+                  alt={user.name || 'User'}
+                  className="profile-avatar"
+                  loading="lazy"
+                />
               ) : (
                 <div className="profile-avatar-placeholder">
                   {(user.name || user.nickname || 'U')[0].toUpperCase()}

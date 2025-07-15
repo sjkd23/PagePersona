@@ -14,6 +14,7 @@ const PersonaDetails: React.FC<PersonaDetailsProps> = ({ persona }) => (
           src={persona.avatarUrl}
           alt={persona.label}
           className="w-full h-full rounded-full object-cover"
+          loading="lazy"
         />
       </div>
       <div className="flex-1 min-w-0">

@@ -121,6 +121,7 @@ export default function TransformerForm({
                         src={selectedPersona.avatarUrl}
                         alt={selectedPersona.label}
                         className="w-full h-full rounded-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                     <div className="persona-details">

@@ -13,13 +13,16 @@
  * - Responsive design with accessibility features
  */
 
-import { useState, useEffect, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import TransformationHistory from './TransformationHistory';
-import ResultDisplay from './ResultDisplay';
 import ErrorDisplay from './ErrorDisplay';
 import { useTransformation } from '../../hooks/useTransformation';
+import Spinner from '../common/Spinner';
 import './styles/TransformationPage.css';
+
+// Lazy load heavy components
+const ResultDisplay = lazy(() => import('./ResultDisplay'));
+const LazyMarkdown = lazy(() => import('../common/LazyMarkdown'));
 
 /**
  * Main transformation interface component
@@ -81,27 +84,6 @@ export default function TransformationPage() {
   ) => {
     actions.handleRestoreTransformation(item);
     setIsHistoryOpen(false);
-  };
-
-  const markdownComponents = {
-    p: ({ ...props }) => <p className="dark:text-slate-200 markdown-p" {...props} />,
-    strong: ({ ...props }) => <strong className="dark:text-slate-100 markdown-strong" {...props} />,
-    em: ({ ...props }) => <em className="dark:text-slate-200 markdown-em" {...props} />,
-    h1: ({ ...props }) => <h1 className="dark:text-slate-100 markdown-h1" {...props} />,
-    h2: ({ ...props }) => <h2 className="dark:text-slate-100 markdown-h2" {...props} />,
-    h3: ({ ...props }) => <h3 className="dark:text-slate-100 markdown-h3" {...props} />,
-    ul: ({ ...props }) => <ul className="dark:text-slate-200 markdown-ul" {...props} />,
-    ol: ({ ...props }) => <ol className="dark:text-slate-200 markdown-ol" {...props} />,
-    li: ({ ...props }) => <li className="dark:text-slate-200 markdown-li" {...props} />,
-    blockquote: ({ ...props }) => (
-      <blockquote
-        className="dark:text-slate-200 dark:border-slate-600 markdown-blockquote"
-        {...props}
-      />
-    ),
-    code: ({ ...props }) => (
-      <code className="dark:bg-slate-700 dark:text-slate-200 markdown-code" {...props} />
-    ),
   };
 
   return (
@@ -199,6 +181,7 @@ export default function TransformationPage() {
                                   src={state.selectedPersona.avatarUrl}
                                   alt={state.selectedPersona.label}
                                   className="w-full h-full rounded-full object-cover"
+                                  loading="lazy"
                                 />
                               </div>
                               <span className="persona-name-small">
@@ -238,6 +221,7 @@ export default function TransformationPage() {
                                   src={persona.avatarUrl}
                                   alt={persona.label}
                                   className="w-full h-full rounded-full object-cover"
+                                  loading="lazy"
                                 />
                               </div>
                               <div className="persona-info-small">
@@ -267,6 +251,7 @@ export default function TransformationPage() {
                               src={state.selectedPersona.avatarUrl}
                               alt={state.selectedPersona.label}
                               className="w-full h-full rounded-full object-cover"
+                              loading="lazy"
                             />
                           </div>
                           <div className="persona-details">
@@ -523,9 +508,9 @@ export default function TransformationPage() {
                   <div className="card-content">
                     <div className="content-display">
                       <div className="content-text-box">
-                        <ReactMarkdown components={markdownComponents}>
-                          {state.content.originalContent}
-                        </ReactMarkdown>
+                        <Suspense fallback={<Spinner size="small" message="Loading content..." />}>
+                          <LazyMarkdown>{state.content.originalContent}</LazyMarkdown>
+                        </Suspense>
                       </div>
                     </div>
                   </div>
@@ -548,12 +533,14 @@ export default function TransformationPage() {
 
             {/* Transformed Results */}
             <div className="result-card">
-              <ResultDisplay
-                content={state.content}
-                isLoading={state.isLoading}
-                onCopyToClipboard={copyToClipboard}
-                copySuccess={copySuccess}
-              />
+              <Suspense fallback={<Spinner size="medium" message="Loading results..." />}>
+                <ResultDisplay
+                  content={state.content}
+                  isLoading={state.isLoading}
+                  onCopyToClipboard={copyToClipboard}
+                  copySuccess={copySuccess}
+                />
+              </Suspense>
             </div>
           </div>
         )}
