@@ -473,10 +473,10 @@ export const newPersona: FullPersona = {
 new-persona.png
 ```
 
-3. **Update persona mapping**:
+3. **Update persona constants**:
 ```typescript
-// shared/utils/persona-mapping.ts
-export const personaMapping = {
+// shared/constants/personas.ts
+export const FULL_PERSONAS = {
   // ... existing personas
   'new-persona': newPersona
 };

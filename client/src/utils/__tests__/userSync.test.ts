@@ -98,7 +98,7 @@ describe('userSync', () => {
 
       expect(result).toEqual(mockUserProfile)
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:5001/api/user/profile',
+        'http://localhost:5000/api/user/profile',
         {
           method: 'GET',
           headers: {
@@ -132,11 +132,11 @@ describe('userSync', () => {
       expect(result).toEqual(mockUserProfile)
       expect(mockFetch).toHaveBeenCalledTimes(2)
       expect(mockFetch).toHaveBeenNthCalledWith(1,
-        'http://localhost:5001/api/user/profile',
+        'http://localhost:5000/api/user/profile',
         expect.any(Object)
       )
       expect(mockFetch).toHaveBeenNthCalledWith(2,
-        'http://localhost:5001/api/user/sync',
+        'http://localhost:5000/api/user/sync',
         {
           method: 'POST',
           headers: {

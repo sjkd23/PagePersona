@@ -38,9 +38,6 @@ export default defineConfig({
         'src/config/web-scraper-config.ts',
         // Type definitions
         'src/types/**/*.ts',
-        // Generated or legacy files
-        'src/middleware/auth0-middleware-simple.ts', // Legacy
-        'src/utils/gpt/prompt-call-new.ts', // Newer version exists
       ],
       // Include specific patterns for comprehensive coverage
       include: [
