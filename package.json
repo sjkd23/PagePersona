@@ -6,7 +6,11 @@
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "start:dev": "cross-env NODE_ENV=development npm run --workspace=client dev & npm run --workspace=server dev",
+    "start:prod": "cross-env NODE_ENV=production npm run --workspace=client build && npm run --workspace=server build && npm run --workspace=server start",
+    "build": "npm run --workspace=client build && npm run --workspace=server build",
+    "test": "npm run --workspace=client test && npm run --workspace=server test"
   },
   "workspaces": [
     "client",
@@ -16,6 +20,7 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",

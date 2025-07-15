@@ -11,6 +11,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Environment file configuration
+  envDir: path.resolve(__dirname, '..'),
+  envPrefix: 'VITE_',
   build: {
     // Optimize for better SEO and performance
     rollupOptions: {

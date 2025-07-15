@@ -123,18 +123,23 @@ graph TB
 1. **Install dependencies**:
    ```bash
    npm install
-   cd client && npm install
-   cd ../server && npm install
    ```
 
 2. **Configure environment**:
    ```bash
-   cp server/.env.example server/.env
-   cp client/.env.example client/.env.local
-   # Edit both files with your credentials
+   # Copy and configure environment files
+   cp .env.development .env.development.local
+   cp .env.production .env.production.local
+   # Edit the .local files with your credentials
    ```
 
 3. **Start development servers**:
+   ```bash
+   # Start both client and server in development mode
+   npm run start:dev
+   ```
+
+   Or run them separately:
    ```bash
    # Terminal 1 - Backend
    cd server && npm run dev
@@ -142,6 +147,54 @@ graph TB
    # Terminal 2 - Frontend  
    cd client && npm run dev
    ```
+
+4. **For production build**:
+   ```bash
+   npm run start:prod
+   ```
+
+### Getting Started
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/PagePersonAI.git
+   cd PagePersonAI
+   ```
+
+2. **Set up environment variables**:
+   ```bash
+   # Copy template files
+   cp .env.development .env.development.local
+   cp .env.production .env.production.local
+   ```
+
+3. **Configure your environment variables** in `.env.development.local`:
+   ```bash
+   # Required Variables
+   OPENAI_API_KEY=your_openai_api_key
+   AUTH0_DOMAIN=your-domain.auth0.com
+   AUTH0_CLIENT_ID=your_client_id
+   AUTH0_CLIENT_SECRET=your_client_secret
+   AUTH0_AUDIENCE=your_api_identifier
+   MONGODB_URI=mongodb://localhost:27017/pagepersona
+   JWT_SECRET=your-super-secret-jwt-key-change-in-production-min-32-chars
+   
+   # Client Variables (VITE_ prefix)
+   VITE_AUTH0_DOMAIN=your-domain.auth0.com
+   VITE_AUTH0_CLIENT_ID=your_client_id
+   VITE_AUTH0_AUDIENCE=your_api_identifier
+   ```
+
+4. **Install dependencies and start**:
+   ```bash
+   npm install
+   npm run start:dev
+   ```
+
+5. **Access your application**:
+   - **Frontend**: http://localhost:5173
+   - **Backend API**: http://localhost:5000
+   - **Health Check**: http://localhost:5000/api/health
 
 ---
 
