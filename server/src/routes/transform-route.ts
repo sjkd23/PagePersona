@@ -26,6 +26,8 @@ import { HttpStatus } from '../constants/http-status';
 import { createTransformationService } from '../services/transformation-service';
 import { cacheService } from '../services/cache-service';
 import { ErrorCode, ErrorMapper } from '@pagepersonai/shared';
+import { sanitize } from '../utils/sanitizer';
+import type { TransformationResult } from '../services/content-transformer';
 
 const router = express.Router();
 
@@ -231,10 +233,14 @@ router.post(
       });
 
       if (result.success && result.data) {
-        res.json(result.data);
+        // Sanitize the transformation result to prevent XSS
+        const sanitizedResult = sanitizeTransformationResult(result.data);
+        res.json(sanitizedResult);
         return;
       } else if (result.data) {
-        res.json(result.data);
+        // Sanitize the transformation result to prevent XSS
+        const sanitizedResult = sanitizeTransformationResult(result.data);
+        res.json(sanitizedResult);
         return;
       } else {
         // Service failed completely - return enhanced error with user-friendly message
@@ -381,7 +387,9 @@ router.post(
       });
 
       if (result.success && result.data) {
-        res.json(result.data);
+        // Sanitize the transformation result to prevent XSS
+        const sanitizedResult = sanitizeTransformationResult(result.data);
+        res.json(sanitizedResult);
         return;
       } else {
         // Use enhanced error information from service
@@ -456,3 +464,26 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export default router;
+
+/**
+ * Sanitize transformation result to prevent XSS attacks
+ *
+ * Applies HTML sanitization to user-supplied and AI-generated content
+ * to ensure safe rendering in web applications.
+ */
+function sanitizeTransformationResult(result: TransformationResult): TransformationResult {
+  return {
+    ...result,
+    transformedContent: sanitize(result.transformedContent),
+    originalContent: {
+      ...result.originalContent,
+      title: sanitize(result.originalContent.title),
+      content: sanitize(result.originalContent.content),
+    },
+    persona: {
+      ...result.persona,
+      name: sanitize(result.persona.name),
+      description: sanitize(result.persona.description),
+    },
+  };
+}
