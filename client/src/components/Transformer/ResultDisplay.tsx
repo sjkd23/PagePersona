@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { WebpageContent } from '../../../../shared/types/personas';
+import type { WebpageContent } from '@pagepersonai/shared';
 import './styles/ResultDisplay.css';
 
 interface ResultDisplayProps {

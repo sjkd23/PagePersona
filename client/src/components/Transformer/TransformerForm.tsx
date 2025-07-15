@@ -9,7 +9,7 @@
  * @module TransformerForm
  */
 
-import type { ClientPersona as Persona } from '../../../../shared/types/personas';
+import type { ClientPersona as Persona } from '@pagepersonai/shared';
 import InputModeToggle from './InputModeToggle';
 import ValidationError from './ValidationError';
 import TextInput from './TextInput';

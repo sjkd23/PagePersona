@@ -9,7 +9,7 @@
     "prepare": "husky",
     "start:dev": "cross-env NODE_ENV=development npm run --workspace=client dev & npm run --workspace=server dev",
     "start:prod": "cross-env NODE_ENV=production npm run --workspace=client build && npm run --workspace=server build && npm run --workspace=server start",
-    "build": "npm run --workspace=client build && npm run --workspace=server build",
+    "build": "tsc -b shared && tsc -b server && tsc -b client",
     "test": "npm run --workspace=client test && npm run --workspace=server test"
   },
   "workspaces": [

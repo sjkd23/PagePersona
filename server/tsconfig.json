@@ -9,7 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "declaration": false,
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
@@ -18,14 +20,17 @@
     "alwaysStrict": true,
     "moduleResolution": "node",
     "typeRoots": ["node_modules/@types", "src/types"],
-    "baseUrl": "..",
+    "baseUrl": ".",
     "paths": {
-      "@shared/*": ["shared/*"],
-      "@shared": ["shared/index"]
+      "@pagepersonai/shared/*": ["../shared/*"],
+      "@pagepersonai/shared": ["../shared"]
     }
   },
-  "include": ["src/**/*", "src/types/**/*", "../shared/types/**/*", "../shared/constants/personas.ts", "../shared/constants/prompts.ts", "../shared/constants/index.ts", "../shared/index.ts", "vitest.config.ts"],
+  "include": ["src/**/*", "src/types/**/*", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts", "**/__tests__/**/*"],
+  "references": [
+    { "path": "../shared" }
+  ],
   "ts-node": {
     "files": true
   }

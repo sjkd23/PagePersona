@@ -18,7 +18,7 @@ import { ScraperService, type ScrapedContent } from './scraper';
 import { ParserService } from './parser';
 import { PromptBuilderService } from './promptBuilder';
 import { OpenAIClientService } from './openaiClient';
-import { getPersona } from '../../../shared/constants/personas';
+import { getPersona } from '@pagepersonai/shared';
 import { logger } from '../utils/logger';
 
 /**

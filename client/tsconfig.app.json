@@ -6,6 +6,9 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -18,8 +21,8 @@
     /* Path mapping for shared types */
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "@shared": ["../shared/index"]
+      "@pagepersonai/shared/*": ["../shared/*"],
+      "@pagepersonai/shared": ["../shared"]
     },
 
     /* Linting */
@@ -29,5 +32,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    { "path": "../shared" }
+  ]
 }

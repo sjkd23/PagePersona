@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ClientPersona as Persona } from '../../../../shared/types/personas';
+import type { ClientPersona as Persona } from '@pagepersonai/shared';
 import './PersonaSelector.css';
 
 interface PersonaDetailsProps {

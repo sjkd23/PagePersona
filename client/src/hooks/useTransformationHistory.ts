@@ -21,7 +21,7 @@ import { logger } from '../utils/logger';
  * @module useTransformationHistory
  */
 
-import type { WebpageContent } from '../../../shared/types/personas';
+import type { WebpageContent } from '@pagepersonai/shared';
 
 /**
  * Local storage key for transformation history

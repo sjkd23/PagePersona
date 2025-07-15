@@ -14,8 +14,8 @@
  * - Consistent formatting across all prompts
  */
 
-import { getPersona } from '../../../shared/constants/personas';
-import { BASE_SYSTEM_PROMPT } from '../../../shared/constants/prompts';
+import { getPersona } from '@pagepersonai/shared';
+import { BASE_SYSTEM_PROMPT } from '@pagepersonai/shared';
 import type { ParsedContent } from './parser';
 import { logger } from '../utils/logger';
 

@@ -19,7 +19,7 @@ import { WebScraper } from '../utils/web-scraper';
 import { cacheService } from './cache-service';
 import { incrementUserUsage, incrementUserFailedAttempt } from '../utils/usage-tracking';
 import { logger } from '../utils/logger';
-import { ErrorCode, ErrorMapper } from '../../../shared/types/errors';
+import { ErrorCode, ErrorMapper } from '@pagepersonai/shared';
 import type { ScrapedContent } from '../utils/web-scraper';
 import type { TransformationResult } from './content-transformer';
 

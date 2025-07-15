@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { ClientPersona as Persona, WebpageContent } from '../../../../shared/types/personas';
+import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
 import PersonaSelector from '../PersonaSelector';
 import UrlInput from '../Transformer/UrlInput';
 import ContentDisplay from './ContentDisplay';

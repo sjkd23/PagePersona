@@ -15,7 +15,7 @@
  */
 
 import express, { Request, Response } from 'express';
-import { getAllClientPersonas } from '../../../shared/constants/personas';
+import { getAllClientPersonas } from '@pagepersonai/shared';
 import { optionalAuth0 } from '../middleware/auth0-middleware';
 import { checkUsageLimit } from '../middleware/usage-limit-middleware';
 import { sendSuccess, sendInternalError } from '../utils/response-helpers';
@@ -25,7 +25,7 @@ import { logger } from '../utils/logger';
 import { HttpStatus } from '../constants/http-status';
 import { createTransformationService } from '../services/transformation-service';
 import { cacheService } from '../services/cache-service';
-import { ErrorCode, ErrorMapper } from '../../../shared/types/errors';
+import { ErrorCode, ErrorMapper } from '@pagepersonai/shared';
 
 const router = express.Router();
 

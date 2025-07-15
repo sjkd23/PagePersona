@@ -16,7 +16,7 @@ import ApiService, { setTokenGetter } from '../../lib/apiClient';
 import type { UserProfile } from '../../lib/apiClient';
 import { formatProfileField, hasValidName, formatFullName } from '../../utils/profileUtils';
 import ErrorDisplay from '../Transformer/ErrorDisplay';
-import { ErrorMapper, type UserFriendlyError } from '../../../../shared/types/errors';
+import { ErrorMapper, type UserFriendlyError } from '@pagepersonai/shared';
 import type { ProfileEditForm } from './types';
 
 // Import utilities for the legacy component

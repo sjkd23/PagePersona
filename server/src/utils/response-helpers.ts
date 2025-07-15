@@ -15,7 +15,7 @@
 
 import { Response, NextFunction } from 'express';
 import { logger } from './logger';
-import type { ApiResponse } from '../../../shared/types/api';
+import type { ApiResponse } from '@pagepersonai/shared';
 import type {
   AuthenticatedRequest,
   ErrorHandlerFunction,

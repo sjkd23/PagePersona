@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react';
-import type { ClientPersona as Persona, WebpageContent } from '../../../../shared/types/personas';
+import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
 import './styles/ContentDisplay.css';
 
 /**

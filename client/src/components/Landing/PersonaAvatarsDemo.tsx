@@ -1,5 +1,5 @@
-import { getClientPersona } from '../../../../shared/constants/personas';
-import type { ClientPersona } from '../../../../shared/types/personas';
+import { getClientPersona } from '@pagepersonai/shared';
+import type { ClientPersona } from '@pagepersonai/shared';
 
 interface PersonaAvatar {
   id: string;

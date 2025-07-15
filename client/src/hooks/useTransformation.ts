@@ -16,12 +16,12 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import type { ClientPersona as Persona, WebpageContent } from '../../../shared/types/personas';
+import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
 import { useAuth } from './useAuthContext';
 import ApiService, { setTokenGetter } from '../lib/apiClient';
 import { logger } from '../utils/logger';
 import { useTransformationHistory } from './useTransformationHistory';
-import { ErrorCode } from '../../../shared/types/errors';
+import { ErrorCode } from '@pagepersonai/shared';
 
 /**
  * Enhanced error information structure

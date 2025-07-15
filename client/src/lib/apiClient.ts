@@ -15,9 +15,9 @@
  * - Environment-based configuration
  */
 
-import type { ApiResponse } from '../../../shared/types/api';
-import type { ClientPersona } from '../../../shared/types/personas';
-import { ErrorCode } from '../../../shared/types/errors';
+import type { ApiResponse } from '@pagepersonai/shared';
+import type { ClientPersona } from '@pagepersonai/shared';
+import { ErrorCode } from '@pagepersonai/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 

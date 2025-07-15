@@ -22,7 +22,7 @@ import { getUserUsageLimit } from '../utils/usage-tracking';
 import { createErrorResponse } from '../utils/userSerializer';
 import { HttpStatus } from '../constants/http-status';
 import { logger } from '../utils/logger';
-import { ErrorMapper } from '../../../shared/types/errors';
+import { ErrorMapper } from '@pagepersonai/shared';
 
 /**
  * Configuration options for usage limit checking

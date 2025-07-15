@@ -16,14 +16,14 @@
 
 import './PersonaSelector.css';
 import { useState, useEffect } from 'react';
-import type { ClientPersona as Persona } from '../../../../shared/types/personas';
+import type { ClientPersona as Persona } from '@pagepersonai/shared';
 import ApiService from '../../lib/apiClient';
 import PersonaDropdown from './PersonaDropdown';
 import PersonaDetails from './PersonaDetails';
 import PersonaLoadingState from './PersonaLoadingState';
 import PersonaErrorState from './PersonaErrorState';
 import ErrorDisplay from '../Transformer/ErrorDisplay';
-import { ErrorMapper, type UserFriendlyError } from '../../../../shared/types/errors';
+import { ErrorMapper, type UserFriendlyError } from '@pagepersonai/shared';
 
 /**
  * Persona selector component props interface

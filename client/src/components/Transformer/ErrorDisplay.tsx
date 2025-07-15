@@ -6,7 +6,7 @@
  * appropriate styling and provides clear next steps for users.
  */
 
-import { ErrorCode } from '../../../../shared/types/errors';
+import { ErrorCode } from '@pagepersonai/shared';
 import './styles/ErrorDisplay.css';
 
 /**

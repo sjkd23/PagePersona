@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TransformerForm from '../TransformerForm';
-import type { ClientPersona as Persona } from '../../../../../shared/types/personas';
+import type { ClientPersona as Persona } from '@pagepersonai/shared';
 
 // Import component mocks
 import './mocks/componentMocks';
