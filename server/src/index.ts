@@ -20,6 +20,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import compression from 'compression';
 import { ensureSafeAuth0Config } from './utils/env-validation';
 import { connectToDatabase } from './config/database';
 import { errorHandler } from './utils/response-helpers';
@@ -128,6 +129,25 @@ const allowedOrigins: string[] = process.env.ALLOWED_ORIGINS
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
+
+// Response compression with gzip and Brotli support
+app.use(
+  compression({
+    // compress responses larger than 1KB
+    threshold: '1kb',
+    // compression level (1-9, 6 is default)
+    level: 6,
+    // enable gzip compression
+    filter: (req, res) => {
+      // Don't compress responses with this request header
+      if (req.headers['x-no-compression']) {
+        return false;
+      }
+      // fallback to standard filter function
+      return compression.filter(req, res);
+    },
+  }),
+);
 
 // Setup Swagger documentation
 setupSwagger(app);
