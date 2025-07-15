@@ -36,6 +36,7 @@ import trackUsage from './middleware/usage-middleware';
 import { startSessionCleanup } from './utils/session-tracker';
 import { redisClient } from './utils/redis-client';
 import { logger } from './utils/logger';
+import { setupSwagger } from './swagger';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -128,20 +129,70 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
-// Health check endpoints
-app.get('/', (_req, res) => {
-  res.json({
-    message: 'PagePersonAI API',
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-  });
-});
+// Setup Swagger documentation
+setupSwagger(app);
 
+/**
+ * @openapi
+ * /api/health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags: [Monitor]
+ *     responses:
+ *       '200':
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: healthy
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                   description: Server uptime in seconds
+ */
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
+  });
+});
+
+/**
+ * @openapi
+ * /:
+ *   get:
+ *     summary: Root endpoint - API information
+ *     tags: [Monitor]
+ *     responses:
+ *       '200':
+ *         description: API information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: PagePersonAI API
+ *                 status:
+ *                   type: string
+ *                   example: healthy
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ */
+app.get('/', (_req, res) => {
+  res.json({
+    message: 'PagePersonAI API',
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -182,6 +233,8 @@ app
   .listen(PORT, () => {
     logger.info(`Server running on http://localhost:${PORT}`);
     logger.info('Available endpoints:');
+    logger.info('  GET  /docs - API Documentation (Swagger UI)');
+    logger.info('  GET  /docs.json - OpenAPI Specification');
     logger.info('  GET  /api/health - Health check');
     logger.info('  GET  /api/transform/personas - Available personas');
     logger.info('  POST /api/transform - Transform content from URL');

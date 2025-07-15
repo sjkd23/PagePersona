@@ -43,6 +43,28 @@ logger.transform.info('Registering transform routes', {
 /**
  * Health check endpoint for service monitoring
  *
+ * @openapi
+ * /api/transform/test:
+ *   get:
+ *     summary: Health check for transform service
+ *     tags: [Transform]
+ *     responses:
+ *       '200':
+ *         description: Service is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         message:
+ *                           type: string
+ *                           example: Transform routes are working
+ *
  * @route GET /test
  * @returns {object} Success response with status message
  */
@@ -55,6 +77,35 @@ router.get('/test', (_req: Request, res: Response) => {
  *
  * Returns the complete list of personas available for content transformation,
  * including UI-specific fields like avatar URLs and theme information.
+ *
+ * @openapi
+ * /api/transform/personas:
+ *   get:
+ *     summary: Get all available transformation personas
+ *     tags: [Transform]
+ *     responses:
+ *       '200':
+ *         description: Successfully retrieved personas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         personas:
+ *                           type: array
+ *                           items:
+ *                             $ref: '#/components/schemas/Persona'
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *
  * @route GET /personas
  * @returns {object} Success response containing personas array
@@ -78,6 +129,75 @@ router.get('/personas', (_req: Request, res: Response) => {
  * Accepts a URL and persona selection, fetches the webpage content,
  * and applies AI-powered transformation based on the chosen persona's
  * characteristics and prompts. Includes usage tracking and rate limiting.
+ *
+ * @openapi
+ * /api/transform:
+ *   post:
+ *     summary: Transform webpage content via AI persona
+ *     tags: [Transform]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TransformRequest'
+ *           examples:
+ *             basic:
+ *               summary: Basic transformation request
+ *               value:
+ *                 url: "https://example.com/article"
+ *                 persona: "professional"
+ *             with_options:
+ *               summary: Request with truncation options
+ *               value:
+ *                 url: "https://example.com/article"
+ *                 persona: "casual"
+ *                 options:
+ *                   truncateLength: 5000
+ *     responses:
+ *       '200':
+ *         description: Transformation successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/TransformResponse'
+ *       '400':
+ *         description: Invalid input or malformed URL
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '403':
+ *         description: Forbidden - blocked or restricted content
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '404':
+ *         description: Page not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '429':
+ *         description: Rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *
  * @route POST /
  * @param {string} url - Target webpage URL to transform
@@ -174,6 +294,63 @@ router.post(
  * Accepts raw text input and applies AI-powered transformation based on
  * the chosen persona's characteristics and prompts. Bypasses web scraping
  * for direct text processing scenarios.
+ *
+ * @openapi
+ * /api/transform/text:
+ *   post:
+ *     summary: Transform text content directly via AI persona
+ *     tags: [Transform]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TransformTextRequest'
+ *           examples:
+ *             basic:
+ *               summary: Basic text transformation
+ *               value:
+ *                 text: "This is some sample text to transform"
+ *                 persona: "professional"
+ *             with_options:
+ *               summary: Text transformation with options
+ *               value:
+ *                 text: "This is some sample text to transform"
+ *                 persona: "casual"
+ *                 options:
+ *                   truncateLength: 1000
+ *     responses:
+ *       '200':
+ *         description: Text transformation successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/TransformResponse'
+ *       '400':
+ *         description: Invalid input or missing required fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '429':
+ *         description: Rate limit exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *
  * @route POST /text
  * @param {string} text - Raw text content to transform

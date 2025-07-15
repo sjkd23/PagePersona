@@ -1,6 +1,6 @@
 {
   "name": "pagepersonai-monorepo",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "PagePersonAI - Transform web content with AI-powered personas",
   "private": true,
   "scripts": {
@@ -10,7 +10,8 @@
     "build": "npm run build --workspace=shared && npm run build --workspace=server && npm run build --workspace=client",
     "start:dev": "npm run start:dev --workspace=server & npm run dev --workspace=client",
     "test": "npm test --workspaces",
-    "clean": "rimraf */dist */node_modules/.cache"
+    "clean": "rimraf */dist */node_modules/.cache",
+    "release": "standard-version"
   },
   "workspaces": [
     "shared",
@@ -30,6 +31,7 @@
     "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
+    "standard-version": "^9.5.0",
     "typescript": "^5.8.3"
   },
   "lint-staged": {

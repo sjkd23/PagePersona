@@ -45,10 +45,55 @@ const router = express.Router();
  * preferences, and account settings. Supports optional include parameters
  * for additional data like stats, preferences, or history.
  *
+ * @openapi
+ * /api/user/profile:
+ *   get:
+ *     summary: Get user profile
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: include
+ *         schema:
+ *           type: string
+ *           enum: [stats, preferences, history]
+ *         description: Additional data to include in response
+ *     responses:
+ *       '200':
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/User'
+ *       '401':
+ *         description: Unauthorized - invalid or missing token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '404':
+ *         description: User profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *
  * @access Private - Requires Auth0 authentication
  * @middleware validateQuery - Validates query parameters
  * @middleware verifyAuth0Token - Verifies JWT token
- * @middleware syncAuth0User - Syncs user data with MongoDB
+ * @middleware syncAuth0User - Synchronizes Auth0 user with MongoDB
  */
 router.get(
   '/profile',

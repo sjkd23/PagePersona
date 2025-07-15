@@ -26,7 +26,7 @@ Turn boring articles into engaging narratives, clear explanations, or creative s
 4. [Environment Variables](#environment-variables)
 5. [API Documentation](#api-documentation)
 6. [Contributing](#contributing)
-7. [Versioning & Changelog](#versioning--changelog)
+7. [Versioning](#versioning)
 8. [Monorepo Structure](#monorepo-structure)
 9. [Development Workflow](#development-workflow)
 10. [Testing](#testing)
@@ -302,7 +302,10 @@ curl -X POST http://localhost:5000/api/transform \
 
 ---
 
-## Versioning & Changelog
+## Versioning
+
+We use [Semantic Versioning](https://semver.org/).  
+See the [CHANGELOG.md](./CHANGELOG.md) for details on each release.
 
 This project follows [Semantic Versioning](https://semver.org/) (SemVer):
 
@@ -310,7 +313,7 @@ This project follows [Semantic Versioning](https://semver.org/) (SemVer):
 - **MINOR** version for backwards-compatible functionality
 - **PATCH** version for backwards-compatible bug fixes
 
-### Current Version: v1.0.0
+### Current Version: v0.1.0
 
 For detailed changes, see the [CHANGELOG.md](CHANGELOG.md) file.
 
