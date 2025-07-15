@@ -25,6 +25,8 @@ import { startSessionCleanup } from './utils/session-tracker';
 import { redisClient } from './utils/redis-client';
 import { logger } from './utils/logger';
 import { setupSwagger } from './swagger';
+import { createRateLimiter } from './config/rateLimiter';
+import { rateLimitConfigs } from './config/rate-limit-configs';
 
 // Validate critical Auth0 configuration on startup
 ensureSafeAuth0Config();
@@ -142,6 +144,12 @@ app.use(
 // Setup Swagger documentation
 setupSwagger(app);
 
+// Global rate limiting middleware
+app.use(createRateLimiter(rateLimitConfigs.free));
+
+// Stricter rate limiting for transform endpoint
+app.use('/api/transform', createRateLimiter(rateLimitConfigs.premium));
+
 /**
  * @openapi
  * /api/health:
@@ -206,9 +214,12 @@ app.get('/', (_req, res) => {
   });
 });
 
+// Apply rate limiting to all API routes
+app.use(createRateLimiter(rateLimitConfigs.free));
+
 // API Routes
 app.use('/api/monitor', monitorRoutes);
-app.use('/api/transform', transformRoutes);
+app.use('/api/transform', createRateLimiter(rateLimitConfigs.premium), transformRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 
