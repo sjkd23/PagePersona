@@ -14,7 +14,7 @@
  * - Error handling with appropriate HTTP status mapping
  */
 
-import { ContentTransformer } from './content-transformer';
+import { CachedContentTransformer } from './cached-content-transformer';
 import { WebScraper } from '../utils/web-scraper';
 import { cacheService } from './cache-service';
 import { incrementUserUsage, incrementUserFailedAttempt } from '../utils/usage-tracking';
@@ -61,11 +61,11 @@ export interface TransformationServiceResult {
  */
 export class TransformationService {
   private apiKey: string;
-  private transformer: ContentTransformer;
+  private transformer: CachedContentTransformer;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
-    this.transformer = new ContentTransformer(apiKey);
+    this.transformer = new CachedContentTransformer(apiKey);
   }
 
   /**

@@ -1,12 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TransformationService } from '../transformation-service';
 import { ContentTransformer } from '../content-transformer';
+import { CachedContentTransformer } from '../cached-content-transformer';
 import { WebScraper } from '../../utils/web-scraper';
 import { cacheService } from '../cache-service';
 import { incrementUserUsage } from '../../utils/usage-tracking';
 
 // Mock dependencies
 vi.mock('../content-transformer');
+vi.mock('../cached-content-transformer');
+vi.mock('../transform-cache');
+vi.mock('../../config/redis');
 vi.mock('../../utils/web-scraper');
 vi.mock('../cache-service');
 vi.mock('../../utils/usage-tracking');
@@ -30,6 +34,7 @@ vi.mock('../../utils/logger', () => ({
 }));
 
 const MockedContentTransformer = ContentTransformer as any;
+const MockedCachedContentTransformer = CachedContentTransformer as any;
 const MockedWebScraper = WebScraper as any;
 const mockedCacheService = cacheService as any;
 const mockedIncrementUserUsage = incrementUserUsage as any;
@@ -42,14 +47,14 @@ describe('TransformationService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup the transformer mock that will be returned by the ContentTransformer constructor
+    // Setup the transformer mock that will be returned by the CachedContentTransformer constructor
     mockTransformer = {
       transformContent: vi.fn(),
       transformText: vi.fn(),
     };
 
-    // Mock the ContentTransformer constructor to return our mock
-    vi.mocked(MockedContentTransformer).mockImplementation(() => mockTransformer);
+    // Mock the CachedContentTransformer constructor to return our mock
+    vi.mocked(MockedCachedContentTransformer).mockImplementation(() => mockTransformer);
 
     service = new TransformationService(mockApiKey);
   });
