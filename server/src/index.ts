@@ -1,7 +1,7 @@
 /**
  * PagePersonAI Server Application
  *
- * Main entry point for the PagePersonAI backend API server.
+ * Main entry point for the PagePersonAI backend API server with clustering support.
  * This Express.js application provides content transformation services using AI personas,
  * user authentication via Auth0, and various supporting features like rate limiting,
  * usage tracking, and caching.
@@ -13,292 +13,89 @@
  * - MongoDB for persistent data storage
  * - Rate limiting and usage tracking
  * - Comprehensive error handling and logging
+ * - Multi-process clustering for improved performance
  *
  * @module ServerApp
  */
 
-import express from 'express';
-import cors from 'cors';
+import cluster from 'cluster';
+import os from 'os';
 import dotenv from 'dotenv';
-import compression from 'compression';
-import { ensureSafeAuth0Config } from './utils/env-validation';
-import { connectToDatabase } from './config/database';
-import { errorHandler } from './utils/response-helpers';
-import gptRoutes from './routes/gpt-route';
-
-import transformRoutes from './routes/transform-route';
-import adminRoutes from './routes/admin-route';
-import { HttpStatus } from './constants/http-status';
-import userRoutes from './routes/user-route';
-import monitorRoutes from './routes/monitor-route';
-import debugRoutes from './routes/debug-route';
-import { verifyAuth0Token, syncAuth0User } from './middleware/auth0-middleware';
-import trackUsage from './middleware/usage-middleware';
-import { startSessionCleanup } from './utils/session-tracker';
-import { redisClient } from './utils/redis-client';
+import app from './app';
+import { validateEnvironment } from './utils/env-validation';
 import { logger } from './utils/logger';
-import { setupSwagger } from './swagger';
+import { redisClient } from './utils/redis-client';
 
 // Load environment variables from .env file
 dotenv.config();
 
-// Validate critical Auth0 configuration on startup
-ensureSafeAuth0Config();
-
-// Initialize Express application
-const app = express();
-app.disable('x-powered-by'); // Security: Hide Express.js version information
-
 const PORT = process.env.PORT || 5000;
 
-// Establish database connections
-connectToDatabase();
+if (cluster.isPrimary) {
+  const cpuCount = os.cpus().length;
+  console.log(`Master ${process.pid} is running — forking ${cpuCount} workers`);
 
-/**
- * Tests Redis connection and sets up graceful fallback to in-memory storage.
- *
- * Redis is used for:
- * - Session storage and management
- * - Rate limiting counters
- * - Caching frequently accessed data
- *
- * If Redis is unavailable, the application continues with in-memory alternatives,
- * though this limits horizontal scaling and persistence across restarts.
- */
-const testRedisConnection = async () => {
-  try {
-    const testKey = 'health:check';
-    const testValue = 'pong';
+  for (let i = 0; i < cpuCount; i++) {
+    cluster.fork();
+  }
 
-    // Test set and get operations
-    const setResult = await redisClient.set(testKey, testValue, 10); // 10 second TTL
-    if (setResult) {
-      const getValue = await redisClient.get(testKey);
-      if (getValue === testValue) {
-        logger.info('Redis connected and operational');
-        // Clean up test key
-        await redisClient.del(testKey);
+  cluster.on('exit', (worker, code, signal) => {
+    console.warn(`Worker ${worker.process.pid} died (${signal || code}). Starting a new one.`);
+    cluster.fork();
+  });
+} else {
+  // Load and validate environment variables
+  validateEnvironment();
+
+  // Start the server
+  app
+    .listen(PORT, () => {
+      logger.info(`Worker ${process.pid} listening on port ${PORT}`);
+      logger.info('Available endpoints:');
+      logger.info('  GET  /docs - API Documentation (Swagger UI)');
+      logger.info('  GET  /docs.json - OpenAPI Specification');
+      logger.info('  GET  /api/health - Health check');
+      logger.info('  GET  /api/transform/personas - Available personas');
+      logger.info('  POST /api/transform - Transform content from URL');
+      logger.info('  POST /api/transform/text - Transform text content directly');
+      logger.info('  GET  /api/user/profile - User profile (protected)');
+      logger.info('  PUT  /api/user/profile - Update profile (protected)');
+      if (process.env.NODE_ENV !== 'production') {
+        logger.info('  GET  /api/debug/redis - Redis connectivity test');
+      }
+    })
+    .on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        logger.error(`Port ${PORT} is already in use`);
+        logger.error('Try: netstat -ano | findstr :' + PORT + ' to find the process');
+        process.exit(1);
       } else {
-        logger.warn(
-          'Redis connection issue - falling back to in-memory storage. Caching and rate limiting will be local to this server instance.',
-          {
-            issue: 'redis_get_mismatch',
-            impact: 'limited_caching_and_scaling',
-            fallback: 'in_memory_storage',
-          },
-        );
+        logger.error('Server error:', err);
+        process.exit(1);
       }
-    } else {
-      logger.warn(
-        'Redis not available - falling back to in-memory storage. This limits scaling and session persistence.',
-        {
-          issue: 'redis_set_failed',
-          impact: 'limited_scaling_and_persistence',
-          fallback: 'in_memory_storage',
-          recommendation: 'check_redis_service',
-        },
-      );
-    }
-  } catch (error) {
-    logger.warn(
-      'Redis not available - falling back to in-memory storage. Caching and rate limiting will not persist across server restarts.',
-      {
-        error: error instanceof Error ? error.message : 'unknown_error',
-        impact: 'no_persistence_across_restarts',
-        fallback: 'in_memory_storage',
-        recommendation: 'verify_redis_connection',
-      },
-    );
-  }
-};
-
-// Test Redis connection
-testRedisConnection();
-
-// Initialize session cleanup
-startSessionCleanup();
-
-// CORS Configuration
-const allowedOrigins: string[] = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
-      .map((origin) => origin.trim())
-      .filter((origin) => origin.length > 0)
-  : ['http://localhost:3000', 'http://localhost:5173']; // Default for development
-
-// Middleware
-app.use(cors({ origin: allowedOrigins, credentials: true }));
-app.options('*', cors({ origin: allowedOrigins, credentials: true }));
-app.use(express.json({ limit: '10mb' }));
-
-// Response compression with gzip and Brotli support
-// This middleware compresses responses larger than 1KB to reduce bandwidth usage
-// and improve performance for API responses, especially for large persona lists
-// and transformation results.
-app.use(
-  compression({
-    // compress responses larger than 1KB
-    threshold: '1kb',
-    // compression level (1-9, 6 is default)
-    level: 6,
-    // enable gzip compression
-    filter: (req, res) => {
-      // Don't compress responses with this request header
-      if (req.headers['x-no-compression']) {
-        return false;
-      }
-      // fallback to standard filter function
-      return compression.filter(req, res);
-    },
-  }),
-);
-
-// Setup Swagger documentation
-setupSwagger(app);
-
-/**
- * @openapi
- * /api/health:
- *   get:
- *     summary: Health check endpoint
- *     tags: [Monitor]
- *     responses:
- *       '200':
- *         description: Service is healthy
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: healthy
- *                 timestamp:
- *                   type: string
- *                   format: date-time
- *                 uptime:
- *                   type: number
- *                   description: Server uptime in seconds
- */
-app.get('/api/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
-});
-
-/**
- * @openapi
- * /:
- *   get:
- *     summary: Root endpoint - API information
- *     tags: [Monitor]
- *     responses:
- *       '200':
- *         description: API information
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: PagePersonAI API
- *                 status:
- *                   type: string
- *                   example: healthy
- *                 timestamp:
- *                   type: string
- *                   format: date-time
- */
-app.get('/', (_req, res) => {
-  res.json({
-    message: 'PagePersonAI API',
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// API Routes
-app.use('/api/monitor', monitorRoutes);
-app.use('/api/transform', transformRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/admin', adminRoutes);
-
-// Debug routes only available in development
-if (process.env.NODE_ENV !== 'production') {
-  app.use('/api/debug', debugRoutes);
-}
-
-app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
-
-// Error handling middleware
-app.use(errorHandler);
-
-// Protected route example
-app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {
-  res.json({
-    message: 'Authentication successful',
-    user: req.user,
-  });
-});
-
-// 404 handler
-app.use('*', (_req, res) => {
-  res.status(HttpStatus.NOT_FOUND).json({
-    success: false,
-    error: 'Route not found',
-  });
-});
-
-// Start server
-app
-  .listen(PORT, () => {
-    logger.info(`Server running on http://localhost:${PORT}`);
-    logger.info('Available endpoints:');
-    logger.info('  GET  /docs - API Documentation (Swagger UI)');
-    logger.info('  GET  /docs.json - OpenAPI Specification');
-    logger.info('  GET  /api/health - Health check');
-    logger.info('  GET  /api/transform/personas - Available personas');
-    logger.info('  POST /api/transform - Transform content from URL');
-    logger.info('  POST /api/transform/text - Transform text content directly');
-    logger.info('  GET  /api/user/profile - User profile (protected)');
-    logger.info('  PUT  /api/user/profile - Update profile (protected)');
-    if (process.env.NODE_ENV !== 'production') {
-      logger.info('  GET  /api/debug/redis - Redis connectivity test');
-    }
-  })
-  .on('error', (err: NodeJS.ErrnoException) => {
-    if (err.code === 'EADDRINUSE') {
-      logger.error(`Port ${PORT} is already in use`);
-      logger.error('Try: netstat -ano | findstr :' + PORT + ' to find the process');
-      process.exit(1);
-    } else {
-      logger.error('Server error:', err);
-      process.exit(1);
-    }
-  });
-
-// Graceful shutdown handlers
-const gracefulShutdown = async (signal: string) => {
-  logger.info(`${signal} received. Starting graceful shutdown...`);
-
-  try {
-    // Disconnect from Redis
-    await redisClient.disconnect();
-    logger.info('Redis connection closed successfully');
-
-    // Add any other cleanup here (database, etc.)
-    logger.info('Graceful shutdown completed');
-    process.exit(0);
-  } catch (error) {
-    logger.error('Error during graceful shutdown', error, {
-      signal,
-      action: 'forced_exit',
     });
-    process.exit(1);
-  }
-};
 
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  // Graceful shutdown handlers
+  const gracefulShutdown = async (signal: string) => {
+    logger.info(`${signal} received. Starting graceful shutdown...`);
+
+    try {
+      // Disconnect from Redis
+      await redisClient.disconnect();
+      logger.info('Redis connection closed successfully');
+
+      // Add any other cleanup here (database, etc.)
+      logger.info('Graceful shutdown completed');
+      process.exit(0);
+    } catch (error) {
+      logger.error('Error during graceful shutdown', error, {
+        signal,
+        action: 'forced_exit',
+      });
+      process.exit(1);
+    }
+  };
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+}
