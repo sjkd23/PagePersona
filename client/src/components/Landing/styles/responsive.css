@@ -112,12 +112,14 @@
     content: '';
     height: 2px;
     width: 100%;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        #A4BCD9 15%,
-        #294769 50%,
-        #A4BCD9 85%,
-        transparent 100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      #a4bcd9 15%,
+      #294769 50%,
+      #a4bcd9 85%,
+      transparent 100%
+    );
     margin-bottom: 2rem;
     opacity: 0.6;
     border-radius: 1px;

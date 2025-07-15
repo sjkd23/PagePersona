@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getEnvironmentInfo, validateAuth0Environment, ensureSafeAuth0Config } from '../env-validation';
+import {
+  getEnvironmentInfo,
+  validateAuth0Environment,
+  ensureSafeAuth0Config,
+} from '../env-validation';
 
 describe('Environment Validation Utilities', () => {
   const originalEnv = process.env;
@@ -48,7 +52,7 @@ describe('Environment Validation Utilities', () => {
 
       expect(result.isValid).toBe(true); // Required vars present
       expect(result.warnings.length).toBeGreaterThan(0);
-      expect(result.warnings.some(w => w.includes('AUTH0_AUDIENCE'))).toBe(true);
+      expect(result.warnings.some((w) => w.includes('AUTH0_AUDIENCE'))).toBe(true);
     });
 
     it('should warn about missing NODE_ENV', () => {
@@ -57,7 +61,7 @@ describe('Environment Validation Utilities', () => {
 
       const result = validateAuth0Environment();
 
-      expect(result.warnings.some(w => w.includes('NODE_ENV'))).toBe(true);
+      expect(result.warnings.some((w) => w.includes('NODE_ENV'))).toBe(true);
       expect(result.config.environment).toBe('development'); // Default
     });
 
@@ -89,10 +93,10 @@ describe('Environment Validation Utilities', () => {
         config: {
           domain: 'test.auth0.com',
           audience: 'https://api.test.com',
-          environment: 'test'
+          environment: 'test',
         },
         timestamp: expect.any(String),
-        nodeVersion: expect.any(String)
+        nodeVersion: expect.any(String),
       });
 
       // Validate timestamp is recent
@@ -141,7 +145,7 @@ describe('Environment Validation Utilities', () => {
       });
 
       expect(() => ensureSafeAuth0Config()).toThrow('process.exit called');
-      
+
       mockExit.mockRestore();
     });
   });

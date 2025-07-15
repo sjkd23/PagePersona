@@ -1,6 +1,6 @@
 /**
  * User Type Definitions
- * 
+ *
  * Defines user-related data structures used across the application.
  * These types handle user authentication, profile information, and chat functionality.
  */
@@ -11,11 +11,11 @@
  */
 export interface User {
   /** Unique user identifier */
-  id: string
+  id: string;
   /** User's email address (required for authentication) */
-  email: string
+  email: string;
   /** Optional display name */
-  name?: string
+  name?: string;
 }
 
 /**
@@ -24,19 +24,19 @@ export interface User {
  */
 export interface UserProfile {
   /** Unique user identifier */
-  id: string
+  id: string;
   /** Primary email address */
-  email: string
+  email: string;
   /** Full display name */
-  name?: string
+  name?: string;
   /** Profile picture URL */
-  picture?: string
+  picture?: string;
   /** Short username or handle */
-  nickname?: string
+  nickname?: string;
   /** First name */
-  given_name?: string
+  given_name?: string;
   /** Last name */
-  family_name?: string
+  family_name?: string;
 }
 
 /**
@@ -45,13 +45,13 @@ export interface UserProfile {
  */
 export interface ChatMessage {
   /** Unique message identifier */
-  id: string
+  id: string;
   /** Message text content */
-  content: string
+  content: string;
   /** True if message is from user, false if from system/AI */
-  isUser: boolean
+  isUser: boolean;
   /** When the message was created */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -60,11 +60,11 @@ export interface ChatMessage {
  */
 export interface ConversationHistory {
   /** Unique conversation identifier */
-  id: string
+  id: string;
   /** Ordered list of messages in the conversation */
-  messages: ChatMessage[]
+  messages: ChatMessage[];
   /** When the conversation was started */
-  createdAt: Date
+  createdAt: Date;
   /** When the conversation was last modified */
-  updatedAt: Date
+  updatedAt: Date;
 }

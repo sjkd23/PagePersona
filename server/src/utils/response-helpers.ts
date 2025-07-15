@@ -1,10 +1,10 @@
 /**
  * Response Helper Utilities
- * 
+ *
  * Centralized response formatting utilities ensuring consistent API response
  * structure across all endpoints. Provides standardized success/error response
  * formats with proper HTTP status codes and structured data formatting.
- * 
+ *
  * Features:
  * - Consistent response format across all endpoints
  * - Standardized error handling and formatting
@@ -16,32 +16,36 @@
 import { Response, NextFunction } from 'express';
 import { logger } from './logger';
 import type { ApiResponse } from '../../../shared/types/api';
-import type { AuthenticatedRequest, ErrorHandlerFunction, AsyncRouteHandler } from '../types/common';
+import type {
+  AuthenticatedRequest,
+  ErrorHandlerFunction,
+  AsyncRouteHandler,
+} from '../types/common';
 import { HttpStatus } from '../constants/http-status';
 
 /**
  * Send successful API response with optional data and message
- * 
+ *
  * Formats and sends a standardized success response with consistent
  * structure and appropriate HTTP status code.
- * 
+ *
  * @param res - Express response object
  * @param data - Optional response data payload
  * @param message - Optional success message
  * @param statusCode - HTTP status code (defaults to 200)
  */
 export function sendSuccess<T>(
-  res: Response, 
-  data?: T, 
-  message?: string, 
-  statusCode: number = HttpStatus.OK
+  res: Response,
+  data?: T,
+  message?: string,
+  statusCode: number = HttpStatus.OK,
 ): void {
   const response: ApiResponse<T> = {
     success: true,
     ...(message && { message }),
-    ...(data !== undefined && data !== null && { data })
+    ...(data !== undefined && data !== null && { data }),
   };
-  
+
   res.status(statusCode).json(response);
 }
 
@@ -49,17 +53,17 @@ export function sendSuccess<T>(
  * Send an error response with consistent format
  */
 export function sendError(
-  res: Response, 
-  error: string, 
+  res: Response,
+  error: string,
   statusCode: number = HttpStatus.INTERNAL_SERVER_ERROR,
-  data?: unknown
+  data?: unknown,
 ): void {
   const response: ApiResponse = {
     success: false,
     error,
-    ...(data !== undefined && { data })
+    ...(data !== undefined && { data }),
   };
-  
+
   res.status(statusCode).json(response);
 }
 
@@ -105,7 +109,7 @@ export function sendInternalError(res: Response, error: string = 'Internal serve
 export const errorHandler: ErrorHandlerFunction = (err, req, res, _next) => {
   logger.error('Unhandled route error', err as Error, {
     route: `${req.method} ${req.originalUrl}`,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
   // Handle specific error types
@@ -114,36 +118,38 @@ export const errorHandler: ErrorHandlerFunction = (err, req, res, _next) => {
       sendValidationError(res, (err as Error).message);
       return;
     }
-    
+
     if (err.name === 'UnauthorizedError') {
       sendUnauthorized(res, 'Invalid or missing authentication token');
       return;
     }
   }
-  
+
   // Handle errors with status codes
   if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
     const message = (err as { message?: string }).message || 'Resource not found';
     sendNotFound(res, message);
     return;
   }
-  
+
   // Default to internal server error
-  const errorMessage = err && typeof err === 'object' && 'message' in err 
-    ? (err as Error).message 
-    : 'Unknown error occurred';
-    
-  sendInternalError(res, 
-    process.env.NODE_ENV === 'production' 
-      ? 'Something went wrong' 
-      : errorMessage
+  const errorMessage =
+    err && typeof err === 'object' && 'message' in err
+      ? (err as Error).message
+      : 'Unknown error occurred';
+
+  sendInternalError(
+    res,
+    process.env.NODE_ENV === 'production' ? 'Something went wrong' : errorMessage,
   );
 };
 
 /**
  * Async route wrapper to catch promise rejections
  */
-export function asyncHandler(fn: AsyncRouteHandler): (req: AuthenticatedRequest, res: Response, next: NextFunction) => void {
+export function asyncHandler(
+  fn: AsyncRouteHandler,
+): (req: AuthenticatedRequest, res: Response, next: NextFunction) => void {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -158,11 +164,11 @@ export function sendResponse<T>(
   statusCode: HttpStatus,
   data?: T,
   error?: string,
-  message?: string
+  message?: string,
 ): void {
   // Determine if this is a success or error response based on status code
   const isSuccess = statusCode >= 200 && statusCode < 400;
-  
+
   if (isSuccess) {
     sendSuccess(res, data, message, statusCode);
   } else {

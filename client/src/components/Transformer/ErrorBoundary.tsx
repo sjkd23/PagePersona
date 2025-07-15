@@ -41,10 +41,7 @@ class ErrorBoundary extends Component<Props, State> {
               We encountered an unexpected error. Please refresh the page and try again.
             </p>
             <div className="space-y-3">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full btn-primary"
-              >
+              <button onClick={() => window.location.reload()} className="w-full btn-primary">
                 Refresh Page
               </button>
               <button

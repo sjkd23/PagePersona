@@ -1,12 +1,12 @@
 // Auth0 to MongoDB field synchronization utilities
 
 import { IMongoUser } from '../models/mongo-user';
-import type { 
-  ProcessedAuth0User, 
-  FieldMapping, 
+import type {
+  ProcessedAuth0User,
+  FieldMapping,
   SyncResult,
   SyncRuleFunction,
-  TransformFunction 
+  TransformFunction,
 } from '../types/common';
 
 /**
@@ -22,38 +22,38 @@ export function syncAuth0Fields(mongoUser: IMongoUser, auth0User: ProcessedAuth0
     {
       auth0Field: 'email',
       mongoField: 'email',
-      syncRule: ((auth0Val: unknown, mongoVal: unknown) => 
+      syncRule: ((auth0Val: unknown, mongoVal: unknown) =>
         typeof auth0Val === 'string' && auth0Val && auth0Val !== mongoVal) as SyncRuleFunction,
-      transform: ((val: unknown) => val as string) as TransformFunction
+      transform: ((val: unknown) => val as string) as TransformFunction,
     },
     {
       auth0Field: 'givenName',
-      mongoField: 'firstName', 
-      syncRule: ((auth0Val: unknown, mongoVal: unknown) => 
+      mongoField: 'firstName',
+      syncRule: ((auth0Val: unknown, mongoVal: unknown) =>
         typeof auth0Val === 'string' && auth0Val && auth0Val !== mongoVal) as SyncRuleFunction,
-      transform: ((val: unknown) => val as string) as TransformFunction
+      transform: ((val: unknown) => val as string) as TransformFunction,
     },
     {
       auth0Field: 'familyName',
       mongoField: 'lastName',
-      syncRule: ((auth0Val: unknown, mongoVal: unknown) => 
+      syncRule: ((auth0Val: unknown, mongoVal: unknown) =>
         typeof auth0Val === 'string' && auth0Val && auth0Val !== mongoVal) as SyncRuleFunction,
-      transform: ((val: unknown) => val as string) as TransformFunction
+      transform: ((val: unknown) => val as string) as TransformFunction,
     },
     {
       auth0Field: 'picture',
       mongoField: 'avatar',
-      syncRule: ((auth0Val: unknown, mongoVal: unknown) => 
+      syncRule: ((auth0Val: unknown, mongoVal: unknown) =>
         typeof auth0Val === 'string' && auth0Val && auth0Val !== mongoVal) as SyncRuleFunction,
-      transform: ((val: unknown) => val as string) as TransformFunction
+      transform: ((val: unknown) => val as string) as TransformFunction,
     },
     {
       auth0Field: 'emailVerified',
       mongoField: 'isEmailVerified',
-      syncRule: ((auth0Val: unknown, mongoVal: unknown) => 
+      syncRule: ((auth0Val: unknown, mongoVal: unknown) =>
         auth0Val !== undefined && auth0Val !== mongoVal) as SyncRuleFunction,
-      transform: ((val: unknown) => Boolean(val)) as TransformFunction
-    }
+      transform: ((val: unknown) => Boolean(val)) as TransformFunction,
+    },
   ];
 
   // Process each field mapping
@@ -71,7 +71,9 @@ export function syncAuth0Fields(mongoUser: IMongoUser, auth0User: ProcessedAuth0
         updated = true;
       }
     } catch (error) {
-      errors.push(`Failed to sync field ${mapping.mongoField}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      errors.push(
+        `Failed to sync field ${mapping.mongoField}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
@@ -79,11 +81,11 @@ export function syncAuth0Fields(mongoUser: IMongoUser, auth0User: ProcessedAuth0
   mongoUser.lastLoginAt = new Date();
   updated = true;
 
-  return { 
-    updated, 
-    changedFields, 
+  return {
+    updated,
+    changedFields,
     errors,
-    timestamp: new Date()
+    timestamp: new Date(),
   };
 }
 
@@ -103,25 +105,23 @@ export function logSyncResults(userId: string, result: SyncResult): void {
     // Log field changes if any (debug only)
     if (changedFields && changedFields.length > 0) {
       if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-        console.log(
-          `🔄 User ${userId} - Fields updated:`,
-          changedFields
-        );
+        console.log(`🔄 User ${userId} - Fields updated:`, changedFields);
       }
     }
 
     // Log errors if any (debug only)
     if (errors && errors.length > 0) {
       if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
-        console.log(
-          `⚠️  User ${userId} - Sync errors:`,
-          errors
-        );
+        console.log(`⚠️  User ${userId} - Sync errors:`, errors);
       }
     }
 
     // Log no changes needed if updated but no field changes (debug only)
-    if (updated && (!changedFields || changedFields.length === 0) && (!errors || errors.length === 0)) {
+    if (
+      updated &&
+      (!changedFields || changedFields.length === 0) &&
+      (!errors || errors.length === 0)
+    ) {
       if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
         console.log(`✅ User ${userId} - No changes needed (lastLoginAt updated)`);
       }

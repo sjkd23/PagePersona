@@ -1,25 +1,25 @@
 /**
  * Main transformation form component
- * 
+ *
  * This component provides the complete user interface for content transformation,
  * including persona selection, input mode toggling, content input, and the
  * transformation trigger. It manages the display of loading states, validation
  * errors, and persona preview information.
- * 
+ *
  * @module TransformerForm
  */
 
-import type { ClientPersona as Persona } from '../../../../shared/types/personas'
-import InputModeToggle from './InputModeToggle'
-import ValidationError from './ValidationError'
-import TextInput from './TextInput'
-import TextArea from './TextArea'
-import CharacterCount from './CharacterCount'
-import './styles/TransformerForm.css'
+import type { ClientPersona as Persona } from '../../../../shared/types/personas';
+import InputModeToggle from './InputModeToggle';
+import ValidationError from './ValidationError';
+import TextInput from './TextInput';
+import TextArea from './TextArea';
+import CharacterCount from './CharacterCount';
+import './styles/TransformerForm.css';
 
 /**
  * Props for the TransformerForm component
- * 
+ *
  * @interface TransformerFormProps
  * @property {Persona | null} selectedPersona - Currently selected persona
  * @property {Persona[]} personas - Available personas list
@@ -37,29 +37,29 @@ import './styles/TransformerForm.css'
  * @property {function} isValidInput - Function to check input validity
  */
 interface TransformerFormProps {
-  selectedPersona: Persona | null
-  personas: Persona[]
-  url: string
-  inputMode: 'url' | 'text'
-  isLoading: boolean
-  loadingPersonas: boolean
-  urlError: string | null
-  textError: string | null
-  maxTextLength: number
-  onPersonaSelect: (persona: Persona | null) => void
-  onInputChange: (value: string) => void
-  onModeChange: (mode: 'url' | 'text') => void
-  onTransform: () => Promise<void>
-  isValidInput: () => boolean
+  selectedPersona: Persona | null;
+  personas: Persona[];
+  url: string;
+  inputMode: 'url' | 'text';
+  isLoading: boolean;
+  loadingPersonas: boolean;
+  urlError: string | null;
+  textError: string | null;
+  maxTextLength: number;
+  onPersonaSelect: (persona: Persona | null) => void;
+  onInputChange: (value: string) => void;
+  onModeChange: (mode: 'url' | 'text') => void;
+  onTransform: () => Promise<void>;
+  isValidInput: () => boolean;
 }
 
 /**
  * TransformerForm component that provides the complete transformation interface
- * 
+ *
  * Renders a multi-section form with persona selection, input configuration,
  * and transformation controls. Manages loading states, validation display,
  * and dynamic button text based on current form state.
- * 
+ *
  * @param {TransformerFormProps} props - Component props
  * @returns {JSX.Element} The rendered transformer form component
  */
@@ -77,10 +77,10 @@ export default function TransformerForm({
   onInputChange,
   onModeChange,
   onTransform,
-  isValidInput
+  isValidInput,
 }: TransformerFormProps) {
-  const currentError = inputMode === 'url' ? urlError : textError
-  const hasError = Boolean(currentError)
+  const currentError = inputMode === 'url' ? urlError : textError;
+  const hasError = Boolean(currentError);
 
   return (
     <div className="right-column">
@@ -97,16 +97,16 @@ export default function TransformerForm({
             </div>
           ) : (
             <div>
-              <select 
+              <select
                 value={selectedPersona?.id || ''}
                 onChange={(e) => {
-                  const selected = personas.find(p => p.id === e.target.value)
-                  onPersonaSelect(selected || null)
+                  const selected = personas.find((p) => p.id === e.target.value);
+                  onPersonaSelect(selected || null);
                 }}
                 className="persona-select"
               >
                 <option value="">Select a persona...</option>
-                {personas.map(persona => (
+                {personas.map((persona) => (
                   <option key={persona.id} value={persona.id}>
                     {persona.label}
                   </option>
@@ -117,8 +117,8 @@ export default function TransformerForm({
                 <div className="persona-preview">
                   <div className="persona-info">
                     <div className="persona-avatar">
-                      <img 
-                        src={selectedPersona.avatarUrl} 
+                      <img
+                        src={selectedPersona.avatarUrl}
                         alt={selectedPersona.label}
                         className="w-full h-full rounded-full object-cover"
                       />
@@ -128,24 +128,20 @@ export default function TransformerForm({
                       <p className="persona-description">{selectedPersona.description}</p>
                     </div>
                   </div>
-                  
+
                   <div className="persona-metadata">
                     <div>
-                      <h4 className="metadata-title">
-                        Recommended Genres
-                      </h4>
+                      <h4 className="metadata-title">Recommended Genres</h4>
                       <div className="metadata-section">
                         <p className="metadata-content">Best for:</p>
                         <p className="metadata-text">
-                          Content that fits with this persona's style and tone
+                          Content that fits with this persona&apos;s style and tone
                         </p>
                       </div>
                     </div>
-                    
+
                     <div>
-                      <h4 className="metadata-title">
-                        Example Texts
-                      </h4>
+                      <h4 className="metadata-title">Example Texts</h4>
                       <div className="metadata-section">
                         <p className="metadata-example">
                           Examples of different personas/writing style used by this persona
@@ -166,11 +162,7 @@ export default function TransformerForm({
           <h2 className="card-title">Enter URL or text</h2>
         </div>
         <div className="card-content">
-          <InputModeToggle 
-            mode={inputMode} 
-            onModeChange={onModeChange} 
-            disabled={isLoading}
-          />
+          <InputModeToggle mode={inputMode} onModeChange={onModeChange} disabled={isLoading} />
 
           {inputMode === 'url' ? (
             <div>
@@ -197,11 +189,7 @@ export default function TransformerForm({
                 className="text-input"
               />
               <div className="character-count-container">
-                <CharacterCount 
-                  current={url.length} 
-                  max={maxTextLength} 
-                  hasError={hasError}
-                />
+                <CharacterCount current={url.length} max={maxTextLength} hasError={hasError} />
               </div>
               <ValidationError error={textError} />
             </div>
@@ -218,7 +206,7 @@ export default function TransformerForm({
           <button
             onClick={onTransform}
             disabled={isLoading || !selectedPersona || !url.trim() || !isValidInput()}
-            className={`generate-button ${(isLoading || !selectedPersona || !url.trim() || !isValidInput()) ? 'generate-button-disabled' : 'generate-button-active'}`}
+            className={`generate-button ${isLoading || !selectedPersona || !url.trim() || !isValidInput() ? 'generate-button-disabled' : 'generate-button-active'}`}
           >
             {isLoading ? (
               <>
@@ -228,7 +216,8 @@ export default function TransformerForm({
             ) : (
               (() => {
                 if (!selectedPersona) return 'Select a persona first';
-                if (!url.trim()) return inputMode === 'url' ? 'Enter a URL first' : 'Enter text first';
+                if (!url.trim())
+                  return inputMode === 'url' ? 'Enter a URL first' : 'Enter text first';
                 if (inputMode === 'text' && textError) return '50 character minimum required';
                 if (inputMode === 'url' && urlError) return 'Valid URL required';
                 return 'Generate';
@@ -238,5 +227,5 @@ export default function TransformerForm({
         </div>
       </div>
     </div>
-  )
+  );
 }

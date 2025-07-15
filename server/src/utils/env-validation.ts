@@ -2,17 +2,9 @@
 
 import { logger } from './logger';
 
-const requiredEnvVars = [
-  'AUTH0_DOMAIN',
-  'MONGODB_URI',
-  'OPENAI_API_KEY'
-] as const;
+const requiredEnvVars = ['AUTH0_DOMAIN', 'MONGODB_URI', 'OPENAI_API_KEY'] as const;
 
-const recommendedEnvVars = [
-  'AUTH0_AUDIENCE',
-  'REDIS_URL',
-  'JWT_SECRET'
-] as const;
+const recommendedEnvVars = ['AUTH0_AUDIENCE', 'REDIS_URL', 'JWT_SECRET'] as const;
 
 interface EnvValidationResult {
   isValid: boolean;
@@ -44,7 +36,9 @@ export function validateAuth0Environment(): EnvValidationResult {
 
   // Check optional but important variables
   if (!process.env.AUTH0_AUDIENCE && process.env.NODE_ENV === 'production') {
-    warnings.push('AUTH0_AUDIENCE not set in production environment - JWT tokens will not be validated for audience');
+    warnings.push(
+      'AUTH0_AUDIENCE not set in production environment - JWT tokens will not be validated for audience',
+    );
   }
 
   if (!process.env.NODE_ENV) {
@@ -61,7 +55,9 @@ export function validateAuth0Environment(): EnvValidationResult {
   // Production-specific checks
   if (process.env.NODE_ENV === 'production') {
     if (!process.env.REDIS_URL) {
-      warnings.push('REDIS_URL not set in production - rate limiting and caching will not persist across restarts');
+      warnings.push(
+        'REDIS_URL not set in production - rate limiting and caching will not persist across restarts',
+      );
     }
     if (!process.env.JWT_SECRET) {
       warnings.push('JWT_SECRET not set - using default secret is insecure for production');
@@ -74,14 +70,14 @@ export function validateAuth0Environment(): EnvValidationResult {
     environment: process.env.NODE_ENV || 'development',
     mongoUri: process.env.MONGODB_URI,
     openaiApiKey: process.env.OPENAI_API_KEY ? '***hidden***' : undefined,
-    redisUrl: process.env.REDIS_URL
+    redisUrl: process.env.REDIS_URL,
   };
 
   return {
     isValid: missing.length === 0,
     missing,
     warnings,
-    config
+    config,
   };
 }
 
@@ -113,7 +109,7 @@ export function ensureSafeAuth0Config(): void {
     environment: validation.config.environment,
     mongoUri: validation.config.mongoUri ? 'SET' : 'NOT SET',
     openaiApiKey: validation.config.openaiApiKey ? 'SET' : 'NOT SET',
-    redisUrl: validation.config.redisUrl ? 'SET' : 'NOT SET'
+    redisUrl: validation.config.redisUrl ? 'SET' : 'NOT SET',
   });
 }
 
@@ -124,9 +120,9 @@ export function getEnvironmentInfo(): {
   isValid: boolean;
   missing: string[];
   warnings: string[];
-  config: { 
-    domain: string; 
-    audience?: string; 
+  config: {
+    domain: string;
+    audience?: string;
     environment: string;
     mongoUri?: string;
     openaiApiKey?: string;
@@ -139,6 +135,6 @@ export function getEnvironmentInfo(): {
   return {
     ...validation,
     timestamp: new Date().toISOString(),
-    nodeVersion: process.version
+    nodeVersion: process.version,
   };
 }

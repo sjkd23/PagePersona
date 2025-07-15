@@ -1,9 +1,9 @@
 /**
  * Analytics Utility Service
- * 
+ *
  * Provides utilities for tracking user interactions, page views,
  * and other analytics events while respecting user privacy.
- * 
+ *
  * @module AnalyticsUtils
  */
 
@@ -26,7 +26,7 @@ export interface PageViewData {
 
 /**
  * Analytics Utility Class
- * 
+ *
  * Handles analytics tracking with privacy-first approach
  * and support for multiple analytics providers.
  */
@@ -34,21 +34,21 @@ export class AnalyticsUtils {
   private static isEnabled = true;
   private static userId: string | null = null;
   private static sessionId: string = AnalyticsUtils.generateSessionId();
-  
+
   /**
    * Initialize analytics with user consent
-   * 
+   *
    * @param hasConsent - Whether user has consented to analytics
    * @param userId - Optional user identifier
    */
   static initialize(hasConsent: boolean, userId?: string): void {
     this.isEnabled = hasConsent;
     this.userId = userId || null;
-    
+
     if (hasConsent && import.meta.env.VITE_GA_TRACKING_ID) {
       this.setupGoogleAnalytics();
     }
-    
+
     // Track initial page view
     if (hasConsent) {
       this.trackPageView();
@@ -57,7 +57,7 @@ export class AnalyticsUtils {
 
   /**
    * Track page view
-   * 
+   *
    * @param data - Optional page view data
    */
   static trackPageView(data?: PageViewData): void {
@@ -69,7 +69,7 @@ export class AnalyticsUtils {
       page_referrer: data?.page_referrer || document.referrer,
       user_id: data?.user_id || this.userId,
       session_id: this.sessionId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     // Google Analytics 4
@@ -83,7 +83,7 @@ export class AnalyticsUtils {
 
   /**
    * Track custom event
-   * 
+   *
    * @param event - Event data to track
    */
   static trackEvent(event: AnalyticsEvent): void {
@@ -94,7 +94,7 @@ export class AnalyticsUtils {
       user_id: this.userId,
       session_id: this.sessionId,
       timestamp: new Date().toISOString(),
-      page_location: window.location.href
+      page_location: window.location.href,
     };
 
     // Google Analytics 4
@@ -103,7 +103,7 @@ export class AnalyticsUtils {
         event_category: event.category,
         event_label: event.label,
         value: event.value,
-        custom_parameters: event.custom_parameters
+        custom_parameters: event.custom_parameters,
       });
     }
 
@@ -113,15 +113,15 @@ export class AnalyticsUtils {
 
   /**
    * Track persona transformation
-   * 
+   *
    * @param personaName - Name of the persona used
    * @param contentType - Type of content (url or text)
    * @param success - Whether transformation was successful
    */
   static trackTransformation(
-    personaName: string, 
-    contentType: 'url' | 'text', 
-    success: boolean
+    personaName: string,
+    contentType: 'url' | 'text',
+    success: boolean,
   ): void {
     this.trackEvent({
       action: 'transform_content',
@@ -131,14 +131,14 @@ export class AnalyticsUtils {
       custom_parameters: {
         persona: personaName,
         content_type: contentType,
-        success
-      }
+        success,
+      },
     });
   }
 
   /**
    * Track user authentication
-   * 
+   *
    * @param action - Auth action (login, signup, logout)
    * @param method - Auth method used
    */
@@ -148,28 +148,31 @@ export class AnalyticsUtils {
       category: 'authentication',
       label: method,
       custom_parameters: {
-        auth_method: method
-      }
+        auth_method: method,
+      },
     });
   }
 
   /**
    * Track user engagement
-   * 
+   *
    * @param action - Engagement action
    * @param details - Additional details
    */
-  static trackEngagement(action: string, details?: Record<string, string | number | boolean>): void {
+  static trackEngagement(
+    action: string,
+    details?: Record<string, string | number | boolean>,
+  ): void {
     this.trackEvent({
       action,
       category: 'user_engagement',
-      custom_parameters: details
+      custom_parameters: details,
     });
   }
 
   /**
    * Track errors for debugging
-   * 
+   *
    * @param error - Error object or message
    * @param context - Context where error occurred
    */
@@ -186,14 +189,14 @@ export class AnalyticsUtils {
         error_stack: errorStack,
         context,
         user_agent: navigator.userAgent,
-        url: window.location.href
-      }
+        url: window.location.href,
+      },
     });
   }
 
   /**
    * Track performance metrics
-   * 
+   *
    * @param metric - Performance metric name
    * @param value - Metric value
    * @param unit - Metric unit (ms, bytes, etc.)
@@ -207,19 +210,19 @@ export class AnalyticsUtils {
       custom_parameters: {
         metric_name: metric,
         metric_value: value,
-        metric_unit: unit
-      }
+        metric_unit: unit,
+      },
     });
   }
 
   /**
    * Update user consent
-   * 
+   *
    * @param hasConsent - New consent status
    */
   static updateConsent(hasConsent: boolean): void {
     this.isEnabled = hasConsent;
-    
+
     if (hasConsent) {
       // Re-initialize analytics
       this.initialize(true, this.userId || undefined);
@@ -231,15 +234,15 @@ export class AnalyticsUtils {
 
   /**
    * Set user ID for tracking
-   * 
+   *
    * @param userId - User identifier
    */
   static setUserId(userId: string): void {
     this.userId = userId;
-    
+
     if (this.isEnabled && typeof gtag !== 'undefined') {
       gtag('config', import.meta.env.VITE_GA_TRACKING_ID, {
-        user_id: userId
+        user_id: userId,
       });
     }
   }
@@ -273,7 +276,10 @@ export class AnalyticsUtils {
     document.head.appendChild(script2);
   }
 
-  private static async sendToCustomAnalytics(eventType: string, data: Record<string, unknown>): Promise<void> {
+  private static async sendToCustomAnalytics(
+    eventType: string,
+    data: Record<string, unknown>,
+  ): Promise<void> {
     const analyticsEndpoint = import.meta.env.VITE_ANALYTICS_ENDPOINT;
     if (!analyticsEndpoint) return;
 
@@ -281,13 +287,13 @@ export class AnalyticsUtils {
       await fetch(analyticsEndpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           event_type: eventType,
           data,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        }),
       });
     } catch (error) {
       console.warn('Failed to send analytics data:', error);
@@ -311,7 +317,7 @@ export class AnalyticsUtils {
 
 /**
  * React Hook for analytics tracking
- * 
+ *
  * @param userId - Optional user ID for tracking
  * @param hasConsent - Whether user has consented to analytics
  */

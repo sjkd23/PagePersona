@@ -6,7 +6,7 @@ const mockConsole = {
   info: vi.fn(),
   warn: vi.fn(),
   error: vi.fn(),
-  debug: vi.fn()
+  debug: vi.fn(),
 };
 
 describe('Logger Utility', () => {
@@ -15,13 +15,13 @@ describe('Logger Utility', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    
+
     // Store original console
     originalConsole = { ...console };
-    
+
     // Replace console methods with mocks
     Object.assign(console, mockConsole);
-    
+
     // Dynamically import the logger to avoid caching issues
     vi.resetModules();
     const loggerModule = await import('../logger');
@@ -48,9 +48,7 @@ describe('Logger Utility', () => {
 
       logger.info(message, data);
 
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('[INFO]')
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('[INFO]'));
     });
 
     it('should log error messages correctly', () => {
@@ -59,9 +57,7 @@ describe('Logger Utility', () => {
 
       logger.error(message, error);
 
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('[ERROR]')
-      );
+      expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('[ERROR]'));
     });
 
     it('should log warning messages correctly', () => {
@@ -70,9 +66,7 @@ describe('Logger Utility', () => {
 
       logger.warn(message, data);
 
-      expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringContaining('[WARN]')
-      );
+      expect(mockConsole.warn).toHaveBeenCalledWith(expect.stringContaining('[WARN]'));
     });
 
     it('should log debug messages correctly', () => {
@@ -81,9 +75,7 @@ describe('Logger Utility', () => {
 
       logger.debug(message, debugData);
 
-      expect(mockConsole.debug).toHaveBeenCalledWith(
-        expect.stringContaining('[DEBUG]')
-      );
+      expect(mockConsole.debug).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
     });
   });
 
@@ -99,9 +91,7 @@ describe('Logger Utility', () => {
     it('should use transform prefix in transform logger', () => {
       logger.transform.info('Transform test message');
 
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('[Transform]')
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('[Transform]'));
     });
 
     it('should have validation context logger', () => {
@@ -112,9 +102,7 @@ describe('Logger Utility', () => {
     it('should use validation prefix in validation logger', () => {
       logger.validation.warn('Validation warning');
 
-      expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringContaining('[Validation]')
-      );
+      expect(mockConsole.warn).toHaveBeenCalledWith(expect.stringContaining('[Validation]'));
     });
 
     it('should have usage context logger', () => {
@@ -137,9 +125,7 @@ describe('Logger Utility', () => {
     it('should include timestamps in log messages', () => {
       logger.info('Test message');
       // The logger output does not include timestamps or emoji, only [INFO] prefix and message
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringMatching(/\[INFO\] Test message/)
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringMatching(/\[INFO\] Test message/));
     });
 
     it('should include log level in formatted message', () => {
@@ -148,18 +134,10 @@ describe('Logger Utility', () => {
       logger.info('Info test');
       logger.debug('Debug test');
 
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('[ERROR]')
-      );
-      expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringContaining('[WARN]')
-      );
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('[INFO]')
-      );
-      expect(mockConsole.debug).toHaveBeenCalledWith(
-        expect.stringContaining('[DEBUG]')
-      );
+      expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('[ERROR]'));
+      expect(mockConsole.warn).toHaveBeenCalledWith(expect.stringContaining('[WARN]'));
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('[INFO]'));
+      expect(mockConsole.debug).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
     });
 
     it('should include emoji prefixes in log messages', () => {
@@ -167,35 +145,27 @@ describe('Logger Utility', () => {
       logger.warn('Warning with emoji');
       logger.error('Error with emoji');
       // The logger output does not include emoji, only [LEVEL] prefix and message
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('[INFO]')
-      );
-      expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringContaining('[WARN]')
-      );
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('[ERROR]')
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('[INFO]'));
+      expect(mockConsole.warn).toHaveBeenCalledWith(expect.stringContaining('[WARN]'));
+      expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('[ERROR]'));
     });
 
     it('should handle messages without additional data', () => {
       logger.info('Simple message');
 
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('Simple message')
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('Simple message'));
     });
 
     it('should handle complex data objects', () => {
       const complexData = {
         nested: {
           object: {
-            value: 'test'
-          }
+            value: 'test',
+          },
         },
         array: [1, 2, 3],
         date: new Date(),
-        number: 42
+        number: 42,
       };
 
       expect(() => logger.info('Complex data test', complexData)).not.toThrow();
@@ -210,22 +180,20 @@ describe('Logger Utility', () => {
 
       logger.error('Error occurred', error);
 
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('Error occurred')
-      );
+      expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('Error occurred'));
     });
 
     it('should handle custom error objects', () => {
       const customError = {
         name: 'CustomError',
         message: 'Custom error message',
-        code: 'CUSTOM_ERROR'
+        code: 'CUSTOM_ERROR',
       };
 
       logger.error('Custom error occurred', customError);
 
       expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('Custom error occurred')
+        expect.stringContaining('Custom error occurred'),
       );
     });
 
@@ -237,18 +205,16 @@ describe('Logger Utility', () => {
 
     it('should handle errors with context loggers', () => {
       const error = new Error('Transform error');
-      
+
       expect(() => logger.transform.error('Transform failed', error)).not.toThrow();
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('[Transform]')
-      );
+      expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('[Transform]'));
     });
   });
 
   describe('Environment-Specific Behavior', () => {
     it('should respect NODE_ENV settings', () => {
       const originalEnv = process.env.NODE_ENV;
-      
+
       // Test that logger instance exists regardless of environment
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
@@ -258,18 +224,16 @@ describe('Logger Utility', () => {
 
     it('should handle debug mode correctly', () => {
       logger.debug('Debug message test');
-      
+
       // Debug logs should be callable
-      expect(mockConsole.debug).toHaveBeenCalledWith(
-        expect.stringContaining('[DEBUG]')
-      );
+      expect(mockConsole.debug).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
     });
   });
 
   describe('Integration Scenarios', () => {
     it('should log multiple messages in sequence', () => {
       logger.info('First message');
-      logger.warn('Second message');  
+      logger.warn('Second message');
       logger.error('Third message');
 
       expect(mockConsole.info).toHaveBeenCalledTimes(1);
@@ -287,7 +251,7 @@ describe('Logger Utility', () => {
 
     it('should maintain log formatting consistency across all contexts', () => {
       const testData = { consistent: 'data' };
-      
+
       logger.info('Info message', testData);
       logger.transform.info('Transform message', testData);
       logger.validation.warn('Validation message', testData);
@@ -306,28 +270,18 @@ describe('Logger Utility', () => {
       logger.test.debug('Test debug');
       logger.session.info('Session info');
 
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('[Transform]')
-      );
-      expect(mockConsole.warn).toHaveBeenCalledWith(
-        expect.stringContaining('[Validation]')
-      );
-      expect(mockConsole.error).toHaveBeenCalledWith(
-        expect.stringContaining('[Usage]')
-      );
-      expect(mockConsole.debug).toHaveBeenCalledWith(
-        expect.stringContaining('[Test]')
-      );
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining('[Session]')
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('[Transform]'));
+      expect(mockConsole.warn).toHaveBeenCalledWith(expect.stringContaining('[Validation]'));
+      expect(mockConsole.error).toHaveBeenCalledWith(expect.stringContaining('[Usage]'));
+      expect(mockConsole.debug).toHaveBeenCalledWith(expect.stringContaining('[Test]'));
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining('[Session]'));
     });
   });
 
   describe('Performance and Edge Cases', () => {
     it('should handle large data objects without crashing', () => {
       const largeObject = {
-        data: new Array(100).fill(0).map((_, i) => ({ id: i, value: `value-${i}` }))
+        data: new Array(100).fill(0).map((_, i) => ({ id: i, value: `value-${i}` })),
       };
 
       expect(() => logger.info('Large object test', largeObject)).not.toThrow();
@@ -336,23 +290,21 @@ describe('Logger Utility', () => {
 
     it('should handle logging with special characters', () => {
       const specialMessage = 'Message with émojis 🚀 and spëcial chars ñ';
-      const specialData = { 
+      const specialData = {
         unicode: '👍🎉',
         special: 'café',
-        symbols: '!@#$%^&*()'
+        symbols: '!@#$%^&*()',
       };
 
       expect(() => logger.info(specialMessage, specialData)).not.toThrow();
-      expect(mockConsole.info).toHaveBeenCalledWith(
-        expect.stringContaining(specialMessage)
-      );
+      expect(mockConsole.info).toHaveBeenCalledWith(expect.stringContaining(specialMessage));
     });
 
     it('should handle empty strings and edge case inputs', () => {
       expect(() => logger.info('')).not.toThrow();
       expect(() => logger.warn('   ')).not.toThrow();
       expect(() => logger.error('\\n\\t')).not.toThrow();
-      
+
       expect(mockConsole.info).toHaveBeenCalled();
       expect(mockConsole.warn).toHaveBeenCalled();
       expect(mockConsole.error).toHaveBeenCalled();

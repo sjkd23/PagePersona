@@ -1,10 +1,10 @@
 /**
  * Auth0 Configuration Module
- * 
+ *
  * Centralized configuration for Auth0 authentication integration.
  * Extracts environment variables for Auth0 setup including domain,
  * client ID, redirect URI, and API audience configuration.
- * 
+ *
  * Environment Variables Required:
  * - VITE_AUTH0_DOMAIN: Auth0 tenant domain
  * - VITE_AUTH0_CLIENT_ID: Auth0 application client ID

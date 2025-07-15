@@ -6,14 +6,14 @@
 export { BASE_SYSTEM_PROMPT } from './prompts';
 
 // Personas
-export { 
-  PERSONAS, 
+export {
+  PERSONAS,
   CLIENT_PERSONAS,
   FULL_PERSONAS,
-  getPersona, 
+  getPersona,
   getAllPersonas,
   getClientPersona,
   getAllClientPersonas,
   getFullPersona,
-  getAllFullPersonas
+  getAllFullPersonas,
 } from './personas';

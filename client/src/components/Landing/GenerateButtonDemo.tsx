@@ -2,9 +2,7 @@ interface GenerateButtonDemoProps {
   className?: string;
 }
 
-export default function GenerateButtonDemo({ 
-  className = ''
-}: GenerateButtonDemoProps) {
+export default function GenerateButtonDemo({ className = '' }: GenerateButtonDemoProps) {
   return (
     <div className={`visual-item ${className}`}>
       <img

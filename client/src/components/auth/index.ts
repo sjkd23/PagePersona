@@ -1,10 +1,10 @@
 /**
  * Authentication Components Index
- * 
+ *
  * This module provides centralized exports for all authentication-related
  * components, making imports cleaner and more maintainable throughout
  * the application.
- * 
+ *
  * @module AuthComponents
  */
 
@@ -23,9 +23,9 @@ export * from './utils/membershipUtils';
 
 /**
  * Component usage guide:
- * 
+ *
  * 1. UserProfile - Main profile component for user management
- * 
+ *
  * Individual components (ProfileHeader, MembershipStatus, etc.) can be
  * imported separately if you need to build custom profile layouts.
  */

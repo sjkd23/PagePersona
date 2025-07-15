@@ -1,11 +1,11 @@
 /**
  * Unified API Client for PagePersonAI
- * 
+ *
  * Comprehensive HTTP client providing centralized API communication with
  * Auth0 authentication integration, error handling, and response formatting.
  * Consolidates all server communication into a single, consistent interface
  * with type-safe request/response handling.
- * 
+ *
  * Features:
  * - Auth0 authenticated request handling
  * - Automatic token injection and refresh
@@ -26,10 +26,10 @@ let getAccessTokenFunction: (() => Promise<string | undefined>) | null = null;
 
 /**
  * Configure authentication token provider
- * 
+ *
  * Sets the token getter function used for authenticating API requests.
  * Must be called by Auth0 provider during application initialization.
- * 
+ *
  * @param tokenGetter - Function returning current access token
  */
 export function setTokenGetter(tokenGetter: () => Promise<string | undefined>) {
@@ -46,7 +46,7 @@ export interface TransformRequest {
 
 /**
  * Content transformation response structure
- * 
+ *
  * Complete transformation result including original content,
  * transformed output, persona information, and usage statistics.
  */
@@ -133,7 +133,7 @@ class HttpClient {
   private async getHeaders(customHeaders?: HeadersInit): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(customHeaders as Record<string, string> || {}),
+      ...((customHeaders as Record<string, string>) || {}),
     };
 
     // Add Auth0 token if available
@@ -151,12 +151,9 @@ class HttpClient {
     return headers;
   }
 
-  async request<T = unknown>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  async request<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: await this.getHeaders(options.headers),
       ...options,
@@ -165,7 +162,7 @@ class HttpClient {
     try {
       const response = await fetch(url, config);
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Return enhanced error information from server
         return {
@@ -182,17 +179,17 @@ class HttpClient {
           membership: data.membership,
           upgradeUrl: data.upgradeUrl,
           retryAfter: data.retryAfter,
-          penaltyDuration: data.penaltyDuration
+          penaltyDuration: data.penaltyDuration,
         } as T;
       }
-      
+
       return { success: true, ...data } as T;
     } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',
         errorCode: ErrorCode.NETWORK_ERROR,
-        timestamp: new Date()
+        timestamp: new Date(),
       } as T;
     }
   }
@@ -208,18 +205,22 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : (data.error || 'Request failed'),
-        message: data.message
+        error: response.ok ? undefined : data.error || 'Request failed',
+        message: data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }
 
-  async post<T = unknown>(endpoint: string, body?: unknown, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async post<T = unknown>(
+    endpoint: string,
+    body?: unknown,
+    customHeaders?: HeadersInit,
+  ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
@@ -231,18 +232,22 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : (data.error || 'Request failed'),
-        message: data.message
+        error: response.ok ? undefined : data.error || 'Request failed',
+        message: data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }
 
-  async put<T = unknown>(endpoint: string, body?: unknown, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async put<T = unknown>(
+    endpoint: string,
+    body?: unknown,
+    customHeaders?: HeadersInit,
+  ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
@@ -254,18 +259,21 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : (data.error || 'Request failed'),
-        message: data.message
+        error: response.ok ? undefined : data.error || 'Request failed',
+        message: data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }
 
-  async delete<T = unknown>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async delete<T = unknown>(
+    endpoint: string,
+    customHeaders?: HeadersInit,
+  ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'DELETE',
@@ -276,13 +284,13 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : (data.error || 'Request failed'),
-        message: data.message
+        error: response.ok ? undefined : data.error || 'Request failed',
+        message: data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error'
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }
@@ -312,7 +320,7 @@ class ApiClient {
 
     personas: async (): Promise<PersonaResponse> => {
       return this.http.request<PersonaResponse>('/transform/personas');
-    }
+    },
   };
 
   // User-related methods
@@ -330,7 +338,7 @@ class ApiClient {
 
     usage: async (): Promise<UsageStatsResponse> => {
       return this.http.request<UsageStatsResponse>('/user/usage');
-    }
+    },
   };
 
   // Auth-related methods
@@ -341,14 +349,14 @@ class ApiClient {
 
     protected: async (): Promise<ApiResponse> => {
       return this.http.get('/protected');
-    }
+    },
   };
 
   // General utility methods
   general = {
     healthCheck: async (): Promise<HealthCheckResponse> => {
       return this.http.request<HealthCheckResponse>('/health');
-    }
+    },
   };
 
   // Legacy compatibility methods (for backward compatibility during migration)
@@ -393,9 +401,9 @@ export const ApiService = apiClient;
 
 // Legacy function exports from auth0Api.ts
 export const transformContent = async (
-  url: string, 
+  url: string,
   persona: string,
-  getAccessToken?: () => Promise<string | undefined>
+  getAccessToken?: () => Promise<string | undefined>,
 ): Promise<ApiResponse> => {
   if (getAccessToken) {
     const originalGetter = getAccessTokenFunction;
@@ -414,7 +422,7 @@ export const getPersonas = async (): Promise<ApiResponse> => {
 };
 
 export const getProtectedData = async (
-  getAccessToken: () => Promise<string | undefined>
+  getAccessToken: () => Promise<string | undefined>,
 ): Promise<ApiResponse> => {
   const originalGetter = getAccessTokenFunction;
   setTokenGetter(getAccessToken);
@@ -426,7 +434,7 @@ export const getProtectedData = async (
 };
 
 export const getUserProfile = async (
-  getAccessToken: () => Promise<string | undefined>
+  getAccessToken: () => Promise<string | undefined>,
 ): Promise<ApiResponse> => {
   const originalGetter = getAccessTokenFunction;
   setTokenGetter(getAccessToken);
@@ -439,7 +447,7 @@ export const getUserProfile = async (
 
 /**
  * Enhanced API response base structure
- * 
+ *
  * Includes user-friendly error information and metadata
  */
 export interface EnhancedApiResponse {

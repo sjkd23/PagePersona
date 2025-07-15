@@ -1,10 +1,10 @@
 /**
  * User synchronization utilities for backend integration
- * 
+ *
  * This module provides functionality to synchronize user profile data
  * between the client application and backend services, including profile
  * retrieval, creation, and validation with comprehensive error handling.
- * 
+ *
  * @module userSync
  */
 
@@ -12,7 +12,7 @@ import { logger } from './logger';
 
 /**
  * User profile interface representing complete user data
- * 
+ *
  * @interface UserProfile
  * @property {string} id - Unique user identifier
  * @property {string} auth0Id - Auth0 authentication provider ID
@@ -54,7 +54,7 @@ export interface UserProfile {
 
 /**
  * Response interface for user synchronization operations
- * 
+ *
  * @interface UserSyncResponse
  * @property {boolean} success - Whether the operation succeeded
  * @property {UserProfile} [profile] - User profile data (legacy field)
@@ -75,11 +75,11 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 /**
  * Synchronizes user profile data with the backend service
- * 
+ *
  * Attempts to retrieve existing user profile or create a new one through
  * the sync endpoint. Includes JWT validation, token expiry checking, and
  * comprehensive error handling with detailed logging.
- * 
+ *
  * @param {string} accessToken - JWT access token for authentication
  * @returns {Promise<UserProfile | null>} User profile data or null if failed
  */
@@ -92,7 +92,7 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
   try {
     logger.sync.info('Starting user sync with backend');
     logger.sync.debug('Token preview', { preview: accessToken.substring(0, 50) + '...' });
-    
+
     // Debug JWT structure
     const tokenParts = accessToken.split('.');
     if (tokenParts.length === 3) {
@@ -102,9 +102,9 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
           sub: payload.sub?.substring(0, 10) + '...',
           aud: payload.aud,
           exp: new Date(payload.exp * 1000).toISOString(),
-          scope: payload.scope
+          scope: payload.scope,
         });
-        
+
         // Check if token is expired
         if (payload.exp * 1000 < Date.now()) {
           logger.sync.error('Token is expired');
@@ -121,22 +121,22 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     logger.sync.debug('Profile response status', { status: profileRes.status });
 
     if (profileRes.status === 404) {
       logger.sync.debug('User not found, triggering sync');
-      
+
       // Try manual sync
       const syncRes = await fetch(`${API_URL}/user/sync`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       logger.sync.debug('Sync response status', { status: syncRes.status });
@@ -149,19 +149,21 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
 
       const syncData: UserSyncResponse = await syncRes.json();
       logger.sync.info('Sync successful', { success: syncData.success });
-      return syncData.success ? syncData.data ?? null : null;
+      return syncData.success ? (syncData.data ?? null) : null;
     }
 
     if (!profileRes.ok) {
       const errorText = await profileRes.text();
-      logger.sync.error('Profile request failed', undefined, { status: profileRes.status, errorText });
+      logger.sync.error('Profile request failed', undefined, {
+        status: profileRes.status,
+        errorText,
+      });
       return null;
     }
 
     const profileData: UserSyncResponse = await profileRes.json();
     logger.sync.info('Profile retrieved', { success: profileData.success });
-    return profileData.success ? profileData.data ?? null : null;
-
+    return profileData.success ? (profileData.data ?? null) : null;
   } catch (err) {
     logger.sync.error('Error during user sync', err);
     return null;

@@ -16,12 +16,16 @@ export function Auth0Provider({ children }: { children: ReactNode }) {
       authorizationParams={{
         redirect_uri: redirectUri,
         audience,
-        scope: "openid profile email"
+        scope: 'openid profile email',
       }}
       useRefreshTokens
       cacheLocation="localstorage"
       onRedirectCallback={(appState) => {
-        window.history.replaceState({}, document.title, appState?.returnTo || window.location.pathname);
+        window.history.replaceState(
+          {},
+          document.title,
+          appState?.returnTo || window.location.pathname,
+        );
       }}
     >
       <AuthContextProvider>{children}</AuthContextProvider>

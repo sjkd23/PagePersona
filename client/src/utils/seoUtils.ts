@@ -1,9 +1,9 @@
 /**
  * SEO Utility Service
- * 
+ *
  * Provides utilities for managing SEO meta tags, structured data,
  * and other SEO-related functionality dynamically in the React app.
- * 
+ *
  * @module SEOUtils
  */
 
@@ -29,19 +29,21 @@ export interface StructuredData {
 
 /**
  * SEO Utility Class
- * 
+ *
  * Static methods for managing SEO meta tags and structured data
  * dynamically throughout the application lifecycle.
  */
 export class SEOUtils {
-  private static readonly DEFAULT_TITLE = 'PagePersonAI - Transform Web Content with AI-Powered Personas';
-  private static readonly DEFAULT_DESCRIPTION = 'Transform any webpage into engaging content with AI-powered personas. Convert articles into Hemingway-style prose, medieval knight tales, ELI5 explanations, and more.';
+  private static readonly DEFAULT_TITLE =
+    'PagePersonAI - Transform Web Content with AI-Powered Personas';
+  private static readonly DEFAULT_DESCRIPTION =
+    'Transform any webpage into engaging content with AI-powered personas. Convert articles into Hemingway-style prose, medieval knight tales, ELI5 explanations, and more.';
   private static readonly DEFAULT_IMAGE = '/og-image.png';
   private static readonly SITE_URL = import.meta.env.VITE_SITE_URL || 'https://pagepersonai.com';
 
   /**
    * Update page meta tags dynamically
-   * 
+   *
    * @param metadata - SEO metadata to update
    */
   static updateMetaTags(metadata: SEOMetaData): void {
@@ -54,7 +56,7 @@ export class SEOUtils {
       type = 'website',
       author,
       publishedTime,
-      modifiedTime
+      modifiedTime,
     } = metadata;
 
     // Update document title
@@ -85,7 +87,7 @@ export class SEOUtils {
 
   /**
    * Add structured data (JSON-LD) to the page
-   * 
+   *
    * @param data - Structured data object
    * @param id - Optional ID for the script tag
    */
@@ -105,7 +107,7 @@ export class SEOUtils {
 
   /**
    * Create breadcrumb structured data
-   * 
+   *
    * @param breadcrumbs - Array of breadcrumb items
    */
   static addBreadcrumbStructuredData(breadcrumbs: Array<{ name: string; url: string }>): void {
@@ -116,8 +118,8 @@ export class SEOUtils {
         '@type': 'ListItem',
         position: index + 1,
         name: item.name,
-        item: this.getFullUrl(item.url)
-      }))
+        item: this.getFullUrl(item.url),
+      })),
     };
 
     this.addStructuredData(breadcrumbData, 'breadcrumb-schema');
@@ -125,21 +127,21 @@ export class SEOUtils {
 
   /**
    * Create FAQ structured data
-   * 
+   *
    * @param faqs - Array of FAQ items
    */
   static addFAQStructuredData(faqs: Array<{ question: string; answer: string }>): void {
     const faqData: StructuredData = {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: faqs.map(faq => ({
+      mainEntity: faqs.map((faq) => ({
         '@type': 'Question',
         name: faq.question,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: faq.answer
-        }
-      }))
+          text: faq.answer,
+        },
+      })),
     };
 
     this.addStructuredData(faqData, 'faq-schema');
@@ -147,7 +149,7 @@ export class SEOUtils {
 
   /**
    * Create How-To structured data
-   * 
+   *
    * @param name - Name of the how-to guide
    * @param description - Description of the guide
    * @param steps - Array of steps
@@ -155,19 +157,19 @@ export class SEOUtils {
   static addHowToStructuredData(
     name: string,
     description: string,
-    steps: Array<{ name: string; text: string; image?: string }>
+    steps: Array<{ name: string; text: string; image?: string }>,
   ): void {
     const howToData: StructuredData = {
       '@context': 'https://schema.org',
       '@type': 'HowTo',
       name,
       description,
-      step: steps.map(step => ({
+      step: steps.map((step) => ({
         '@type': 'HowToStep',
         name: step.name,
         text: step.text,
-        ...(step.image && { image: this.getFullUrl(step.image) })
-      }))
+        ...(step.image && { image: this.getFullUrl(step.image) }),
+      })),
     };
 
     this.addStructuredData(howToData, 'howto-schema');
@@ -175,7 +177,7 @@ export class SEOUtils {
 
   /**
    * Generate meta tags for persona-specific content
-   * 
+   *
    * @param personaName - Name of the persona
    * @param originalTitle - Original content title
    */
@@ -184,13 +186,13 @@ export class SEOUtils {
       title: `${originalTitle} - Transformed by ${personaName} | PagePersonAI`,
       description: `See how "${originalTitle}" sounds when rewritten in the style of ${personaName}. Transform any content with AI-powered personas on PagePersonAI.`,
       keywords: `${personaName}, AI content transformation, ${originalTitle}, persona writing, content rewriter`,
-      type: 'article'
+      type: 'article',
     };
   }
 
   /**
    * Generate meta tags for tool/feature pages
-   * 
+   *
    * @param toolName - Name of the tool or feature
    * @param toolDescription - Description of the tool
    */
@@ -199,7 +201,7 @@ export class SEOUtils {
       title: `${toolName} - PagePersonAI`,
       description: toolDescription,
       keywords: `${toolName}, AI tools, content transformation, PagePersonAI`,
-      type: 'website'
+      type: 'website',
     };
   }
 
@@ -253,7 +255,7 @@ export class SEOUtils {
 
 /**
  * React Hook for managing SEO metadata
- * 
+ *
  * @param metadata - SEO metadata to apply
  */
 export function useSEO(metadata: SEOMetaData): void {

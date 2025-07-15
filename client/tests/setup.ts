@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -14,7 +14,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
-})
+});
 
 // Mock navigator.clipboard
 Object.defineProperty(navigator, 'clipboard', {
@@ -23,7 +23,7 @@ Object.defineProperty(navigator, 'clipboard', {
     readText: vi.fn().mockResolvedValue(''),
   },
   writable: true,
-})
+});
 
 // Mock console methods to avoid noise in tests
 global.console = {
@@ -32,4 +32,4 @@ global.console = {
   // log: vi.fn(),
   // warn: vi.fn(),
   // error: vi.fn(),
-}
+};

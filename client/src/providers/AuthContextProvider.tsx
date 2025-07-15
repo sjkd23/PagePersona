@@ -16,7 +16,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
     error,
     loginWithRedirect,
     logout: auth0Logout,
-    getAccessTokenSilently
+    getAccessTokenSilently,
   } = useAuth0();
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -25,7 +25,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
 
   const getAccessToken = useCallback(async () => {
     try {
-      const token = await getAccessTokenSilently({ authorizationParams: { audience } }) as string;
+      const token = (await getAccessTokenSilently({ authorizationParams: { audience } })) as string;
       return token;
     } catch {
       return undefined;
@@ -44,8 +44,10 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
         setCustomClaims({
           'https://pagepersona.com/is_new_user': claims['https://pagepersona.com/is_new_user'],
           'https://pagepersona.com/first_login': claims['https://pagepersona.com/first_login'],
-          'https://pagepersona.com/profile_created_at': claims['https://pagepersona.com/profile_created_at'],
-          'https://pagepersona.com/profile_sync_error': claims['https://pagepersona.com/profile_sync_error'],
+          'https://pagepersona.com/profile_created_at':
+            claims['https://pagepersona.com/profile_created_at'],
+          'https://pagepersona.com/profile_sync_error':
+            claims['https://pagepersona.com/profile_sync_error'],
         });
       }
     } catch {
@@ -63,16 +65,18 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, user, userProfile, isSyncing, syncUser, getAccessToken]);
 
-  const login = () => loginWithRedirect({ 
-    authorizationParams: { 
-      audience
-    } 
-  });
-  const signup = () => loginWithRedirect({ 
-    authorizationParams: { 
-      audience
-    } 
-  });
+  const login = () =>
+    loginWithRedirect({
+      authorizationParams: {
+        audience,
+      },
+    });
+  const signup = () =>
+    loginWithRedirect({
+      authorizationParams: {
+        audience,
+      },
+    });
   const logout = () => {
     setUserProfile(null);
     setCustomClaims(null);
@@ -82,23 +86,25 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
   const getCustomClaims = async () => customClaims;
 
   return (
-    <AuthContext.Provider value={{
-      user: user || null,
-      userProfile,
-      isAuthenticated,
-      isLoading,
-      isSyncing,
-      error: error?.message || null,
-      login,
-      logout,
-      signup,
-      getAccessToken,
-      refreshUserProfile: syncUser,
-      isNewUser: customClaims?.['https://pagepersona.com/is_new_user'] ?? null,
-      isFirstLogin: customClaims?.['https://pagepersona.com/first_login'] ?? null,
-      profileSyncError: customClaims?.['https://pagepersona.com/profile_sync_error'] ?? null,
-      getCustomClaims
-    }}>
+    <AuthContext.Provider
+      value={{
+        user: user || null,
+        userProfile,
+        isAuthenticated,
+        isLoading,
+        isSyncing,
+        error: error?.message || null,
+        login,
+        logout,
+        signup,
+        getAccessToken,
+        refreshUserProfile: syncUser,
+        isNewUser: customClaims?.['https://pagepersona.com/is_new_user'] ?? null,
+        isFirstLogin: customClaims?.['https://pagepersona.com/first_login'] ?? null,
+        profileSyncError: customClaims?.['https://pagepersona.com/profile_sync_error'] ?? null,
+        getCustomClaims,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

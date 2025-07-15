@@ -36,7 +36,7 @@ export interface AuthenticatedRequest extends Request {
    * Contains all user-related data in a single, well-typed object
    */
   userContext?: AuthenticatedUserContext;
-  
+
   // Legacy fields (deprecated but kept for backward compatibility)
   user?: Auth0JwtPayload;
   mongoUser?: IMongoUser;
@@ -51,7 +51,7 @@ export interface AuthenticatedRequest extends Request {
 export type MiddlewareFunction = (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => void | Promise<void>;
 
 /**
@@ -62,7 +62,7 @@ export type ErrorHandlerFunction = (
   err: AppError | Error | unknown,
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => void;
 
 /**
@@ -72,7 +72,7 @@ export type ErrorHandlerFunction = (
 export type AsyncRouteHandler = (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => Promise<void>;
 
 // ============================================================================
@@ -191,17 +191,12 @@ export interface TransformationResult {
  * Sync rule function type for Auth0 to MongoDB field mapping
  * Determines whether a field should be synced based on values
  */
-export type SyncRuleFunction<T = unknown> = (
-  auth0Value: T,
-  mongoValue: T
-) => boolean;
+export type SyncRuleFunction<T = unknown> = (auth0Value: T, mongoValue: T) => boolean;
 
 /**
  * Transform function type for converting Auth0 values to MongoDB format
  */
-export type TransformFunction<TInput = unknown, TOutput = unknown> = (
-  value: TInput
-) => TOutput;
+export type TransformFunction<TInput = unknown, TOutput = unknown> = (value: TInput) => TOutput;
 
 /**
  * Field mapping configuration for Auth0 to MongoDB sync
@@ -271,9 +266,7 @@ export type StringRecord<T = unknown> = Record<string, T>;
  * Function that safely processes unknown input
  * Returns either the processed result or null on error
  */
-export type SafeProcessor<TInput, TOutput> = (
-  input: TInput
-) => TOutput | null;
+export type SafeProcessor<TInput, TOutput> = (input: TInput) => TOutput | null;
 
 // ============================================================================
 // API CONFIGURATION TYPES

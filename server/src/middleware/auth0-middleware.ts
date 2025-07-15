@@ -63,7 +63,7 @@ export { verifyAuth0Token } from './jwt-verification';
 /**
  * Helper function to verify Auth0 token with error handling
  * Used internally by optionalAuth0 middleware for graceful token verification
- * 
+ *
  * @param req Express request object
  * @param res Express response object
  * @returns Promise resolving to true if token is valid, false otherwise
@@ -71,7 +71,7 @@ export { verifyAuth0Token } from './jwt-verification';
 const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean> => {
   try {
     const { verifyAuth0Token } = await import('./jwt-verification');
-    
+
     return new Promise<boolean>((resolve) => {
       verifyAuth0Token(req, res, (err: unknown) => {
         if (err) {
@@ -93,7 +93,7 @@ const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean
 /**
  * Helper function to sync Auth0 user with error handling
  * Used internally by optionalAuth0 middleware for graceful user synchronization
- * 
+ *
  * @param req Express request object
  * @param res Express response object
  * @returns Promise that resolves when sync is complete
@@ -109,22 +109,22 @@ const trySyncAuth0User = async (req: Request, res: Response): Promise<void> => {
 
 /**
  * Middleware to sync Auth0 user data with MongoDB and attach user context
- * 
+ *
  * This middleware performs the following operations:
  * 1. Validates database connection and JWT payload
  * 2. Creates new users in MongoDB if they don't exist
  * 3. Synchronizes existing user data with Auth0 claims
  * 4. Handles name extraction and username generation
  * 5. Attaches user context to the request object
- * 
+ *
  * @param req Express request object
- * @param res Express response object  
+ * @param res Express response object
  * @param next Next function to continue middleware chain
  */
 export const syncAuth0User = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     // Check database connection
@@ -135,7 +135,7 @@ export const syncAuth0User = async (
     }
 
     const jwtPayload = req.user; // Raw JWT payload from Auth0
-    
+
     if (!jwtPayload || !jwtPayload.sub) {
       next();
       return;
@@ -154,36 +154,37 @@ export const syncAuth0User = async (
       nickname: claims.nickname,
       picture: claims.picture,
       locale: claims.locale,
-      updatedAt: claims.updatedAt
+      updatedAt: claims.updatedAt,
     };
     const userId = jwtPayload.sub;
     const needsFullSync = shouldPerformFullSync(userId);
-    
+
     let mongoUser = await MongoUser.findOne({ auth0Id: jwtPayload.sub });
 
     // Create new user if doesn't exist
     if (!mongoUser) {
       const baseUsername = generateUsernameFromAuth0(auth0User);
-      const username = await ensureUniqueUsername(
-        baseUsername,
-        async (u) => Boolean(await MongoUser.findOne({ username: u }))
+      const username = await ensureUniqueUsername(baseUsername, async (u) =>
+        Boolean(await MongoUser.findOne({ username: u })),
       );
 
       // Enhanced name extraction from Auth0/Google authentication data
-      const firstName = auth0User.givenName || 
-                       auth0User.name?.split(' ')[0] || 
-                       (auth0User.email ? auth0User.email.split('@')[0] : '') || 
-                       '';
-      const lastName = auth0User.familyName || 
-                      (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') || 
-                      '';
+      const firstName =
+        auth0User.givenName ||
+        auth0User.name?.split(' ')[0] ||
+        (auth0User.email ? auth0User.email.split('@')[0] : '') ||
+        '';
+      const lastName =
+        auth0User.familyName ||
+        (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') ||
+        '';
 
       logger.debug('Creating new user with name data', {
         auth0Name: auth0User.name,
         givenName: auth0User.givenName,
         familyName: auth0User.familyName,
         extractedFirstName: firstName,
-        extractedLastName: lastName
+        extractedLastName: lastName,
       });
 
       mongoUser = new MongoUser({
@@ -199,20 +200,20 @@ export const syncAuth0User = async (
         preferences: {
           theme: 'light',
           language: 'en',
-          notifications: true
+          notifications: true,
         },
         usage: {
           totalTransformations: 0,
           monthlyUsage: 0,
-          usageResetDate: new Date()
-        }
+          usageResetDate: new Date(),
+        },
       });
 
       await mongoUser.save();
       logger.debug('New user created with name', { firstName, lastName });
     } else if (needsFullSync) {
       const syncResult = syncAuth0Fields(mongoUser, auth0User);
-      
+
       // Log name synchronization details for debugging
       logger.debug('Syncing existing user names', {
         currentFirstName: mongoUser.firstName,
@@ -220,9 +221,9 @@ export const syncAuth0User = async (
         auth0GivenName: auth0User.givenName,
         auth0FamilyName: auth0User.familyName,
         auth0FullName: auth0User.name,
-        syncUpdated: syncResult.updated
+        syncUpdated: syncResult.updated,
       });
-      
+
       if (syncResult.updated) {
         await mongoUser.save();
         logSyncResults(userId, syncResult);
@@ -231,7 +232,7 @@ export const syncAuth0User = async (
       // Check if user has empty names and Auth0 has name data - force sync
       const hasEmptyNames = !mongoUser.firstName || !mongoUser.lastName;
       const hasAuth0Names = auth0User.givenName || auth0User.familyName || auth0User.name;
-      
+
       // Force sync names for users with empty name fields when Auth0 has name data
       if (hasEmptyNames && hasAuth0Names) {
         logger.debug('Force syncing names for user with empty name fields', {
@@ -241,17 +242,17 @@ export const syncAuth0User = async (
           auth0Data: {
             givenName: auth0User.givenName,
             familyName: auth0User.familyName,
-            name: auth0User.name
-          }
+            name: auth0User.name,
+          },
         });
-        
-        const firstName = auth0User.givenName || 
-                         (auth0User.name ? auth0User.name.split(' ')[0] : '') || 
-                         '';
-        const lastName = auth0User.familyName || 
-                        (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') || 
-                        '';
-        
+
+        const firstName =
+          auth0User.givenName || (auth0User.name ? auth0User.name.split(' ')[0] : '') || '';
+        const lastName =
+          auth0User.familyName ||
+          (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') ||
+          '';
+
         if (firstName || lastName) {
           mongoUser.firstName = firstName;
           mongoUser.lastName = lastName;
@@ -259,7 +260,7 @@ export const syncAuth0User = async (
           logger.debug('Names force synced', { firstName, lastName });
         }
       }
-      
+
       updateSessionOnly(userId);
     }
 
@@ -267,13 +268,13 @@ export const syncAuth0User = async (
     req.userContext = {
       mongoUser,
       auth0User,
-      jwtPayload
+      jwtPayload,
     };
 
     next();
   } catch (error) {
     logger.error('Error syncing Auth0 user', { error });
-    
+
     // For user-facing routes, don't break the entire request chain
     if (req.path.includes('/api/user/')) {
       next();
@@ -281,7 +282,7 @@ export const syncAuth0User = async (
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         error: 'Failed to sync user data',
-        details: process.env.NODE_ENV === 'development' ? error : undefined
+        details: process.env.NODE_ENV === 'development' ? error : undefined,
       });
     }
   }
@@ -289,11 +290,11 @@ export const syncAuth0User = async (
 
 /**
  * Optional Auth0 authentication middleware for routes that can work without authentication
- * 
+ *
  * This middleware attempts to authenticate users when tokens are present but
  * gracefully continues without authentication if tokens are missing or invalid.
  * Useful for public routes that benefit from user context when available.
- * 
+ *
  * @param req Express request object
  * @param res Express response object
  * @param next Next function to continue middleware chain
@@ -301,10 +302,10 @@ export const syncAuth0User = async (
 export const optionalAuth0 = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   logger.debug('optionalAuth0 middleware called for', { path: req.path });
-  
+
   try {
     // Check if Auth0 is properly configured
     if (!process.env.AUTH0_DOMAIN) {
@@ -316,7 +317,7 @@ export const optionalAuth0 = async (
     // Check for authorization header
     const authHeader = req.headers.authorization;
     logger.debug('Auth header present', { hasHeader: !!authHeader });
-    
+
     if (!authHeader) {
       logger.debug('No auth header, proceeding without authentication');
       next();
@@ -345,7 +346,7 @@ export const optionalAuth0 = async (
 
 /**
  * Exported Auth0 Middleware Functions
- * 
+ *
  * This module exports the following middleware functions:
  * - verifyAuth0Token: Strict JWT verification for protected routes
  * - syncAuth0User: Synchronizes Auth0 user data with MongoDB

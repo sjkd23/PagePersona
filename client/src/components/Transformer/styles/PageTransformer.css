@@ -3,7 +3,11 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #a8b5c8 0%, #e8eef7 100%);
   color: #2c3e50;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 
 .main-content {

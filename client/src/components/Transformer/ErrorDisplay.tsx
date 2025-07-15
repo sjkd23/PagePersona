@@ -1,39 +1,39 @@
 /**
  * Enhanced Error Display Component
- * 
+ *
  * This component displays user-friendly error messages with contextual information,
  * action buttons, and helpful guidance. It handles different error types with
  * appropriate styling and provides clear next steps for users.
  */
 
-import { ErrorCode } from '../../../../shared/types/errors'
-import './styles/ErrorDisplay.css'
+import { ErrorCode } from '../../../../shared/types/errors';
+import './styles/ErrorDisplay.css';
 
 /**
  * Props for the ErrorDisplay component
  */
 interface ErrorDisplayProps {
-  error: string
-  errorCode?: ErrorCode
-  title?: string
-  helpText?: string
-  actionText?: string
-  onAction?: () => void
-  onDismiss?: () => void
-  compact?: boolean
+  error: string;
+  errorCode?: ErrorCode;
+  title?: string;
+  helpText?: string;
+  actionText?: string;
+  onAction?: () => void;
+  onDismiss?: () => void;
+  compact?: boolean;
   // Usage limit specific props
-  currentUsage?: number
-  usageLimit?: number
-  membership?: string
-  upgradeUrl?: string
+  currentUsage?: number;
+  usageLimit?: number;
+  membership?: string;
+  upgradeUrl?: string;
   // Rate limit specific props
-  retryAfter?: number
-  className?: string
+  retryAfter?: number;
+  className?: string;
 }
 
 /**
  * Enhanced Error Display Component
- * 
+ *
  * Displays contextual error messages with appropriate styling and actions
  * based on error type. Provides upgrade prompts for usage limits and
  * retry guidance for rate limits.
@@ -52,68 +52,67 @@ export default function ErrorDisplay({
   membership,
   upgradeUrl,
   retryAfter,
-  className = ''
+  className = '',
 }: ErrorDisplayProps) {
-  
   // Get appropriate icon based on error type
   const getErrorIcon = () => {
     switch (errorCode) {
       case ErrorCode.USAGE_LIMIT_EXCEEDED:
-        return '📊'
+        return '📊';
       case ErrorCode.RATE_LIMIT_EXCEEDED:
-        return '⏱️'
+        return '⏱️';
       case ErrorCode.AUTH_REQUIRED:
       case ErrorCode.AUTH_INVALID:
       case ErrorCode.AUTH_EXPIRED:
-        return '🔐'
+        return '🔐';
       case ErrorCode.INVALID_URL:
       case ErrorCode.INVALID_TEXT:
-        return '⚠️'
+        return '⚠️';
       case ErrorCode.NETWORK_ERROR:
       case ErrorCode.SERVICE_UNAVAILABLE:
-        return '🌐'
+        return '🌐';
       case ErrorCode.SCRAPING_FAILED:
-        return '🚫'
+        return '🚫';
       default:
-        return '❌'
+        return '❌';
     }
-  }
+  };
 
   // Get appropriate style class based on error type
   const getErrorStyle = () => {
     switch (errorCode) {
       case ErrorCode.USAGE_LIMIT_EXCEEDED:
-        return 'error-upgrade'
+        return 'error-upgrade';
       case ErrorCode.RATE_LIMIT_EXCEEDED:
-        return 'error-warning'
+        return 'error-warning';
       case ErrorCode.INVALID_URL:
       case ErrorCode.INVALID_TEXT:
       case ErrorCode.INVALID_PERSONA:
-        return 'error-validation'
+        return 'error-validation';
       case ErrorCode.AUTH_REQUIRED:
       case ErrorCode.AUTH_INVALID:
       case ErrorCode.AUTH_EXPIRED:
-        return 'error-auth'
+        return 'error-auth';
       default:
-        return 'error-general'
+        return 'error-general';
     }
-  }
+  };
 
   // Handle action button clicks
   const handleAction = () => {
     if (errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED && upgradeUrl) {
-      window.open(upgradeUrl, '_blank')
+      window.open(upgradeUrl, '_blank');
     } else if (onAction) {
-      onAction()
+      onAction();
     }
-  }
+  };
 
   // Format retry time
   const formatRetryTime = (seconds: number) => {
-    if (seconds < 60) return `${seconds} seconds`
-    const minutes = Math.ceil(seconds / 60)
-    return `${minutes} minute${minutes > 1 ? 's' : ''}`
-  }
+    if (seconds < 60) return `${seconds} seconds`;
+    const minutes = Math.ceil(seconds / 60);
+    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+  };
 
   if (compact) {
     return (
@@ -134,7 +133,7 @@ export default function ErrorDisplay({
           </button>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -158,26 +157,29 @@ export default function ErrorDisplay({
       </div>
 
       {/* Usage limit specific information */}
-      {errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED && currentUsage !== undefined && usageLimit !== undefined && (
-        <div className="error-details">
-          <div className="usage-meter">
-            <div className="usage-bar">
-              <div 
-                className="usage-progress" 
-                style={{ width: `${Math.min((currentUsage / usageLimit) * 100, 100)}%` }}
-              />
+      {errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED &&
+        currentUsage !== undefined &&
+        usageLimit !== undefined && (
+          <div className="error-details">
+            <div className="usage-meter">
+              <div className="usage-bar">
+                <div
+                  className="usage-progress"
+                  style={{ width: `${Math.min((currentUsage / usageLimit) * 100, 100)}%` }}
+                />
+              </div>
+              <p className="usage-text">
+                {currentUsage.toLocaleString()} / {usageLimit.toLocaleString()} transformations used
+                this month
+              </p>
             </div>
-            <p className="usage-text">
-              {currentUsage.toLocaleString()} / {usageLimit.toLocaleString()} transformations used this month
-            </p>
+            {membership && (
+              <p className="membership-info">
+                Current plan: <span className="membership-badge">{membership}</span>
+              </p>
+            )}
           </div>
-          {membership && (
-            <p className="membership-info">
-              Current plan: <span className="membership-badge">{membership}</span>
-            </p>
-          )}
-        </div>
-      )}
+        )}
 
       {/* Rate limit specific information */}
       {errorCode === ErrorCode.RATE_LIMIT_EXCEEDED && retryAfter && (
@@ -202,10 +204,11 @@ export default function ErrorDisplay({
             onClick={handleAction}
             className={`error-action-button ${errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED ? 'action-upgrade' : 'action-primary'}`}
           >
-            {actionText || (errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED ? 'Upgrade Plan' : 'Try Again')}
+            {actionText ||
+              (errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED ? 'Upgrade Plan' : 'Try Again')}
           </button>
         </div>
       )}
     </div>
-  )
+  );
 }

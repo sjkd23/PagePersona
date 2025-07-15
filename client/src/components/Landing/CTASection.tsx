@@ -8,7 +8,12 @@ interface CTASectionProps {
   onShowSignup: () => void;
 }
 
-export default function CTASection({ isAuthenticated = false, userName, onShowLogin, onShowSignup }: CTASectionProps) {
+export default function CTASection({
+  isAuthenticated = false,
+  userName,
+  onShowLogin,
+  onShowSignup,
+}: CTASectionProps) {
   return (
     <div className="landing-cta">
       {isAuthenticated ? (

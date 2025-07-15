@@ -1,18 +1,18 @@
-import React from 'react'
-import type { ClientPersona as Persona } from '../../../../shared/types/personas'
-import './PersonaSelector.css'
+import React from 'react';
+import type { ClientPersona as Persona } from '../../../../shared/types/personas';
+import './PersonaSelector.css';
 
 interface PersonaDetailsProps {
-  persona: Persona
+  persona: Persona;
 }
 
 const PersonaDetails: React.FC<PersonaDetailsProps> = ({ persona }) => (
   <div className="bg-gray-50 rounded-md p-3 text-sm">
     <div className="flex items-start space-x-2">
       <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-200 flex-shrink-0 overflow-hidden">
-        <img 
-          src={persona.avatarUrl} 
-          alt={persona.label} 
+        <img
+          src={persona.avatarUrl}
+          alt={persona.label}
           className="w-full h-full rounded-full object-cover"
         />
       </div>
@@ -29,6 +29,6 @@ const PersonaDetails: React.FC<PersonaDetailsProps> = ({ persona }) => (
       </div>
     </div>
   </div>
-)
+);
 
-export default PersonaDetails
+export default PersonaDetails;

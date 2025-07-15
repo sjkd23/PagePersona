@@ -1,10 +1,10 @@
 /**
  * MongoDB User Model
- * 
+ *
  * Defines the user data structure and operations for MongoDB storage,
  * synchronized with Auth0 authentication system. Includes comprehensive
  * user management features, usage tracking, and role-based access control.
- * 
+ *
  * Features:
  * - Auth0 integration and synchronization
  * - Usage tracking and monthly limits
@@ -18,7 +18,7 @@ import { logger } from '../utils/logger';
 
 /**
  * MongoDB User Document Interface
- * 
+ *
  * Defines the structure and instance methods for user documents
  * stored in MongoDB with comprehensive tracking and management fields.
  */
@@ -48,7 +48,7 @@ export interface IMongoUser extends Document, Record<string, unknown> {
   createdAt: Date;
   updatedAt: Date;
   lastLoginAt?: Date;
-  
+
   // Instance methods for user operations
   incrementUsage(): Promise<void>;
   incrementFailedAttempt(): Promise<void>;
@@ -58,7 +58,7 @@ export interface IMongoUser extends Document, Record<string, unknown> {
 
 /**
  * MongoDB User Model Interface
- * 
+ *
  * Defines static methods available on the User model for
  * database operations and administrative functions.
  */
@@ -76,53 +76,56 @@ export interface IMongoUserModel extends Model<IMongoUser> {
 
 /**
  * MongoDB User Schema Definition
- * 
+ *
  * Defines the complete user document structure with validation rules,
  * default values, indexes, and data constraints for optimal performance
  * and data integrity in MongoDB storage.
  */
-const MongoUserSchema = new Schema<IMongoUser>({
-  auth0Id: { 
-    type: String, 
-    required: true, 
-    unique: true,
-    index: true
+const MongoUserSchema = new Schema<IMongoUser>(
+  {
+    auth0Id: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    firstName: { type: String, default: '' },
+    lastName: { type: String, default: '' },
+    avatar: { type: String, default: '' },
+    isEmailVerified: { type: Boolean, default: false },
+    role: { type: String, default: 'user', enum: ['user', 'admin', 'moderator'] },
+    membership: { type: String, default: 'free', enum: ['free', 'premium', 'admin'] },
+    preferences: {
+      theme: { type: String, default: 'light', enum: ['light', 'dark'] },
+      language: { type: String, default: 'en' },
+      notifications: { type: Boolean, default: true },
+    },
+    usage: {
+      totalTransformations: { type: Number, default: 0 },
+      monthlyUsage: { type: Number, default: 0 },
+      monthlyFailed: { type: Number, default: 0 },
+      failedAttempts: { type: Number, default: 0 },
+      lastTransformation: { type: Date },
+      usageResetDate: { type: Date, default: Date.now },
+    },
+    lastLoginAt: { type: Date },
   },
-  email: { 
-    type: String, 
-    required: true,
-    index: true
+  {
+    timestamps: true,
+    collection: 'users',
   },
-  username: { 
-    type: String, 
-    required: true, 
-    unique: true,
-    index: true
-  },
-  firstName: { type: String, default: '' },
-  lastName: { type: String, default: '' },
-  avatar: { type: String, default: '' },
-  isEmailVerified: { type: Boolean, default: false },
-  role: { type: String, default: 'user', enum: ['user', 'admin', 'moderator'] },
-  membership: { type: String, default: 'free', enum: ['free', 'premium', 'admin'] },
-  preferences: {
-    theme: { type: String, default: 'light', enum: ['light', 'dark'] },
-    language: { type: String, default: 'en' },
-    notifications: { type: Boolean, default: true }
-  },
-  usage: {
-    totalTransformations: { type: Number, default: 0 },
-    monthlyUsage: { type: Number, default: 0 },
-    monthlyFailed: { type: Number, default: 0 },
-    failedAttempts: { type: Number, default: 0 },
-    lastTransformation: { type: Date },
-    usageResetDate: { type: Date, default: Date.now }
-  },
-  lastLoginAt: { type: Date }
-}, { 
-  timestamps: true,
-  collection: 'users'
-});
+);
 
 // Performance optimization indexes for common query patterns
 MongoUserSchema.index({ auth0Id: 1, email: 1 });
@@ -130,20 +133,22 @@ MongoUserSchema.index({ createdAt: -1 });
 
 /**
  * Instance method: Increment user transformation usage
- * 
+ *
  * Atomically increments both total and monthly usage counters with
  * automatic monthly reset handling to prevent race conditions.
  * Uses UTC time calculations to avoid timezone-related issues.
  */
-MongoUserSchema.methods.incrementUsage = async function(this: IMongoUser): Promise<void> {
+MongoUserSchema.methods.incrementUsage = async function (this: IMongoUser): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const resetDate = new Date(this.usage.usageResetDate);
-  
+
   // Check if we need to reset monthly usage (new month) - timezone safe
-  const needsReset = now.getUTCMonth() !== resetDate.getUTCMonth() || now.getUTCFullYear() !== resetDate.getUTCFullYear();
-  
+  const needsReset =
+    now.getUTCMonth() !== resetDate.getUTCMonth() ||
+    now.getUTCFullYear() !== resetDate.getUTCFullYear();
+
   if (needsReset) {
     // Use atomic operation to prevent race conditions
     await (this.constructor as IMongoUserModel).updateOne(
@@ -152,14 +157,14 @@ MongoUserSchema.methods.incrementUsage = async function(this: IMongoUser): Promi
         $set: {
           'usage.monthlyUsage': 1,
           'usage.usageResetDate': currentMonthUTC,
-          'usage.lastTransformation': now
+          'usage.lastTransformation': now,
         },
         $inc: {
-          'usage.totalTransformations': 1
-        }
-      }
+          'usage.totalTransformations': 1,
+        },
+      },
     );
-    
+
     // Update local instance to reflect changes
     this.usage.monthlyUsage = 1;
     this.usage.usageResetDate = currentMonthUTC;
@@ -172,14 +177,14 @@ MongoUserSchema.methods.incrementUsage = async function(this: IMongoUser): Promi
       {
         $inc: {
           'usage.totalTransformations': 1,
-          'usage.monthlyUsage': 1
+          'usage.monthlyUsage': 1,
         },
         $set: {
-          'usage.lastTransformation': now
-        }
-      }
+          'usage.lastTransformation': now,
+        },
+      },
     );
-    
+
     // Update local instance to reflect changes
     this.usage.totalTransformations += 1;
     this.usage.monthlyUsage += 1;
@@ -187,15 +192,17 @@ MongoUserSchema.methods.incrementUsage = async function(this: IMongoUser): Promi
   }
 };
 
-MongoUserSchema.methods.incrementFailedAttempt = async function(this: IMongoUser): Promise<void> {
+MongoUserSchema.methods.incrementFailedAttempt = async function (this: IMongoUser): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const resetDate = new Date(this.usage.usageResetDate);
-  
+
   // Check if we need to reset monthly usage (new month) - timezone safe
-  const needsReset = now.getUTCMonth() !== resetDate.getUTCMonth() || now.getUTCFullYear() !== resetDate.getUTCFullYear();
-  
+  const needsReset =
+    now.getUTCMonth() !== resetDate.getUTCMonth() ||
+    now.getUTCFullYear() !== resetDate.getUTCFullYear();
+
   if (needsReset) {
     // Use atomic operation to prevent race conditions
     await (this.constructor as IMongoUserModel).updateOne(
@@ -203,14 +210,14 @@ MongoUserSchema.methods.incrementFailedAttempt = async function(this: IMongoUser
       {
         $set: {
           'usage.monthlyFailed': 1,
-          'usage.usageResetDate': currentMonthUTC
+          'usage.usageResetDate': currentMonthUTC,
         },
         $inc: {
-          'usage.failedAttempts': 1
-        }
-      }
+          'usage.failedAttempts': 1,
+        },
+      },
     );
-    
+
     // Update local instance to reflect changes
     this.usage.monthlyFailed = 1;
     this.usage.usageResetDate = currentMonthUTC;
@@ -222,18 +229,18 @@ MongoUserSchema.methods.incrementFailedAttempt = async function(this: IMongoUser
       {
         $inc: {
           'usage.failedAttempts': 1,
-          'usage.monthlyFailed': 1
-        }
-      }
+          'usage.monthlyFailed': 1,
+        },
+      },
     );
-    
+
     // Update local instance to reflect changes
     this.usage.failedAttempts = (this.usage.failedAttempts || 0) + 1;
     this.usage.monthlyFailed = (this.usage.monthlyFailed || 0) + 1;
   }
 };
 
-MongoUserSchema.methods.resetMonthlyUsage = async function(this: IMongoUser): Promise<void> {
+MongoUserSchema.methods.resetMonthlyUsage = async function (this: IMongoUser): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
@@ -242,72 +249,72 @@ MongoUserSchema.methods.resetMonthlyUsage = async function(this: IMongoUser): Pr
   await this.save();
 };
 
-MongoUserSchema.methods.checkUsageLimit = function(this: IMongoUser, limit: number): boolean {
+MongoUserSchema.methods.checkUsageLimit = function (this: IMongoUser, limit: number): boolean {
   return this.usage.monthlyUsage < limit;
 };
 
 // Static methods
-MongoUserSchema.statics.findByAuth0Id = function(auth0Id: string) {
+MongoUserSchema.statics.findByAuth0Id = function (auth0Id: string) {
   return this.findOne({ auth0Id });
 };
 
-MongoUserSchema.statics.getUsageStats = async function() {
+MongoUserSchema.statics.getUsageStats = async function () {
   const now = new Date();
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  
+
   const totalUsers = await this.countDocuments();
   const activeUsersThisMonth = await this.countDocuments({
     'usage.lastTransformation': {
-      $gte: currentMonthUTC
-    }
+      $gte: currentMonthUTC,
+    },
   });
-  
+
   const totalTransformations = await this.aggregate([
     {
       $group: {
         _id: null,
-        total: { $sum: '$usage.totalTransformations' }
-      }
-    }
+        total: { $sum: '$usage.totalTransformations' },
+      },
+    },
   ]);
-  
+
   return {
     totalUsers,
     activeUsersThisMonth,
-    totalTransformations: totalTransformations[0]?.total || 0
+    totalTransformations: totalTransformations[0]?.total || 0,
   };
 };
 
 // Static method for atomic usage increment by ID (race-condition safe)
-MongoUserSchema.statics.incrementUsageById = async function(userId: string): Promise<boolean> {
+MongoUserSchema.statics.incrementUsageById = async function (userId: string): Promise<boolean> {
   const now = new Date();
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  
+
   try {
     // First, try to increment usage for users whose monthly usage doesn't need reset
     const normalUpdate = await this.updateOne(
-      { 
+      {
         _id: userId,
         $or: [
           { 'usage.usageResetDate': { $gte: currentMonthUTC } },
-          { 'usage.usageResetDate': { $exists: false } }
-        ]
+          { 'usage.usageResetDate': { $exists: false } },
+        ],
       },
       {
         $inc: {
           'usage.totalTransformations': 1,
-          'usage.monthlyUsage': 1
+          'usage.monthlyUsage': 1,
         },
         $set: {
-          'usage.lastTransformation': now
-        }
-      }
+          'usage.lastTransformation': now,
+        },
+      },
     );
-    
+
     if (normalUpdate.modifiedCount > 0) {
       return true;
     }
-    
+
     // If no document was modified, user needs monthly reset
     const resetUpdate = await this.updateOne(
       { _id: userId },
@@ -315,14 +322,14 @@ MongoUserSchema.statics.incrementUsageById = async function(userId: string): Pro
         $set: {
           'usage.monthlyUsage': 1,
           'usage.usageResetDate': currentMonthUTC,
-          'usage.lastTransformation': now
+          'usage.lastTransformation': now,
         },
         $inc: {
-          'usage.totalTransformations': 1
-        }
-      }
+          'usage.totalTransformations': 1,
+        },
+      },
     );
-    
+
     return resetUpdate.modifiedCount > 0;
   } catch (error) {
     logger.error('Failed to increment usage by ID:', error);
@@ -331,46 +338,48 @@ MongoUserSchema.statics.incrementUsageById = async function(userId: string): Pro
 };
 
 // Static method for atomic failed attempt increment by ID (race-condition safe)
-MongoUserSchema.statics.incrementFailedAttemptById = async function(userId: string): Promise<boolean> {
+MongoUserSchema.statics.incrementFailedAttemptById = async function (
+  userId: string,
+): Promise<boolean> {
   const now = new Date();
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  
+
   try {
     // First, try to increment failed attempts for users whose monthly usage doesn't need reset
     const normalUpdate = await this.updateOne(
-      { 
+      {
         _id: userId,
         $or: [
           { 'usage.usageResetDate': { $gte: currentMonthUTC } },
-          { 'usage.usageResetDate': { $exists: false } }
-        ]
+          { 'usage.usageResetDate': { $exists: false } },
+        ],
       },
       {
         $inc: {
           'usage.failedAttempts': 1,
-          'usage.monthlyFailed': 1
-        }
-      }
+          'usage.monthlyFailed': 1,
+        },
+      },
     );
-    
+
     if (normalUpdate.modifiedCount > 0) {
       return true;
     }
-    
+
     // If no document was modified, user needs monthly reset
     const resetUpdate = await this.updateOne(
       { _id: userId },
       {
         $set: {
           'usage.monthlyFailed': 1,
-          'usage.usageResetDate': currentMonthUTC
+          'usage.usageResetDate': currentMonthUTC,
         },
         $inc: {
-          'usage.failedAttempts': 1
-        }
-      }
+          'usage.failedAttempts': 1,
+        },
+      },
     );
-    
+
     return resetUpdate.modifiedCount > 0;
   } catch (error) {
     logger.error('Failed to increment failed attempt by ID:', error);
@@ -379,49 +388,49 @@ MongoUserSchema.statics.incrementFailedAttemptById = async function(userId: stri
 };
 
 // Bulk usage increment for high-throughput scenarios
-MongoUserSchema.statics.bulkIncrementUsage = async function(userIds: string[]): Promise<number> {
+MongoUserSchema.statics.bulkIncrementUsage = async function (userIds: string[]): Promise<number> {
   const now = new Date();
   const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  
+
   try {
     // First pass: increment users who don't need monthly reset
     const normalUpdates = await this.updateMany(
-      { 
+      {
         _id: { $in: userIds },
         $or: [
           { 'usage.usageResetDate': { $gte: currentMonthUTC } },
-          { 'usage.usageResetDate': { $exists: false } }
-        ]
+          { 'usage.usageResetDate': { $exists: false } },
+        ],
       },
       {
         $inc: {
           'usage.totalTransformations': 1,
-          'usage.monthlyUsage': 1
+          'usage.monthlyUsage': 1,
         },
         $set: {
-          'usage.lastTransformation': now
-        }
-      }
+          'usage.lastTransformation': now,
+        },
+      },
     );
-    
+
     // Second pass: handle users who need monthly reset
     const resetUpdates = await this.updateMany(
-      { 
+      {
         _id: { $in: userIds },
-        'usage.usageResetDate': { $lt: currentMonthUTC }
+        'usage.usageResetDate': { $lt: currentMonthUTC },
       },
       {
         $set: {
           'usage.monthlyUsage': 1,
           'usage.usageResetDate': currentMonthUTC,
-          'usage.lastTransformation': now
+          'usage.lastTransformation': now,
         },
         $inc: {
-          'usage.totalTransformations': 1
-        }
-      }
+          'usage.totalTransformations': 1,
+        },
+      },
     );
-    
+
     return normalUpdates.modifiedCount + resetUpdates.modifiedCount;
   } catch (error) {
     logger.error('Failed bulk usage increment:', error);

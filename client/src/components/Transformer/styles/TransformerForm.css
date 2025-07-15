@@ -151,8 +151,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-container {
@@ -189,7 +193,7 @@
   .card-content {
     padding: 1rem;
   }
-  
+
   .persona-avatar {
     width: 2.5rem;
     height: 2.5rem;

@@ -1,9 +1,9 @@
 /**
  * Persona Type Definitions
- * 
+ *
  * Defines the type hierarchy for persona objects used throughout the application.
  * Personas represent different writing styles and tones that can transform content.
- * 
+ *
  * The type system separates concerns between client-side UI display and server-side
  * AI transformation functionality while maintaining type safety across boundaries.
  */
@@ -14,11 +14,11 @@
  */
 export interface BasePersona {
   /** Unique identifier for the persona */
-  id: string
+  id: string;
   /** Display name shown to users */
-  name: string
+  name: string;
   /** Brief description of the persona's characteristics */
-  description: string
+  description: string;
 }
 
 /**
@@ -29,26 +29,26 @@ export interface BasePersona {
 export interface FullPersona extends BasePersona {
   // UI-specific fields for client-side rendering
   /** User-friendly label for UI components */
-  label: string
+  label: string;
   /** Sample texts demonstrating the persona's style */
-  exampleTexts: string[]
+  exampleTexts: string[];
   /** Path to the persona's avatar image */
-  avatarUrl: string
+  avatarUrl: string;
   /** Color theme for UI theming */
   theme: {
     /** Primary brand color */
-    primary: string
+    primary: string;
     /** Secondary accent color */
-    secondary: string
+    secondary: string;
     /** Highlight/accent color */
-    accent: string
-  }
-  
+    accent: string;
+  };
+
   // AI-specific fields for server-side transformation
   /** Tone modification instructions for AI model */
-  toneModifier: string
+  toneModifier: string;
   /** Complete system prompt template for AI transformations */
-  systemPrompt: string
+  systemPrompt: string;
 }
 
 /**
@@ -58,9 +58,9 @@ export interface FullPersona extends BasePersona {
  */
 export interface ServerPersona extends BasePersona {
   /** Instructions for modifying the tone and style */
-  toneModifier: string
+  toneModifier: string;
   /** System prompt template for AI model instructions */
-  systemPrompt: string
+  systemPrompt: string;
 }
 
 /**
@@ -70,17 +70,17 @@ export interface ServerPersona extends BasePersona {
  */
 export interface ClientPersona extends BasePersona {
   /** Display label for UI components */
-  label: string
+  label: string;
   /** Example texts showing the persona's writing style */
-  exampleTexts: string[]
+  exampleTexts: string[];
   /** Avatar image path for visual representation */
-  avatarUrl: string
+  avatarUrl: string;
   /** Theme colors for dynamic UI styling */
   theme: {
-    primary: string
-    secondary: string
-    accent: string
-  }
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
 }
 
 /**
@@ -88,7 +88,7 @@ export interface ClientPersona extends BasePersona {
  * Defaults to ServerPersona for existing code that expects transformation capabilities.
  * @deprecated Use ServerPersona or ClientPersona explicitly for better type safety
  */
-export type Persona = ServerPersona
+export type Persona = ServerPersona;
 
 /**
  * Request payload for content transformation operations.
@@ -96,9 +96,9 @@ export type Persona = ServerPersona
  */
 export interface TransformRequest {
   /** URL of the webpage to transform */
-  url: string
+  url: string;
   /** ID of the persona to use for transformation */
-  persona: string
+  persona: string;
 }
 
 /**
@@ -107,20 +107,20 @@ export interface TransformRequest {
  */
 export interface TransformResponse {
   /** Indicates if the transformation was successful */
-  success: boolean
+  success: boolean;
   /** Original webpage content before transformation */
   originalContent: {
     /** Page title */
-    title: string
+    title: string;
     /** Main content text */
-    content: string
+    content: string;
     /** Source URL */
-    url: string
-  }
+    url: string;
+  };
   /** AI-transformed content in the requested persona style */
-  transformedContent: string
+  transformedContent: string;
   /** Error message if transformation failed */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -129,15 +129,15 @@ export interface TransformResponse {
  */
 export interface BaseWebpageContent {
   /** Original URL of the source webpage */
-  originalUrl: string
+  originalUrl: string;
   /** Original title of the webpage */
-  originalTitle: string
+  originalTitle: string;
   /** Original text content before transformation */
-  originalContent: string
+  originalContent: string;
   /** AI-transformed content in persona style */
-  transformedContent: string
+  transformedContent: string;
   /** Timestamp when the transformation was performed */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -146,7 +146,7 @@ export interface BaseWebpageContent {
  */
 export interface ServerWebpageContent extends BaseWebpageContent {
   /** Persona used for transformation, including AI prompts */
-  persona: ServerPersona
+  persona: ServerPersona;
 }
 
 /**
@@ -155,11 +155,11 @@ export interface ServerWebpageContent extends BaseWebpageContent {
  */
 export interface ClientWebpageContent extends BaseWebpageContent {
   /** Persona used for transformation, UI fields only */
-  persona: ClientPersona
+  persona: ClientPersona;
 }
 
 /**
  * Default webpage content type for UI components.
  * Aliases to ClientWebpageContent to ensure UI-safe data handling.
  */
-export type WebpageContent = ClientWebpageContent
+export type WebpageContent = ClientWebpageContent;

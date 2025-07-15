@@ -2,7 +2,11 @@ import { vi } from 'vitest';
 
 // Mock the imports used in TransformerForm
 vi.mock('../InputModeToggle', () => ({
-  default: ({ mode, onModeChange, disabled }: {
+  default: ({
+    mode,
+    onModeChange,
+    disabled,
+  }: {
     mode: 'url' | 'text';
     onModeChange: (mode: 'url' | 'text') => void;
     disabled: boolean;
@@ -29,11 +33,19 @@ vi.mock('../InputModeToggle', () => ({
 }));
 
 vi.mock('../ValidationError', () => ({
-  default: ({ error }: { error: string | null }) => error ? <div data-testid="error">{error}</div> : null,
+  default: ({ error }: { error: string | null }) =>
+    error ? <div data-testid="error">{error}</div> : null,
 }));
 
 vi.mock('../TextInput', () => ({
-  default: ({ value, onChange, placeholder, disabled, hasError, 'data-testid': testId }: {
+  default: ({
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    hasError,
+    'data-testid': testId,
+  }: {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
@@ -46,14 +58,22 @@ vi.mock('../TextInput', () => ({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       disabled={disabled}
-      data-testid={testId || "text-input"}
+      data-testid={testId || 'text-input'}
       className={hasError ? 'text-input-error' : ''}
     />
   ),
 }));
 
 vi.mock('../TextArea', () => ({
-  default: ({ value, onChange, placeholder, disabled, maxLength, hasError, 'data-testid': testId }: {
+  default: ({
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    maxLength,
+    hasError,
+    'data-testid': testId,
+  }: {
     value: string;
     onChange: (value: string) => void;
     placeholder: string;
@@ -68,22 +88,15 @@ vi.mock('../TextArea', () => ({
       placeholder={placeholder}
       disabled={disabled}
       maxLength={maxLength}
-      data-testid={testId || "text-area"}
+      data-testid={testId || 'text-area'}
       className={hasError ? 'text-area-error' : ''}
     />
   ),
 }));
 
 vi.mock('../CharacterCount', () => ({
-  default: ({ current, max, hasError }: {
-    current: number;
-    max: number;
-    hasError: boolean;
-  }) => (
-    <div 
-      data-testid="character-count"
-      className={hasError ? 'character-count-error' : ''}
-    >
+  default: ({ current, max, hasError }: { current: number; max: number; hasError: boolean }) => (
+    <div data-testid="character-count" className={hasError ? 'character-count-error' : ''}>
       {current} / {max} characters
     </div>
   ),
@@ -91,16 +104,16 @@ vi.mock('../CharacterCount', () => ({
 
 // Also mock InputField for consistency
 vi.mock('../InputField', () => ({
-  default: ({ 
-    mode, 
-    value, 
-    onModeChange, 
-    onChange, 
-    urlError, 
-    textError, 
-    maxLength, 
+  default: ({
+    mode,
+    value,
+    onModeChange,
+    onChange,
+    urlError,
+    textError,
+    maxLength,
     disabled,
-    'data-testid': testId 
+    'data-testid': testId,
   }: {
     mode: 'url' | 'text';
     value: string;
@@ -113,14 +126,18 @@ vi.mock('../InputField', () => ({
     'data-testid'?: string;
   }) => {
     const currentError = mode === 'url' ? urlError : textError;
-    
+
     return (
-      <div data-testid={testId || "input-field"}>
-        <button onClick={() => onModeChange('url')} disabled={disabled}>URL</button>
-        <button onClick={() => onModeChange('text')} disabled={disabled}>Text</button>
-        
+      <div data-testid={testId || 'input-field'}>
+        <button onClick={() => onModeChange('url')} disabled={disabled}>
+          URL
+        </button>
+        <button onClick={() => onModeChange('text')} disabled={disabled}>
+          Text
+        </button>
+
         {mode === 'url' ? (
-          <input 
+          <input
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
@@ -128,17 +145,19 @@ vi.mock('../InputField', () => ({
           />
         ) : (
           <>
-            <textarea 
+            <textarea
               value={value}
               onChange={(e) => onChange(e.target.value)}
               disabled={disabled}
               maxLength={maxLength}
               data-testid="text-input"
             />
-            <div data-testid="character-count">{value.length} / {maxLength} characters</div>
+            <div data-testid="character-count">
+              {value.length} / {maxLength} characters
+            </div>
           </>
         )}
-        
+
         {currentError && <div data-testid="error">{currentError}</div>}
       </div>
     );

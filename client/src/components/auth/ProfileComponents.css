@@ -179,7 +179,9 @@
 
 /* Usage meter enhancements */
 .usage-meter-fill {
-  transition: width 0.5s ease-in-out, background-color 0.3s ease;
+  transition:
+    width 0.5s ease-in-out,
+    background-color 0.3s ease;
   border-radius: inherit;
   height: 100%;
   background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
@@ -202,13 +204,22 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Usage limit warnings */
@@ -252,7 +263,7 @@
 }
 
 /* Enhanced select styling */
-.form-input[type="select"], 
+.form-input[type='select'],
 select.form-input {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.75rem center;
@@ -283,16 +294,16 @@ select.form-input {
   .checkbox-container {
     align-items: center;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .profile-actions {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .profile-actions .btn {
     width: 100%;
     justify-content: center;

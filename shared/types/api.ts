@@ -1,6 +1,6 @@
 /**
  * Canonical ApiResponse interface for consistent API responses across the application
- * 
+ *
  * This interface ensures all API endpoints return the same response format:
  * - success: boolean indicating if the operation was successful
  * - data: optional generic data payload
@@ -15,12 +15,12 @@ export interface ApiResponse<T = unknown> {
 }
 
 export interface ApiError {
-  message: string
-  code?: string
-  status?: number
+  message: string;
+  code?: string;
+  status?: number;
 }
 
 export interface LoadingState {
-  isLoading: boolean
-  error?: string | null
+  isLoading: boolean;
+  error?: string | null;
 }

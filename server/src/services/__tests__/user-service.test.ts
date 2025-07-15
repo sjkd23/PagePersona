@@ -15,7 +15,7 @@ describe('UserService', () => {
 
   beforeEach(() => {
     service = new UserService();
-    
+
     // Mock user object
     mockUser = {
       _id: 'test-user-id',
@@ -26,7 +26,7 @@ describe('UserService', () => {
       preferences: { theme: 'dark' },
       usage: { transformCount: 5, lastUsed: new Date() },
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     // Reset mocks
@@ -53,18 +53,18 @@ describe('UserService', () => {
         preferences: {
           theme: 'light',
           language: 'en',
-          notifications: true
+          notifications: true,
         },
         usage: {
           totalTransformations: 5,
           monthlyUsage: 3,
           lastTransformation: '2024-01-01T00:00:00.000Z',
-          usageResetDate: '2024-01-01T00:00:00.000Z'
+          usageResetDate: '2024-01-01T00:00:00.000Z',
         },
         createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z'
+        updatedAt: '2024-01-01T00:00:00.000Z',
       };
-      
+
       vi.mocked(MongoUser.findById).mockResolvedValue(mockUser);
       vi.mocked(serializeMongoUser).mockReturnValue(serializedUser);
 
@@ -125,16 +125,16 @@ describe('UserService', () => {
         preferences: {
           theme: 'light',
           language: 'en',
-          notifications: true
+          notifications: true,
         },
         usage: {
           totalTransformations: 5,
           monthlyUsage: 3,
           lastTransformation: '2024-01-01T00:00:00.000Z',
-          usageResetDate: '2024-01-01T00:00:00.000Z'
+          usageResetDate: '2024-01-01T00:00:00.000Z',
         },
         createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z'
+        updatedAt: '2024-01-01T00:00:00.000Z',
       };
 
       vi.mocked(MongoUser.findByIdAndUpdate).mockResolvedValue(updatedUser);
@@ -147,11 +147,10 @@ describe('UserService', () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual(serializedUser);
       expect(result.message).toBe('Profile updated successfully');
-      expect(MongoUser.findByIdAndUpdate).toHaveBeenCalledWith(
-        mockUser._id,
-        updates,
-        { new: true, runValidators: true }
-      );
+      expect(MongoUser.findByIdAndUpdate).toHaveBeenCalledWith(mockUser._id, updates, {
+        new: true,
+        runValidators: true,
+      });
     });
 
     it('should merge preferences instead of replacing them', async () => {
@@ -163,10 +162,10 @@ describe('UserService', () => {
 
       const expectedMergedUpdate = {
         preferences: {
-          theme: 'light',      // Updated
-          language: 'en',      // Preserved
-          notifications: true  // Added
-        }
+          theme: 'light', // Updated
+          language: 'en', // Preserved
+          notifications: true, // Added
+        },
       };
 
       const updatedUser = { ...userWithPrefs, ...expectedMergedUpdate };
@@ -181,7 +180,7 @@ describe('UserService', () => {
       expect(MongoUser.findByIdAndUpdate).toHaveBeenCalledWith(
         userWithPrefs._id,
         expectedMergedUpdate,
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
     });
 
@@ -191,9 +190,9 @@ describe('UserService', () => {
         firstName: 'Jane',
         lastName: 'Smith',
         preferences: { theme: 'light' },
-        auth0Id: 'malicious-change',  // Should be filtered out
-        _id: 'malicious-id',          // Should be filtered out
-        email: 'hacker@evil.com'      // Should be filtered out
+        auth0Id: 'malicious-change', // Should be filtered out
+        _id: 'malicious-id', // Should be filtered out
+        email: 'hacker@evil.com', // Should be filtered out
       };
 
       const expectedFilteredUpdates = {
@@ -201,8 +200,8 @@ describe('UserService', () => {
         lastName: 'Smith',
         preferences: {
           ...mockUser.preferences,
-          theme: 'light'
-        }
+          theme: 'light',
+        },
       };
 
       const updatedUser = { ...mockUser, ...expectedFilteredUpdates };
@@ -217,7 +216,7 @@ describe('UserService', () => {
       expect(MongoUser.findByIdAndUpdate).toHaveBeenCalledWith(
         mockUser._id,
         expectedFilteredUpdates,
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
     });
 
@@ -257,7 +256,7 @@ describe('UserService', () => {
         totalTransformations: 5,
         monthlyUsage: 3,
         lastTransformation: '2024-01-01T00:00:00.000Z',
-        usageResetDate: '2024-01-01T00:00:00.000Z'
+        usageResetDate: '2024-01-01T00:00:00.000Z',
       };
       vi.mocked(serializeUserUsage).mockReturnValue(usageData);
 
@@ -311,16 +310,16 @@ describe('UserService', () => {
         preferences: {
           theme: 'light',
           language: 'en',
-          notifications: true
+          notifications: true,
         },
         usage: {
           totalTransformations: 5,
           monthlyUsage: 3,
           lastTransformation: '2024-01-01T00:00:00.000Z',
-          usageResetDate: '2024-01-01T00:00:00.000Z'
+          usageResetDate: '2024-01-01T00:00:00.000Z',
         },
         createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z'
+        updatedAt: '2024-01-01T00:00:00.000Z',
       };
       vi.mocked(serializeMongoUser).mockReturnValue(serializedUser);
 
@@ -386,7 +385,7 @@ describe('UserService', () => {
       // Assert
       expect(result).toHaveProperty('success');
       expect(typeof result.success).toBe('boolean');
-      
+
       if (result.success) {
         expect(result).toHaveProperty('data');
       } else {

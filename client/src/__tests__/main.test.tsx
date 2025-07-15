@@ -1,42 +1,42 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { StrictMode } from 'react'
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { StrictMode } from 'react';
 
 // Mock React DOM
-const mockRender = vi.fn()
+const mockRender = vi.fn();
 const mockCreateRoot = vi.fn(() => ({
-  render: mockRender
-}))
+  render: mockRender,
+}));
 
 vi.mock('react-dom/client', () => ({
-  createRoot: mockCreateRoot
-}))
+  createRoot: mockCreateRoot,
+}));
 
 // Mock App component
 vi.mock('../App.tsx', () => ({
-  default: () => 'App'
-}))
+  default: () => 'App',
+}));
 
 describe('main.tsx', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.clearAllMocks();
     // Mock DOM element
-    const mockElement = document.createElement('div')
-    vi.spyOn(document, 'getElementById').mockReturnValue(mockElement)
-  })
+    const mockElement = document.createElement('div');
+    vi.spyOn(document, 'getElementById').mockReturnValue(mockElement);
+  });
 
   it('should render App component in StrictMode', async () => {
     // Import main to trigger the render
-    await import('../main.tsx')
+    await import('../main.tsx');
 
-    expect(document.getElementById).toHaveBeenCalledWith('root')
-    expect(mockCreateRoot).toHaveBeenCalledWith(expect.any(HTMLElement))
+    expect(document.getElementById).toHaveBeenCalledWith('root');
+    expect(mockCreateRoot).toHaveBeenCalledWith(expect.any(HTMLElement));
     expect(mockRender).toHaveBeenCalledWith(
       expect.objectContaining({
         type: StrictMode,
         props: expect.objectContaining({
-          children: expect.anything()
-        })
-      })
-    )
-  })
-})
+          children: expect.anything(),
+        }),
+      }),
+    );
+  });
+});

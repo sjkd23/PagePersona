@@ -1,9 +1,9 @@
 /**
  * TypeScript interfaces and types for authentication components
- * 
+ *
  * This module defines the type definitions used across authentication
  * components to ensure type safety and consistency.
- * 
+ *
  * @module AuthTypes
  */
 

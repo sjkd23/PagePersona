@@ -1,5 +1,5 @@
 interface LogoProps {
-  onHome?: () => void
+  onHome?: () => void;
 }
 
 export default function Logo({ onHome }: LogoProps) {
@@ -10,5 +10,5 @@ export default function Logo({ onHome }: LogoProps) {
       </div>
       <h1>PagePersona</h1>
     </div>
-  )
+  );
 }

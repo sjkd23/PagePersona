@@ -1,2 +1,2 @@
-import PersonaSelector from './PersonaSelector'
-export default PersonaSelector
+import PersonaSelector from './PersonaSelector';
+export default PersonaSelector;

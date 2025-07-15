@@ -1,4 +1,3 @@
-
 export interface CTAProps {
   onShowLogin: () => void;
   onShowSignup: () => void;

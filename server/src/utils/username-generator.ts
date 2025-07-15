@@ -12,12 +12,12 @@ import type { ProcessedAuth0User } from '../types/common';
  */
 export function generateUsernameFromAuth0(auth0User: ProcessedAuth0User): string {
   const { sub, nickname, name, email } = auth0User;
-  
+
   // Extract short identifier from Auth0 sub (e.g., "auth0|123abc" -> "123abc")
   const subId = sub?.split('|').pop()?.slice(-6) || 'user';
-  
+
   let baseUsername = '';
-  
+
   // Try different sources in order of preference
   if (nickname && isValidUsernameBase(nickname)) {
     baseUsername = sanitizeUsername(nickname);
@@ -29,7 +29,7 @@ export function generateUsernameFromAuth0(auth0User: ProcessedAuth0User): string
   } else {
     baseUsername = 'user';
   }
-  
+
   // Always include part of Auth0 sub for uniqueness
   return `${baseUsername}_${subId}`;
 }
@@ -38,11 +38,13 @@ export function generateUsernameFromAuth0(auth0User: ProcessedAuth0User): string
  * Check if a string is suitable as username base
  */
 function isValidUsernameBase(str: string): boolean {
-  return Boolean(str) && 
-         str.length >= 2 && 
-         str.length <= 20 && 
-         !/^\d+$/.test(str) && // Not just numbers
-         !/^[._-]+$/.test(str); // Not just special chars
+  return (
+    Boolean(str) &&
+    str.length >= 2 &&
+    str.length <= 20 &&
+    !/^\d+$/.test(str) && // Not just numbers
+    !/^[._-]+$/.test(str)
+  ); // Not just special chars
 }
 
 /**
@@ -60,23 +62,23 @@ function sanitizeUsername(str: string): string {
  * Ensure username uniqueness by checking database
  */
 export async function ensureUniqueUsername(
-  baseUsername: string, 
-  checkExists: (username: string) => Promise<boolean>
+  baseUsername: string,
+  checkExists: (username: string) => Promise<boolean>,
 ): Promise<string> {
   let username = baseUsername;
   let counter = 1;
-  
+
   // If base username exists, try variants
   while (await checkExists(username)) {
     username = `${baseUsername}${counter}`;
     counter++;
-    
+
     // Prevent infinite loops
     if (counter > 999) {
       username = `${baseUsername}_${Date.now()}`;
       break;
     }
   }
-  
+
   return username;
 }

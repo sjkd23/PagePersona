@@ -1,9 +1,11 @@
 /* Landing Page Main Layout */
 .landing-page {
   min-height: calc(100vh - 120px);
-  background: #F3F5F7;
+  background: #f3f5f7;
   color: #294769;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .dark .landing-page {
@@ -54,12 +56,14 @@
   grid-column: 1 / span 2;
   height: 2px;
   width: 100%;
-  background: linear-gradient(90deg,
-      transparent 0%,
-      #A4BCD9 15%,
-      #294769 50%,
-      #A4BCD9 85%,
-      transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #a4bcd9 15%,
+    #294769 50%,
+    #a4bcd9 85%,
+    transparent 100%
+  );
   margin: 1.5rem 0;
   opacity: 0.6;
   border-radius: 1px;
@@ -68,12 +72,14 @@
 .output-divider {
   height: 2px;
   width: 100%;
-  background: linear-gradient(90deg,
-      transparent 0%,
-      #A4BCD9 15%,
-      #294769 50%,
-      #A4BCD9 85%,
-      transparent 100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #a4bcd9 15%,
+    #294769 50%,
+    #a4bcd9 85%,
+    transparent 100%
+  );
   margin: 2rem 0 2rem 0;
   opacity: 0.7;
   border-radius: 1px;

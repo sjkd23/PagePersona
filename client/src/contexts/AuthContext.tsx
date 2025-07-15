@@ -1,6 +1,6 @@
 /**
  * Auth Context Definition
- * 
+ *
  * Contains the Auth context definition to comply with React Fast Refresh
  * requirements that separate contexts from components.
  */
