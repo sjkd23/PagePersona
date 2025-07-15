@@ -131,6 +131,9 @@ app.options('*', cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
 
 // Response compression with gzip and Brotli support
+// This middleware compresses responses larger than 1KB to reduce bandwidth usage
+// and improve performance for API responses, especially for large persona lists
+// and transformation results.
 app.use(
   compression({
     // compress responses larger than 1KB

@@ -48,6 +48,7 @@ PagePersonAI reimagines web content through different writing personas. Want to 
 - **Secure Authentication**: Auth0 integration with social logins
 - **Usage Tracking**: Rate limiting and analytics with tier-based access
 - **Smart Caching**: Redis-backed caching with MongoDB persistence
+- **Response Compression**: Gzip compression for optimized API responses
 - **Modern Interface**: Responsive React UI with Tailwind CSS
 - **Production Ready**: Docker containerization and CI/CD pipeline
 - **Well Tested**: Comprehensive test coverage
@@ -439,6 +440,20 @@ npm run test:watch --workspace=server
 # Run tests with coverage
 npm run test:coverage --workspace=server
 ```
+
+### Testing Compression
+
+To verify that the compression middleware is working properly, you can use the included test script:
+
+```bash
+# Start the server in development mode
+npm run dev
+
+# In another terminal, run the compression test
+node test-compression.js
+```
+
+This will test both small and large responses to ensure compression is working correctly.
 
 ---
 
