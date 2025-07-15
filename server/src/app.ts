@@ -9,6 +9,7 @@
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
+import helmet from 'helmet';
 import { ensureSafeAuth0Config } from './utils/env-validation';
 import { connectToDatabase } from './config/database';
 import { errorHandler } from './utils/response-helpers';
@@ -34,6 +35,31 @@ ensureSafeAuth0Config();
 // Initialize Express application
 const app = express();
 app.disable('x-powered-by'); // Security: Hide Express.js version information
+
+// Security headers with Helmet
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],
+      connectSrc: ["'self'", process.env.API_URL || 'http://localhost:3000'],
+      fontSrc: ["'self'", 'data:'],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  }),
+);
+app.use(
+  helmet.hsts({
+    maxAge: 15552000, // 180 days in seconds
+    includeSubDomains: true,
+  }),
+);
+app.use(helmet.noSniff());
+app.use(helmet.frameguard({ action: 'deny' }));
+app.use(helmet.referrerPolicy({ policy: 'no-referrer' }));
 
 // Establish database connections
 connectToDatabase();
