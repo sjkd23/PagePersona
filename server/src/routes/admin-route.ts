@@ -11,6 +11,7 @@
  * - GET /stats: Retrieve system statistics and metrics
  */
 
+import '../types/loader';
 import express, { Request, Response } from 'express';
 import { MongoUser } from '../models/mongo-user';
 import { jwtCheck, requireRoles, authErrorHandler } from '../middleware/auth';

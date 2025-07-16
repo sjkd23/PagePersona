@@ -6,6 +6,9 @@
  * testing capabilities.
  */
 
+// Load type declarations for ts-node-dev
+import './types/loader';
+
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
@@ -261,9 +264,18 @@ app.use(errorHandler);
 
 // Protected route example
 app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {
+  // Use type guard for better type safety
+  if (!req.userContext) {
+    res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
+      error: 'User context not found',
+    });
+    return;
+  }
+
   res.json({
     message: 'Authentication successful',
-    user: req.userContext?.jwtPayload,
+    user: req.userContext.jwtPayload,
   });
 });
 

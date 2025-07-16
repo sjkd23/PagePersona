@@ -47,6 +47,7 @@
  * - optionalAuth0: Optional authentication for public routes
  */
 
+import '../types/loader';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { MongoUser } from '../models/mongo-user';

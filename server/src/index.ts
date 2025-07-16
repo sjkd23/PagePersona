@@ -18,6 +18,9 @@
  * @module ServerApp
  */
 
+// Load type declarations for ts-node-dev
+import './types/loader';
+
 import cluster from 'cluster';
 import os from 'os';
 import dotenv from 'dotenv';

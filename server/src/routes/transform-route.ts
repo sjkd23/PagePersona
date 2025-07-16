@@ -14,6 +14,7 @@
  * - DELETE /cache: Development cache clearing
  */
 
+import '../types/loader';
 import express, { Request, Response } from 'express';
 import { getAllClientPersonas } from '@pagepersonai/shared';
 import { optionalAuth0 } from '../middleware/auth0-middleware';

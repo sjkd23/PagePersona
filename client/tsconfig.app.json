@@ -22,15 +22,24 @@
     "baseUrl": ".",
     "paths": {
       "@pagepersonai/shared/*": ["../shared/*"],
-      "@pagepersonai/shared": ["../shared"]
+      "@pagepersonai/shared": ["../shared"],
+      "shared/*": ["../shared/*"],
+      "shared": ["../shared"]
     },
+    "typeRoots": ["node_modules/@types"],
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictFunctionTypes": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
   },
   "include": ["src"],
   "references": [

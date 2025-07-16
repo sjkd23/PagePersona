@@ -16,6 +16,7 @@
  * the userContext with MongoDB user data.
  */
 
+import '../types/loader';
 import { Response } from 'express';
 import { logger } from '../utils/logger';
 import { HttpStatus } from '../constants/http-status';

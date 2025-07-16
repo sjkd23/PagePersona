@@ -1,17 +1,33 @@
 {
   "name": "@pagepersonai/shared",
   "version": "1.0.0",
+  "type": "module",
   "description": "Shared types and constants for PagePersonAI client and server",
-  "main": "index.ts",
-  "types": "index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    ".": "./index.ts",
-    "./types": "./types/index.ts",
-    "./constants": "./constants/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js",
+      "require": "./dist/types/index.js"
+    },
+    "./constants": {
+      "types": "./dist/constants/index.d.ts",
+      "import": "./dist/constants/index.js",
+      "require": "./dist/constants/index.js"
+    }
   },
   "scripts": {
+    "prebuild": "npm run typecheck",
     "build": "tsc -b .",
-    "type-check": "tsc --noEmit",
+    "postbuild": "echo \"Shared package built successfully\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rimraf dist",
     "test": "echo \"No tests for shared package\""
   },
   "devDependencies": {

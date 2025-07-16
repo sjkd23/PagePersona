@@ -1,6 +1,19 @@
 {
+  "compilerOptions": {
+    // Enable project references for monorepo support
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    
+    // Basic TypeScript options
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
   "files": [],
   "references": [
+    // Build order: shared -> server -> client
     { "path": "shared" },
     { "path": "server" },
     { "path": "client" }

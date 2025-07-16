@@ -12,8 +12,8 @@
  * @module PersonaConstants
  */
 
-import { BASE_SYSTEM_PROMPT } from './prompts';
-import type { FullPersona, ServerPersona, ClientPersona } from '../types/personas';
+import { BASE_SYSTEM_PROMPT } from './prompts.js';
+import type { FullPersona, ServerPersona, ClientPersona } from '../types/personas.js';
 
 /**
  * Complete persona definitions containing both UI and AI transformation data.

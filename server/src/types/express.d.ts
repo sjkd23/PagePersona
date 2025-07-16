@@ -135,5 +135,3 @@ declare module 'express-serve-static-core' {
     userId?: string;
   }
 }
-
-export { UserContext };

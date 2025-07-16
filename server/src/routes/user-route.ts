@@ -21,6 +21,7 @@
  * Development and debug routes are conditionally enabled based on environment.
  */
 
+import '../types/loader';
 import express, { Request, Response } from 'express';
 import { MongoUser, type IMongoUser } from '../models/mongo-user';
 import { jwtCheck, authErrorHandler } from '../middleware/auth';
