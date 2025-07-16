@@ -9,8 +9,8 @@ vi.mock('@auth0/auth0-react', () => ({
     error: null,
     loginWithRedirect: vi.fn(),
     logout: vi.fn(),
-    getAccessTokenSilently: vi.fn()
-  }))
+    getAccessTokenSilently: vi.fn(),
+  })),
 }));
 
 describe('Auth0 Integration Tests', () => {
@@ -23,7 +23,7 @@ describe('Auth0 Integration Tests', () => {
   it('should return auth state when called', async () => {
     const { useAuth0 } = await import('@auth0/auth0-react');
     const authState = useAuth0();
-    
+
     expect(authState).toHaveProperty('isLoading');
     expect(authState).toHaveProperty('isAuthenticated');
     expect(authState).toHaveProperty('user');
@@ -33,13 +33,9 @@ describe('Auth0 Integration Tests', () => {
 
   it('should have required Auth0 environment variables defined', () => {
     // These should be defined in the environment (even if mocked)
-    const expectedEnvVars = [
-      'VITE_AUTH0_DOMAIN',
-      'VITE_AUTH0_CLIENT_ID', 
-      'VITE_AUTH0_AUDIENCE'
-    ];
+    const expectedEnvVars = ['VITE_AUTH0_DOMAIN', 'VITE_AUTH0_CLIENT_ID', 'VITE_AUTH0_AUDIENCE'];
 
-    expectedEnvVars.forEach(envVar => {
+    expectedEnvVars.forEach((envVar) => {
       // Just check that the variable exists (can be undefined in test environment)
       expect(typeof import.meta.env[envVar]).toBeDefined();
     });

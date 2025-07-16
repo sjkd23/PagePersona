@@ -1,10 +1,10 @@
 /**
  * Usage Limit Enforcement Middleware
- * 
+ *
  * This module provides middleware to enforce monthly usage limits based on
  * user membership tiers. It prevents users from exceeding their allocated
  * usage quotas and provides informative responses about current usage status.
- * 
+ *
  * Features:
  * - Membership-based usage limit enforcement
  * - Configurable limit checking with override options
@@ -12,7 +12,7 @@
  * - Detailed usage information attachment to requests
  * - Graceful fallback when limit checking fails
  * - Comprehensive logging for usage monitoring
- * 
+ *
  * The middleware integrates with the user management system to provide
  * seamless usage tracking and limit enforcement across the application.
  */
@@ -22,7 +22,7 @@ import { getUserUsageLimit } from '../utils/usage-tracking';
 import { createErrorResponse } from '../utils/userSerializer';
 import { HttpStatus } from '../constants/http-status';
 import { logger } from '../utils/logger';
-import { ErrorMapper } from '../../../shared/types/errors';
+import { ErrorMapper } from '@pagepersonai/shared';
 
 /**
  * Configuration options for usage limit checking
@@ -38,14 +38,14 @@ export interface UsageLimitOptions {
 
 /**
  * Middleware to check if user has exceeded their monthly usage limit
- * 
+ *
  * This middleware enforces usage limits based on user membership tiers:
  * - Checks current usage against membership-based limits
  * - Blocks requests when limits are exceeded (unless allowOverage is true)
  * - Attaches usage information to the request for downstream use
  * - Logs usage violations for monitoring
  * - Gracefully handles unauthenticated users and errors
- * 
+ *
  * @param options Configuration options for limit checking behavior
  * @returns Express middleware function
  */
@@ -66,7 +66,7 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
       if (!mongoUser) {
         logger.usage.warn('Usage limit check requested for unauthenticated user', {
           ip: req.ip,
-          userAgent: req.get('User-Agent')
+          userAgent: req.get('User-Agent'),
         });
         next();
         return;
@@ -81,7 +81,7 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
         membership: mongoUser.membership,
         currentUsage,
         usageLimit,
-        allowOverage
+        allowOverage,
       });
 
       // Enforce usage limit unless overage is explicitly allowed
@@ -90,14 +90,14 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
           userId: mongoUser._id,
           membership: mongoUser.membership,
           currentUsage,
-          usageLimit
+          usageLimit,
         });
 
         // Create user-friendly error with specific usage details
         const userFriendlyError = ErrorMapper.mapUsageLimitError({
           currentUsage,
           usageLimit,
-          membership: mongoUser.membership
+          membership: mongoUser.membership,
         });
 
         res.status(HttpStatus.TOO_MANY_REQUESTS).json({
@@ -112,7 +112,7 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
           currentUsage: userFriendlyError.currentUsage,
           usageLimit: userFriendlyError.usageLimit,
           membership: userFriendlyError.membership,
-          timestamp: userFriendlyError.timestamp
+          timestamp: userFriendlyError.timestamp,
         });
         return;
       }
@@ -122,13 +122,13 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
         currentUsage,
         usageLimit,
         membership: mongoUser.membership,
-        remainingUsage: Math.max(0, usageLimit - currentUsage)
+        remainingUsage: Math.max(0, usageLimit - currentUsage),
       };
 
       next();
     } catch (error) {
       logger.usage.error('Error checking usage limit', error);
-      
+
       // Fail open - allow the request to continue if limit checking fails
       // This ensures system availability even when usage tracking has issues
       logger.usage.warn('Usage limit check failed, allowing request to continue');
@@ -139,11 +139,11 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
 
 /**
  * Strict usage limit middleware for authenticated users only
- * 
+ *
  * This variant requires user authentication and rejects unauthenticated requests.
  * It's designed for sensitive endpoints that should only be accessed by
  * authenticated users with valid usage limits.
- * 
+ *
  * @param options Configuration options for limit checking behavior
  * @returns Express middleware function that requires authentication
  */
@@ -153,9 +153,9 @@ export const checkUsageLimitStrict = (options: UsageLimitOptions = {}) => {
 
     // Reject unauthenticated requests immediately
     if (!mongoUser) {
-      res.status(HttpStatus.UNAUTHORIZED).json(
-        createErrorResponse('Authentication required for this operation')
-      );
+      res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json(createErrorResponse('Authentication required for this operation'));
       return;
     }
 
@@ -166,18 +166,31 @@ export const checkUsageLimitStrict = (options: UsageLimitOptions = {}) => {
 
 /**
  * Extract usage information from request object
- * 
+ *
  * Retrieves usage information that was attached by the checkUsageLimit middleware.
  * This provides access to current usage statistics for downstream processing.
- * 
+ *
  * @param req Express request object
  * @returns Usage information object or null if not available
  */
-export const getUsageInfo = (req: Request): {
+export const getUsageInfo = (
+  req: Request,
+): {
   currentUsage: number;
   usageLimit: number;
   membership: string;
   remainingUsage: number;
 } | null => {
-  return (req as Request & { usageInfo?: { currentUsage: number; usageLimit: number; membership: string; remainingUsage: number } }).usageInfo || null;
+  return (
+    (
+      req as Request & {
+        usageInfo?: {
+          currentUsage: number;
+          usageLimit: number;
+          membership: string;
+          remainingUsage: number;
+        };
+      }
+    ).usageInfo || null
+  );
 };

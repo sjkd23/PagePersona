@@ -1,10 +1,10 @@
 /**
  * Profile Header Component
- * 
+ *
  * This component displays the user's profile header information including
  * avatar, name, email, and action buttons. It handles both viewing and
  * editing modes with appropriate UI state management.
- * 
+ *
  * @module ProfileHeader
  */
 
@@ -34,11 +34,11 @@ interface ProfileHeaderProps extends LoadingProps {
 
 /**
  * ProfileHeader component that displays user profile header information
- * 
+ *
  * Renders the user's avatar, name, email, member since date, and action
  * buttons. Provides different UI states for viewing and editing modes
  * with loading state support.
- * 
+ *
  * @param props - Component props containing user data and handlers
  * @returns JSX element displaying the profile header
  */
@@ -49,7 +49,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onEdit,
   onSave,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }) => {
   /**
    * Get the display name for the user
@@ -82,7 +82,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       return new Date(profile.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       });
     }
     return 'Unknown';
@@ -94,32 +94,26 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <div className="profile-info">
           {/* Avatar */}
           {user.picture ? (
-            <img 
-              src={user.picture} 
-              alt={getDisplayName()} 
+            <img
+              src={user.picture}
+              alt={getDisplayName()}
               className="profile-avatar"
               loading="lazy"
             />
           ) : (
-            <div className="profile-avatar-placeholder">
-              {getUserInitials()}
-            </div>
+            <div className="profile-avatar-placeholder">{getUserInitials()}</div>
           )}
-          
+
           {/* User Details */}
           <div className="profile-details">
-            <h1 title={getDisplayName()}>
-              {getDisplayName()}
-            </h1>
+            <h1 title={getDisplayName()}>{getDisplayName()}</h1>
             <p className="email" title={profile?.email || user.email}>
               {profile?.email || user.email}
             </p>
-            <p className="member-since">
-              Member since {getMemberSinceDate()}
-            </p>
+            <p className="member-since">Member since {getMemberSinceDate()}</p>
           </div>
         </div>
-        
+
         {/* Action Buttons */}
         <div className="profile-actions">
           {!editing ? (

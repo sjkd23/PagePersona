@@ -7,7 +7,8 @@
   margin-top: 1rem;
 }
 
-.url-input, .text-input {
+.url-input,
+.text-input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #e2e8f0;
@@ -16,17 +17,20 @@
   transition: border-color 0.15s ease-in-out;
 }
 
-.url-input:focus, .text-input:focus {
+.url-input:focus,
+.text-input:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.url-input-error, .text-input-error {
+.url-input-error,
+.text-input-error {
   border-color: #ef4444;
 }
 
-.url-input-error:focus, .text-input-error:focus {
+.url-input-error:focus,
+.text-input-error:focus {
   border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }

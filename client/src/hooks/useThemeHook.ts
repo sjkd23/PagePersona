@@ -1,6 +1,6 @@
 /**
- * Theme Hook 
- * 
+ * Theme Hook
+ *
  * Contains the useTheme hook to solve the React Fast Refresh issue
  * where hooks and components shouldn't be in the same file.
  */
@@ -10,10 +10,10 @@ import { ThemeContext } from '../contexts/ThemeContext';
 
 /**
  * Theme context hook with validation
- * 
+ *
  * Provides type-safe access to theme context with automatic error
  * handling for missing provider configuration.
- * 
+ *
  * @returns Theme context containing state and toggle function
  * @throws Error if used outside of ThemeProvider context
  */

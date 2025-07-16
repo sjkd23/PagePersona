@@ -1,6 +1,6 @@
 /**
  * 🛡️ Validation Demo - Example usage of the new Zod validation system
- * 
+ *
  * This file demonstrates how to use the validation middleware for new endpoints
  */
 
@@ -24,16 +24,17 @@ router.post('/simple', validateBody(simpleSchema), (req, res) => {
 });
 
 // Example 2: Custom validation with refinements
-const advancedSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters'),
-  content: z.string().min(10).max(1000),
-  tags: z.array(z.string()).min(1, 'At least one tag is required').max(5),
-  published: z.boolean().default(false),
-  publishDate: z.string().datetime().optional(),
-}).refine(
-  data => !data.published || data.publishDate,
-  { message: 'Published posts must have a publish date' }
-);
+const advancedSchema = z
+  .object({
+    title: z.string().min(5, 'Title must be at least 5 characters'),
+    content: z.string().min(10).max(1000),
+    tags: z.array(z.string()).min(1, 'At least one tag is required').max(5),
+    published: z.boolean().default(false),
+    publishDate: z.string().datetime().optional(),
+  })
+  .refine((data) => !data.published || data.publishDate, {
+    message: 'Published posts must have a publish date',
+  });
 
 router.post('/advanced', validateBody(advancedSchema), (req, res) => {
   // All validation passed, data is clean and typed
@@ -44,10 +45,7 @@ router.post('/advanced', validateBody(advancedSchema), (req, res) => {
 const searchQuerySchema = z.object({
   q: z.string().min(1, 'Search query is required'),
   category: z.enum(['tech', 'business', 'lifestyle']).optional(),
-  limit: z.preprocess(
-    (val) => val ? Number(val) : undefined,
-    z.number().max(100).optional()
-  ),
+  limit: z.preprocess((val) => (val ? Number(val) : undefined), z.number().max(100).optional()),
 });
 
 router.get('/search', validateQuery(searchQuerySchema), (req, res) => {
@@ -65,19 +63,20 @@ const combinedBodySchema = z.object({
   reason: z.string().optional(),
 });
 
-router.put('/items/:id/status', 
-  validateQuery(combinedParamsSchema), 
-  validateBody(combinedBodySchema), 
+router.put(
+  '/items/:id/status',
+  validateQuery(combinedParamsSchema),
+  validateBody(combinedBodySchema),
   (req, res) => {
     const { id } = req.params;
     const { action, reason } = req.body;
     res.json({ id, action, reason });
-  }
+  },
 );
 
 /**
  * Error Response Examples:
- * 
+ *
  * Invalid email:
  * {
  *   "success": false,
@@ -86,11 +85,11 @@ router.put('/items/:id/status',
  *     "email": ["Invalid email format"]
  *   }
  * }
- * 
+ *
  * Multiple validation errors:
  * {
  *   "success": false,
- *   "error": "Invalid input", 
+ *   "error": "Invalid input",
  *   "details": {
  *     "title": ["Title must be at least 5 characters"],
  *     "tags": ["At least one tag is required"],

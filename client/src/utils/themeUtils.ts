@@ -1,16 +1,16 @@
 /**
  * Theme utility functions and constants for consistent styling
- * 
+ *
  * This module provides a comprehensive theming system that supports both
  * light and dark modes, with predefined color schemes for various UI
  * components and persona-specific styling.
- * 
+ *
  * @module themeUtils
  */
 
 /**
  * Predefined theme classes for consistent styling across components
- * 
+ *
  * These classes provide light/dark mode variants for common UI elements
  * including backgrounds, text colors, borders, and interactive elements.
  */
@@ -20,24 +20,26 @@ export const themeClasses = {
   backgroundSecondary: 'bg-gray-50 dark:bg-gray-800',
   backgroundCard: 'bg-white dark:bg-gray-800',
   backgroundMuted: 'bg-gray-100 dark:bg-gray-700',
-  
+
   // Text colors
   textPrimary: 'text-gray-900 dark:text-gray-100',
   textSecondary: 'text-gray-600 dark:text-gray-300',
   textMuted: 'text-gray-500 dark:text-gray-400',
   textAccent: 'text-blue-600 dark:text-blue-400',
-  
+
   // Borders
   border: 'border-gray-200 dark:border-gray-700',
   borderLight: 'border-gray-100 dark:border-gray-800',
-  
+
   // Interactive elements
   buttonPrimary: 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white',
-  buttonSecondary: 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100',
-  
+  buttonSecondary:
+    'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100',
+
   // Input fields
-  input: 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400',
-  
+  input:
+    'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400',
+
   // Shadows
   shadow: 'shadow-lg dark:shadow-gray-900/25',
   shadowCard: 'shadow-md dark:shadow-gray-900/50',
@@ -45,7 +47,7 @@ export const themeClasses = {
 
 /**
  * Pre-configured component class combinations
- * 
+ *
  * Common UI component styling patterns that combine multiple theme classes
  * for consistent appearance across the application.
  */
@@ -59,7 +61,7 @@ const componentClasses = {
 
 /**
  * Retrieves appropriate CSS classes for a specific component type
- * 
+ *
  * @param {keyof typeof componentClasses} component - The component type
  * @returns {string} The combined CSS classes for the component
  */
@@ -69,7 +71,7 @@ export const getComponentClasses = (component: keyof typeof componentClasses) =>
 
 /**
  * Persona-specific color schemes compatible with both light and dark modes
- * 
+ *
  * Each persona has its own color scheme with variants for different contexts
  * including background, accent colors, and hover states.
  */

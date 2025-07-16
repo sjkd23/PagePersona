@@ -12,15 +12,15 @@ describe('OpenAIClientService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockOpenAIInstance = {
       chat: {
         completions: {
-          create: vi.fn()
-        }
-      }
+          create: vi.fn(),
+        },
+      },
     };
-    
+
     MockedOpenAI.mockImplementation(() => mockOpenAIInstance);
     openaiService = new OpenAIClientService('test-api-key');
   });
@@ -48,17 +48,19 @@ describe('OpenAIClientService', () => {
 
     it('should generate completion successfully', async () => {
       const mockResponse = {
-        choices: [{
-          message: {
-            content: 'Quantum physics is the study of very small particles.'
+        choices: [
+          {
+            message: {
+              content: 'Quantum physics is the study of very small particles.',
+            },
+            finish_reason: 'stop',
           },
-          finish_reason: 'stop'
-        }],
+        ],
         usage: {
           prompt_tokens: 50,
           completion_tokens: 25,
-          total_tokens: 75
-        }
+          total_tokens: 75,
+        },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -70,16 +72,16 @@ describe('OpenAIClientService', () => {
         usage: {
           prompt_tokens: 50,
           completion_tokens: 25,
-          total_tokens: 75
+          total_tokens: 75,
         },
-        finishReason: 'stop'
+        finishReason: 'stop',
       });
     });
 
     it('should use default parameters when not specified', async () => {
       const mockResponse = {
         choices: [{ message: { content: 'Response' }, finish_reason: 'stop' }],
-        usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 }
+        usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -94,8 +96,8 @@ describe('OpenAIClientService', () => {
         frequency_penalty: 0.1,
         messages: [
           { role: 'system', content: 'You are a helpful assistant.' },
-          { role: 'user', content: 'Explain quantum physics simply.' }
-        ]
+          { role: 'user', content: 'Explain quantum physics simply.' },
+        ],
       });
     });
 
@@ -106,12 +108,12 @@ describe('OpenAIClientService', () => {
         maxTokens: 1000,
         temperature: 0.5,
         presencePenalty: 0.2,
-        frequencyPenalty: 0.3
+        frequencyPenalty: 0.3,
       };
 
       const mockResponse = {
         choices: [{ message: { content: 'Custom response' }, finish_reason: 'stop' }],
-        usage: { prompt_tokens: 15, completion_tokens: 10, total_tokens: 25 }
+        usage: { prompt_tokens: 15, completion_tokens: 10, total_tokens: 25 },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -126,8 +128,8 @@ describe('OpenAIClientService', () => {
         frequency_penalty: 0.3,
         messages: [
           { role: 'system', content: 'You are a helpful assistant.' },
-          { role: 'user', content: 'Explain quantum physics simply.' }
-        ]
+          { role: 'user', content: 'Explain quantum physics simply.' },
+        ],
       });
     });
 
@@ -135,24 +137,28 @@ describe('OpenAIClientService', () => {
       const apiError = new Error('OpenAI API Error: Rate limit exceeded');
       mockOpenAIInstance.chat.completions.create.mockRejectedValue(apiError);
 
-      await expect(openaiService.generateCompletion(mockRequest))
-        .rejects.toThrow('OpenAI API error: OpenAI API Error: Rate limit exceeded');
+      await expect(openaiService.generateCompletion(mockRequest)).rejects.toThrow(
+        'OpenAI API error: OpenAI API Error: Rate limit exceeded',
+      );
     });
 
     it('should handle timeout errors', async () => {
       const timeoutError = new Error('Request timeout');
       mockOpenAIInstance.chat.completions.create.mockRejectedValue(timeoutError);
 
-      await expect(openaiService.generateCompletion(mockRequest))
-        .rejects.toThrow('OpenAI API error: Request timeout');
+      await expect(openaiService.generateCompletion(mockRequest)).rejects.toThrow(
+        'OpenAI API error: Request timeout',
+      );
     });
 
     it('should handle responses without usage data', async () => {
       const mockResponse = {
-        choices: [{
-          message: { content: 'Response without usage' },
-          finish_reason: 'stop'
-        }]
+        choices: [
+          {
+            message: { content: 'Response without usage' },
+            finish_reason: 'stop',
+          },
+        ],
         // No usage field
       };
 
@@ -167,11 +173,13 @@ describe('OpenAIClientService', () => {
 
     it('should handle empty response content', async () => {
       const mockResponse = {
-        choices: [{
-          message: { content: '' },
-          finish_reason: 'stop'
-        }],
-        usage: { prompt_tokens: 10, completion_tokens: 0, total_tokens: 10 }
+        choices: [
+          {
+            message: { content: '' },
+            finish_reason: 'stop',
+          },
+        ],
+        usage: { prompt_tokens: 10, completion_tokens: 0, total_tokens: 10 },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -183,11 +191,13 @@ describe('OpenAIClientService', () => {
 
     it('should handle responses with length finish reason', async () => {
       const mockResponse = {
-        choices: [{
-          message: { content: 'Truncated response...' },
-          finish_reason: 'length'
-        }],
-        usage: { prompt_tokens: 50, completion_tokens: 2500, total_tokens: 2550 }
+        choices: [
+          {
+            message: { content: 'Truncated response...' },
+            finish_reason: 'length',
+          },
+        ],
+        usage: { prompt_tokens: 50, completion_tokens: 2500, total_tokens: 2550 },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -202,15 +212,17 @@ describe('OpenAIClientService', () => {
   describe('error handling and edge cases', () => {
     it('should handle malformed OpenAI responses', async () => {
       const malformedResponse = {
-        choices: []  // Empty choices array
+        choices: [], // Empty choices array
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(malformedResponse);
 
-      await expect(openaiService.generateCompletion({
-        systemPrompt: 'System',
-        userPrompt: 'User'
-      })).rejects.toThrow('OpenAI API error: No content received from OpenAI');
+      await expect(
+        openaiService.generateCompletion({
+          systemPrompt: 'System',
+          userPrompt: 'User',
+        }),
+      ).rejects.toThrow('OpenAI API error: No content received from OpenAI');
     });
 
     it('should handle very long prompts', async () => {
@@ -221,7 +233,7 @@ describe('OpenAIClientService', () => {
 
       const mockResponse = {
         choices: [{ message: { content: 'Response to long prompt' }, finish_reason: 'stop' }],
-        usage: { prompt_tokens: 5000, completion_tokens: 100, total_tokens: 5100 }
+        usage: { prompt_tokens: 5000, completion_tokens: 100, total_tokens: 5100 },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -234,22 +246,25 @@ describe('OpenAIClientService', () => {
 
     it('should validate prompt parameters', async () => {
       const invalidRequest = {
-        systemPrompt: '',  // Empty system prompt
-        userPrompt: '',    // Empty user prompt
+        systemPrompt: '', // Empty system prompt
+        userPrompt: '', // Empty user prompt
       };
 
-      await expect(openaiService.generateCompletion(invalidRequest))
-        .rejects.toThrow('OpenAI API error:');
+      await expect(openaiService.generateCompletion(invalidRequest)).rejects.toThrow(
+        'OpenAI API error:',
+      );
     });
 
     it('should handle network connectivity issues', async () => {
       const networkError = new Error('ECONNREFUSED');
       mockOpenAIInstance.chat.completions.create.mockRejectedValue(networkError);
 
-      await expect(openaiService.generateCompletion({
-        systemPrompt: 'System',
-        userPrompt: 'User'
-      })).rejects.toThrow('OpenAI API error: ECONNREFUSED');
+      await expect(
+        openaiService.generateCompletion({
+          systemPrompt: 'System',
+          userPrompt: 'User',
+        }),
+      ).rejects.toThrow('OpenAI API error: ECONNREFUSED');
     });
   });
 });

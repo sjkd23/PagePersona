@@ -1,77 +1,81 @@
 /**
  * Content display component for transformed text
- * 
+ *
  * This component handles the display of transformed content with persona
  * information, loading states, and user interaction features like copying
  * to clipboard. It provides visual feedback for user actions and maintains
  * accessibility standards.
- * 
+ *
  * @module ContentDisplay
  */
 
-import { useState } from 'react'
-import type { ClientPersona as Persona, WebpageContent } from '../../../../shared/types/personas'
-import './styles/ContentDisplay.css'
+import { useState } from 'react';
+import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
+import './styles/ContentDisplay.css';
 
 /**
  * Props for the ContentDisplay component
- * 
+ *
  * @interface ContentDisplayProps
  * @property {WebpageContent | null} content - The transformed content to display
  * @property {boolean} isLoading - Whether content is currently being processed
  * @property {Persona | null} selectedPersona - The persona being used for transformation
  */
 interface ContentDisplayProps {
-  content: WebpageContent | null
-  isLoading: boolean
-  selectedPersona: Persona | null
+  content: WebpageContent | null;
+  isLoading: boolean;
+  selectedPersona: Persona | null;
 }
 
 /**
  * ContentDisplay component that shows transformed content with interactive features
- * 
+ *
  * Displays transformed content with persona information, loading states, and
  * clipboard functionality. Provides visual feedback and graceful fallbacks
  * for various browser capabilities.
- * 
+ *
  * @param {ContentDisplayProps} props - Component props
  * @returns {JSX.Element} The rendered content display component
  */
-export default function ContentDisplay({ content, isLoading, selectedPersona }: ContentDisplayProps) {
-  const [copySuccess, setCopySuccess] = useState(false)
+export default function ContentDisplay({
+  content,
+  isLoading,
+  selectedPersona,
+}: ContentDisplayProps) {
+  const [copySuccess, setCopySuccess] = useState(false);
 
   /**
    * Copies transformed content to clipboard with fallback support
-   * 
+   *
    * Uses modern clipboard API with fallback to legacy document.execCommand
    * for broader browser compatibility. Provides visual feedback on success.
    */
   const copyToClipboard = async () => {
-    if (!content?.transformedContent) return
+    if (!content?.transformedContent) return;
 
     try {
-      await navigator.clipboard.writeText(content.transformedContent)
-      setCopySuccess(true)
+      await navigator.clipboard.writeText(content.transformedContent);
+      setCopySuccess(true);
       // Hide the tooltip after 2 seconds
-      setTimeout(() => setCopySuccess(false), 2000)
+      setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err)
+      console.error('Failed to copy text: ', err);
       // Fallback for older browsers
-      const textArea = document.createElement('textarea')
-      textArea.value = content.transformedContent
-      document.body.appendChild(textArea)
-      textArea.focus()
-      textArea.select()
+      const textArea = document.createElement('textarea');
+      textArea.value = content.transformedContent;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
       try {
-        document.execCommand('copy')
-        setCopySuccess(true)
-        setTimeout(() => setCopySuccess(false), 2000)
+        document.execCommand('copy');
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
       } catch (fallbackErr) {
-        console.error('Fallback copy failed: ', fallbackErr)
+        console.error('Fallback copy failed: ', fallbackErr);
       }
-      document.body.removeChild(textArea)
+      document.body.removeChild(textArea);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -82,7 +86,7 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
           <p>Applying {selectedPersona?.label} persona...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!content) {
@@ -91,7 +95,7 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
         <div className="text-3xl mb-2">📄</div>
         <p className="text-gray-500 text-sm">Your transformed content will appear here</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -99,10 +103,11 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
       {/* Persona Info */}
       <div className="flex items-center space-x-2">
         <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-200 overflow-hidden">
-          <img 
-            src={content.persona.avatarUrl} 
+          <img
+            src={content.persona.avatarUrl}
             alt={content.persona.label}
             className="w-full h-full rounded-full object-cover"
+            loading="lazy"
           />
         </div>
         <div>
@@ -136,10 +141,8 @@ export default function ContentDisplay({ content, isLoading, selectedPersona }: 
             </span>
           )}
         </button>
-        <button className="text-blue-600 hover:text-blue-800 font-medium">
-          Save
-        </button>
+        <button className="text-blue-600 hover:text-blue-800 font-medium">Save</button>
       </div>
     </div>
-  )
+  );
 }

@@ -1,14 +1,13 @@
-
-import type { HistoryItem } from '../../hooks/useTransformationHistory'
-import "./styles/TransformationHistory.css"
+import type { HistoryItem } from '../../hooks/useTransformationHistory';
+import './styles/TransformationHistory.css';
 
 interface TransformationHistoryProps {
-  history: HistoryItem[]
-  onRestoreTransformation: (content: HistoryItem) => void
-  onRemoveItem: (id: string) => void
-  onClearHistory: () => void
-  isOpen: boolean
-  onToggle: () => void
+  history: HistoryItem[];
+  onRestoreTransformation: (content: HistoryItem) => void;
+  onRemoveItem: (id: string) => void;
+  onClearHistory: () => void;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
 export default function TransformationHistory({
@@ -17,40 +16,38 @@ export default function TransformationHistory({
   onRemoveItem,
   onClearHistory,
   isOpen,
-  onToggle
+  onToggle,
 }: TransformationHistoryProps) {
   const formatDate = (date: Date) => {
-    const now = new Date()
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
     if (diffInHours < 1) {
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
-      return diffInMinutes <= 1 ? 'Just now' : `${diffInMinutes}m ago`
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      return diffInMinutes <= 1 ? 'Just now' : `${diffInMinutes}m ago`;
     } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`
+      return `${diffInHours}h ago`;
     } else {
-      return date.toLocaleDateString()
+      return date.toLocaleDateString();
     }
-  }
+  };
 
   const truncateText = (text: string, maxLength: number = 100) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
-  }
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
 
   const getUrlDomain = (url: string) => {
     try {
-      return new URL(url).hostname
+      return new URL(url).hostname;
     } catch {
-      return url
+      return url;
     }
-  }
+  };
 
   return (
     <>
       {/* Sidebar */}
-      <div
-        className={`transformation-history-sidebar${isOpen ? '' : ' closed'}`}
-      >
+      <div className={`transformation-history-sidebar${isOpen ? '' : ' closed'}`}>
         <div className="transformation-history-container">
           {/* Header */}
           <div className="transformation-history-header">
@@ -79,11 +76,10 @@ export default function TransformationHistory({
             {history.length === 0 ? (
               <div className="transformation-history-empty">
                 <div className="transformation-history-empty-icon">📜</div>
-                <p className="transformation-history-empty-title">
-                  No transformations yet
-                </p>
+                <p className="transformation-history-empty-title">No transformations yet</p>
                 <p className="transformation-history-empty-desc">
-                  Your transformation history will appear here as you generate content with different personas
+                  Your transformation history will appear here as you generate content with
+                  different personas
                 </p>
               </div>
             ) : (
@@ -97,10 +93,11 @@ export default function TransformationHistory({
                     {/* Persona Info */}
                     <div className="transformation-history-persona-row">
                       <div className="transformation-history-persona-avatar">
-                        <img 
-                          src={item.persona.avatarUrl} 
+                        <img
+                          src={item.persona.avatarUrl}
                           alt={item.persona.label}
                           className="w-full h-full rounded-full object-cover"
+                          loading="lazy"
                         />
                       </div>
                       <div className="transformation-history-persona-info">
@@ -117,12 +114,12 @@ export default function TransformationHistory({
                     <div className="transformation-history-source">
                       <div className="transformation-history-source-chip">
                         <span>{item.originalUrl === 'Direct Text Input' ? '📝' : '🌐'}</span>
-                        {item.originalUrl === 'Direct Text Input' ? 'Text Input' : getUrlDomain(item.originalUrl)}
+                        {item.originalUrl === 'Direct Text Input'
+                          ? 'Text Input'
+                          : getUrlDomain(item.originalUrl)}
                       </div>
                       {item.originalTitle && (
-                        <p className="transformation-history-source-title">
-                          {item.originalTitle}
-                        </p>
+                        <p className="transformation-history-source-title">{item.originalTitle}</p>
                       )}
                     </div>
 
@@ -136,8 +133,8 @@ export default function TransformationHistory({
                       <button
                         className="transformation-history-restore-btn"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          onRestoreTransformation(item)
+                          e.stopPropagation();
+                          onRestoreTransformation(item);
                         }}
                       >
                         <span>↩</span>
@@ -146,8 +143,8 @@ export default function TransformationHistory({
                       <button
                         className="transformation-history-remove-btn"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          onRemoveItem(item.id)
+                          e.stopPropagation();
+                          onRemoveItem(item.id);
                         }}
                         title="Remove from history"
                       >
@@ -164,14 +161,9 @@ export default function TransformationHistory({
       </div>
 
       {/* Overlay */}
-      {isOpen && (
-        <div
-          className="transformation-history-overlay"
-          onClick={onToggle}
-        />
-      )}
+      {isOpen && <div className="transformation-history-overlay" onClick={onToggle} />}
     </>
-  )
+  );
 }
 
 // Remove old component files after modularization

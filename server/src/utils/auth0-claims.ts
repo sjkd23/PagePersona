@@ -21,16 +21,16 @@ interface SafeAuth0Claims {
  * Standard Auth0 claim mappings that should be consistent across environments
  */
 const STANDARD_CLAIMS = {
-  sub: 'sub',                    // Always present, unique identifier
-  email: 'email',                // Standard email claim
+  sub: 'sub', // Always present, unique identifier
+  email: 'email', // Standard email claim
   emailVerified: 'email_verified', // Email verification status
-  name: 'name',                  // Full name
-  givenName: 'given_name',       // First name  
-  familyName: 'family_name',     // Last name
-  nickname: 'nickname',          // Username/nickname
-  picture: 'picture',            // Profile picture URL
-  locale: 'locale',              // User locale
-  updatedAt: 'updated_at'        // Last update timestamp
+  name: 'name', // Full name
+  givenName: 'given_name', // First name
+  familyName: 'family_name', // Last name
+  nickname: 'nickname', // Username/nickname
+  picture: 'picture', // Profile picture URL
+  locale: 'locale', // User locale
+  updatedAt: 'updated_at', // Last update timestamp
 } as const;
 
 /**
@@ -42,7 +42,7 @@ const ENVIRONMENT_CLAIMS = {
   // Custom claims might have different paths per environment
   customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
   roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
-  permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions'
+  permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions',
 };
 
 /**
@@ -70,7 +70,7 @@ export function safeGetAuth0Claims(auth0User: Auth0JwtPayload): SafeAuth0Claims 
     nickname: auth0User[STANDARD_CLAIMS.nickname] as string | undefined,
     picture: auth0User[STANDARD_CLAIMS.picture] as string | undefined,
     locale: auth0User[STANDARD_CLAIMS.locale] as string | undefined,
-    updatedAt: auth0User[STANDARD_CLAIMS.updatedAt] as string | undefined
+    updatedAt: auth0User[STANDARD_CLAIMS.updatedAt] as string | undefined,
   };
 }
 
@@ -86,13 +86,13 @@ export function safeGetCustomClaims(auth0User: Auth0JwtPayload): Record<string, 
   const environmentClaims = {
     customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
     roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
-    permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions'
+    permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions',
   };
 
   return {
     customUserId: auth0User[environmentClaims.customUserId],
     roles: auth0User[environmentClaims.roles] || [],
-    permissions: auth0User[environmentClaims.permissions] || []
+    permissions: auth0User[environmentClaims.permissions] || [],
   };
 }
 
@@ -130,7 +130,7 @@ export function safeGetDisplayName(auth0User: Auth0JwtPayload): string {
   if (!auth0User) return 'Anonymous User';
 
   const claims = safeGetAuth0Claims(auth0User);
-  
+
   // Preference order: name > givenName + familyName > nickname > email > sub
   if (claims.name && claims.name.trim()) {
     return claims.name.trim();
@@ -161,7 +161,10 @@ export function safeGetDisplayName(auth0User: Auth0JwtPayload): string {
 /**
  * Validate Auth0 user object structure
  */
-export function validateAuth0User(auth0User: Auth0JwtPayload): { isValid: boolean; errors: string[] } {
+export function validateAuth0User(auth0User: Auth0JwtPayload): {
+  isValid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   if (!auth0User) {
@@ -191,7 +194,7 @@ export function validateAuth0User(auth0User: Auth0JwtPayload): { isValid: boolea
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 }
 
@@ -229,19 +232,25 @@ export function debugAuth0Claims(auth0User: Auth0JwtPayload, userId?: string): v
     const environmentClaims = {
       customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
       roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
-      permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions'
+      permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions',
     };
 
     const knownClaimKeys = new Set([
       ...Object.values(STANDARD_CLAIMS),
       ...Object.values(environmentClaims),
-      'iss', 'aud', 'iat', 'exp', 'azp', 'scope', 'gty'
+      'iss',
+      'aud',
+      'iat',
+      'exp',
+      'azp',
+      'scope',
+      'gty',
     ]);
 
     const unknownClaimEntries = Object.entries(auth0User)
       .filter(([key]) => !knownClaimKeys.has(key))
       .map(([key, value]) => `${key}: ${value}`);
-    
+
     if (unknownClaimEntries.length > 0) {
       logger.debug('Unknown Claims:', { claims: unknownClaimEntries });
     }

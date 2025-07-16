@@ -1,15 +1,15 @@
 interface InputModeToggleProps {
-  mode: 'url' | 'text'
-  onModeChange: (mode: 'url' | 'text') => void
-  disabled?: boolean
-  className?: string
+  mode: 'url' | 'text';
+  onModeChange: (mode: 'url' | 'text') => void;
+  disabled?: boolean;
+  className?: string;
 }
 
-export default function InputModeToggle({ 
-  mode, 
-  onModeChange, 
+export default function InputModeToggle({
+  mode,
+  onModeChange,
   disabled = false,
-  className = '' 
+  className = '',
 }: InputModeToggleProps) {
   return (
     <div className={`mode-toggle ${className}`}>
@@ -36,5 +36,5 @@ export default function InputModeToggle({
         </button>
       </div>
     </div>
-  )
+  );
 }

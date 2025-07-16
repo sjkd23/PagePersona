@@ -1,14 +1,14 @@
-import { vi } from 'vitest'
+import { vi } from 'vitest';
 
 // Utility function to properly mock functions that should work with vi.mocked()
 export function createMockFunction<T extends (...args: any[]) => any>() {
-  return vi.fn() as unknown as T & { 
-    mockResolvedValue: (value: any) => any
-    mockRejectedValue: (value: any) => any
-    mockReturnValue: (value: any) => any
-    mockImplementation: (fn: any) => any
-    mockResolvedValueOnce: (value: any) => any
-  }
+  return vi.fn() as unknown as T & {
+    mockResolvedValue: (value: any) => any;
+    mockRejectedValue: (value: any) => any;
+    mockReturnValue: (value: any) => any;
+    mockImplementation: (fn: any) => any;
+    mockResolvedValueOnce: (value: any) => any;
+  };
 }
 
 // Create properly typed mocks for Mongoose models
@@ -21,7 +21,7 @@ export function createMockModel() {
     incrementFailedAttemptById: createMockFunction(),
     bulkIncrementUsage: createMockFunction(),
     getUsageStats: createMockFunction(),
-  }
+  };
 }
 
 // Create properly typed mocks for utility functions
@@ -32,5 +32,5 @@ export function createUtilityMocks() {
     serializeUserSummary: createMockFunction(),
     createSuccessResponse: createMockFunction(),
     createErrorResponse: createMockFunction(),
-  }
+  };
 }

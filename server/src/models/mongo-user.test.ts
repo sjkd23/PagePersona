@@ -10,8 +10,8 @@ vi.mock('mongoose', () => ({
     model: vi.fn(),
     connect: vi.fn(),
     connection: {
-      readyState: 1
-    }
+      readyState: 1,
+    },
   },
   Schema: vi.fn().mockImplementation(() => ({
     pre: vi.fn(),
@@ -21,9 +21,9 @@ vi.mock('mongoose', () => ({
     set: vi.fn().mockReturnThis(),
     index: vi.fn().mockReturnThis(), // Add index method
     statics: {},
-    plugin: vi.fn().mockReturnThis()
+    plugin: vi.fn().mockReturnThis(),
   })),
-  model: vi.fn()
+  model: vi.fn(),
 }));
 
 // Mock logger
@@ -33,9 +33,9 @@ vi.mock('../utils/logger', () => ({
       info: vi.fn(),
       error: vi.fn(),
       warn: vi.fn(),
-      debug: vi.fn()
-    }
-  }
+      debug: vi.fn(),
+    },
+  },
 }));
 
 describe('MongoUser Model', () => {
@@ -44,7 +44,7 @@ describe('MongoUser Model', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Create a mock user document
     mockUserDoc = {
       _id: 'mockUserId',
@@ -65,8 +65,8 @@ describe('MongoUser Model', () => {
         _id: 'mockUserId',
         auth0Id: 'auth0|test123',
         email: 'test@example.com',
-        username: 'testuser'
-      })
+        username: 'testuser',
+      }),
     };
 
     // Mock the model constructor and methods
@@ -94,7 +94,7 @@ describe('MongoUser Model', () => {
       expect(mongoose.model).toBeDefined();
       expect(typeof mongoose.Schema).toBe('function');
       expect(typeof mongoose.model).toBe('function');
-      
+
       // Test that we can create a schema instance (this will call our mock)
       const MockedSchema = vi.mocked(mongoose.Schema);
       expect(MockedSchema).toBeDefined();
@@ -108,13 +108,13 @@ describe('MongoUser Model', () => {
         email: 'newuser@example.com',
         username: 'newuser',
         firstName: 'New',
-        lastName: 'User'
+        lastName: 'User',
       };
 
       mockModel.create.mockResolvedValue({ ...userData, _id: 'newUserId' });
 
       const result = await mockModel.create(userData);
-      
+
       expect(result).toHaveProperty('_id');
       expect(result.auth0Id).toBe(userData.auth0Id);
       expect(result.email).toBe(userData.email);
@@ -123,7 +123,7 @@ describe('MongoUser Model', () => {
     it('should handle creation errors gracefully', async () => {
       const userData = {
         auth0Id: 'auth0|invalid',
-        email: 'invalid-email'
+        email: 'invalid-email',
       };
 
       mockModel.create.mockRejectedValue(new Error('Validation error'));
@@ -138,7 +138,7 @@ describe('MongoUser Model', () => {
       mockModel.findOne.mockResolvedValue(mockUserDoc);
 
       const result = await mockModel.findOne({ auth0Id });
-      
+
       expect(mockModel.findOne).toHaveBeenCalledWith({ auth0Id });
       expect(result).toBe(mockUserDoc);
     });
@@ -148,7 +148,7 @@ describe('MongoUser Model', () => {
       mockModel.findOne.mockResolvedValue(mockUserDoc);
 
       const result = await mockModel.findOne({ email });
-      
+
       expect(mockModel.findOne).toHaveBeenCalledWith({ email });
       expect(result).toBe(mockUserDoc);
     });
@@ -158,7 +158,7 @@ describe('MongoUser Model', () => {
       mockModel.findById.mockResolvedValue(mockUserDoc);
 
       const result = await mockModel.findById(userId);
-      
+
       expect(mockModel.findById).toHaveBeenCalledWith(userId);
       expect(result).toBe(mockUserDoc);
     });
@@ -167,7 +167,7 @@ describe('MongoUser Model', () => {
       mockModel.findOne.mockResolvedValue(null);
 
       const result = await mockModel.findOne({ auth0Id: 'nonexistent' });
-      
+
       expect(result).toBeNull();
     });
   });
@@ -177,25 +177,17 @@ describe('MongoUser Model', () => {
       const userId = 'mockUserId';
       const updateData = {
         firstName: 'Updated',
-        lastName: 'Name'
+        lastName: 'Name',
       };
 
       mockModel.findByIdAndUpdate.mockResolvedValue({
         ...mockUserDoc,
-        ...updateData
+        ...updateData,
       });
 
-      const result = await mockModel.findByIdAndUpdate(
-        userId,
-        updateData,
-        { new: true }
-      );
-      
-      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(
-        userId,
-        updateData,
-        { new: true }
-      );
+      const result = await mockModel.findByIdAndUpdate(userId, updateData, { new: true });
+
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(userId, updateData, { new: true });
       expect(result.firstName).toBe(updateData.firstName);
       expect(result.lastName).toBe(updateData.lastName);
     });
@@ -204,26 +196,26 @@ describe('MongoUser Model', () => {
       const auth0Id = 'auth0|newuser';
       const userData = {
         email: 'new@example.com',
-        username: 'newuser'
+        username: 'newuser',
       };
 
       mockModel.findOneAndUpdate.mockResolvedValue({
         ...userData,
         auth0Id,
         _id: 'newUserId',
-        isNew: true
+        isNew: true,
       });
 
       const result = await mockModel.findOneAndUpdate(
         { auth0Id },
         { $set: userData },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       );
-      
+
       expect(mockModel.findOneAndUpdate).toHaveBeenCalledWith(
         { auth0Id },
         { $set: userData },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       );
       expect(result.auth0Id).toBe(auth0Id);
     });
@@ -233,14 +225,14 @@ describe('MongoUser Model', () => {
     it('should increment usage count correctly', async () => {
       const userId = 'mockUserId';
       const today = new Date();
-      
+
       // Mock the user with current date for daily usage
       const userWithCurrentDate = {
         ...mockUserDoc,
         lastUsageDate: today,
         dailyUsageDate: today,
         dailyUsage: 5,
-        usageCount: 10
+        usageCount: 10,
       };
 
       mockModel.findByIdAndUpdate.mockResolvedValue(userWithCurrentDate);
@@ -249,11 +241,11 @@ describe('MongoUser Model', () => {
         userId,
         {
           $inc: { usageCount: 1, dailyUsage: 1 },
-          $set: { lastUsageDate: today }
+          $set: { lastUsageDate: today },
         },
-        { new: true }
+        { new: true },
       );
-      
+
       expect(result.usageCount).toBe(10);
       expect(result.dailyUsage).toBe(5);
     });
@@ -263,18 +255,18 @@ describe('MongoUser Model', () => {
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
-      
+
       // Mock user with yesterday's date
       const userWithOldDate = {
         ...mockUserDoc,
         dailyUsageDate: yesterday,
-        dailyUsage: 10
+        dailyUsage: 10,
       };
 
       mockModel.findByIdAndUpdate.mockResolvedValue({
         ...userWithOldDate,
         dailyUsage: 1,
-        dailyUsageDate: today
+        dailyUsageDate: today,
       });
 
       const result = await mockModel.findByIdAndUpdate(
@@ -283,13 +275,13 @@ describe('MongoUser Model', () => {
           $set: {
             dailyUsage: 1,
             dailyUsageDate: today,
-            lastUsageDate: today
+            lastUsageDate: today,
           },
-          $inc: { usageCount: 1 }
+          $inc: { usageCount: 1 },
         },
-        { new: true }
+        { new: true },
       );
-      
+
       expect(result.dailyUsage).toBe(1);
     });
   });
@@ -299,7 +291,7 @@ describe('MongoUser Model', () => {
       mockModel.countDocuments.mockResolvedValue(100);
 
       const count = await mockModel.countDocuments();
-      
+
       expect(count).toBe(100);
     });
 
@@ -309,8 +301,8 @@ describe('MongoUser Model', () => {
           _id: null,
           totalUsers: 100,
           totalUsage: 1500,
-          averageUsage: 15
-        }
+          averageUsage: 15,
+        },
       ];
 
       mockModel.aggregate.mockResolvedValue(mockAggregation);
@@ -321,11 +313,11 @@ describe('MongoUser Model', () => {
             _id: null,
             totalUsers: { $sum: 1 },
             totalUsage: { $sum: '$usageCount' },
-            averageUsage: { $avg: '$usageCount' }
-          }
-        }
+            averageUsage: { $avg: '$usageCount' },
+          },
+        },
       ]);
-      
+
       expect(result).toEqual(mockAggregation);
     });
   });
@@ -334,45 +326,42 @@ describe('MongoUser Model', () => {
     it('should validate required fields', async () => {
       const invalidUserData = {
         // Missing required fields like auth0Id, email
-        firstName: 'Test'
+        firstName: 'Test',
       };
 
       mockModel.create.mockRejectedValue(
-        new Error('User validation failed: auth0Id: Path `auth0Id` is required.')
+        new Error('User validation failed: auth0Id: Path `auth0Id` is required.'),
       );
 
-      await expect(mockModel.create(invalidUserData))
-        .rejects.toThrow('User validation failed');
+      await expect(mockModel.create(invalidUserData)).rejects.toThrow('User validation failed');
     });
 
     it('should validate email format', async () => {
       const invalidEmailData = {
         auth0Id: 'auth0|test',
         email: 'invalid-email-format',
-        username: 'test'
+        username: 'test',
       };
 
       mockModel.create.mockRejectedValue(
-        new Error('User validation failed: email: Please enter a valid email')
+        new Error('User validation failed: email: Please enter a valid email'),
       );
 
-      await expect(mockModel.create(invalidEmailData))
-        .rejects.toThrow('email: Please enter a valid email');
+      await expect(mockModel.create(invalidEmailData)).rejects.toThrow(
+        'email: Please enter a valid email',
+      );
     });
 
     it('should enforce unique constraints', async () => {
       const duplicateUserData = {
         auth0Id: 'auth0|existing',
         email: 'existing@example.com',
-        username: 'existing'
+        username: 'existing',
       };
 
-      mockModel.create.mockRejectedValue(
-        new Error('E11000 duplicate key error')
-      );
+      mockModel.create.mockRejectedValue(new Error('E11000 duplicate key error'));
 
-      await expect(mockModel.create(duplicateUserData))
-        .rejects.toThrow('duplicate key error');
+      await expect(mockModel.create(duplicateUserData)).rejects.toThrow('duplicate key error');
     });
   });
 
@@ -380,13 +369,13 @@ describe('MongoUser Model', () => {
     it('should save document changes', async () => {
       mockUserDoc.firstName = 'Updated';
       await mockUserDoc.save();
-      
+
       expect(mockUserDoc.save).toHaveBeenCalled();
     });
 
     it('should convert to object', () => {
       const obj = mockUserDoc.toObject();
-      
+
       expect(obj).toHaveProperty('_id');
       expect(obj).toHaveProperty('auth0Id');
       expect(obj).toHaveProperty('email');
@@ -403,22 +392,19 @@ describe('MongoUser Model', () => {
     it('should handle network errors', async () => {
       mockModel.findOne.mockRejectedValue(new Error('Network error'));
 
-      await expect(mockModel.findOne({ auth0Id: 'test' }))
-        .rejects.toThrow('Network error');
+      await expect(mockModel.findOne({ auth0Id: 'test' })).rejects.toThrow('Network error');
     });
 
     it('should handle timeout errors', async () => {
       mockModel.create.mockRejectedValue(new Error('Operation timed out'));
 
-      await expect(mockModel.create({}))
-        .rejects.toThrow('Operation timed out');
+      await expect(mockModel.create({})).rejects.toThrow('Operation timed out');
     });
 
     it('should handle connection errors', async () => {
       mockModel.findById.mockRejectedValue(new Error('Connection lost'));
 
-      await expect(mockModel.findById('test'))
-        .rejects.toThrow('Connection lost');
+      await expect(mockModel.findById('test')).rejects.toThrow('Connection lost');
     });
   });
 
@@ -428,11 +414,11 @@ describe('MongoUser Model', () => {
       mockModel.find = vi.fn().mockResolvedValue([
         { ...mockUserDoc, _id: 'id1' },
         { ...mockUserDoc, _id: 'id2' },
-        { ...mockUserDoc, _id: 'id3' }
+        { ...mockUserDoc, _id: 'id3' },
       ]);
 
       const result = await mockModel.find({ _id: { $in: userIds } });
-      
+
       expect(result).toHaveLength(3);
       expect(mockModel.find).toHaveBeenCalledWith({ _id: { $in: userIds } });
     });
@@ -440,22 +426,22 @@ describe('MongoUser Model', () => {
     it('should support pagination', async () => {
       mockModel.find = vi.fn().mockReturnValue({
         skip: vi.fn().mockReturnValue({
-          limit: vi.fn().mockResolvedValue([mockUserDoc])
-        })
+          limit: vi.fn().mockResolvedValue([mockUserDoc]),
+        }),
       });
 
       const result = await mockModel.find().skip(10).limit(5);
-      
+
       expect(result).toEqual([mockUserDoc]);
     });
 
     it('should support sorting', async () => {
       mockModel.find = vi.fn().mockReturnValue({
-        sort: vi.fn().mockResolvedValue([mockUserDoc])
+        sort: vi.fn().mockResolvedValue([mockUserDoc]),
       });
 
       const result = await mockModel.find().sort({ createdAt: -1 });
-      
+
       expect(result).toEqual([mockUserDoc]);
     });
   });

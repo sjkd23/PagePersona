@@ -13,7 +13,30 @@ Turn boring articles into engaging narratives, clear explanations, or creative s
 
 ---
 
-## What is PagePersonAI?
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Getting Started](#getting-started)
+   - [Prerequisites](#prerequisites)
+   - [Clone & Install](#clone--install)
+   - [Environment Setup](#environment-setup)
+   - [Run in Development](#run-in-development)
+   - [Run in Production](#run-in-production)
+3. [Docker Deployment](#docker-deployment)
+4. [Environment Variables](#environment-variables)
+5. [API Documentation](#api-documentation)
+6. [Contributing](#contributing)
+7. [Versioning](#versioning)
+8. [Monorepo Structure](#monorepo-structure)
+9. [Development Workflow](#development-workflow)
+10. [Testing](#testing)
+11. [License](#license)
+
+---
+
+## Project Overview
+
+## Project Overview
 
 PagePersonAI reimagines web content through different writing personas. Want to read a technical article as if it were written by a medieval knight? Or understand complex topics through simple explanations? This tool makes it happen.
 
@@ -25,532 +48,622 @@ PagePersonAI reimagines web content through different writing personas. Want to 
 - **Secure Authentication**: Auth0 integration with social logins
 - **Usage Tracking**: Rate limiting and analytics with tier-based access
 - **Smart Caching**: Redis-backed caching with MongoDB persistence
+- **Response Compression**: Gzip compression for optimized API responses
 - **Modern Interface**: Responsive React UI with Tailwind CSS
 - **Production Ready**: Docker containerization and CI/CD pipeline
 - **Well Tested**: Comprehensive test coverage
 
 ---
 
-## Architecture
-
-```mermaid
-graph TB
-    subgraph "Frontend (React + Vite)"
-        A[User Interface]
-        B[Auth0 Provider]
-        C[Theme Context]
-        D[API Client]
-    end
-    
-    subgraph "Backend (Express + TypeScript)"
-        E[Auth Middleware]
-        F[Rate Limiting]
-        G[Input Validation]
-        H[Transform Service]
-    end
-    
-    subgraph "AI Pipeline"
-        I[Web Scraper]
-        J[Content Parser]
-        K[Prompt Builder]
-        L[OpenAI Client]
-    end
-    
-    subgraph "Data Layer"
-        M[(MongoDB)]
-        N[(Redis Cache)]
-        O[Auth0]
-    end
-    
-    A --> B
-    B --> O
-    A --> D
-    D --> E
-    E --> F
-    F --> G
-    G --> H
-    H --> I
-    I --> J
-    J --> K
-    K --> L
-    H --> M
-    H --> N
-```
-
----
-
-## Quick Start
+## Getting Started
 
 ### Prerequisites
 
-- **Node.js** ≥ 20.0.0
-- **npm** ≥ 9.0.0
-- **MongoDB** (local or cloud)
-- **Auth0** account
-- **OpenAI** API key
-- **Redis** (optional, graceful fallback)
+- Node.js 18+ and npm 9+
+- MongoDB instance (local or cloud)
+- Redis instance (optional, for caching)
+- Docker and docker-compose (for containerized deployment)
+- OpenAI API key
+- Auth0 tenant and application
 
-### Docker Deployment (Recommended)
+### Clone & Install
 
-1. **Clone and configure**:
-   ```bash
-   git clone https://github.com/yourusername/PagePersonAI.git
-   cd PagePersonAI
-   cp .env.docker .env
-   ```
-
-2. **Update environment variables** in `.env`:
-   ```bash
-   OPENAI_API_KEY=your_openai_api_key
-   AUTH0_DOMAIN=your-domain.auth0.com
-   AUTH0_CLIENT_ID=your_client_id
-   AUTH0_AUDIENCE=your_api_identifier
-   MONGODB_URI=mongodb://admin:password@mongodb:27017/pagepersona
-   ```
-
-3. **Deploy with Docker Compose**:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Access your application**:
-   - **Frontend**: http://localhost
-   - **Backend API**: http://localhost:5000
-   - **Health Check**: http://localhost:5000/api/health
-
-### Local Development
-
-1. **Install dependencies**:
-   ```bash
-   npm install
-   cd client && npm install
-   cd ../server && npm install
-   ```
-
-2. **Configure environment**:
-   ```bash
-   cp server/.env.example server/.env
-   cp client/.env.example client/.env.local
-   # Edit both files with your credentials
-   ```
-
-3. **Start development servers**:
-   ```bash
-   # Terminal 1 - Backend
-   cd server && npm run dev
-   
-   # Terminal 2 - Frontend  
-   cd client && npm run dev
-   ```
-
----
-
-## Project Structure
-
-```
-PagePersonAI/
-├── client/                    # React frontend application
-│   ├── public/                   # Static assets and icons
-│   ├── src/
-│   │   ├── components/           # React components
-│   │   │   ├── auth/            # Authentication components
-│   │   │   ├── Header/          # Navigation header
-│   │   │   ├── Landing/         # Landing page
-│   │   │   ├── PersonaSelector/ # Persona selection UI
-│   │   │   └── Transformer/     # Main transformation interface
-│   │   ├── contexts/            # React contexts (Auth, Theme)
-│   │   ├── hooks/               # Custom React hooks
-│   │   ├── lib/                 # API client and utilities
-│   │   ├── utils/               # Utility functions
-│   │   └── __tests__/           # Component and integration tests
-│   ├── Dockerfile               # Production container definition
-│   ├── nginx.conf              # Production nginx configuration
-│   └── vite.config.ts          # Vite build configuration
-│
-├── server/                    # Express backend API
-│   ├── src/
-│   │   ├── config/              # Configuration management
-│   │   ├── controllers/         # Route controllers
-│   │   ├── middleware/          # Express middleware
-│   │   │   ├── auth0-middleware.ts     # JWT authentication
-│   │   │   ├── rate-limit-middleware.ts # Rate limiting
-│   │   │   ├── usage-middleware.ts     # Usage tracking
-│   │   │   └── validation-schemas.ts   # Input validation
-│   │   ├── models/              # MongoDB data models
-│   │   ├── routes/              # API route definitions
-│   │   ├── services/            # Core business logic
-│   │   │   ├── content-transformer.ts  # Main transformation pipeline
-│   │   │   ├── openaiClient.ts         # OpenAI API integration
-│   │   │   ├── parser.ts              # Content parsing
-│   │   │   ├── promptBuilder.ts       # AI prompt construction
-│   │   │   ├── scraper.ts             # Web content extraction
-│   │   │   └── user-service.ts        # User management
-│   │   ├── types/               # TypeScript type definitions
-│   │   ├── utils/               # Utility functions and helpers
-│   │   └── __tests__/           # Service and integration tests
-│   ├── Dockerfile               # Production container definition
-│   └── tsconfig.json           # TypeScript configuration
-│
-├── shared/                    # Shared types and constants
-│   ├── constants/               # Persona definitions and prompts
-│   ├── types/                   # Shared TypeScript interfaces
-│   └── utils/                   # Shared utility functions
-│
-├── DevOps & Deployment
-│   ├── .github/workflows/       # CI/CD pipeline (GitHub Actions)
-│   ├── docker-compose.yml       # Multi-service orchestration
-│   ├── deploy.sh               # Production deployment script
-│   └── DOCKER.md               # Docker usage guide
-│
-└── Documentation
-    ├── README.md               # This comprehensive guide
-    └── LICENSE                 # License information
-```
-
----
-
-## Core Services & Architecture
-
-### Frontend Architecture
-
-**Modern React Stack**:
-- **React 19** with hooks and functional components
-- **Vite** for lightning-fast development and optimized builds
-- **TypeScript** for type safety throughout
-- **Tailwind CSS** for responsive, utility-first styling
-- **Auth0 React SDK** for seamless authentication
-- **Vitest** for comprehensive testing
-
-**Key Components**:
-- `TransformationPage`: Main UI for content transformation
-- `PersonaSelector`: Interactive persona selection with previews
-- `AuthProvider`: Centralized authentication state management
-- `ThemeProvider`: Dark/light mode with system preference detection
-
-### Backend Architecture
-
-**Enterprise-Grade Express API**:
-- **Express.js** with TypeScript for robust server-side logic
-- **MongoDB + Mongoose** for flexible data persistence
-- **Redis** for high-performance caching and session management
-- **Zod** for runtime input validation and type safety
-- **JWT + Auth0** for secure authentication and authorization
-
-**Service Layer**:
-```typescript
-// Content Transformation Pipeline
-ScraperService → ParserService → PromptBuilderService → OpenAIClientService
-```
-
-1. **ScraperService**: Extracts clean content from URLs using Puppeteer/Cheerio
-2. **ParserService**: Cleans, normalizes, and validates text content
-3. **PromptBuilderService**: Constructs persona-specific AI prompts
-4. **OpenAIClientService**: Manages OpenAI API communication with error handling
-
-### Data Models
-
-**User Management**:
-```typescript
-interface UserProfile {
-  auth0Id: string;
-  email: string;
-  displayName: string;
-  membershipTier: 'free' | 'premium' | 'admin';
-  usageStats: UsageStats;
-  preferences: UserPreferences;
-}
-```
-
-**Content Transformation**:
-```typescript
-interface TransformationRequest {
-  input: { type: 'url' | 'text'; content: string };
-  persona: PersonaId;
-  options: TransformationOptions;
-}
-```
-
----
-
-## Available Personas
-
-Each persona includes carefully crafted system prompts, tone modifiers, and example outputs:
-
-| Persona | Description | Style |
-|---------|-------------|-------|
-| **ELI5** | Simple, fun explanations anyone can understand | Educational clarity |
-| **Medieval Knight** | Heroic tales of honor and chivalry | Epic fantasy |
-| **Anime Hacker** | Energetic, tech-savvy digital warrior | Cyberpunk anime |
-| **Plague Doctor** | Mysterious, medieval medical practitioner | Dark historical |
-| **Robot** | Logical, systematic artificial intelligence | Scientific precision |
-
----
-
-## Security & Authentication
-
-### Auth0 Integration
-- Multi-provider login: Google, Apple, Magic Link, username/password
-- JWT-based API security with automatic token refresh
-- Custom claims for user roles and permissions
-- Secure logout with token revocation
-
-### Security Features
-- Input validation with Zod schemas on all endpoints
-- Rate limiting with Redis-backed counters
-- CORS protection with configurable origins
-- SQL injection prevention through Mongoose ODM
-- XSS protection with Content Security Policy headers
-- Secure headers including HSTS, X-Frame-Options, X-Content-Type-Options
-
-### Usage & Rate Limiting
-```typescript
-// Tier-based rate limits
-const rateLimits = {
-  free: { requests: 10, window: '1h' },
-  premium: { requests: 100, window: '1h' },
-  admin: { requests: 1000, window: '1h' }
-};
-```
-
----
-
-## Testing & Quality
-
-### Test Coverage
-- Unit tests for all services and utilities
-- Integration tests for API endpoints
-- Component tests for React components
-- E2E scenarios for critical user flows
-
-### Code Quality
-- ESLint with TypeScript rules
-- Prettier for consistent formatting
-- Husky pre-commit hooks
-- TypeScript strict mode
-
-### Running Tests
 ```bash
-# Run all tests
-npm run test:all
+# Clone the repository
+git clone https://github.com/<org>/PagePersonAI.git
+cd PagePersonAI
 
-# Coverage reports  
-npm run test:coverage
+# Install all dependencies for all workspaces
+npm install
 
-# Watch mode for development
-npm run test:watch
+# Build all workspaces
+npm run build
+```
+
+### Environment Setup
+
+```bash
+# Copy environment template
+cp .env.development .env
+
+# Edit .env with your values
+# See Environment Variables section below for detailed configuration
+```
+
+### Run in Development
+
+```bash
+# Start development servers (server + client)
+npm run start:dev
+
+# Or start individual services
+npm run start:dev --workspace=server
+npm run dev --workspace=client
+```
+
+Access the application at:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
+
+### Run in Production
+
+```bash
+# Build all workspaces
+npm run build
+
+# Start production server
+npm run start --workspace=server
+
+# Serve client build (use a web server like nginx)
+npm run serve --workspace=client
 ```
 
 ---
 
-## Deployment
+## Docker Deployment
 
-### Docker Setup
-- Multi-stage builds for optimized images
-- Security scanning with non-root containers
-- Health checks for all services
-- Volume persistence for databases
+### Build Images
 
-### CI/CD Pipeline
-- Automated testing on every push and PR
-- Security scanning for vulnerabilities
-- Docker image building and registry push
-- Deployment automation
+```bash
+# Build server image
+docker build -t pagepersonai-server -f server/Dockerfile .
 
-### Monitoring
-- Health check endpoints for uptime monitoring
-- Structured logging with Winston
-- Error tracking integration ready
-- Performance metrics collection
+# Build client image
+docker build -t pagepersonai-client -f client/Dockerfile .
+```
+
+### Start Services
+
+```bash
+# Start all services with docker-compose
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Useful Commands
+
+```bash
+# View logs for specific service
+docker-compose logs -f server
+docker-compose logs -f client
+
+# Restart specific service
+docker-compose restart server
+
+# Execute command in running container
+docker-compose exec server npm run test
+
+# Remove all containers and volumes
+docker-compose down -v
+```
 
 ---
 
-## API Reference
+## Environment Variables
+
+Configure your application by copying `.env.development` to `.env` and updating the values:
+
+### Required Variables
+
+```env
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here          # OpenAI API key for AI transformations
+OPENAI_MODEL=gpt-4                               # OpenAI model to use
+
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/pagepersona # MongoDB connection string
+
+# Authentication
+
+JWT_SECRET=your-super-secret-jwt-key             # JWT signing secret (min 32 chars)
+AUTH0_DOMAIN=your-auth0-domain.auth0.com         # Auth0 tenant domain
+AUTH0_CLIENT_ID=your-auth0-client-id             # Auth0 application client ID
+AUTH0_CLIENT_SECRET=your-auth0-client-secret     # Auth0 application client secret
+AUTH0_AUDIENCE=your-auth0-api-identifier         # Auth0 API identifier
+AUTH0_ISSUER=https://your-auth0-domain.auth0.com/ # Auth0 issuer URL (required for JWT validation)
+```
+
+### Client Variables (VITE_ prefix)
+
+```env
+# API Configuration
+VITE_API_URL=http://localhost:5000/api           # Backend API base URL
+VITE_APP_NAME=PagePersonAI                       # Application name
+VITE_SITE_URL=http://localhost:5173              # Frontend URL
+
+# Auth0 Configuration (Client-side)
+VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com    # Auth0 tenant domain
+VITE_AUTH0_CLIENT_ID=your-auth0-client-id        # Auth0 application client ID
+VITE_AUTH0_AUDIENCE=your-auth0-api-identifier    # Auth0 API identifier
+```
+
+### Optional Variables
+
+```env
+# Server Configuration
+PORT=5000                                        # Server port
+NODE_ENV=development                             # Environment mode
+
+# Redis Cache (Optional)
+REDIS_URL=redis://localhost:6379                # Redis connection string
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000                     # Rate limit window (15 minutes)
+RATE_LIMIT_MAX_REQUESTS=100                     # Max requests per window
+
+# Usage Limits
+DAILY_LIMIT_FREE=10                             # Daily limit for free users
+DAILY_LIMIT_PREMIUM=100                         # Daily limit for premium users
+
+# Web Scraper
+WEB_SCRAPER_MAX_CONTENT_LENGTH=8000             # Max content length for scraping
+WEB_SCRAPER_REQUEST_TIMEOUT_MS=10000            # Request timeout for scraping
+
+# Logging
+LOG_LEVEL=debug                                 # Logging level
+
+# Analytics (Optional)
+VITE_GA_TRACKING_ID=GA-XXXXXXXXX                # Google Analytics tracking ID
+VITE_HOTJAR_ID=XXXXXXX                          # Hotjar tracking ID
+```
+
+---
+
+## API Documentation
+
+### Swagger UI
+
+Access the interactive API documentation at:
+- Development: http://localhost:5000/docs
+- Production: https://your-domain.com/docs
+
+### Main Endpoints
+
+- `POST /api/transform` - Transform content with selected persona
+- `GET /api/health` - Health check endpoint
+- `GET /api/user/profile` - Get user profile information
+- `POST /api/user/sync` - Sync user data with Auth0
 
 ### Authentication
-All protected endpoints require JWT bearer token:
+
+PagePersonAI uses Auth0 for secure authentication with JWT tokens and scope-based authorization.
+
+#### Required Auth0 Configuration
+
+1. **Create Auth0 Application**: 
+   - Application Type: Single Page Application
+   - Enable RS256 token signing algorithm
+   - Configure Allowed Callback URLs: `http://localhost:5173` (development)
+
+2. **Create Auth0 API**: 
+   - Create an API in Auth0 Dashboard
+   - Set API Identifier (this becomes your `AUTH0_AUDIENCE`)
+   - Enable RS256 signing algorithm
+   - Configure scopes for your application
+
+3. **Enable Refresh Token Rotation**:
+   - In Auth0 Dashboard → Applications → [Your App] → Advanced Settings
+   - Enable "Refresh Token Rotation"
+   - Set "Refresh Token Expiration" to appropriate value
+
+#### Environment Variables
+
+Required environment variables for authentication:
+
+```env
+# Server-side Auth0 configuration
+AUTH0_DOMAIN=your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_AUDIENCE=your-auth0-api-identifier
+AUTH0_ISSUER=https://your-auth0-domain.auth0.com/
+
+# Client-side Auth0 configuration
+VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
+VITE_AUTH0_CLIENT_ID=your-auth0-client-id
+VITE_AUTH0_AUDIENCE=your-auth0-api-identifier
 ```
+
+#### JWT Token Format
+
+All API endpoints require a valid Auth0 JWT token in the Authorization header:
+
+```bash
 Authorization: Bearer <jwt_token>
 ```
 
-### Core Endpoints
+#### Scope-Based Authorization
 
-#### Transform Content
-```http
-POST /api/transform
-Content-Type: application/json
+The API uses scope-based authorization for different endpoint access levels:
 
-{
-  "url": "https://example.com/article",
-  "persona": "hemingway"
-}
-```
+- **Public Routes**: No authentication required
+- **User Routes**: Requires valid JWT token (`jwtCheck`)
+- **Admin Routes**: Requires valid JWT token + admin role (`jwtCheck` + `requireRoles(['admin'])`)
+- **Protected Actions**: Requires specific scopes (`requireScopes(['read:admin'])`)
 
-#### Transform Text Directly
-```http
-POST /api/transform/text
-Content-Type: application/json
+#### Security Features
 
-{
-  "text": "Your content here...",
-  "persona": "medieval-knight"
-}
-```
+- **RS256 Algorithm**: Uses asymmetric keys for token validation
+- **JWKS Caching**: Public keys cached with rate limiting (5 requests/minute)
+- **Refresh Token Rotation**: Automatic token refresh with rotation
+- **Memory Cache**: Tokens stored in memory for security (client-side)
+- **Scope Validation**: Granular permission checking
+- **Error Handling**: Comprehensive error responses without information leakage
 
-#### Get Available Personas
-```http
-GET /api/transform/personas
-```
+### Example API Usage
 
-#### User Profile Management
-```http
-GET /api/user/profile
-PUT /api/user/profile
-```
-
-### Response Format
-```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
-```
-
----
-
-## Development Guide
-
-### Environment Configuration
-
-**Server (.env)**:
 ```bash
-# Core Configuration
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/pagepersonai
-
-# Authentication  
-AUTH0_DOMAIN=your-domain.auth0.com
-AUTH0_AUDIENCE=https://api.pagepersonai.com
-JWT_SECRET=your-32-character-secret-key
-
-# AI Integration
-OPENAI_API_KEY=sk-your-openai-key
-OPENAI_MODEL=gpt-4o
-
-# Optional Services
-REDIS_URL=redis://localhost:6379
-ALLOWED_ORIGINS=https://pagepersonai.com,https://www.pagepersonai.com
-LOG_LEVEL=info
+# Transform content
+curl -X POST http://localhost:5000/api/transform \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Your content here",
+    "persona": "eli5"
+  }'
 ```
-
-**Client (.env.local)**:
-```bash
-VITE_API_URL=http://localhost:5000/api
-VITE_AUTH0_DOMAIN=your-domain.auth0.com  
-VITE_AUTH0_CLIENT_ID=your-client-id
-VITE_AUTH0_AUDIENCE=https://api.pagepersonai.com
-```
-
-### Adding New Personas
-
-1. **Define persona in shared constants**:
-```typescript
-// shared/constants/personas.ts
-export const newPersona: FullPersona = {
-  id: 'new-persona',
-  name: 'New Persona',
-  description: 'Description of the persona',
-  systemPrompt: 'AI instruction prompt...',
-  // ... other properties
-};
-```
-
-2. **Add avatar image**:
-```bash
-# Add to client/public/images/persona_avatars/
-new-persona.png
-```
-
-3. **Update persona mapping**:
-```typescript
-// shared/utils/persona-mapping.ts
-export const personaMapping = {
-  // ... existing personas
-  'new-persona': newPersona
-};
-```
-
-### Performance Optimization
-
-**Frontend**:
-- Code splitting with dynamic imports
-- Image optimization with proper formats
-- Lazy loading for non-critical components
-- Service worker for offline functionality
-
-**Backend**:
-- MongoDB indexing for frequent queries
-- Redis caching for expensive operations
-- Connection pooling for database efficiency
-- Response compression middleware
 
 ---
 
 ## Contributing
 
-We welcome contributions! Please follow these guidelines:
+### Development Setup
 
-### Development Workflow
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** your changes: `git commit -m 'Add amazing feature'`
-4. **Push** to the branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Ensure all tests pass: `npm test`
+5. Ensure code is formatted: `npm run format`
+6. Run linting: `npm run lint`
+7. Commit your changes: `git commit -m 'Add amazing feature'`
+8. Push to the branch: `git push origin feature/amazing-feature`
+9. Submit a pull request
 
 ### Code Standards
-- Follow existing TypeScript patterns
-- Add tests for new functionality
-- Update documentation for API changes
-- Ensure all tests pass before submitting
 
-### Areas for Contribution
-- New persona development
-- Internationalization support
-- Mobile app development
-- Third-party integrations
-- Analytics and insights
-- UI/UX improvements
+- **ESLint**: Enforces coding standards and catches errors
+- **Prettier**: Automatic code formatting
+- **Husky & lint-staged**: Pre-commit hooks for code quality
+- **Conventional Commits**: Use conventional commit messages
+- **TypeScript**: Strict mode enabled for type safety
+- **Test Coverage**: Write tests for new features
+
+### Pull Request Process
+
+1. Update documentation for any new features
+2. Ensure all tests pass and coverage is maintained
+3. Update the README if needed
+4. Link to relevant issues in your PR description
+5. Request review from maintainers
+
+---
+
+## Versioning
+
+We use [Semantic Versioning](https://semver.org/).  
+See the [CHANGELOG.md](./CHANGELOG.md) for details on each release.
+
+This project follows [Semantic Versioning](https://semver.org/) (SemVer):
+
+- **MAJOR** version for incompatible API changes
+- **MINOR** version for backwards-compatible functionality
+- **PATCH** version for backwards-compatible bug fixes
+
+### Current Version: v0.1.0
+
+For detailed changes, see the [CHANGELOG.md](CHANGELOG.md) file.
+
+### Release Process
+
+1. Update version in `package.json` files
+2. Update `CHANGELOG.md` with release notes
+3. Create git tag: `git tag v1.x.x`
+4. Push changes and tags
+5. CI/CD pipeline handles deployment
+
+---
+
+## Monorepo Structure
+
+This project is organized as a monorepo using **npm workspaces** for efficient dependency management and development workflow.
+
+```text
+PagePersonAI/
+├── package.json                 # Root package.json with workspace configuration
+├── shared/                      # Shared types and constants
+│   ├── src/
+│   │   ├── types/              # TypeScript interfaces
+│   │   └── constants/          # Shared constants (personas, prompts)
+│   └── package.json
+├── server/                      # Express.js API backend
+│   ├── src/
+│   │   ├── controllers/        # Route handlers
+│   │   ├── middleware/         # Authentication, validation, etc.
+│   │   ├── services/           # Business logic
+│   │   └── utils/              # Utility functions
+│   └── package.json
+├── client/                      # React frontend
+│   ├── src/
+│   │   ├── components/         # UI components
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── contexts/           # React contexts
+│   │   └── utils/              # Frontend utilities
+│   └── package.json
+└── docker-compose.yml           # Multi-container setup
+```
+
+### Workspace Benefits
+
+- **Shared Dependencies**: Common packages like TypeScript, ESLint, and Prettier are hoisted to the root
+- **Type Safety**: The `@pagepersonai/shared` package provides consistent types across client and server
+- **Unified Scripts**: Run commands across all workspaces from the root
+- **Efficient Development**: Changes to shared types are immediately available to all workspaces
+
+---
+
+## Development Workflow
+
+### Making Changes
+
+1. **Shared Types**: Update `shared/src/types/` and run `npm run build --workspace=shared`
+2. **Server Changes**: Work in `server/src/` and use `npm run start:dev --workspace=server`
+3. **Client Changes**: Work in `client/src/` and use `npm run dev --workspace=client`
+
+### Individual Workspace Commands
+
+```bash
+# Work with specific workspaces
+npm run build --workspace=shared
+npm run test --workspace=server
+npm run dev --workspace=client
+
+# Or navigate to workspace directory
+cd server
+npm run start:dev
+
+cd client
+npm run dev
+```
+
+### Code Quality
+
+```bash
+# Lint all workspaces
+npm run lint
+
+# Format all code
+npm run format
+
+# Type check
+npm run type-check --workspace=shared
+```
+
+---
+
+## Testing
+
+### Test Structure
+
+```text
+shared/          # No tests (just types/constants)
+server/src/
+├── __tests__/           # Integration tests
+├── services/__tests__/  # Unit tests for services
+├── utils/__tests__/     # Utility tests
+├── middleware/__tests__/ # Middleware tests
+├── config/__tests__/    # Configuration tests
+└── routes/__tests__/    # Route handler tests
+
+client/src/
+├── __tests__/           # App-level tests
+├── components/__tests__/ # Component tests
+├── hooks/__tests__/     # Hook tests
+├── utils/__tests__/     # Utility tests
+└── lib/__tests__/       # Library tests
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests for specific workspace
+npm run test --workspace=server
+npm run test --workspace=client
+
+# Run tests in watch mode
+npm run test:watch --workspace=server
+
+# Run tests with coverage
+npm run test:coverage --workspace=server
+npm run test:coverage --workspace=client
+```
+
+### Coverage Policy
+
+PagePersonAI maintains comprehensive test coverage to ensure code quality and reliability.
+
+#### Coverage Targets
+
+- **Overall Coverage**: ≥90% for statements, branches, functions, and lines
+- **Critical Components**: 100% coverage for core business logic
+- **Test Framework**: Vitest with V8 coverage provider
+- **CI Integration**: Coverage enforcement in GitHub Actions
+
+#### Coverage Configuration
+
+Coverage thresholds are enforced in `vitest.config.ts`:
+
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      thresholds: {
+        statements: 90,
+        branches: 90,
+        functions: 90,
+        lines: 90,
+      },
+    },
+  },
+});
+```
+
+#### Test Categories
+
+1. **Unit Tests**: Test individual functions and components in isolation
+2. **Integration Tests**: Test interactions between components
+3. **API Tests**: Test endpoint behavior and error handling
+4. **Component Tests**: Test React components with user interactions
+5. **Hook Tests**: Test custom React hooks
+6. **Utility Tests**: Test helper functions and utilities
+
+#### Test Patterns
+
+- **AAA Pattern**: Arrange, Act, Assert for clear test structure
+- **Mocking**: Use `vi.mock()` for external dependencies
+- **Test Isolation**: Each test runs independently
+- **Edge Cases**: Test error conditions and boundary cases
+- **Async Testing**: Proper handling of promises and async operations
+
+#### Coverage Reports
+
+Generate and view coverage reports:
+
+```bash
+# Generate coverage report
+npm run test:coverage --workspace=server
+
+# View HTML coverage report
+open server/coverage/index.html
+
+# View client coverage report
+open client/coverage/index.html
+```
+
+#### CI/CD Integration
+
+- **GitHub Actions**: Runs tests and checks coverage on all PRs
+- **Coverage Enforcement**: Builds fail if coverage drops below 90%
+- **Branch Protection**: Requires passing tests before merging
+- **Automated Reporting**: Coverage reports uploaded to CI artifacts
+
+#### Testing Best Practices
+
+1. **Test Names**: Use descriptive test names that explain expected behavior
+2. **Setup/Teardown**: Use proper beforeEach/afterEach for test isolation
+3. **Mock External Dependencies**: Mock APIs, databases, and external services
+4. **Test Real User Scenarios**: Focus on user-facing functionality
+5. **Keep Tests Fast**: Unit tests should run quickly
+6. **Test Error Conditions**: Include negative test cases
+7. **Use Test Utilities**: Leverage testing library helpers
+
+#### Current Coverage Status
+
+As of the latest build:
+- **Server**: 31.57% overall (target: 90%)
+- **Client**: 23.06% overall (target: 90%)
+- **Well-Tested Components**: Individual modules achieving 80-100% coverage
+
+#### Improving Coverage
+
+To contribute to coverage improvements:
+
+1. **Add Missing Tests**: Focus on untested files and functions
+2. **Test Edge Cases**: Add tests for error conditions and boundary cases
+3. **Integration Tests**: Add tests for component interactions
+4. **Mock External Dependencies**: Ensure external services are properly mocked
+5. **Review Coverage Reports**: Use HTML reports to identify untested code paths
+
+#### Known Coverage Gaps
+
+Current areas needing test coverage:
+- Authentication middleware (auth.ts)
+- User route handlers (user-route.ts)
+- Redis configuration (redis.ts)
+- Landing page components
+- Error boundary components
+- Theme and utility functions
+
+#### Contributing Tests
+
+When adding new features:
+1. Write tests alongside new code
+2. Ensure new code meets coverage thresholds
+3. Update existing tests if changing functionality
+4. Run coverage locally before submitting PR
+5. Fix any coverage regressions
+
+```bash
+# Test new feature with coverage
+npm run test:coverage --workspace=server src/services/new-feature.test.ts
+
+# Check coverage impact
+npm run test:coverage --workspace=server
+```
+
+# Run tests with coverage
+npm run test:coverage --workspace=server
+```
+
+### Testing Compression
+
+To verify that the compression middleware is working properly, you can use the included test script:
+
+```bash
+# Start the server in development mode
+npm run dev
+
+# In another terminal, run the compression test
+node test-compression.js
+```
+
+This will test both small and large responses to ensure compression is working correctly.
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## Acknowledgments
 
-- **OpenAI** for providing the GPT models that power our transformations
-- **Auth0** for robust authentication infrastructure  
-- **MongoDB** for flexible data storage
-- **Vercel** for inspiration on modern full-stack architecture
-- **Tailwind Labs** for the excellent CSS framework
-- The **open-source community** for the incredible tools that make this possible
+- OpenAI for the GPT API
+- Auth0 for authentication services
+- The open-source community for amazing tools and libraries
 
 ---
 
-## Support
-
-- **Documentation**: [GitHub Wiki](https://github.com/yourusername/PagePersonAI/wiki)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/PagePersonAI/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/PagePersonAI/discussions)
-- **Email**: support@pagepersonai.com
-
----
-
-**Made with care by the PagePersonAI Team**
-
-Star us on GitHub if you find this project useful!
+*Ready to transform web content? Get started with the installation guide above!*

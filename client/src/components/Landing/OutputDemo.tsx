@@ -6,18 +6,18 @@ interface OutputDemoProps {
   className?: string;
 }
 
-export default function OutputDemo({ 
-  avatarSrc = "/images/persona_avatars/Anime_Hacker_avatar.png",
-  avatarAlt = "Anime Hacker",
-  summaryText = "A brief summary of the page...",
+export default function OutputDemo({
+  avatarSrc = '/images/persona_avatars/Anime_Hacker_avatar.png',
+  avatarAlt = 'Anime Hacker',
+  summaryText = 'A brief summary of the page...',
   fullText = "The content rewritten to match the persona's style...",
-  className = ''
+  className = '',
 }: OutputDemoProps) {
   return (
     <div className={`output-card ${className}`}>
       <div className="output-header">
         <div className="persona-avatar-large">
-          <img src={avatarSrc} alt={avatarAlt} />
+          <img src={avatarSrc} alt={avatarAlt} loading="lazy" />
         </div>
       </div>
       <div className="output-content">

@@ -1,6 +1,6 @@
 /**
  * HTTP Status Code Constants
- * 
+ *
  * Centralized enum for all HTTP status codes used throughout the application.
  * This ensures consistency and makes the code more readable and maintainable.
  */
@@ -35,7 +35,7 @@ export enum HttpStatus {
   NOT_IMPLEMENTED = 501,
   BAD_GATEWAY = 502,
   SERVICE_UNAVAILABLE = 503,
-  GATEWAY_TIMEOUT = 504
+  GATEWAY_TIMEOUT = 504,
 }
 
 /**
@@ -72,8 +72,8 @@ export function getStatusMessage(status: HttpStatus): string {
     [HttpStatus.NOT_IMPLEMENTED]: 'Not Implemented',
     [HttpStatus.BAD_GATEWAY]: 'Bad Gateway',
     [HttpStatus.SERVICE_UNAVAILABLE]: 'Service Unavailable',
-    [HttpStatus.GATEWAY_TIMEOUT]: 'Gateway Timeout'
+    [HttpStatus.GATEWAY_TIMEOUT]: 'Gateway Timeout',
   };
-  
+
   return messages[status] || 'Unknown Status';
 }

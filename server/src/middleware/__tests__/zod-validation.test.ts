@@ -33,9 +33,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['url'],
-              message: expect.stringContaining('Invalid URL format')
-            })
-          ])
+              message: expect.stringContaining('Invalid URL format'),
+            }),
+          ]),
         );
       }
     });
@@ -53,9 +53,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['url'],
-              message: 'Private or local URLs are not allowed'
-            })
-          ])
+              message: 'Private or local URLs are not allowed',
+            }),
+          ]),
         );
       }
     });
@@ -72,9 +72,9 @@ describe('Zod Validation Schemas', () => {
         expect(result.error.issues).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              path: ['persona']
-            })
-          ])
+              path: ['persona'],
+            }),
+          ]),
         );
       }
     });
@@ -114,9 +114,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['text'],
-              message: 'Text must be at least 50 characters long'
-            })
-          ])
+              message: 'Text must be at least 50 characters long',
+            }),
+          ]),
         );
       }
     });
@@ -135,9 +135,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['text'],
-              message: 'Text cannot exceed 50,000 characters'
-            })
-          ])
+              message: 'Text cannot exceed 50,000 characters',
+            }),
+          ]),
         );
       }
     });
@@ -151,7 +151,9 @@ describe('Zod Validation Schemas', () => {
       const result = transformSchemas.transformText.safeParse(dataWithWhitespace);
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.text).toBe('This is valid text with whitespace that meets the minimum character requirement for processing');
+        expect(result.data.text).toBe(
+          'This is valid text with whitespace that meets the minimum character requirement for processing',
+        );
       }
     });
   });
@@ -180,9 +182,9 @@ describe('Zod Validation Schemas', () => {
         expect(result.error.issues).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              message: 'At least one field must be provided for update'
-            })
-          ])
+              message: 'At least one field must be provided for update',
+            }),
+          ]),
         );
       }
     });
@@ -200,9 +202,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['bio'],
-              message: 'Bio cannot exceed 500 characters'
-            })
-          ])
+              message: 'Bio cannot exceed 500 characters',
+            }),
+          ]),
         );
       }
     });
@@ -210,8 +212,8 @@ describe('Zod Validation Schemas', () => {
     it('should validate theme enum values', () => {
       const invalidData = {
         preferences: {
-          theme: 'invalid-theme'
-        }
+          theme: 'invalid-theme',
+        },
       };
 
       const result = userSchemas.updateProfile.safeParse(invalidData);
@@ -220,9 +222,9 @@ describe('Zod Validation Schemas', () => {
         expect(result.error.issues).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              path: ['preferences', 'theme']
-            })
-          ])
+              path: ['preferences', 'theme'],
+            }),
+          ]),
         );
       }
     });
@@ -253,9 +255,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['message'],
-              message: 'Message cannot exceed 4000 characters'
-            })
-          ])
+              message: 'Message cannot exceed 4000 characters',
+            }),
+          ]),
         );
       }
     });
@@ -272,9 +274,9 @@ describe('Zod Validation Schemas', () => {
         expect(result.error.issues).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              path: ['model']
-            })
-          ])
+              path: ['model'],
+            }),
+          ]),
         );
       }
     });
@@ -291,9 +293,9 @@ describe('Zod Validation Schemas', () => {
         expect(result.error.issues).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              path: ['temperature']
-            })
-          ])
+              path: ['temperature'],
+            }),
+          ]),
         );
       }
     });
@@ -336,9 +338,9 @@ describe('Zod Validation Schemas', () => {
           expect.arrayContaining([
             expect.objectContaining({
               path: ['email'],
-              message: 'Invalid email format'
-            })
-          ])
+              message: 'Invalid email format',
+            }),
+          ]),
         );
       }
     });
@@ -354,7 +356,9 @@ describe('Zod Validation Schemas', () => {
       const result = authSchemas.register.safeParse(invalidData);
       expect(result.success).toBe(false);
       if (!result.success) {
-        const passwordIssues = result.error.issues.filter(issue => issue.path.includes('password'));
+        const passwordIssues = result.error.issues.filter((issue) =>
+          issue.path.includes('password'),
+        );
         expect(passwordIssues.length).toBeGreaterThan(0);
       }
     });
@@ -373,9 +377,9 @@ describe('Zod Validation Schemas', () => {
         expect(result.error.issues).toEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              path: ['username']
-            })
-          ])
+              path: ['username'],
+            }),
+          ]),
         );
       }
     });
@@ -413,13 +417,9 @@ describe('Zod Validation Schemas', () => {
     });
 
     it('should reject private IP ranges', () => {
-      const privateUrls = [
-        'http://192.168.1.1',
-        'http://10.0.0.1',
-        'http://172.16.0.1',
-      ];
+      const privateUrls = ['http://192.168.1.1', 'http://10.0.0.1', 'http://172.16.0.1'];
 
-      privateUrls.forEach(url => {
+      privateUrls.forEach((url) => {
         const data = { url, persona: 'professional' };
         const result = transformSchemas.transformUrl.safeParse(data);
         expect(result.success).toBe(false);
@@ -427,9 +427,9 @@ describe('Zod Validation Schemas', () => {
           expect(result.error.issues).toEqual(
             expect.arrayContaining([
               expect.objectContaining({
-                message: 'Private or local URLs are not allowed'
-              })
-            ])
+                message: 'Private or local URLs are not allowed',
+              }),
+            ]),
           );
         }
       });
@@ -439,8 +439,8 @@ describe('Zod Validation Schemas', () => {
   describe('Persona Validation', () => {
     it('should accept valid persona formats', () => {
       const validPersonas = ['professional', 'casual', 'academic', 'tech-expert', 'a'];
-      
-      validPersonas.forEach(persona => {
+
+      validPersonas.forEach((persona) => {
         const data = { url: 'https://example.com', persona };
         const result = transformSchemas.transformUrl.safeParse(data);
         expect(result.success).toBe(true);
@@ -449,8 +449,8 @@ describe('Zod Validation Schemas', () => {
 
     it('should reject invalid persona formats', () => {
       const invalidPersonas = ['', 'invalid!persona', '-invalid', 'invalid-', '  '];
-      
-      invalidPersonas.forEach(persona => {
+
+      invalidPersonas.forEach((persona) => {
         const data = { url: 'https://example.com', persona };
         const result = transformSchemas.transformUrl.safeParse(data);
         expect(result.success).toBe(false);

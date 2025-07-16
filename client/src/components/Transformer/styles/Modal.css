@@ -22,7 +22,9 @@
 .modal-container {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 90vw;
   max-height: 90vh;
   width: 800px;
@@ -34,7 +36,9 @@
 
 .dark .modal-container {
   background: #1e293b;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -3px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.3),
+    0 10px 10px -3px rgba(0, 0, 0, 0.2);
 }
 
 .modal-header {
@@ -152,8 +156,14 @@
 }
 
 @keyframes fadeInOut {
-  0%, 100% { opacity: 0; }
-  10%, 90% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
 }
 
 /* Responsive modal */
@@ -162,15 +172,15 @@
     width: 95vw;
     max-height: 95vh;
   }
-  
+
   .modal-header {
     padding: 20px 24px;
   }
-  
+
   .modal-content {
     padding: 24px;
   }
-  
+
   .modal-footer {
     padding: 16px 24px;
   }

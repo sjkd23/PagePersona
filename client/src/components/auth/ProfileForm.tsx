@@ -1,10 +1,10 @@
 /**
  * Profile Form Component
- * 
+ *
  * This component handles the display and editing of user profile information
  * including personal details and preferences. It provides form validation,
  * proper accessibility, and responsive design.
- * 
+ *
  * @module ProfileForm
  */
 
@@ -24,18 +24,21 @@ interface ProfileFormProps {
   /** Whether the profile is in editing mode */
   editing: boolean;
   /** Handler for form field changes */
-  onFormChange: (field: keyof ProfileEditForm, value: string | ProfileEditForm['preferences']) => void;
+  onFormChange: (
+    field: keyof ProfileEditForm,
+    value: string | ProfileEditForm['preferences'],
+  ) => void;
   /** Whether the form is in loading state */
   isLoading?: boolean;
 }
 
 /**
  * ProfileForm component that displays and edits user profile information
- * 
+ *
  * Renders personal information fields and user preferences with proper
  * form controls, validation, and accessibility features. Handles both
  * viewing and editing modes with appropriate UI states.
- * 
+ *
  * @param props - Component props containing profile data and handlers
  * @returns JSX element displaying the profile form
  */
@@ -44,15 +47,18 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   editForm,
   editing,
   onFormChange,
-  isLoading = false
+  isLoading = false,
 }) => {
   /**
    * Handle preference changes
    */
-  const handlePreferenceChange = (key: keyof ProfileEditForm['preferences'], value: boolean | string) => {
+  const handlePreferenceChange = (
+    key: keyof ProfileEditForm['preferences'],
+    value: boolean | string,
+  ) => {
     onFormChange('preferences', {
       ...editForm.preferences,
-      [key]: value
+      [key]: value,
     });
   };
 
@@ -62,7 +68,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   const getEmailVerificationBadge = () => {
     const isVerified = profile?.isEmailVerified;
     return (
-      <span 
+      <span
         className={`status-badge ${isVerified ? 'status-verified' : 'status-warning'}`}
         title={isVerified ? 'Email address is verified' : 'Email address not verified'}
       >
@@ -74,7 +80,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   return (
     <div>
       <h2 className="section-title">Personal Information</h2>
-      
+
       {/* Personal Information Grid */}
       <div className="form-grid">
         {/* First Name */}
@@ -101,7 +107,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
           )}
           {editing && (
             <small id="firstName-help" className="form-help">
-              Your first name as you'd like it displayed
+              Your first name as you&apos;d like it displayed
             </small>
           )}
         </div>
@@ -130,7 +136,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
           )}
           {editing && (
             <small id="lastName-help" className="form-help">
-              Your last name as you'd like it displayed
+              Your last name as you&apos;d like it displayed
             </small>
           )}
         </div>
@@ -160,12 +166,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
         {/* Account Status */}
         <div className="form-field">
-          <label className="form-label">
-            Account Status
-          </label>
-          <div className="form-value">
-            {getEmailVerificationBadge()}
-          </div>
+          <label className="form-label">Account Status</label>
+          <div className="form-value">{getEmailVerificationBadge()}</div>
         </div>
       </div>
 
@@ -221,8 +223,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </select>
           ) : (
             <div className="form-value">
-              {editForm.preferences.language === 'fr' ? '🇫🇷 Français' : 
-               editForm.preferences.language === 'es' ? '🇪🇸 Español' : '🇺🇸 English'}
+              {editForm.preferences.language === 'fr'
+                ? '🇫🇷 Français'
+                : editForm.preferences.language === 'es'
+                  ? '🇪🇸 Español'
+                  : '🇺🇸 English'}
             </div>
           )}
           {editing && (
@@ -254,7 +259,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </div>
           ) : (
             <div className="form-value">
-              <span className={`status-badge ${editForm.preferences.notifications ? 'status-enabled' : 'status-disabled'}`}>
+              <span
+                className={`status-badge ${editForm.preferences.notifications ? 'status-enabled' : 'status-disabled'}`}
+              >
                 {editForm.preferences.notifications ? '🔔 Enabled' : '🔕 Disabled'}
               </span>
             </div>

@@ -1,8 +1,8 @@
-import React from 'react'
+import React from 'react';
 
 interface PersonaErrorStateProps {
-  error: string
-  onRetry: () => void
+  error: string;
+  onRetry: () => void;
 }
 
 const PersonaErrorState: React.FC<PersonaErrorStateProps> = ({ error, onRetry }) => (
@@ -10,6 +10,6 @@ const PersonaErrorState: React.FC<PersonaErrorStateProps> = ({ error, onRetry })
     <div className="error-message">{error}</div>
     <button onClick={onRetry}>Try Again</button>
   </div>
-)
+);
 
-export default PersonaErrorState
+export default PersonaErrorState;

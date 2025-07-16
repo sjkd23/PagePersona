@@ -12,15 +12,15 @@ declare global {
     interface Request {
       /**
        * ✅ UNIFIED USER CONTEXT (CURRENT STANDARD)
-       * 
+       *
        * Contains all user-related data in a single, well-typed object.
        * This is the preferred way to access user data throughout the application.
-       * 
+       *
        * @example
        * ```ts
        * // Access user data via unified context
        * const { jwtPayload, auth0User, mongoUser } = req.userContext!;
-       * 
+       *
        * // Type-safe access to specific data
        * const email = req.userContext!.mongoUser.email;
        * const auth0Sub = req.userContext!.jwtPayload.sub;
@@ -36,7 +36,7 @@ declare global {
       user?: Auth0JwtPayload;
 
       /**
-       * @deprecated Legacy: Use `req.userContext.mongoUser` instead  
+       * @deprecated Legacy: Use `req.userContext.mongoUser` instead
        * MongoDB user document from sync middleware
        */
       mongoUser?: IMongoUser;

@@ -1,7 +1,9 @@
 html {
   box-sizing: border-box;
 }
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
 
@@ -9,7 +11,7 @@ html {
   max-width: 1000px;
   margin: 0 auto;
   padding: 3rem 2rem;
-  background-color: #F3F5F7;
+  background-color: #f3f5f7;
   min-height: 100vh;
   transition: background-color 0.3s ease;
 }
@@ -34,7 +36,7 @@ html {
 
 /* Header Section */
 .profile-header {
-  background-color: #A4BCD9;
+  background-color: #a4bcd9;
   padding: 3rem 2.5rem;
   transition: background-color 0.3s ease;
 }
@@ -237,7 +239,7 @@ html {
   color: #294769;
   margin-bottom: 2rem;
   padding-bottom: 0.75rem;
-  border-bottom: 3px solid #A4BCD9;
+  border-bottom: 3px solid #a4bcd9;
   transition: all 0.3s ease;
 }
 
@@ -404,7 +406,7 @@ html {
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #A4BCD9 0%, #8ba7d4 100%);
+  background: linear-gradient(135deg, #a4bcd9 0%, #8ba7d4 100%);
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
@@ -480,8 +482,12 @@ html {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
@@ -520,7 +526,7 @@ html {
 /* Membership Status Section */
 .membership-status-section {
   padding: 2rem 2.5rem;
-  border-bottom: 1px solid #E5E9EF;
+  border-bottom: 1px solid #e5e9ef;
   background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
   transition: all 0.3s ease;
 }
@@ -660,50 +666,50 @@ html {
   .profile-container {
     padding: 2rem 1rem;
   }
-  
+
   .profile-header {
     padding: 2rem 1.5rem;
   }
-  
+
   .profile-content {
     padding: 2rem 1.5rem;
   }
-  
+
   .profile-header-content {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
-  
+
   .profile-info {
     flex-direction: column;
     text-align: center;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .profile-actions {
     width: 100%;
     justify-content: center;
   }
-  
+
   .section-title {
     font-size: 1.25rem;
   }
-  
+
   .membership-status-card {
     flex-direction: column;
     text-align: center;
     gap: 1rem;
   }
-  
+
   .usage-meter {
     max-width: 100%;
   }
-  
+
   .membership-status-section {
     padding: 1.5rem;
   }

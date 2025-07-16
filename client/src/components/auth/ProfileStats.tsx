@@ -1,10 +1,10 @@
 /**
  * Profile Stats Component
- * 
+ *
  * This component displays user statistics and account information in
  * an organized sidebar format. It provides quick access to important
  * account metrics and status information.
- * 
+ *
  * @module ProfileStats
  */
 
@@ -25,21 +25,18 @@ interface ProfileStatsProps {
 
 /**
  * ProfileStats component that displays user statistics and account actions
- * 
+ *
  * Renders user statistics, account information, and action buttons in a
  * sidebar layout. Provides quick access to usage stats, account actions,
  * and upgrade prompts for free users.
- * 
+ *
  * @param props - Component props containing profile data and handlers
  * @returns JSX element displaying profile statistics and actions
  */
 export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout }) => {
   // Get membership tier and stats
   const membershipTier = (profile?.membership || 'free') as MembershipTier;
-  const usageStats = calculateUsageStats(
-    profile?.usage?.monthlyUsage || 0,
-    membershipTier
-  );
+  const usageStats = calculateUsageStats(profile?.usage?.monthlyUsage || 0, membershipTier);
   const hasUpgradeAccess = !hasPremiumAccess(membershipTier);
 
   /**
@@ -50,7 +47,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -60,14 +57,16 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
   const getActivityStatus = (): { status: string; className: string } => {
     const lastActive = profile?.lastLoginAt;
     if (!lastActive) return { status: 'Unknown', className: 'status-info' };
-    
+
     const daysSinceActive = Math.floor(
-      (Date.now() - new Date(lastActive).getTime()) / (1000 * 60 * 60 * 24)
+      (Date.now() - new Date(lastActive).getTime()) / (1000 * 60 * 60 * 24),
     );
-    
+
     if (daysSinceActive === 0) return { status: 'Active today', className: 'status-verified' };
-    if (daysSinceActive <= 7) return { status: `${daysSinceActive} days ago`, className: 'status-verified' };
-    if (daysSinceActive <= 30) return { status: `${daysSinceActive} days ago`, className: 'status-warning' };
+    if (daysSinceActive <= 7)
+      return { status: `${daysSinceActive} days ago`, className: 'status-verified' };
+    if (daysSinceActive <= 30)
+      return { status: `${daysSinceActive} days ago`, className: 'status-warning' };
     return { status: 'Inactive', className: 'status-disabled' };
   };
 
@@ -76,32 +75,24 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
   return (
     <div>
       <h2 className="section-title">Account Overview</h2>
-      
+
       {/* Usage Statistics */}
       <div className="stats-container">
         <div className="stat-card remaining-transformations">
-          <div className="stat-number">
-            {usageStats.monthlyLimit - usageStats.currentUsage}
-          </div>
+          <div className="stat-number">{usageStats.monthlyLimit - usageStats.currentUsage}</div>
           <div className="stat-label">
             Remaining Transformations
-            <div className="stat-sublabel">
-              Resets monthly
-            </div>
+            <div className="stat-sublabel">Resets monthly</div>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-number">
-            {profile?.usage?.totalTransformations || 0}
-          </div>
+          <div className="stat-number">{profile?.usage?.totalTransformations || 0}</div>
           <div className="stat-label">Total Transformations</div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-number">
-            {Math.round(usageStats.percentage)}%
-          </div>
+          <div className="stat-number">{Math.round(usageStats.percentage)}%</div>
           <div className="stat-label">Monthly Usage</div>
         </div>
       </div>
@@ -132,14 +123,17 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
 
       {/* Upgrade Prompt for Free Users */}
       {hasUpgradeAccess && (
-        <div className="info-card" style={{ backgroundColor: '#f0f9ff', border: '2px solid #3b82f6' }}>
+        <div
+          className="info-card"
+          style={{ backgroundColor: '#f0f9ff', border: '2px solid #3b82f6' }}
+        >
           <div className="label" style={{ color: '#1e40af', fontWeight: 'bold' }}>
             🚀 Upgrade Available
           </div>
           <div className="value" style={{ color: '#1e40af' }}>
             Get unlimited transformations and premium features
           </div>
-          <button 
+          <button
             className="btn btn-info btn-small"
             style={{ marginTop: '0.75rem', width: '100%' }}
             onClick={() => {
@@ -154,7 +148,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
       {/* Account Actions */}
       <div className="stats-container">
         <h3 className="section-subtitle">Account Actions</h3>
-        
+
         <div className="info-card">
           <button
             onClick={() => {
@@ -165,7 +159,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
           >
             📄 Export Profile Data
           </button>
-          
+
           <button
             onClick={() => {
               // Account settings not implemented yet
@@ -175,12 +169,8 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
           >
             ⚙️ Account Settings
           </button>
-          
-          <button
-            onClick={onLogout}
-            className="btn btn-danger btn-small"
-            style={{ width: '100%' }}
-          >
+
+          <button onClick={onLogout} className="btn btn-danger btn-small" style={{ width: '100%' }}>
             🚪 Sign Out
           </button>
         </div>
@@ -189,8 +179,8 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
         <div className="info-card">
           <div className="label">Need Help?</div>
           <div className="value">
-            <a 
-              href="mailto:support@pagepersona.ai" 
+            <a
+              href="mailto:support@pagepersona.ai"
               className="text-blue-600 hover:text-blue-800 text-sm"
               style={{ textDecoration: 'none' }}
             >
@@ -198,8 +188,8 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
             </a>
           </div>
           <div className="value" style={{ marginTop: '0.5rem' }}>
-            <a 
-              href="/docs" 
+            <a
+              href="/docs"
               className="text-blue-600 hover:text-blue-800 text-sm"
               style={{ textDecoration: 'none' }}
             >

@@ -16,10 +16,10 @@ export default defineConfig({
       reporter: ['text', 'html', 'json', 'lcov'],
       // Coverage thresholds for client-side code
       thresholds: {
-        lines: 85,        // Slightly lower for UI components
-        functions: 85,
-        branches: 80,     // UI branching can be complex
-        statements: 85
+        lines: 90,
+        functions: 90,
+        branches: 90,
+        statements: 90
       },
       all: true,
       exclude: [

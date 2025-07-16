@@ -11,15 +11,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // Environment file configuration
+  envDir: path.resolve(__dirname, '..'),
+  envPrefix: 'VITE_',
   build: {
     // Optimize for better SEO and performance
     rollupOptions: {
       output: {
         // Manual chunk splitting for better caching
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'auth-vendor': ['@auth0/auth0-react'],
-          'ui-vendor': ['@headlessui/react', 'react-markdown'],
+          vendor: ['react', 'react-dom'],
+          auth: ['@auth0/auth0-react'],
+          markdown: ['react-markdown'],
+          personas: ['./src/components/PersonaSelector/PersonaSelector.tsx'],
+          ui: ['@headlessui/react'],
         },
       },
     },

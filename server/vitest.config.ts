@@ -14,7 +14,7 @@ export default defineConfig({
       thresholds: {
         lines: 90,
         functions: 90,
-        branches: 85,
+        branches: 90,
         statements: 90
       },
       // Report on all files, not just tested ones
@@ -38,9 +38,6 @@ export default defineConfig({
         'src/config/web-scraper-config.ts',
         // Type definitions
         'src/types/**/*.ts',
-        // Generated or legacy files
-        'src/middleware/auth0-middleware-simple.ts', // Legacy
-        'src/utils/gpt/prompt-call-new.ts', // Newer version exists
       ],
       // Include specific patterns for comprehensive coverage
       include: [

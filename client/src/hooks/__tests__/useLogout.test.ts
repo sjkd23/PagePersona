@@ -1,15 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
-import { useLogout } from '../useLogout'
-import { useAuth } from '../useAuth'
-import type { AuthContextType } from '../../contexts/AuthContext'
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { useLogout } from '../useLogout';
+import { useAuth } from '../useAuth';
+import type { AuthContextType } from '../../contexts/AuthContext';
 
 // Mock useAuth hook
 vi.mock('../useAuth', () => ({
   useAuth: vi.fn(),
-}))
+}));
 
-const mockUseAuth = vi.mocked(useAuth)
+const mockUseAuth = vi.mocked(useAuth);
 
 const createMockAuthContext = (overrides: Partial<AuthContextType> = {}): AuthContextType => ({
   getAccessToken: vi.fn(),
@@ -28,57 +28,59 @@ const createMockAuthContext = (overrides: Partial<AuthContextType> = {}): AuthCo
   isFirstLogin: null,
   profileSyncError: null,
   ...overrides,
-})
+});
 
 describe('useLogout', () => {
-  const mockLogout = vi.fn()
+  const mockLogout = vi.fn();
 
   beforeEach(() => {
-    vi.clearAllMocks()
-    mockUseAuth.mockReturnValue(createMockAuthContext({
-      logout: mockLogout,
-    }))
-  })
+    vi.clearAllMocks();
+    mockUseAuth.mockReturnValue(
+      createMockAuthContext({
+        logout: mockLogout,
+      }),
+    );
+  });
 
   describe('logout functionality', () => {
     it('should provide logout function', () => {
-      const { result } = renderHook(() => useLogout())
+      const { result } = renderHook(() => useLogout());
 
-      expect(typeof result.current.logout).toBe('function')
-    })
+      expect(typeof result.current.logout).toBe('function');
+    });
 
     it('should call the auth logout function when logout is called', () => {
-      const { result } = renderHook(() => useLogout())
+      const { result } = renderHook(() => useLogout());
 
       act(() => {
-        result.current.logout()
-      })
+        result.current.logout();
+      });
 
-      expect(mockLogout).toHaveBeenCalledTimes(1)
-    })
+      expect(mockLogout).toHaveBeenCalledTimes(1);
+    });
 
     it('should call logout multiple times if called multiple times', () => {
-      const { result } = renderHook(() => useLogout())
+      const { result } = renderHook(() => useLogout());
 
       act(() => {
-        result.current.logout()
-        result.current.logout()
-        result.current.logout()
-      })
+        result.current.logout();
+        result.current.logout();
+        result.current.logout();
+      });
 
-      expect(mockLogout).toHaveBeenCalledTimes(3)
-    })
+      expect(mockLogout).toHaveBeenCalledTimes(3);
+    });
 
     it('should maintain stable logout function reference', () => {
-      const { result, rerender } = renderHook(() => useLogout())
-      
-      const firstLogout = result.current.logout
-      
-      rerender()
-      
-      const secondLogout = result.current.logout
-      
-      expect(firstLogout).toBe(secondLogout)
-    })
-  })
-})
+      const { result, rerender } = renderHook(() => useLogout());
+
+      const firstLogout = result.current.logout;
+
+      rerender();
+
+      const secondLogout = result.current.logout;
+
+      expect(firstLogout).toBe(secondLogout);
+    });
+  });
+});

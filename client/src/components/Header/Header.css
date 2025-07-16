@@ -2,7 +2,7 @@
 
 /* Header Component Styles */
 .app-header {
-  background: #A4BCD9;
+  background: #a4bcd9;
   padding: 1.5rem 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -70,13 +70,11 @@
   gap: 1rem;
 }
 
-
 .nav-buttons {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
-
 
 .welcome-text {
   color: #294769;
@@ -175,7 +173,7 @@
   padding: 0.9rem 2.2rem;
   font-size: 1.1rem;
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(92, 166, 229, 0.10);
+  box-shadow: 0 2px 6px rgba(92, 166, 229, 0.1);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-left: auto;
@@ -212,8 +210,11 @@
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 6px rgba(92, 166, 229, 0.10);
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(92, 166, 229, 0.1);
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .mobile-nav-btn.transform:hover {
@@ -530,21 +531,21 @@
     position: relative;
     /* Remove flex-direction: column to keep logo and hamburger on same line */
   }
-  
+
   .logo h1 {
     font-size: 1.8rem;
   }
-  
+
   /* Hide desktop navigation on mobile */
   .desktop-nav {
     display: none !important;
   }
-  
+
   /* Hide desktop transform button on mobile */
   .nav-center .nav-btn.transform {
     display: none !important;
   }
-  
+
   /* Show mobile navigation */
   .mobile-nav {
     display: block;
@@ -586,7 +587,7 @@
     letter-spacing: 0.3px;
     margin-right: 1rem;
   }
-  
+
   .mobile-nav-btn.transform {
     padding: 0.8rem 1.5rem;
     font-size: 1rem;

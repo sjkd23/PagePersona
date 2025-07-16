@@ -13,7 +13,7 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.node,
-        NodeJS: 'readonly'
+        NodeJS: 'readonly',
       },
     },
     rules: {
@@ -32,7 +32,7 @@ export default [
       sourceType: 'module',
       globals: {
         ...globals.node,
-        NodeJS: 'readonly'
+        NodeJS: 'readonly',
       },
       parser: tsParser,
       parserOptions: {

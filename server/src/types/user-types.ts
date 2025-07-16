@@ -10,28 +10,28 @@
 export interface Auth0JwtPayload {
   /** Unique Auth0 user identifier (required) */
   sub: string;
-  
+
   /** Email address from Auth0 (optional - may not be verified) */
   email?: string;
-  
+
   /** Display name from Auth0 (optional) */
   name?: string;
-  
+
   /** Profile picture URL from Auth0 (optional) */
   picture?: string;
-  
+
   /** Token issuer (Auth0 domain) */
   iss: string;
-  
+
   /** Token audience (API identifier) */
   aud: string | string[];
-  
+
   /** Token issued at timestamp */
   iat: number;
-  
+
   /** Token expiration timestamp */
   exp: number;
-  
+
   /** Additional custom claims from Auth0 rules/actions */
   [key: string]: unknown;
 }

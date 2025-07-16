@@ -1,38 +1,17 @@
-# Production Dockerfile for PagePersonAI Client
-FROM node:20-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-RUN npm ci --only=production
-
-# Build the application
-FROM base AS builder
+# -------- Builder Stage --------
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
-
-# Copy source code
-COPY . .
-COPY --from=deps /app/node_modules ./node_modules
-
-# Build for production
+COPY tsconfig*.json vite.config.ts postcss.config.js tailwind.config.js ./
+COPY src/ src/
+COPY public/ public/
 RUN npm run build
 
-# Production image - use nginx to serve static files
-FROM nginx:alpine AS runner
-
-# Copy built app to nginx
+# -------- Production Stage --------
+FROM nginx:stable-alpine AS production
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose port 80
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
 # Health check

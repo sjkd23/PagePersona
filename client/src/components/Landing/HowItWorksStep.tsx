@@ -5,7 +5,12 @@ interface HowItWorksStepProps {
   className?: string;
 }
 
-export default function HowItWorksStep({ stepNumber, title, subtitle, className = '' }: HowItWorksStepProps) {
+export default function HowItWorksStep({
+  stepNumber,
+  title,
+  subtitle,
+  className = '',
+}: HowItWorksStepProps) {
   return (
     <div className={`step-item ${className}`}>
       <div className="step-number">{stepNumber}</div>

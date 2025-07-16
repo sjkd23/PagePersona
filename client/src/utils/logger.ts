@@ -1,10 +1,10 @@
 /**
  * Client-Side Centralized Logger Utility
- * 
+ *
  * Provides consistent logging across the React application with
  * structured log levels, environment-aware debug mode, and browser-friendly
  * formatting. Replaces direct console usage with categorized logging.
- * 
+ *
  * Features:
  * - Environment-based debug control
  * - Structured log levels with visual indicators
@@ -20,7 +20,7 @@ interface LogData {
 
 /**
  * Client Logger Class
- * 
+ *
  * Manages client-side logging with environment detection and
  * structured output formatting for development debugging.
  */
@@ -35,7 +35,7 @@ class ClientLogger {
 
   /**
    * Generate level prefix with visual indicators
-   * 
+   *
    * @param level - Log level to format
    * @returns Formatted prefix string with visual markers
    */
@@ -44,7 +44,7 @@ class ClientLogger {
       debug: '🐛 [DEBUG]',
       info: 'ℹ️  [INFO]',
       warn: '⚠️  [WARN]',
-      error: '❌ [ERROR]'
+      error: '❌ [ERROR]',
     };
     return prefixes[level];
   }
@@ -89,38 +89,41 @@ class ClientLogger {
 
   // Component specific logging
   component = {
-    info: (component: string, message: string, ...args: unknown[]) => 
+    info: (component: string, message: string, ...args: unknown[]) =>
       this.info(`[${component}] ${message}`, ...args),
-    warn: (component: string, message: string, ...args: unknown[]) => 
+    warn: (component: string, message: string, ...args: unknown[]) =>
       this.warn(`[${component}] ${message}`, ...args),
-    error: (component: string, message: string, error?: Error | unknown, ...args: unknown[]) => 
+    error: (component: string, message: string, error?: Error | unknown, ...args: unknown[]) =>
       this.error(`[${component}] ${message}`, error, ...args),
-    debug: (component: string, message: string, ...args: unknown[]) => 
-      this.debug(`[${component}] ${message}`, ...args)
+    debug: (component: string, message: string, ...args: unknown[]) =>
+      this.debug(`[${component}] ${message}`, ...args),
   };
 
   // API call specific logging
   api = {
     info: (message: string, ...args: unknown[]) => this.info(`[API] ${message}`, ...args),
     warn: (message: string, ...args: unknown[]) => this.warn(`[API] ${message}`, ...args),
-    error: (message: string, error?: Error | unknown, ...args: unknown[]) => this.error(`[API] ${message}`, error, ...args),
-    debug: (message: string, ...args: unknown[]) => this.debug(`[API] ${message}`, ...args)
+    error: (message: string, error?: Error | unknown, ...args: unknown[]) =>
+      this.error(`[API] ${message}`, error, ...args),
+    debug: (message: string, ...args: unknown[]) => this.debug(`[API] ${message}`, ...args),
   };
 
   // Authentication specific logging
   auth = {
     info: (message: string, ...args: unknown[]) => this.info(`[Auth] ${message}`, ...args),
     warn: (message: string, ...args: unknown[]) => this.warn(`[Auth] ${message}`, ...args),
-    error: (message: string, error?: Error | unknown, ...args: unknown[]) => this.error(`[Auth] ${message}`, error, ...args),
-    debug: (message: string, ...args: unknown[]) => this.debug(`[Auth] ${message}`, ...args)
+    error: (message: string, error?: Error | unknown, ...args: unknown[]) =>
+      this.error(`[Auth] ${message}`, error, ...args),
+    debug: (message: string, ...args: unknown[]) => this.debug(`[Auth] ${message}`, ...args),
   };
 
   // User sync specific logging
   sync = {
     info: (message: string, ...args: unknown[]) => this.info(`[Sync] ${message}`, ...args),
     warn: (message: string, ...args: unknown[]) => this.warn(`[Sync] ${message}`, ...args),
-    error: (message: string, error?: Error | unknown, ...args: unknown[]) => this.error(`[Sync] ${message}`, error, ...args),
-    debug: (message: string, ...args: unknown[]) => this.debug(`[Sync] ${message}`, ...args)
+    error: (message: string, error?: Error | unknown, ...args: unknown[]) =>
+      this.error(`[Sync] ${message}`, error, ...args),
+    debug: (message: string, ...args: unknown[]) => this.debug(`[Sync] ${message}`, ...args),
   };
 }
 

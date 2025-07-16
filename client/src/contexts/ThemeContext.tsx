@@ -1,11 +1,11 @@
 /**
  * Theme Context Provider
- * 
+ *
  * Manages application-wide theme state including dark/light mode switching,
  * persistence to localStorage, and system preference detection. Provides
  * theme state and toggle functionality throughout the application with
  * automatic system preference monitoring.
- * 
+ *
  * Features:
  * - Dark/light theme state management
  * - localStorage persistence for user preferences
@@ -38,7 +38,7 @@ interface ThemeProviderProps {
 
 /**
  * Theme Provider Component
- * 
+ *
  * Provides theme context to the entire application with persistent
  * storage and system preference integration for seamless user experience.
  */
@@ -49,7 +49,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     if (savedTheme !== null) {
       return JSON.parse(savedTheme);
     }
-    
+
     // Fallback to system preference detection
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
@@ -62,7 +62,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     } else {
       document.documentElement.classList.remove('dark');
     }
-    
+
     // Persist theme preference to localStorage
     localStorage.setItem('theme', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
@@ -70,7 +70,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   // Monitor system theme preference changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = (e: MediaQueryListEvent) => {
       // Only update if user hasn't manually set a preference
       const savedTheme = localStorage.getItem('theme');
@@ -88,8 +88,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>{children}</ThemeContext.Provider>
   );
 };

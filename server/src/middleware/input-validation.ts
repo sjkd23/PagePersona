@@ -27,16 +27,18 @@ export function validateUrl(url: string): { isValid: boolean; error?: string } {
 
   try {
     const parsedUrl = new URL(testUrl);
-    
+
     // Basic security checks (similar to webScraper but lighter)
     const hostname = parsedUrl.hostname;
-    
+
     // Block obvious local/private URLs
-    if (hostname === 'localhost' || 
-        hostname === '127.0.0.1' || 
-        hostname.startsWith('192.168.') ||
-        hostname.startsWith('10.') ||
-        hostname.match(/^172\.(1[6-9]|2[0-9]|3[01])\./)) {
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      hostname.match(/^172\.(1[6-9]|2[0-9]|3[01])\./)
+    ) {
       return { isValid: false, error: 'Private or local URLs are not allowed' };
     }
 
@@ -148,14 +150,18 @@ export function validateTransformText(req: Request, res: Response, next: NextFun
  */
 export function validateRequestBody(req: Request, res: Response, next: NextFunction): void {
   // Check if body exists for POST/PUT requests
-  if (['POST', 'PUT', 'PATCH'].includes(req.method) && (!req.body || Object.keys(req.body).length === 0)) {
+  if (
+    ['POST', 'PUT', 'PATCH'].includes(req.method) &&
+    (!req.body || Object.keys(req.body).length === 0)
+  ) {
     sendValidationError(res, 'Request body is required');
     return;
   }
 
   // Check for oversized payloads
   const bodyString = JSON.stringify(req.body || {});
-  if (bodyString.length > 100000) { // 100KB limit
+  if (bodyString.length > 100000) {
+    // 100KB limit
     sendValidationError(res, 'Request payload too large');
     return;
   }

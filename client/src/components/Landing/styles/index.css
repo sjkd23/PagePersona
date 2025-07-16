@@ -45,7 +45,9 @@
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   text-align: center;
 }
 
@@ -144,12 +146,12 @@
   .section-title {
     font-size: 2rem;
   }
-  
+
   .features-grid,
   .use-cases-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .features-section,
   .use-cases-section {
     padding: 4rem 1rem;
