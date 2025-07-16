@@ -8,7 +8,7 @@
 
 1. **Copy environment file:**
    ```bash
-   cp .env.docker .env
+   cp .env.development .env
    ```
 
 2. **Update .env with your credentials:**

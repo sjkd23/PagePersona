@@ -6,7 +6,7 @@
 - ✅ **Server Dockerfile**: Multi-stage build with security optimizations
 - ✅ **Client Dockerfile**: Nginx-based serving with caching and compression
 - ✅ **docker-compose.yml**: Complete stack (MongoDB, Redis, Server, Client)
-- ✅ **Environment config**: `.env.docker` template with all required variables
+- ✅ **Environment config**: `.env.development` template with all required variables
 - ✅ **Documentation**: `DOCKER.md` with usage instructions
 
 ### **CI/CD Pipeline (GitHub Actions)**
@@ -28,7 +28,7 @@
 ### **Option 1: Docker Compose (Recommended)**
 ```bash
 # 1. Copy environment
-cp .env.docker .env
+cp .env.development .env
 
 # 2. Add your credentials to .env
 # 3. Deploy everything
