@@ -1,5 +1,48 @@
-import { IMongoUser } from '../models/mongo-user';
-import { Auth0JwtPayload, ProcessedAuth0User } from './user-types';
+// Express module augmentation for custom user properties
+// This file extends the Express Request interface with user context
+
+// Define the types inline to avoid import issues
+interface Auth0JwtPayload {
+  sub: string;
+  email?: string;
+  name?: string;
+  picture?: string;
+  iss: string;
+  aud: string | string[];
+  iat: number;
+  exp: number;
+  [key: string]: unknown;
+}
+
+interface ProcessedAuth0User {
+  id: string;
+  sub?: string;
+  email?: string;
+  name?: string;
+  picture?: string;
+  givenName?: string;
+  familyName?: string;
+  nickname?: string;
+  emailVerified?: boolean;
+  locale?: string;
+  updatedAt?: string;
+  metadata?: {
+    firstLogin?: Date;
+    lastLogin?: Date;
+    loginCount?: number;
+    locale?: string;
+  };
+}
+
+// Simple user interface for now
+interface IMongoUser {
+  _id: unknown;
+  email: string;
+  username: string;
+  firstName?: string;
+  lastName?: string;
+  [key: string]: unknown;
+}
 
 interface UserContext {
   jwtPayload: Auth0JwtPayload;
@@ -7,7 +50,7 @@ interface UserContext {
   mongoUser: IMongoUser;
 }
 
-declare global {
+declare module 'express' {
   namespace Express {
     interface Request {
       /**

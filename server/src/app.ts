@@ -263,7 +263,7 @@ app.use(errorHandler);
 app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {
   res.json({
     message: 'Authentication successful',
-    user: req.user,
+    user: req.userContext?.jwtPayload,
   });
 });
 

@@ -26,12 +26,18 @@
       "@pagepersonai/shared": ["../shared"]
     }
   },
+  "files": [
+    "src/types/express.d.ts",
+    "src/types/global.d.ts"
+  ],
   "include": ["src/**/*", "src/types/**/*", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts", "**/__tests__/**/*"],
   "references": [
     { "path": "../shared" }
   ],
   "ts-node": {
-    "files": true
+    "files": true,
+    "transpileOnly": false,
+    "compiler": "typescript"
   }
 }
