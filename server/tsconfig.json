@@ -19,18 +19,14 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "typeRoots": ["node_modules/@types", "src/types"],
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "baseUrl": ".",
     "paths": {
       "@pagepersonai/shared/*": ["../shared/*"],
       "@pagepersonai/shared": ["../shared"]
     }
   },
-  "files": [
-    "src/types/express.d.ts",
-    "src/types/global.d.ts"
-  ],
-  "include": ["src/**/*", "src/types/**/*", "vitest.config.ts"],
+  "include": ["src/**/*", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts", "**/__tests__/**/*"],
   "references": [
     { "path": "../shared" }
