@@ -39,5 +39,10 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "express-jwt": "^8.5.1",
+    "express-jwt-authz": "^2.4.1",
+    "jwks-rsa": "^3.2.0"
   }
 }

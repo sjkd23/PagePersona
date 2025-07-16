@@ -23,7 +23,7 @@
 
 import express, { Request, Response } from 'express';
 import { MongoUser, type IMongoUser } from '../models/mongo-user';
-import { verifyAuth0Token, syncAuth0User } from '../middleware/auth0-middleware';
+import { jwtCheck, authErrorHandler } from '../middleware/auth';
 import * as userSerializer from '../utils/userSerializer';
 import {
   syncRateLimit,
@@ -37,6 +37,9 @@ import { userService } from '../services/user-service';
 import { logger } from '../utils/logger';
 
 const router = express.Router();
+
+// Apply auth error handler to all routes
+router.use(authErrorHandler);
 
 /**
  * GET /api/user/profile
@@ -98,8 +101,7 @@ const router = express.Router();
 router.get(
   '/profile',
   validateRequest(userProfileQuerySchema, 'query'),
-  verifyAuth0Token,
-  syncAuth0User,
+  jwtCheck,
   async (req: Request, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
@@ -155,8 +157,7 @@ router.put(
   '/profile',
   profileUpdateRateLimit,
   validateRequest(userProfileUpdateSchema, 'body'),
-  verifyAuth0Token,
-  syncAuth0User,
+  jwtCheck,
   async (req: Request, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
@@ -190,43 +191,38 @@ router.put(
 );
 
 // Get user usage stats
-router.get(
-  '/usage',
-  verifyAuth0Token,
-  syncAuth0User,
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const mongoUser = req.userContext?.mongoUser;
+router.get('/usage', jwtCheck, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const mongoUser = req.userContext?.mongoUser;
 
-      if (!mongoUser) {
-        res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User not found'));
-        return;
-      }
+    if (!mongoUser) {
+      res.status(HttpStatus.NOT_FOUND).json(userSerializer.createErrorResponse('User not found'));
+      return;
+    }
 
-      const result = await userService.getUserUsage(mongoUser);
+    const result = await userService.getUserUsage(mongoUser);
 
-      if (result.success) {
-        res.json(userSerializer.createSuccessResponse(result.data));
-      } else {
-        res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .json(userSerializer.createErrorResponse(result.error || 'Failed to fetch user usage'));
-      }
-    } catch (error) {
-      logger.error('❌ Error fetching user usage:', error);
+    if (result.success) {
+      res.json(userSerializer.createSuccessResponse(result.data));
+    } else {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(userSerializer.createErrorResponse('Failed to fetch user usage'));
+        .json(userSerializer.createErrorResponse(result.error || 'Failed to fetch user usage'));
     }
-  },
-);
+  } catch (error) {
+    logger.error('❌ Error fetching user usage:', error);
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json(userSerializer.createErrorResponse('Failed to fetch user usage'));
+  }
+});
 
 // Sync user with MongoDB (triggers automatic user creation/update)
 router.post(
   '/sync',
   syncRateLimit,
-  verifyAuth0Token,
-  syncAuth0User,
+  jwtCheck,
+
   async (req: Request, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
@@ -277,29 +273,24 @@ router.post(
 // Test endpoints (development only)
 if (process.env.NODE_ENV !== 'production') {
   // Test endpoint to verify JWT authentication with audience
-  router.get(
-    '/test-auth',
-    testEndpointRateLimit,
-    verifyAuth0Token,
-    (req: Request, res: Response): void => {
-      const authUser = req.userContext?.auth0User;
-      const jwtPayload = req.userContext?.jwtPayload;
-      const { sub, email } = authUser || {};
-      // Safe access to aud field from JWT payload
-      const aud = jwtPayload?.aud;
+  router.get('/test-auth', testEndpointRateLimit, jwtCheck, (req: Request, res: Response): void => {
+    const authUser = req.userContext?.auth0User;
+    const jwtPayload = req.userContext?.jwtPayload;
+    const { sub, email } = authUser || {};
+    // Safe access to aud field from JWT payload
+    const aud = jwtPayload?.aud;
 
-      res.json({
-        success: true,
-        message: 'JWT verification with audience successful',
-        tokenInfo: {
-          sub,
-          email,
-          audience: aud,
-          hasValidAudience: !!aud,
-        },
-      });
-    },
-  );
+    res.json({
+      success: true,
+      message: 'JWT verification with audience successful',
+      tokenInfo: {
+        sub,
+        email,
+        audience: aud,
+        hasValidAudience: !!aud,
+      },
+    });
+  });
 
   // Test endpoint without JWT verification (for connectivity testing)
   router.get('/test-no-auth', (req: Request, res: Response): void => {
@@ -411,8 +402,8 @@ if (process.env.NODE_ENV !== 'production') {
   // Debug endpoint to check user name data (development only)
   router.get(
     '/debug/name-data',
-    verifyAuth0Token,
-    syncAuth0User,
+    jwtCheck,
+
     async (req: Request, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
         res
@@ -475,8 +466,8 @@ if (process.env.NODE_ENV !== 'production') {
   // Force sync names from Auth0 (development only)
   router.post(
     '/debug/force-name-sync',
-    verifyAuth0Token,
-    syncAuth0User,
+    jwtCheck,
+
     async (req: Request, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
         res
@@ -537,8 +528,8 @@ if (process.env.NODE_ENV !== 'production') {
   router.post(
     '/debug/force-name-sync',
     testEndpointRateLimit,
-    verifyAuth0Token,
-    syncAuth0User,
+    jwtCheck,
+
     async (req: Request, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
         res
@@ -616,7 +607,7 @@ if (process.env.NODE_ENV !== 'production') {
   router.post(
     '/debug/migrate-empty-names',
     testEndpointRateLimit,
-    verifyAuth0Token,
+    jwtCheck,
     async (req: Request, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
         res

@@ -179,11 +179,13 @@ OPENAI_MODEL=gpt-4                               # OpenAI model to use
 MONGODB_URI=mongodb://localhost:27017/pagepersona # MongoDB connection string
 
 # Authentication
+
 JWT_SECRET=your-super-secret-jwt-key             # JWT signing secret (min 32 chars)
 AUTH0_DOMAIN=your-auth0-domain.auth0.com         # Auth0 tenant domain
 AUTH0_CLIENT_ID=your-auth0-client-id             # Auth0 application client ID
 AUTH0_CLIENT_SECRET=your-auth0-client-secret     # Auth0 application client secret
 AUTH0_AUDIENCE=your-auth0-api-identifier         # Auth0 API identifier
+AUTH0_ISSUER=https://your-auth0-domain.auth0.com/ # Auth0 issuer URL (required for JWT validation)
 ```
 
 ### Client Variables (VITE_ prefix)
@@ -249,11 +251,69 @@ Access the interactive API documentation at:
 
 ### Authentication
 
+PagePersonAI uses Auth0 for secure authentication with JWT tokens and scope-based authorization.
+
+#### Required Auth0 Configuration
+
+1. **Create Auth0 Application**: 
+   - Application Type: Single Page Application
+   - Enable RS256 token signing algorithm
+   - Configure Allowed Callback URLs: `http://localhost:5173` (development)
+
+2. **Create Auth0 API**: 
+   - Create an API in Auth0 Dashboard
+   - Set API Identifier (this becomes your `AUTH0_AUDIENCE`)
+   - Enable RS256 signing algorithm
+   - Configure scopes for your application
+
+3. **Enable Refresh Token Rotation**:
+   - In Auth0 Dashboard → Applications → [Your App] → Advanced Settings
+   - Enable "Refresh Token Rotation"
+   - Set "Refresh Token Expiration" to appropriate value
+
+#### Environment Variables
+
+Required environment variables for authentication:
+
+```env
+# Server-side Auth0 configuration
+AUTH0_DOMAIN=your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_AUDIENCE=your-auth0-api-identifier
+AUTH0_ISSUER=https://your-auth0-domain.auth0.com/
+
+# Client-side Auth0 configuration
+VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
+VITE_AUTH0_CLIENT_ID=your-auth0-client-id
+VITE_AUTH0_AUDIENCE=your-auth0-api-identifier
+```
+
+#### JWT Token Format
+
 All API endpoints require a valid Auth0 JWT token in the Authorization header:
 
 ```bash
 Authorization: Bearer <jwt_token>
 ```
+
+#### Scope-Based Authorization
+
+The API uses scope-based authorization for different endpoint access levels:
+
+- **Public Routes**: No authentication required
+- **User Routes**: Requires valid JWT token (`jwtCheck`)
+- **Admin Routes**: Requires valid JWT token + admin role (`jwtCheck` + `requireRoles(['admin'])`)
+- **Protected Actions**: Requires specific scopes (`requireScopes(['read:admin'])`)
+
+#### Security Features
+
+- **RS256 Algorithm**: Uses asymmetric keys for token validation
+- **JWKS Caching**: Public keys cached with rate limiting (5 requests/minute)
+- **Refresh Token Rotation**: Automatic token refresh with rotation
+- **Memory Cache**: Tokens stored in memory for security (client-side)
+- **Scope Validation**: Granular permission checking
+- **Error Handling**: Comprehensive error responses without information leakage
 
 ### Example API Usage
 
@@ -415,13 +475,16 @@ server/src/
 ├── __tests__/           # Integration tests
 ├── services/__tests__/  # Unit tests for services
 ├── utils/__tests__/     # Utility tests
-└── middleware/__tests__/ # Middleware tests
+├── middleware/__tests__/ # Middleware tests
+├── config/__tests__/    # Configuration tests
+└── routes/__tests__/    # Route handler tests
 
 client/src/
 ├── __tests__/           # App-level tests
 ├── components/__tests__/ # Component tests
 ├── hooks/__tests__/     # Hook tests
-└── utils/__tests__/     # Utility tests
+├── utils/__tests__/     # Utility tests
+└── lib/__tests__/       # Library tests
 ```
 
 ### Running Tests
@@ -436,6 +499,138 @@ npm run test --workspace=client
 
 # Run tests in watch mode
 npm run test:watch --workspace=server
+
+# Run tests with coverage
+npm run test:coverage --workspace=server
+npm run test:coverage --workspace=client
+```
+
+### Coverage Policy
+
+PagePersonAI maintains comprehensive test coverage to ensure code quality and reliability.
+
+#### Coverage Targets
+
+- **Overall Coverage**: ≥90% for statements, branches, functions, and lines
+- **Critical Components**: 100% coverage for core business logic
+- **Test Framework**: Vitest with V8 coverage provider
+- **CI Integration**: Coverage enforcement in GitHub Actions
+
+#### Coverage Configuration
+
+Coverage thresholds are enforced in `vitest.config.ts`:
+
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      thresholds: {
+        statements: 90,
+        branches: 90,
+        functions: 90,
+        lines: 90,
+      },
+    },
+  },
+});
+```
+
+#### Test Categories
+
+1. **Unit Tests**: Test individual functions and components in isolation
+2. **Integration Tests**: Test interactions between components
+3. **API Tests**: Test endpoint behavior and error handling
+4. **Component Tests**: Test React components with user interactions
+5. **Hook Tests**: Test custom React hooks
+6. **Utility Tests**: Test helper functions and utilities
+
+#### Test Patterns
+
+- **AAA Pattern**: Arrange, Act, Assert for clear test structure
+- **Mocking**: Use `vi.mock()` for external dependencies
+- **Test Isolation**: Each test runs independently
+- **Edge Cases**: Test error conditions and boundary cases
+- **Async Testing**: Proper handling of promises and async operations
+
+#### Coverage Reports
+
+Generate and view coverage reports:
+
+```bash
+# Generate coverage report
+npm run test:coverage --workspace=server
+
+# View HTML coverage report
+open server/coverage/index.html
+
+# View client coverage report
+open client/coverage/index.html
+```
+
+#### CI/CD Integration
+
+- **GitHub Actions**: Runs tests and checks coverage on all PRs
+- **Coverage Enforcement**: Builds fail if coverage drops below 90%
+- **Branch Protection**: Requires passing tests before merging
+- **Automated Reporting**: Coverage reports uploaded to CI artifacts
+
+#### Testing Best Practices
+
+1. **Test Names**: Use descriptive test names that explain expected behavior
+2. **Setup/Teardown**: Use proper beforeEach/afterEach for test isolation
+3. **Mock External Dependencies**: Mock APIs, databases, and external services
+4. **Test Real User Scenarios**: Focus on user-facing functionality
+5. **Keep Tests Fast**: Unit tests should run quickly
+6. **Test Error Conditions**: Include negative test cases
+7. **Use Test Utilities**: Leverage testing library helpers
+
+#### Current Coverage Status
+
+As of the latest build:
+- **Server**: 31.57% overall (target: 90%)
+- **Client**: 23.06% overall (target: 90%)
+- **Well-Tested Components**: Individual modules achieving 80-100% coverage
+
+#### Improving Coverage
+
+To contribute to coverage improvements:
+
+1. **Add Missing Tests**: Focus on untested files and functions
+2. **Test Edge Cases**: Add tests for error conditions and boundary cases
+3. **Integration Tests**: Add tests for component interactions
+4. **Mock External Dependencies**: Ensure external services are properly mocked
+5. **Review Coverage Reports**: Use HTML reports to identify untested code paths
+
+#### Known Coverage Gaps
+
+Current areas needing test coverage:
+- Authentication middleware (auth.ts)
+- User route handlers (user-route.ts)
+- Redis configuration (redis.ts)
+- Landing page components
+- Error boundary components
+- Theme and utility functions
+
+#### Contributing Tests
+
+When adding new features:
+1. Write tests alongside new code
+2. Ensure new code meets coverage thresholds
+3. Update existing tests if changing functionality
+4. Run coverage locally before submitting PR
+5. Fix any coverage regressions
+
+```bash
+# Test new feature with coverage
+npm run test:coverage --workspace=server src/services/new-feature.test.ts
+
+# Check coverage impact
+npm run test:coverage --workspace=server
+```
 
 # Run tests with coverage
 npm run test:coverage --workspace=server

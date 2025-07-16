@@ -26,6 +26,10 @@ const envSchema = z.object({
   AUTH0_CLIENT_ID: z.string().min(1, 'Auth0 client ID is required'),
   AUTH0_CLIENT_SECRET: z.string().min(1, 'Auth0 client secret is required'),
   AUTH0_AUDIENCE: z.string().min(1, 'Auth0 audience is required'),
+  AUTH0_ISSUER: z
+    .string()
+    .url('Auth0 issuer must be a valid URL')
+    .min(1, 'Auth0 issuer is required'),
 
   // JWT configuration
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
@@ -102,6 +106,7 @@ export function validateEnvironment(): z.infer<typeof envSchema> {
       'AUTH0_CLIENT_ID',
       'AUTH0_CLIENT_SECRET',
       'AUTH0_AUDIENCE',
+      'AUTH0_ISSUER',
       'JWT_SECRET',
     ];
     const missingRequired = requiredVars.filter((key) => !process.env[key]);

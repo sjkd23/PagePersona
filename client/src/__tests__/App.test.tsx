@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 import type { AuthContextType } from '../contexts/AuthContext';
 
@@ -134,13 +134,16 @@ describe('App', () => {
     expect(screen.getByTestId('error-boundary')).toBeInTheDocument();
   });
 
-  it('should render landing page when not authenticated', () => {
+  it('should render landing page when not authenticated', async () => {
     mockUseAuth.mockReturnValue(createMockAuthContext());
 
     render(<App />);
 
     expect(screen.getByTestId('header')).toBeInTheDocument();
-    expect(screen.getByTestId('landing-page')).toBeInTheDocument();
+    // Wait for lazy-loaded landing page to render
+    await waitFor(() => {
+      expect(screen.getByTestId('landing-page')).toBeInTheDocument();
+    });
     expect(screen.getByTestId('footer')).toBeInTheDocument();
     expect(screen.getByText(/Auth: false/)).toBeInTheDocument();
   });

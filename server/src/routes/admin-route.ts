@@ -11,9 +11,9 @@
  * - GET /stats: Retrieve system statistics and metrics
  */
 
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import { MongoUser } from '../models/mongo-user';
-import { verifyAuth0Token, syncAuth0User } from '../middleware/auth0-middleware';
+import { jwtCheck, requireRoles, authErrorHandler } from '../middleware/auth';
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -31,35 +31,8 @@ import {
 
 const router = express.Router();
 
-/**
- * Admin role verification middleware
- *
- * Ensures the requesting user has admin role privileges before allowing
- * access to administrative endpoints. Checks role field specifically,
- * not membership level.
- *
- * @param req - Express request object with userContext
- * @param res - Express response object
- * @param next - Express next function
- * @throws {401} Unauthorized if no user authentication
- * @throws {403} Forbidden if user lacks admin role
- */
-const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
-  const user = req.userContext?.mongoUser;
-
-  if (!user) {
-    res.status(HttpStatus.UNAUTHORIZED).json(createErrorResponse('Authentication required'));
-    return;
-  }
-
-  // Only allow users with role === 'admin', not membership === 'admin'
-  if (user.role !== 'admin') {
-    res.status(HttpStatus.FORBIDDEN).json(createErrorResponse('Admin role required'));
-    return;
-  }
-
-  next();
-};
+// Apply auth error handler to all routes
+router.use(authErrorHandler);
 
 /**
  * Retrieve all users with pagination support
@@ -153,9 +126,8 @@ const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
  */
 router.get(
   '/users',
-  verifyAuth0Token,
-  syncAuth0User,
-  requireAdmin,
+  jwtCheck,
+  requireRoles(['admin']),
   async (req: Request, res: Response): Promise<void> => {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -209,9 +181,8 @@ router.get(
  */
 router.patch(
   '/users/:userId/membership',
-  verifyAuth0Token,
-  syncAuth0User,
-  requireAdmin,
+  jwtCheck,
+  requireRoles(['admin']),
   validateRequest(userIdParamSchema, 'params'),
   validateRequest(updateMembershipSchema, 'body'),
   async (req: Request, res: Response): Promise<void> => {
@@ -270,9 +241,8 @@ router.patch(
  */
 router.get(
   '/stats',
-  verifyAuth0Token,
-  syncAuth0User,
-  requireAdmin,
+  jwtCheck,
+  requireRoles(['admin']),
   validateRequest(adminStatsQuerySchema),
   async (req: Request, res: Response): Promise<void> => {
     try {

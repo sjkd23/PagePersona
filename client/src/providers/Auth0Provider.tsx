@@ -18,8 +18,8 @@ export function Auth0Provider({ children }: { children: ReactNode }) {
         audience,
         scope: 'openid profile email',
       }}
-      useRefreshTokens
-      cacheLocation="localstorage"
+      useRefreshTokens={true}
+      cacheLocation="memory"
       onRedirectCallback={(appState) => {
         window.history.replaceState(
           {},
