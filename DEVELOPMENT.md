@@ -117,7 +117,7 @@ PagePersonAI/
 ├── shared/                 # Shared types and constants
 │   ├── constants/          # Application constants
 │   └── types/              # Shared TypeScript types
-└── nginx/                  # Nginx configuration for production
+└── config/                 # Configuration files
 ```
 
 ### Core Components
@@ -400,19 +400,18 @@ curl -X POST https://your-domain.auth0.com/oauth/token \
 # Build all packages
 npm run build
 
-# Test production build
+# Test production build locally
 npm run start:prod
 ```
 
-### Docker Deployment
+### Platform Deployment
 
-```bash
-# Build Docker images
-docker-compose build
+Deploy to your preferred hosting platform:
 
-# Deploy to production
-docker-compose up -d
-```
+- **Netlify**: Connect GitHub repo for automatic deployments
+- **Vercel**: Connect GitHub repo with zero-config deployment
+- **Render**: Connect GitHub repo with automatic builds
+- **Railway**: Connect GitHub repo with built-in CI/CD
 
 ### Environment-Specific Configurations
 

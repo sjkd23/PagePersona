@@ -16,7 +16,6 @@ PagePersonAI/
 ├── client/          # React frontend application
 ├── server/          # Node.js Express backend API
 ├── shared/          # Shared TypeScript types and constants
-├── nginx/           # Reverse proxy configuration
 └── .github/         # GitHub Actions CI/CD
 ```
 
@@ -63,7 +62,7 @@ PagePersonAI/
 - Redis caching for API responses
 - MongoDB for persistent storage
 - Rate limiting with tier-based access
-- Nginx reverse proxy
+- Optimized production builds
 
 ## Development Workflow
 
@@ -105,12 +104,12 @@ PagePersonAI/
 
 ## Deployment
 
-### Docker Support
+### Modern Deployment
 
-- Multi-stage builds
-- Docker Compose for development
-- Nginx reverse proxy
-- Health checks
+- Optimized production builds
+- Platform-agnostic deployment
+- Environment-based configuration
+- CI/CD integration ready
 
 ## File Organization
 
