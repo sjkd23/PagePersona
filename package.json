@@ -16,7 +16,7 @@
     "format": "prettier --write . --config config/.prettierrc",
     "typecheck": "tsc --build",
     "clean": "rimraf */dist */node_modules/.cache",
-    "prepare": "husky install"
+    "husky:install": "husky install"
   },
   "workspaces": [
     "shared",
