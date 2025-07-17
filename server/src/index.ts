@@ -39,14 +39,14 @@ const useCluster = process.env.NODE_ENV === 'production';
 
 if (useCluster && cluster.isPrimary) {
   const cpuCount = os.cpus().length;
-  console.log(`Master ${process.pid} is running — forking ${cpuCount} workers`);
+  logger.info(`Master ${process.pid} is running — forking ${cpuCount} workers`);
 
   for (let i = 0; i < cpuCount; i++) {
     cluster.fork();
   }
 
   cluster.on('exit', (worker, code, signal) => {
-    console.warn(`Worker ${worker.process.pid} died (${signal || code}). Starting a new one.`);
+    logger.warn(`Worker ${worker.process.pid} died (${signal || code}). Starting a new one.`);
     cluster.fork();
   });
 } else {

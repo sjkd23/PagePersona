@@ -25,7 +25,9 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
 
   const getAccessToken = useCallback(async () => {
     try {
-      const token = (await getAccessTokenSilently({ authorizationParams: { audience } })) as string;
+      const token = (await getAccessTokenSilently({
+        authorizationParams: { audience },
+      })) as string;
       return token;
     } catch {
       return undefined;

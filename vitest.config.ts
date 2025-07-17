@@ -10,10 +10,7 @@ export default defineConfig({
       provider: 'istanbul',
       reporter: ['text', 'html'],
       all: true,
-      include: [
-        'server/src/**/*.ts',
-        'client/src/**/*.{ts,tsx}'
-      ],
+      include: ['server/src/**/*.ts', 'client/src/**/*.{ts,tsx}'],
       exclude: [
         '**/*.d.ts',
         '**/__tests__/**',
@@ -28,14 +25,14 @@ export default defineConfig({
         'server/src/types/**/*.ts',
         'client/src/types/**/*.ts',
         'client/src/assets/**/*',
-        '**/*.css'
+        '**/*.css',
       ],
       thresholds: {
         statements: 90,
         branches: 90,
         functions: 90,
-        lines: 90
-      }
-    }
-  }
+        lines: 90,
+      },
+    },
+  },
 });

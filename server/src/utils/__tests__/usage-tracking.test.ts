@@ -68,7 +68,9 @@ describe('usage-tracking', () => {
     it('should handle errors with suppressErrors=true', async () => {
       mockMongoUser.incrementUsageById.mockRejectedValue(new Error('Database error'));
 
-      const result = await incrementUserUsage('user123', { suppressErrors: true });
+      const result = await incrementUserUsage('user123', {
+        suppressErrors: true,
+      });
 
       expect(result).toBe(false);
     });
@@ -115,7 +117,9 @@ describe('usage-tracking', () => {
     it('should handle errors gracefully', async () => {
       mockMongoUser.findByAuth0Id.mockRejectedValue(new Error('Database error'));
 
-      const result = await incrementUserUsageByAuth0Id('auth0|123', { suppressErrors: true });
+      const result = await incrementUserUsageByAuth0Id('auth0|123', {
+        suppressErrors: true,
+      });
 
       expect(result).toBe(false);
     });
@@ -313,7 +317,9 @@ describe('usage-tracking', () => {
       const userIds = ['user1', 'user2'];
       mockMongoUser.bulkIncrementUsage.mockRejectedValue(new Error('Database error'));
 
-      const result = await bulkIncrementUsage(userIds, { suppressErrors: true });
+      const result = await bulkIncrementUsage(userIds, {
+        suppressErrors: true,
+      });
 
       expect(result).toEqual({
         success: false,
@@ -377,7 +383,9 @@ describe('usage-tracking', () => {
       mockMongoUser.incrementUsageById.mockRejectedValue(new Error('Database error'));
 
       // Start the async operation
-      const resultPromise = incrementUserUsageWithRetry('user123', 2, { suppressErrors: true });
+      const resultPromise = incrementUserUsageWithRetry('user123', 2, {
+        suppressErrors: true,
+      });
 
       // Advance timers to skip delays between retries
       await vi.advanceTimersByTimeAsync(2000);
@@ -412,7 +420,9 @@ describe('usage-tracking', () => {
         new Error('Database error'),
       );
 
-      const result = await incrementUserFailedAttempt('user123', { suppressErrors: true });
+      const result = await incrementUserFailedAttempt('user123', {
+        suppressErrors: true,
+      });
 
       expect(result).toBe(false);
     });

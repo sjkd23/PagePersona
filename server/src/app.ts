@@ -257,10 +257,10 @@ if (process.env.NODE_ENV !== 'production') {
   app.use('/api/debug', debugRoutes);
 }
 
-app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage as any, gptRoutes);
+app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
 
 // Error handling middleware
-app.use(errorHandler as any);
+app.use(errorHandler);
 
 // Protected route example
 app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {

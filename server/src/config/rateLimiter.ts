@@ -8,7 +8,7 @@ interface RateLimitOptions {
   max: number;
 }
 
-export function createRateLimiter(options: RateLimitOptions) {
+export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof rateLimit> {
   const redisClient = getRedisClient();
 
   // Use Redis store if available, otherwise fallback to memory store

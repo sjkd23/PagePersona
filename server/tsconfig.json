@@ -31,12 +31,7 @@
     "incremental": true,
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/types/**/*.d.ts",
-    "vitest.config.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/types/**/*.d.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts", "**/__tests__/**/*"],
   "ts-node": {
     "files": true,

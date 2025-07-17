@@ -165,7 +165,10 @@ export class PerformanceUtils {
     new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
       entries.forEach((entry) => {
-        const fidEntry = entry as PerformanceEntry & { processingStart: number; startTime: number };
+        const fidEntry = entry as PerformanceEntry & {
+          processingStart: number;
+          startTime: number;
+        };
         console.log('FID:', fidEntry.processingStart - fidEntry.startTime);
       });
     }).observe({ entryTypes: ['first-input'] });
@@ -174,12 +177,19 @@ export class PerformanceUtils {
     let clsValue = 0;
     new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
-      entries.forEach((entry: PerformanceEntry & { value?: number; hadRecentInput?: boolean }) => {
-        if (!entry.hadRecentInput && entry.value) {
-          clsValue += entry.value;
-          console.log('CLS:', clsValue);
-        }
-      });
+      entries.forEach(
+        (
+          entry: PerformanceEntry & {
+            value?: number;
+            hadRecentInput?: boolean;
+          },
+        ) => {
+          if (!entry.hadRecentInput && entry.value) {
+            clsValue += entry.value;
+            console.log('CLS:', clsValue);
+          }
+        },
+      );
     }).observe({ entryTypes: ['layout-shift'] });
   }
 

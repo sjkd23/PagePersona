@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
   test: {
@@ -15,7 +15,7 @@ export default defineConfig({
         lines: 90,
         functions: 90,
         branches: 90,
-        statements: 90
+        statements: 90,
       },
       // Report on all files, not just tested ones
       all: true,
@@ -40,17 +40,14 @@ export default defineConfig({
         'src/types/**/*.ts',
       ],
       // Include specific patterns for comprehensive coverage
-      include: [
-        'src/**/*.ts',
-        'src/**/*.js'
-      ]
+      include: ['src/**/*.ts', 'src/**/*.js'],
     },
-    setupFiles: ['./tests/setup.ts']
+    setupFiles: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@tests': path.resolve(__dirname, './tests')
-    }
-  }
-})
+      '@tests': path.resolve(__dirname, './tests'),
+    },
+  },
+});

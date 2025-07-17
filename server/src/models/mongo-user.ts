@@ -104,8 +104,16 @@ const MongoUserSchema = new Schema<IMongoUser>(
     lastName: { type: String, default: '' },
     avatar: { type: String, default: '' },
     isEmailVerified: { type: Boolean, default: false },
-    role: { type: String, default: 'user', enum: ['user', 'admin', 'moderator'] },
-    membership: { type: String, default: 'free', enum: ['free', 'premium', 'admin'] },
+    role: {
+      type: String,
+      default: 'user',
+      enum: ['user', 'admin', 'moderator'],
+    },
+    membership: {
+      type: String,
+      default: 'free',
+      enum: ['free', 'premium', 'admin'],
+    },
     preferences: {
       theme: { type: String, default: 'light', enum: ['light', 'dark'] },
       language: { type: String, default: 'en' },

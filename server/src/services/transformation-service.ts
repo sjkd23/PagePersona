@@ -81,7 +81,11 @@ export class TransformationService {
   async transformWebpage(request: TransformWebpageRequest): Promise<TransformationServiceResult> {
     const { url, persona, userId } = request;
 
-    logger.transform.info('Starting webpage transformation', { url, persona, userId });
+    logger.transform.info('Starting webpage transformation', {
+      url,
+      persona,
+      userId,
+    });
 
     try {
       // Check cache for existing transformation
@@ -265,7 +269,10 @@ export class TransformationService {
     try {
       await incrementUserFailedAttempt(userId, { logSuccess: true });
     } catch (error) {
-      logger.transform.warn('Failed to track failed attempt', { userId, error });
+      logger.transform.warn('Failed to track failed attempt', {
+        userId,
+        error,
+      });
       // Don't throw - tracking failure shouldn't break the main flow
     }
   }
@@ -280,7 +287,11 @@ export class TransformationService {
    * @param error - Error object or unknown error type
    * @returns User-friendly error with structured information
    */
-  private formatError(error: unknown): { message: string; code: ErrorCode; details?: unknown } {
+  private formatError(error: unknown): {
+    message: string;
+    code: ErrorCode;
+    details?: unknown;
+  } {
     // Use the ErrorMapper to get consistent user-friendly error messages
     const userFriendlyError = ErrorMapper.mapError(error);
 

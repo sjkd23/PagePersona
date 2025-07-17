@@ -35,11 +35,13 @@ shared/
 ### Types
 
 #### API Types (`types/api.ts`)
+
 - `ApiResponse<T>` - Standard API response wrapper
 - `ApiError` - Error response structure
 - `LoadingState` - UI loading state management
 
 #### Persona Types (`types/personas.ts`)
+
 - `BasePersona` - Core persona properties
 - `ServerPersona` - Server-side persona with full details
 - `ClientPersona` - Client-side persona with limited info
@@ -48,12 +50,14 @@ shared/
 - `TransformResponse` - Content transformation response
 
 #### User Types (`types/user.ts`)
+
 - `User` - User profile information
 - `UserProfile` - Extended user profile data
 - `ChatMessage` - Chat message structure
 - `ConversationHistory` - Chat conversation data
 
 #### Error Types (`types/errors.ts`)
+
 - `ErrorCode` - Standardized error codes
 - `ERROR_MESSAGES` - User-friendly error messages
 - `UserFriendlyError` - Client-facing error structure
@@ -62,12 +66,14 @@ shared/
 ### Constants
 
 #### Personas (`constants/personas.ts`)
+
 - `PERSONAS` - Server-side persona definitions
-- `CLIENT_PERSONAS` - Client-side persona definitions  
+- `CLIENT_PERSONAS` - Client-side persona definitions
 - `FULL_PERSONAS` - Complete persona definitions
 - Utility functions for persona management
 
 #### Prompts (`constants/prompts.ts`)
+
 - `BASE_SYSTEM_PROMPT` - Base AI system prompt
 - Additional prompt templates and configurations
 
@@ -76,16 +82,16 @@ shared/
 ### In Client Application
 
 ```typescript
-import { 
-  TransformRequest, 
-  TransformResponse, 
+import {
+  TransformRequest,
+  TransformResponse,
   ClientPersona,
-  ApiResponse 
+  ApiResponse,
 } from '@pagepersonai/shared';
 
 // Use types for API calls
 const transformContent = async (
-  request: TransformRequest
+  request: TransformRequest,
 ): Promise<ApiResponse<TransformResponse>> => {
   // Implementation
 };
@@ -98,12 +104,7 @@ const availablePersonas: ClientPersona[] = CLIENT_PERSONAS;
 ### In Server Application
 
 ```typescript
-import { 
-  ServerPersona, 
-  UserProfile,
-  ErrorCode,
-  ERROR_MESSAGES 
-} from '@pagepersonai/shared';
+import { ServerPersona, UserProfile, ErrorCode, ERROR_MESSAGES } from '@pagepersonai/shared';
 
 // Use server-side types
 const processUser = (profile: UserProfile) => {
@@ -138,16 +139,19 @@ npm run test
 ## Best Practices
 
 ### Type Safety
+
 - Always use the appropriate type variants (Client vs Server vs Full)
 - Leverage TypeScript's strict mode for better type checking
 - Use type guards for runtime type validation
 
 ### Error Handling
+
 - Use standardized error codes from `ErrorCode` enum
 - Map errors to user-friendly messages using `ERROR_MESSAGES`
 - Implement consistent error response structure
 
 ### Constants Management
+
 - Keep persona definitions in sync between client and server
 - Use utility functions for persona operations
 - Maintain version compatibility between shared and consuming packages
@@ -155,6 +159,7 @@ npm run test
 ## Version Compatibility
 
 The shared package follows semantic versioning:
+
 - **Major versions** for breaking changes to types or constants
 - **Minor versions** for new features and non-breaking additions
 - **Patch versions** for bug fixes and documentation updates
@@ -173,15 +178,17 @@ When adding new types or constants:
 ## Integration Notes
 
 ### Client Integration
+
 - Types are used for API client interfaces
 - Constants provide UI data for persona selection
 - Error types enable consistent error handling
 
-### Server Integration  
+### Server Integration
+
 - Types validate API request/response structure
 - Constants provide business logic data
 - Error utilities standardize error responses
 
 ---
 
-*This package is maintained by the PagePersonAI development team and is central to maintaining consistency across the application.*
+_This package is maintained by the PagePersonAI development team and is central to maintaining consistency across the application._

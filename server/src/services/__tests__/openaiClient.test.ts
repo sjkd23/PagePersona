@@ -197,7 +197,11 @@ describe('OpenAIClientService', () => {
             finish_reason: 'length',
           },
         ],
-        usage: { prompt_tokens: 50, completion_tokens: 2500, total_tokens: 2550 },
+        usage: {
+          prompt_tokens: 50,
+          completion_tokens: 2500,
+          total_tokens: 2550,
+        },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);
@@ -232,8 +236,17 @@ describe('OpenAIClientService', () => {
       };
 
       const mockResponse = {
-        choices: [{ message: { content: 'Response to long prompt' }, finish_reason: 'stop' }],
-        usage: { prompt_tokens: 5000, completion_tokens: 100, total_tokens: 5100 },
+        choices: [
+          {
+            message: { content: 'Response to long prompt' },
+            finish_reason: 'stop',
+          },
+        ],
+        usage: {
+          prompt_tokens: 5000,
+          completion_tokens: 100,
+          total_tokens: 5100,
+        },
       };
 
       mockOpenAIInstance.chat.completions.create.mockResolvedValue(mockResponse);

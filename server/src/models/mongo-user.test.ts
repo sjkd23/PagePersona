@@ -185,7 +185,9 @@ describe('MongoUser Model', () => {
         ...updateData,
       });
 
-      const result = await mockModel.findByIdAndUpdate(userId, updateData, { new: true });
+      const result = await mockModel.findByIdAndUpdate(userId, updateData, {
+        new: true,
+      });
 
       expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(userId, updateData, { new: true });
       expect(result.firstName).toBe(updateData.firstName);

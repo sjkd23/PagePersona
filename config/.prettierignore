@@ -30,6 +30,7 @@ coverage/
 .prettierrc
 .eslintrc*
 tsconfig*.json
+.env.*
 
 # IDE files
 .vscode/
@@ -43,9 +44,7 @@ Thumbs.db
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+logs/
 
 # Database
 *.db
@@ -56,12 +55,27 @@ yarn-error.log*
 *.temp
 
 # Docker
-Dockerfile*
-docker-compose*.yml
+Dockerfile
+docker-compose.yml
+.dockerignore
 
 # Config files
 *.config.js
-*.config.mjs
 *.config.ts
-vitest.config.*
-vite.config.*
+tsconfig.json
+vitest.config.ts
+vite.config.ts
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+LICENSE
+
+# Specific project files
+deploy.sh
+output.zip
+*.zip
+*.tar.gz

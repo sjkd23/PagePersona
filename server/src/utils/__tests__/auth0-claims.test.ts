@@ -346,10 +346,18 @@ describe('auth0-claims', () => {
       debugAuth0Claims(auth0User, 'user-123');
 
       expect(logger.debug).toHaveBeenCalledWith('Auth0 Claims Debug for user user-123:');
-      expect(logger.debug).toHaveBeenCalledWith('Standard Claims:', { claims: expect.any(Object) });
-      expect(logger.debug).toHaveBeenCalledWith('Custom Claims:', { claims: expect.any(Object) });
-      expect(logger.debug).toHaveBeenCalledWith('Safe Email:', { email: 'test@example.com' });
-      expect(logger.debug).toHaveBeenCalledWith('Display Name:', { displayName: 'Test User' });
+      expect(logger.debug).toHaveBeenCalledWith('Standard Claims:', {
+        claims: expect.any(Object),
+      });
+      expect(logger.debug).toHaveBeenCalledWith('Custom Claims:', {
+        claims: expect.any(Object),
+      });
+      expect(logger.debug).toHaveBeenCalledWith('Safe Email:', {
+        email: 'test@example.com',
+      });
+      expect(logger.debug).toHaveBeenCalledWith('Display Name:', {
+        displayName: 'Test User',
+      });
     });
 
     it('should not log in production environment', () => {

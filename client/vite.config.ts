@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -71,12 +71,6 @@ export default defineConfig({
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: [
-      'react',
-      'react-dom',
-      '@auth0/auth0-react',
-      '@headlessui/react',
-      'react-markdown',
-    ],
+    include: ['react', 'react-dom', '@auth0/auth0-react', '@headlessui/react', 'react-markdown'],
   },
-})
+});

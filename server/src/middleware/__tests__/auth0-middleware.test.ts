@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 
 describe('Auth0 Middleware', () => {
-  let mockRequest: Partial<Request> & { user?: any; userContext?: any; path?: string };
+  let mockRequest: Partial<Request> & {
+    user?: any;
+    userContext?: any;
+    path?: string;
+  };
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
 

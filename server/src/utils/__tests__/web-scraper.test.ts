@@ -236,7 +236,10 @@ describe('WebScraper', () => {
         { input: 'http://example.com', expected: 'http://example.com/' },
         { input: 'https://example.com', expected: 'https://example.com/' },
         { input: 'www.example.com', expected: 'https://www.example.com/' },
-        { input: 'example.com/path?query=1', expected: 'https://example.com/path?query=1' },
+        {
+          input: 'example.com/path?query=1',
+          expected: 'https://example.com/path?query=1',
+        },
       ];
 
       for (const testCase of testCases) {
