@@ -26,6 +26,15 @@ import express, { Request, Response, RequestHandler } from 'express';
 import type { AuthenticatedRequest, ProcessedAuth0User } from '../types/common';
 import { MongoUser, type IMongoUser } from '../models/mongo-user';
 import { jwtCheck, authErrorHandler } from '../middleware/auth';
+
+interface UserUpdateArgs {
+  userId: unknown;
+  email: string;
+  oldFirstName?: string;
+  oldLastName?: string;
+  newFirstName: string;
+  newLastName: string;
+}
 import * as userSerializer from '../utils/userSerializer';
 
 // Helper type for authenticated route handlers
@@ -595,7 +604,7 @@ if (process.env.NODE_ENV !== 'production') {
         });
 
         let updatedCount = 0;
-        const results = [];
+        const results: UserUpdateArgs[] = [];
 
         for (const user of usersWithEmptyNames) {
           // For this migration, we'll try to extract names from email or username

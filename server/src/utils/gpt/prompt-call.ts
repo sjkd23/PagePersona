@@ -3,6 +3,12 @@ import { HttpStatus } from '../../constants/http-status';
 import { createChatService } from '../../services/chat-service';
 import { logger } from '../../utils/logger';
 
+// Import the ChatMessage interface from the chat service
+interface ChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 const promptCall = async (req: Request, res: Response): Promise<void> => {
   logger.openai.info('ChatGPT prompt call started');
 
@@ -12,7 +18,7 @@ const promptCall = async (req: Request, res: Response): Promise<void> => {
     // Transform the validated request body into the format expected by chat service
     const { message, context, model, temperature, maxTokens } = req.body;
 
-    const messages = [];
+    const messages: ChatMessage[] = [];
     if (context) {
       messages.push({ role: 'system' as const, content: context });
     }
