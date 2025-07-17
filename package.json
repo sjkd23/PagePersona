@@ -16,7 +16,8 @@
     "format": "prettier --write . --config config/.prettierrc",
     "typecheck": "tsc --build",
     "clean": "rimraf */dist */node_modules/.cache",
-    "prepare": "husky"
+    "prepare": "husky",
+    "add-types": "npm install --save-dev @types/cors @types/compression @types/swagger-jsdoc @types/swagger-ui-express @types/sanitize-html @vitest/types"
   },
   "workspaces": [
     "shared",
