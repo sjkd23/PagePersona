@@ -99,7 +99,9 @@ export function getUserMembershipTierSync(
 
   // Check user context for mongo user - check both membership and role
   const userContext = (
-    req as Request & { userContext?: { mongoUser?: { membership?: string; role?: string } } }
+    req as Request & {
+      userContext?: { mongoUser?: { membership?: string; role?: string } };
+    }
   ).userContext;
 
   if (userContext?.mongoUser?.membership) {

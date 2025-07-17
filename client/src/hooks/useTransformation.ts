@@ -164,7 +164,11 @@ export function useTransformation() {
   useEffect(() => {
     const loadPersonas = async () => {
       try {
-        safeSetState((prev) => ({ ...prev, loadingPersonas: true, error: null }));
+        safeSetState((prev) => ({
+          ...prev,
+          loadingPersonas: true,
+          error: null,
+        }));
         const response = await ApiService.getPersonas();
 
         if (!isMountedRef.current) return; // Early exit if unmounted
@@ -183,13 +187,20 @@ export function useTransformation() {
             actionText: response.actionText,
             details: response.details,
           };
-          safeSetState((prev) => ({ ...prev, error: enhancedError.message, enhancedError }));
+          safeSetState((prev) => ({
+            ...prev,
+            error: enhancedError.message,
+            enhancedError,
+          }));
         }
       } catch (err) {
         if (!isMountedRef.current) return; // Early exit if unmounted
 
         logger.component.error('useTransformation', 'Error loading personas', err);
-        safeSetState((prev) => ({ ...prev, error: 'Failed to connect to server' }));
+        safeSetState((prev) => ({
+          ...prev,
+          error: 'Failed to connect to server',
+        }));
       } finally {
         safeSetState((prev) => ({ ...prev, loadingPersonas: false }));
       }
@@ -234,7 +245,11 @@ export function useTransformation() {
     },
 
     setEnhancedError: (enhancedError) => {
-      setState((prev) => ({ ...prev, enhancedError, error: enhancedError?.message || null }));
+      setState((prev) => ({
+        ...prev,
+        enhancedError,
+        error: enhancedError?.message || null,
+      }));
     },
 
     handleInputChange: (value) => {
@@ -304,7 +319,12 @@ export function useTransformation() {
       abortControllerRef.current = new AbortController();
       const abortSignal = abortControllerRef.current.signal;
 
-      safeSetState((prev) => ({ ...prev, isLoading: true, error: null, hasClickedGenerate: true }));
+      safeSetState((prev) => ({
+        ...prev,
+        isLoading: true,
+        error: null,
+        hasClickedGenerate: true,
+      }));
 
       try {
         let response;

@@ -142,30 +142,129 @@ server/
 └── dist/               # Compiled output
 ```
 
+## Documentation Standards
+
+### Code Documentation
+
+All code follows comprehensive documentation standards:
+
+#### JSDoc Comments
+
+```typescript
+/**
+ * Transform content using specified persona
+ *
+ * @param content - The content to transform
+ * @param personaId - The persona ID for transformation
+ * @returns Promise resolving to transformation result
+ * @throws {ValidationError} When content validation fails
+ * @throws {AIServiceError} When AI service is unavailable
+ *
+ * @example
+ * ```typescript
+ * const result = await transformContent(
+ *   'Hello world',
+ *   'professional'
+ * );
+ * ```
+ */
+export async function transformContent(
+  content: string,
+  personaId: string
+): Promise<TransformResult> {
+  // Implementation
+}
+```
+
+#### Component Documentation
+
+```tsx
+/**
+ * User Profile Component
+ *
+ * Displays user profile information with edit capabilities.
+ * Integrates with Auth0 for authentication and MongoDB for data persistence.
+ *
+ * @param user - User object containing profile data
+ * @param onUpdate - Callback function for profile updates
+ * @returns JSX element representing the user profile
+ */
+export function UserProfile({ user, onUpdate }: UserProfileProps) {
+  // Implementation
+}
+```
+
+### File-Level Documentation
+
+Every module includes comprehensive header documentation:
+
+```typescript
+/**
+ * Authentication Service Module
+ *
+ * Provides comprehensive authentication functionality including
+ * token management, user session handling, and Auth0 integration.
+ *
+ * Key Features:
+ * - JWT token management and validation
+ * - User session state management
+ * - Auth0 integration for social authentication
+ * - Automatic token refresh handling
+ * - Secure logout functionality
+ *
+ * @module AuthService
+ * @version 1.0.0
+ * @since 1.0.0
+ */
+```
+
+### API Documentation
+
+Complete API documentation with:
+
+- **OpenAPI 3.0 Specification**: Machine-readable API docs
+- **Swagger UI**: Interactive API documentation
+- **Request/Response Examples**: Comprehensive examples
+- **Error Handling**: Detailed error response documentation
+- **Authentication**: Security scheme documentation
+
+### README Standards
+
+Each component/module includes:
+
+- **Purpose**: What the component/module does
+- **Usage**: How to use it with examples
+- **Configuration**: Required configuration options
+- **Dependencies**: External dependencies and requirements
+- **Testing**: How to test the component/module
+- **Contributing**: Guidelines for contributions
+
 ## Best Practices
 
 ### Code Quality
 
-- TypeScript for type safety
-- ESLint and Prettier for formatting
-- Comprehensive test coverage
-- Descriptive naming conventions
+1. **TypeScript Strict Mode**: All code uses TypeScript with strict type checking
+2. **ESLint and Prettier**: Consistent code style and formatting
+3. **Comprehensive Testing**: Unit, integration, and e2e tests with >80% coverage
+4. **Error Handling**: Comprehensive error handling with proper logging
+5. **Performance**: Optimized code with proper caching and lazy loading
+
+### Security Best Practices
+
+1. **Input Validation**: All inputs validated using Zod schemas
+2. **Authentication**: JWT tokens with proper expiration handling
+3. **Authorization**: Role-based access control throughout the application
+4. **Data Sanitization**: All user inputs sanitized before processing
+5. **HTTPS**: All communication encrypted in production
 
 ### Performance
 
-- Caching strategies
-- Lazy loading for components
-- Optimized database queries
-- Bundle size monitoring
-
-### Contributing
-
-1. Create feature branches
-2. Follow existing code style
-3. Write tests for new functionality
-4. Update documentation
-5. Submit pull requests
+1. **Caching**: Redis caching for frequently accessed data
+2. **Database Optimization**: Proper indexing and query optimization
+3. **Bundle Optimization**: Code splitting and lazy loading
+4. **CDN**: Static assets served from CDN in production
+5. **Monitoring**: Application performance monitoring and logging
 
 ---
 
-_This documentation is maintained by the PagePersonAI development team._
+_This documentation is maintained by the PagePersonAI development team and updated with each release._

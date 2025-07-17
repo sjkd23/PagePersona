@@ -231,7 +231,12 @@ export class ContentTransformer {
     errorMessage: string,
     scrapedContent:
       | ScrapedContent
-      | { title: string; content: string; url: string; metadata: { wordCount: number } }
+      | {
+          title: string;
+          content: string;
+          url: string;
+          metadata: { wordCount: number };
+        }
       | null,
     personaId: string,
   ): TransformationResult {

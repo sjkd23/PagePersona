@@ -169,7 +169,9 @@ class RedisClientManager {
       } else {
         // Log warning for keys without TTL to avoid stale cache
         if (!this.silentMode) {
-          logger.auth.warn('Redis SET without TTL - key may become stale:', { key });
+          logger.auth.warn('Redis SET without TTL - key may become stale:', {
+            key,
+          });
         }
         await client.set(key, value);
       }

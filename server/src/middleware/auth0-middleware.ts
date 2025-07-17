@@ -77,7 +77,9 @@ const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean
       verifyAuth0Token(req, res, (err: unknown) => {
         if (err) {
           const errorMessage = err instanceof Error ? err.message : String(err);
-          logger.debug('Optional Auth0 verification failed', { error: errorMessage });
+          logger.debug('Optional Auth0 verification failed', {
+            error: errorMessage,
+          });
           resolve(false);
         } else {
           logger.debug('Auth0 token verified successfully');

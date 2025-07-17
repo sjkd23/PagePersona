@@ -131,8 +131,12 @@ describe('TextArea', () => {
 
     const textarea = screen.getByRole('textbox');
     fireEvent.change(textarea, { target: { value: 'First line' } });
-    fireEvent.change(textarea, { target: { value: 'First line\nSecond line' } });
-    fireEvent.change(textarea, { target: { value: 'First line\nSecond line\nThird line' } });
+    fireEvent.change(textarea, {
+      target: { value: 'First line\nSecond line' },
+    });
+    fireEvent.change(textarea, {
+      target: { value: 'First line\nSecond line\nThird line' },
+    });
 
     expect(mockOnChange).toHaveBeenCalledTimes(3);
     expect(mockOnChange).toHaveBeenNthCalledWith(1, 'First line');

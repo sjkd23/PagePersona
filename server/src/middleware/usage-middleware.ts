@@ -62,7 +62,7 @@ export const trackUsage = (req: AuthenticatedRequest, res: Response, next: NextF
           const parsed = JSON.parse(data);
           if (parsed.usage) {
             tokensUsed = parsed.usage.total_tokens || 0;
-            model = (req.body as any)?.model || 'gpt-4o-mini';
+            model = (req.body as { model?: string })?.model || 'gpt-4o-mini';
           }
         }
       } catch (error) {

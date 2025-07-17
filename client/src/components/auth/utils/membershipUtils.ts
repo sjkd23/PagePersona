@@ -67,7 +67,11 @@ export const getMembershipInfo = (membership: MembershipTier): MembershipInfo =>
 export const calculateUsageStats = (
   currentUsage: number,
   membership: MembershipTier,
-): UsageLimits & { percentage: number; isNearLimit: boolean; isOverLimit: boolean } => {
+): UsageLimits & {
+  percentage: number;
+  isNearLimit: boolean;
+  isOverLimit: boolean;
+} => {
   const monthlyLimit = getUsageLimit(membership);
   const percentage = Math.min(100, (currentUsage / monthlyLimit) * 100);
   const isNearLimit = percentage >= 80;

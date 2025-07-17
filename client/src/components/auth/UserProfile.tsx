@@ -310,7 +310,10 @@ export default function UserProfile() {
                       type="text"
                       value={editForm.firstName}
                       onChange={(e) =>
-                        setEditForm((prev) => ({ ...prev, firstName: e.target.value }))
+                        setEditForm((prev) => ({
+                          ...prev,
+                          firstName: e.target.value,
+                        }))
                       }
                       className="form-input"
                       placeholder="Enter first name"
@@ -327,7 +330,10 @@ export default function UserProfile() {
                       type="text"
                       value={editForm.lastName}
                       onChange={(e) =>
-                        setEditForm((prev) => ({ ...prev, lastName: e.target.value }))
+                        setEditForm((prev) => ({
+                          ...prev,
+                          lastName: e.target.value,
+                        }))
                       }
                       className="form-input"
                       placeholder="Enter last name"
@@ -398,7 +404,10 @@ export default function UserProfile() {
                       onChange={(e) =>
                         setEditForm((prev) => ({
                           ...prev,
-                          preferences: { ...prev.preferences, language: e.target.value },
+                          preferences: {
+                            ...prev.preferences,
+                            language: e.target.value,
+                          },
                         }))
                       }
                       className="form-input"
@@ -433,7 +442,10 @@ export default function UserProfile() {
                         onChange={(e) =>
                           setEditForm((prev) => ({
                             ...prev,
-                            preferences: { ...prev.preferences, notifications: e.target.checked },
+                            preferences: {
+                              ...prev.preferences,
+                              notifications: e.target.checked,
+                            },
                           }))
                         }
                         className="form-checkbox"

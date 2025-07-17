@@ -225,7 +225,9 @@ router.post(
     try {
       const { url, persona } = req.body;
       const mongoUser = (
-        req as Request & { userContext?: { mongoUser?: { _id?: { toString(): string } } } }
+        req as Request & {
+          userContext?: { mongoUser?: { _id?: { toString(): string } } };
+        }
       ).userContext?.mongoUser;
       const userId = mongoUser?._id?.toString();
 
@@ -379,7 +381,9 @@ router.post(
     try {
       const { text, persona } = req.body;
       const mongoUser = (
-        req as Request & { userContext?: { mongoUser?: { _id?: { toString(): string } } } }
+        req as Request & {
+          userContext?: { mongoUser?: { _id?: { toString(): string } } };
+        }
       ).userContext?.mongoUser;
       const userId = mongoUser?._id?.toString();
 

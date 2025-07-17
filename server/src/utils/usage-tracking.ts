@@ -225,7 +225,10 @@ export async function incrementUserUsageWithRetry(
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const success = await incrementUserUsage(userId, { ...options, logErrors: false });
+      const success = await incrementUserUsage(userId, {
+        ...options,
+        logErrors: false,
+      });
       if (success) {
         return true;
       }

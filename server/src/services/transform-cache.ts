@@ -55,7 +55,11 @@ export async function setCachedTransformResult(
 
   try {
     await redisClient.set(cacheKey, JSON.stringify(result), CACHE_TTL);
-    logger.info('Cached transformation result', { url, persona, ttl: CACHE_TTL });
+    logger.info('Cached transformation result', {
+      url,
+      persona,
+      ttl: CACHE_TTL,
+    });
   } catch (error) {
     logger.error('Error caching transformation result:', error);
   }
@@ -83,11 +87,17 @@ export async function getCachedTextTransformResult(
   try {
     const cached = await redisClient.get(cacheKey);
     if (cached) {
-      logger.info('Cache hit for text transformation', { persona, textLength: text.length });
+      logger.info('Cache hit for text transformation', {
+        persona,
+        textLength: text.length,
+      });
       return JSON.parse(cached);
     }
 
-    logger.info('Cache miss for text transformation', { persona, textLength: text.length });
+    logger.info('Cache miss for text transformation', {
+      persona,
+      textLength: text.length,
+    });
     return null;
   } catch (error) {
     logger.error('Error getting cached text transformation result:', error);

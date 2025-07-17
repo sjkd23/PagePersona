@@ -161,11 +161,17 @@ describe('CacheService', () => {
       const personaId = 'professional';
       const result1 = {
         ...mockTransformationResult,
-        originalContent: { ...mockTransformationResult.originalContent, url: url1 },
+        originalContent: {
+          ...mockTransformationResult.originalContent,
+          url: url1,
+        },
       };
       const result2 = {
         ...mockTransformationResult,
-        originalContent: { ...mockTransformationResult.originalContent, url: url2 },
+        originalContent: {
+          ...mockTransformationResult.originalContent,
+          url: url2,
+        },
       };
 
       // Act

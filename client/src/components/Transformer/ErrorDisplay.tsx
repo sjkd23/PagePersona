@@ -165,7 +165,9 @@ export default function ErrorDisplay({
               <div className="usage-bar">
                 <div
                   className="usage-progress"
-                  style={{ width: `${Math.min((currentUsage / usageLimit) * 100, 100)}%` }}
+                  style={{
+                    width: `${Math.min((currentUsage / usageLimit) * 100, 100)}%`,
+                  }}
                 />
               </div>
               <p className="usage-text">

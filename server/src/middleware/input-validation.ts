@@ -49,16 +49,25 @@ export function validateUrl(url: string): { isValid: boolean; error?: string } {
 
     return { isValid: true };
   } catch (error) {
-    return { isValid: false, error: 'Invalid URL format. Please provide a valid website URL.' };
+    return {
+      isValid: false,
+      error: 'Invalid URL format. Please provide a valid website URL.',
+    };
   }
 }
 
 /**
  * Validate persona ID
  */
-export function validatePersona(persona: string): { isValid: boolean; error?: string } {
+export function validatePersona(persona: string): {
+  isValid: boolean;
+  error?: string;
+} {
   if (!persona || typeof persona !== 'string') {
-    return { isValid: false, error: 'Persona is required and must be a string' };
+    return {
+      isValid: false,
+      error: 'Persona is required and must be a string',
+    };
   }
 
   const trimmedPersona = persona.trim();
@@ -77,7 +86,10 @@ export function validatePersona(persona: string): { isValid: boolean; error?: st
 /**
  * Validate text input for transformation
  */
-export function validateText(text: string): { isValid: boolean; error?: string } {
+export function validateText(text: string): {
+  isValid: boolean;
+  error?: string;
+} {
   if (!text || typeof text !== 'string') {
     return { isValid: false, error: 'Text is required and must be a string' };
   }
@@ -89,7 +101,10 @@ export function validateText(text: string): { isValid: boolean; error?: string }
 
   // Check reasonable length limits
   if (trimmedText.length < 50) {
-    return { isValid: false, error: 'Text must be at least 50 characters long' };
+    return {
+      isValid: false,
+      error: 'Text must be at least 50 characters long',
+    };
   }
 
   if (trimmedText.length > 50000) {

@@ -1,6 +1,8 @@
 import { createClient, RedisClientType } from 'redis';
 import { logger } from '../utils/logger';
 
+type Redis = RedisClientType;
+
 class RedisManager {
   private client: RedisClientType | null = null;
   private isConnected: boolean = false;
@@ -87,10 +89,10 @@ class RedisManager {
 
 const redisManager = new RedisManager();
 
-export const getRedisClient = () => redisManager.getClient();
-export const getRedisClientAsync = () => redisManager.getClientAsync();
-export const isRedisAvailable = () => redisManager.isAvailable();
-export const disconnectRedis = () => redisManager.disconnect();
+export const getRedisClient = (): Redis | null => redisManager.getClient();
+export const getRedisClientAsync = (): Promise<Redis | null> => redisManager.getClientAsync();
+export const isRedisAvailable = (): boolean => redisManager.isAvailable();
+export const disconnectRedis = (): Promise<void> => redisManager.disconnect();
 
 export const safeRedisOperation = async <T>(
   operation: () => Promise<T>,

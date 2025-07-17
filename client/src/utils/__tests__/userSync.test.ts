@@ -107,7 +107,9 @@ describe('userSync', () => {
         },
       });
       expect(logger.sync.info).toHaveBeenCalledWith('Starting user sync with backend');
-      expect(logger.sync.info).toHaveBeenCalledWith('Profile retrieved', { success: true });
+      expect(logger.sync.info).toHaveBeenCalledWith('Profile retrieved', {
+        success: true,
+      });
     });
   });
 

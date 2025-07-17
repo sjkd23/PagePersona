@@ -63,7 +63,12 @@ describe('TransformationService', () => {
     it('should return cached result when available', async () => {
       const mockCachedResult = {
         success: true,
-        originalContent: { title: 'Test', content: 'content', url: 'test.com', wordCount: 1 },
+        originalContent: {
+          title: 'Test',
+          content: 'content',
+          url: 'test.com',
+          wordCount: 1,
+        },
         transformedContent: 'transformed',
         persona: { id: 'test', name: 'Test', description: 'Test persona' },
       };
@@ -79,7 +84,9 @@ describe('TransformationService', () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockCachedResult);
       expect(result.cached).toBe(true);
-      expect(mockedIncrementUserUsage).toHaveBeenCalledWith('user123', { logSuccess: true });
+      expect(mockedIncrementUserUsage).toHaveBeenCalledWith('user123', {
+        logSuccess: true,
+      });
     });
 
     it('should scrape and transform content when not cached', async () => {
@@ -127,7 +134,9 @@ describe('TransformationService', () => {
         'test-persona',
         mockTransformResult,
       );
-      expect(mockedIncrementUserUsage).toHaveBeenCalledWith('user123', { logSuccess: true });
+      expect(mockedIncrementUserUsage).toHaveBeenCalledWith('user123', {
+        logSuccess: true,
+      });
     });
 
     it('should handle transformation errors gracefully', async () => {
@@ -174,7 +183,12 @@ describe('TransformationService', () => {
     it('should transform text successfully', async () => {
       const mockTransformResult = {
         success: true,
-        originalContent: { title: '', content: 'test text', url: '', wordCount: 2 },
+        originalContent: {
+          title: '',
+          content: 'test text',
+          url: '',
+          wordCount: 2,
+        },
         transformedContent: 'Transformed text',
         persona: { id: 'test', name: 'Test', description: 'Test persona' },
       };
@@ -191,7 +205,9 @@ describe('TransformationService', () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockTransformResult);
       expect(mockTransformer.transformText).toHaveBeenCalledWith('test text', 'test-persona');
-      expect(mockedIncrementUserUsage).toHaveBeenCalledWith('user123', { logSuccess: true });
+      expect(mockedIncrementUserUsage).toHaveBeenCalledWith('user123', {
+        logSuccess: true,
+      });
     });
 
     it('should handle text transformation errors', async () => {

@@ -166,7 +166,9 @@ export class ChatService {
       }
     }
 
-    logger.openai.debug('All messages validated successfully', { count: messages.length });
+    logger.openai.debug('All messages validated successfully', {
+      count: messages.length,
+    });
     return null;
   }
 
@@ -202,7 +204,9 @@ export class ChatService {
       }
     }
 
-    logger.openai.debug('All messages validated successfully', { count: messages.length });
+    logger.openai.debug('All messages validated successfully', {
+      count: messages.length,
+    });
   }
 
   /**

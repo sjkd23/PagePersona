@@ -91,7 +91,9 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
 
   try {
     logger.sync.info('Starting user sync with backend');
-    logger.sync.debug('Token preview', { preview: accessToken.substring(0, 50) + '...' });
+    logger.sync.debug('Token preview', {
+      preview: accessToken.substring(0, 50) + '...',
+    });
 
     // Debug JWT structure
     const tokenParts = accessToken.split('.');
@@ -143,7 +145,10 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
 
       if (!syncRes.ok) {
         const errorText = await syncRes.text();
-        logger.sync.error('Sync request failed', undefined, { status: syncRes.status, errorText });
+        logger.sync.error('Sync request failed', undefined, {
+          status: syncRes.status,
+          errorText,
+        });
         return null;
       }
 

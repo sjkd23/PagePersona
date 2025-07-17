@@ -6,6 +6,8 @@
  */
 
 import { Request } from 'express';
+import type { AuthenticatedUserContext } from '../types/common';
+import type { IMongoUser } from '../models/mongo-user';
 
 /**
  * Type guard to check if a request has a valid user context
@@ -37,9 +39,9 @@ export function hasMongoUser(
 /**
  * Runtime assertion for user context
  */
-export function assertUserContext(
-  req: Request,
-): asserts req is Request & { userContext: NonNullable<Request['userContext']> } {
+export function assertUserContext(req: Request): asserts req is Request & {
+  userContext: NonNullable<Request['userContext']>;
+} {
   if (!hasUserContext(req)) {
     throw new Error('User context is required but not found in request');
   }
@@ -70,20 +72,23 @@ export function assertMongoUser(
 /**
  * Safe accessor for user context with fallback
  */
-export function getUserContext(req: Request, fallback: null = null) {
+export function getUserContext(
+  req: Request,
+  fallback: null = null,
+): AuthenticatedUserContext | null {
   return req.userContext ?? fallback;
 }
 
 /**
  * Safe accessor for Auth0 user with fallback
  */
-export function getAuth0User(req: Request, fallback: null = null) {
+export function getAuth0User(req: Request, fallback: null = null): unknown | null {
   return req.auth ?? fallback;
 }
 
 /**
  * Safe accessor for MongoDB user with fallback
  */
-export function getMongoUser(req: Request, fallback: null = null) {
+export function getMongoUser(req: Request, fallback: null = null): IMongoUser | null {
   return req.mongoUser ?? fallback;
 }

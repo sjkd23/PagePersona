@@ -35,7 +35,7 @@
  */
 
 import '../types/loader';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { expressjwt as jwt, GetVerificationKey } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
 import jwtAuthz from 'express-jwt-authz';
@@ -177,7 +177,7 @@ export function requireScopes(
     customScopeKey?: string;
     failWithError?: boolean;
   } = {},
-) {
+): RequestHandler {
   const { checkAllScopes = false, customScopeKey = 'permissions', failWithError = true } = options;
 
   return jwtAuthz(scopes, {
@@ -316,7 +316,7 @@ export function requireRoles(roles: string[], options: { requireAll?: boolean } 
  * @param res Express response object
  * @param next Express next function
  */
-export const optionalJwtCheck = (req: Request, res: Response, next: NextFunction) => {
+export const optionalJwtCheck = (req: Request, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -393,7 +393,11 @@ export const authErrorHandler = (
  * @param res Express response object
  * @param next Express next function
  */
-export const attachUserInfo = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const attachUserInfo = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
   if (!req.auth) {
     return next();
   }
@@ -432,7 +436,7 @@ export const attachUserInfo = (req: AuthenticatedRequest, res: Response, next: N
  * Development-only middleware for debugging authentication
  * Only active in development environment
  */
-export const debugAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const debugAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   if (envConfig.NODE_ENV === 'development') {
     logger.debug('Auth Debug Info', {
       path: req.path,

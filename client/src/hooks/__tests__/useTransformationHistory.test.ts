@@ -187,7 +187,11 @@ describe('useTransformationHistory', () => {
     it('should remove item by id', () => {
       const existingHistory: HistoryItem[] = [
         { ...mockWebpageContent, id: 'id-1' },
-        { ...mockWebpageContent, id: 'id-2', originalUrl: 'https://example2.com' },
+        {
+          ...mockWebpageContent,
+          id: 'id-2',
+          originalUrl: 'https://example2.com',
+        },
       ];
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify(existingHistory));
 

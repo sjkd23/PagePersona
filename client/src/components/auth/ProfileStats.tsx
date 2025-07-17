@@ -64,9 +64,15 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
 
     if (daysSinceActive === 0) return { status: 'Active today', className: 'status-verified' };
     if (daysSinceActive <= 7)
-      return { status: `${daysSinceActive} days ago`, className: 'status-verified' };
+      return {
+        status: `${daysSinceActive} days ago`,
+        className: 'status-verified',
+      };
     if (daysSinceActive <= 30)
-      return { status: `${daysSinceActive} days ago`, className: 'status-warning' };
+      return {
+        status: `${daysSinceActive} days ago`,
+        className: 'status-warning',
+      };
     return { status: 'Inactive', className: 'status-disabled' };
   };
 

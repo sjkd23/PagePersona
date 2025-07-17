@@ -42,7 +42,10 @@ describe('session-tracker', () => {
 
     it('should return false for recent sync within cooldown', () => {
       const userId = 'user-123';
-      const config = { syncCooldownMs: 5 * 60 * 1000, sessionTimeoutMs: 60 * 60 * 1000 };
+      const config = {
+        syncCooldownMs: 5 * 60 * 1000,
+        sessionTimeoutMs: 60 * 60 * 1000,
+      };
 
       // First call should sync
       expect(shouldPerformFullSync(userId, config)).toBe(true);
