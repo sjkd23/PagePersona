@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:ci": "vitest run --coverage --config vitest.config.ci.ts",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "add-types": "npm install --save-dev @types/cors @types/compression @types/swagger-jsdoc @types/swagger-ui-express @types/sanitize-html @vitest/types"
   },
   "keywords": [
     "ai",
