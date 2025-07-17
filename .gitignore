@@ -60,3 +60,16 @@ ehthumbs.db
 # Database
 *.db
 *.sqlite
+
+# TypeScript compiled files in shared directory only
+shared/**/*.js
+shared/**/*.d.ts
+shared/**/*.d.ts.map
+
+# Temporary and diagnostic files
+*.tmp
+*.temp
+test-*.js
+*-test.js
+files.txt
+*pagepersonai-server@*

@@ -59,24 +59,27 @@ const createMockUser = (overrides: Partial<IMongoUser> = {}): IMongoUser =>
     ...overrides,
   }) as IMongoUser;
 
-const createMockUserContext = (mongoUser: IMongoUser | null): AuthenticatedUserContext => ({
-  jwtPayload: {
-    sub: 'auth0|123',
-    aud: 'test-audience',
-    iss: 'test-issuer',
-    exp: Date.now() / 1000 + 3600,
-    iat: Date.now() / 1000,
-    scope: 'openid profile email',
-  },
-  auth0User: {
-    id: 'auth0|123',
-    sub: 'auth0|123',
-    email: 'test@example.com',
-    emailVerified: true,
-    name: 'Test User',
-  },
-  mongoUser: mongoUser!,
-});
+const createMockUserContext = (mongoUser: IMongoUser | null): AuthenticatedUserContext => {
+  return {
+    jwtPayload: {
+      sub: 'auth0|123',
+      aud: 'test-audience',
+      iss: 'test-issuer',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 3600,
+    },
+    auth0User: {
+      id: 'auth0|123',
+      sub: 'auth0|123',
+      email: 'test@example.com',
+      name: 'Test User',
+      givenName: 'Test',
+      familyName: 'User',
+      nickname: 'testuser',
+    },
+    mongoUser: mongoUser || undefined,
+  };
+};
 
 describe('controllers/authController', () => {
   let mockReq: Partial<AuthenticatedRequest>;

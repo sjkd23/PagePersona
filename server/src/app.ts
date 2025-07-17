@@ -24,7 +24,7 @@ import userRoutes from './routes/user-route';
 import monitorRoutes from './routes/monitor-route';
 import debugRoutes from './routes/debug-route';
 import { verifyAuth0Token, syncAuth0User } from './middleware/auth0-middleware';
-import trackUsage from './middleware/usage-middleware';
+import { trackUsage } from './middleware/usage-middleware';
 import { startSessionCleanup } from './utils/session-tracker';
 import { redisClient } from './utils/redis-client';
 import { logger } from './utils/logger';
@@ -257,10 +257,10 @@ if (process.env.NODE_ENV !== 'production') {
   app.use('/api/debug', debugRoutes);
 }
 
-app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
+app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage as any, gptRoutes);
 
 // Error handling middleware
-app.use(errorHandler);
+app.use(errorHandler as any);
 
 // Protected route example
 app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {

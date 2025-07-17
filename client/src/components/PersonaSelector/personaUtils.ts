@@ -1,5 +1,11 @@
 // Utility functions for PersonaSelector
 
+export interface ThemeColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+}
+
 export const getPersonaEmoji = (id: string): string => {
   const emojiMap: { [key: string]: string } = {
     eli5: '🧒',
@@ -15,12 +21,6 @@ export const getPersonaEmoji = (id: string): string => {
 };
 
 export const getPersonaTheme = (id: string) => {
-  interface ThemeColors {
-    primary: string;
-    secondary: string;
-    accent: string;
-  }
-
   const themeMap: { [key: string]: ThemeColors } = {
     eli5: { primary: '#FF6B6B', secondary: '#FFE66D', accent: '#4ECDC4' },
     'anime-hero': { primary: '#FF4757', secondary: '#FF6B7A', accent: '#FFA726' },

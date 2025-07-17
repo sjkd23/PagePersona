@@ -179,7 +179,7 @@ export function validateAuth0Environment(): {
  */
 export function ensureSafeAuth0Config(): void {
   try {
-    const _envConfig = validateEnvironment();
+    validateEnvironment();
     const validation = validateAuth0Environment();
 
     if (!validation.isValid) {

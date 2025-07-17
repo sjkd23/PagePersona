@@ -15,11 +15,11 @@ const mockRedisInstance = {
   ttl: vi.fn(),
 };
 
-const MockRedis = vi.fn().mockImplementation(() => mockRedisInstance);
+const mockCreateClient = vi.fn().mockImplementation(() => mockRedisInstance);
 
 // Mock Redis
-vi.mock('ioredis', () => ({
-  default: MockRedis,
+vi.mock('redis', () => ({
+  createClient: mockCreateClient,
 }));
 
 // Mock logger
@@ -41,6 +41,10 @@ describe('Redis Configuration', () => {
     originalEnv = { ...process.env };
     // Reset module state
     vi.resetModules();
+    // Clear the mocks
+    mockCreateClient.mockClear();
+    mockRedisInstance.on.mockClear();
+    mockRedisInstance.connect.mockClear();
   });
 
   afterEach(() => {
@@ -75,7 +79,11 @@ describe('Redis Configuration', () => {
       process.env.REDIS_URL = 'redis://localhost:6379';
       delete process.env.REDIS_DISABLED;
 
-      const { getRedisClient } = await import('../redis');
+      const { getRedisClient, getRedisClientAsync } = await import('../redis');
+
+      // Initialize the client asynchronously first
+      await getRedisClientAsync();
+
       const client = getRedisClient();
 
       expect(client).toBe(mockRedisInstance);
@@ -85,7 +93,11 @@ describe('Redis Configuration', () => {
       process.env.REDIS_URL = 'redis://localhost:6379';
       delete process.env.REDIS_DISABLED;
 
-      const { getRedisClient } = await import('../redis');
+      const { getRedisClient, getRedisClientAsync } = await import('../redis');
+
+      // Initialize the client asynchronously first
+      await getRedisClientAsync();
+
       const client1 = getRedisClient();
       const client2 = getRedisClient();
 
@@ -118,15 +130,13 @@ describe('Redis Configuration', () => {
       delete process.env.REDIS_DISABLED;
 
       // Import and trigger client creation
-      const { getRedisClient, isRedisAvailable } = await import('../redis');
-      const client = getRedisClient();
+      const { getRedisClientAsync, isRedisAvailable } = await import('../redis');
+      await getRedisClientAsync();
 
       // Simulate 'connect' event being fired
-      if (client && mockRedisInstance.on.mock.calls.length > 0) {
-        const connectCall = mockRedisInstance.on.mock.calls.find((call) => call[0] === 'connect');
-        if (connectCall) {
-          connectCall[1](); // Call the connect handler
-        }
+      const connectHandler = mockRedisInstance.on.mock.calls.find((call) => call[0] === 'connect');
+      if (connectHandler) {
+        connectHandler[1](); // Call the connect handler
       }
 
       const available = isRedisAvailable();
@@ -139,15 +149,13 @@ describe('Redis Configuration', () => {
       process.env.REDIS_URL = 'redis://localhost:6379';
       delete process.env.REDIS_DISABLED;
 
-      const { getRedisClient, safeRedisOperation } = await import('../redis');
-      const client = getRedisClient();
+      const { getRedisClientAsync, safeRedisOperation } = await import('../redis');
+      await getRedisClientAsync();
 
       // Simulate 'connect' event being fired
-      if (client && mockRedisInstance.on.mock.calls.length > 0) {
-        const connectCall = mockRedisInstance.on.mock.calls.find((call) => call[0] === 'connect');
-        if (connectCall) {
-          connectCall[1](); // Call the connect handler
-        }
+      const connectHandler = mockRedisInstance.on.mock.calls.find((call) => call[0] === 'connect');
+      if (connectHandler) {
+        connectHandler[1](); // Call the connect handler
       }
 
       const mockOperation = vi.fn().mockResolvedValue('test-result');
@@ -171,15 +179,13 @@ describe('Redis Configuration', () => {
       process.env.REDIS_URL = 'redis://localhost:6379';
       delete process.env.REDIS_DISABLED;
 
-      const { getRedisClient, safeRedisOperation } = await import('../redis');
-      const client = getRedisClient();
+      const { getRedisClientAsync, safeRedisOperation } = await import('../redis');
+      await getRedisClientAsync();
 
       // Simulate 'connect' event being fired
-      if (client && mockRedisInstance.on.mock.calls.length > 0) {
-        const connectCall = mockRedisInstance.on.mock.calls.find((call) => call[0] === 'connect');
-        if (connectCall) {
-          connectCall[1](); // Call the connect handler
-        }
+      const connectHandler = mockRedisInstance.on.mock.calls.find((call) => call[0] === 'connect');
+      if (connectHandler) {
+        connectHandler[1](); // Call the connect handler
       }
 
       const mockOperation = vi.fn().mockRejectedValue(new Error('Operation failed'));
@@ -220,8 +226,8 @@ describe('Redis Configuration', () => {
       const { getRedisClient } = await import('../redis');
       const client = getRedisClient();
 
-      // Debug: check if MockRedis was called
-      console.log('MockRedis called:', MockRedis.mock.calls.length);
+      // Debug: check if mockCreateClient was called
+      console.log('mockCreateClient called:', mockCreateClient.mock.calls.length);
       console.log('Client:', client);
 
       expect(client).toBe(mockRedisInstance);
@@ -260,7 +266,7 @@ describe('Redis Configuration', () => {
         const client = getRedisClient();
 
         expect(client).toBe(mockRedisInstance);
-        expect(MockRedis).toHaveBeenCalledWith(url, expect.any(Object));
+        expect(mockCreateClient).toHaveBeenCalledWith({ url });
       }
     });
   });

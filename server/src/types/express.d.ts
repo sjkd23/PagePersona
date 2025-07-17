@@ -58,12 +58,7 @@ interface ProcessedAuth0User {
     loginCount?: number;
     locale?: string;
   };
-}
-
-interface UserContext {
-  jwtPayload: Auth0JwtPayload;
-  auth0User: ProcessedAuth0User;
-  mongoUser: IMongoUser;
+  [key: string]: unknown;
 }
 
 interface AuthObject {
@@ -102,7 +97,11 @@ declare module 'express-serve-static-core' {
      * const username = req.userContext!.mongoUser.username;
      * ```
      */
-    userContext?: UserContext;
+    userContext?: {
+      jwtPayload: Auth0JwtPayload;
+      auth0User: ProcessedAuth0User;
+      mongoUser: IMongoUser;
+    };
 
     /**
      * Auth0 JWT information from express-jwt middleware

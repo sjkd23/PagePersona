@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { WebScraper, type ScrapedContent } from '../web-scraper';
+import { WebScraper } from '../web-scraper';
 import axios from 'axios';
 
 // Mock axios instead of fetch since the WebScraper uses axios

@@ -1,36 +1,40 @@
 {
   "name": "@pagepersonai/shared",
   "version": "1.0.0",
-  "type": "module",
   "description": "Shared types and constants for PagePersonAI client and server",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     },
     "./types": {
-      "types": "./dist/types/index.d.ts",
       "import": "./dist/types/index.js",
-      "require": "./dist/types/index.js"
+      "require": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./types/errors": {
+      "import": "./dist/types/errors.js",
+      "require": "./dist/types/errors.js",
+      "types": "./dist/types/errors.d.ts"
     },
     "./constants": {
-      "types": "./dist/constants/index.d.ts",
       "import": "./dist/constants/index.js",
-      "require": "./dist/constants/index.js"
+      "require": "./dist/constants/index.js",
+      "types": "./dist/constants/index.d.ts"
     }
   },
   "scripts": {
-    "prebuild": "npm run typecheck",
     "build": "tsc -b .",
-    "postbuild": "echo \"Shared package built successfully\"",
     "typecheck": "tsc --noEmit",
     "clean": "rimraf dist",
-    "test": "echo \"No tests for shared package\""
+    "lint": "eslint ."
   },
   "devDependencies": {
+    "typescript": "^5.0.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

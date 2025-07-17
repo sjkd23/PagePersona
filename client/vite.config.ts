@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@shared': path.resolve(__dirname, '../shared'),
+      '@pagepersonai/shared': path.resolve(__dirname, '../shared/dist/index.js'),
+      '@shared': path.resolve(__dirname, '../shared/dist'),
       '@': path.resolve(__dirname, './src'),
     },
   },

@@ -401,12 +401,18 @@ export const attachUserInfo = (req: AuthenticatedRequest, res: Response, next: N
   // Extract user information from JWT claims
   const userInfo = {
     id: req.auth.sub,
-    email: req.auth.email,
-    name: req.auth.name,
-    picture: req.auth.picture,
+    email: req.auth.email as string | undefined,
+    name: req.auth.name as string | undefined,
+    picture: req.auth.picture as string | undefined,
     permissions: req.auth.permissions || [],
     roles: req.auth.roles || req.auth[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [],
     scope: req.auth.scope ? req.auth.scope.split(' ') : [],
+    // Include the required Auth0JwtPayload properties
+    sub: req.auth.sub,
+    iss: req.auth.iss,
+    aud: req.auth.aud,
+    iat: req.auth.iat,
+    exp: req.auth.exp,
   };
 
   // Attach to request for use in route handlers

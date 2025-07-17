@@ -4,7 +4,7 @@ import tsPlugin from '@typescript-eslint/eslint-plugin';
 
 export default [
   // 1. Ignore compiled output and problematic files
-  { ignores: ['dist', '**/*.test.ts', '**/__tests__/**', 'tests/**', 'vitest.config.ts'] },
+  { ignores: ['dist/**', '**/dist/**', '**/*.test.ts', '**/__tests__/**', 'tests/**', 'vitest.config.ts'] },
 
   // 2. Base config for all files
   {
@@ -14,6 +14,14 @@ export default [
       globals: {
         ...globals.node,
         NodeJS: 'readonly',
+        setImmediate: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        vi: 'readonly',
       },
     },
     rules: {
@@ -48,7 +56,7 @@ export default [
       'no-undef': 'off', // TypeScript handles this
       '@typescript-eslint/no-explicit-any': 'warn', // Reduce to warning
       '@typescript-eslint/explicit-module-boundary-types': 'warn',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }], // Reduce to warning
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }], // Reduce to warning and ignore vars starting with _
       'no-console': 'warn',
     },
   },

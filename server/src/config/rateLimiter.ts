@@ -15,9 +15,11 @@ export function createRateLimiter(options: RateLimitOptions) {
   const store =
     redisClient && isRedisAvailable()
       ? new RedisStore({
-          sendCommand: async (...args: [string, ...any[]]) => {
+          sendCommand: async (...args: [string, ...unknown[]]) => {
             // Convert args to the format expected by ioredis
             const [command, ...rest] = args;
+            // Use explicit any for Redis command invocation as it's a dynamic interface
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return await (redisClient as any)[command.toLowerCase()](...rest);
           },
         })

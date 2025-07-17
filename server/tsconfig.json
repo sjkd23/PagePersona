@@ -6,8 +6,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
@@ -18,8 +18,9 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "lib": ["ES2020"],
     "moduleResolution": "node",
-    "typeRoots": ["src/types", "node_modules/@types"],
+    "typeRoots": ["node_modules/@types"],
     "baseUrl": ".",
     "paths": {
       "@pagepersonai/shared/*": ["../shared/*"],
@@ -30,7 +31,6 @@
     "incremental": true,
     "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo"
   },
-  "files": [],
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",
@@ -38,12 +38,10 @@
     "vitest.config.ts"
   ],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.backup.ts", "**/__tests__/**/*"],
-  "references": [
-    { "path": "../shared" }
-  ],
   "ts-node": {
     "files": true,
     "transpileOnly": false,
-    "compiler": "typescript"
+    "compiler": "typescript",
+    "esm": false
   }
 }

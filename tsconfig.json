@@ -16,6 +16,6 @@
     // Build order: shared -> server -> client
     { "path": "shared" },
     { "path": "server" },
-    { "path": "client" }
+    { "path": "client/tsconfig.typecheck.json" }
   ]
 }

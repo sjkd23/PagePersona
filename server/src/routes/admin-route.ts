@@ -12,7 +12,8 @@
  */
 
 import '../types/loader';
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
+import type { AuthenticatedRequest } from '../types/common';
 import { MongoUser } from '../models/mongo-user';
 import { jwtCheck, requireRoles, authErrorHandler } from '../middleware/auth';
 import {
@@ -125,44 +126,40 @@ router.use(authErrorHandler);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get(
-  '/users',
-  jwtCheck,
-  requireRoles(['admin']),
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      const skip = (page - 1) * limit;
+router.get('/users', jwtCheck, requireRoles(['admin']), (async (
+  req: AuthenticatedRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
 
-      const users = await MongoUser.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
+    const users = await MongoUser.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
-      const totalUsers = await MongoUser.countDocuments();
-      const totalPages = Math.ceil(totalUsers / limit);
+    const totalUsers = await MongoUser.countDocuments();
+    const totalPages = Math.ceil(totalUsers / limit);
 
-      const serializedUsers = users.map((user) => serializeMongoUser(user));
+    const serializedUsers = users.map((user) => serializeMongoUser(user));
 
-      res.json(
-        createSuccessResponse({
-          users: serializedUsers,
-          pagination: {
-            page,
-            limit,
-            totalUsers,
-            totalPages,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1,
-          },
-        }),
-      );
-    } catch (error) {
-      logger.auth.error('Error fetching users', error);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to fetch users'));
-    }
-  },
-);
+    res.json(
+      createSuccessResponse({
+        users: serializedUsers,
+        pagination: {
+          page,
+          limit,
+          totalUsers,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+      }),
+    );
+  } catch (error) {
+    logger.auth.error('Error fetching users', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Failed to fetch users'));
+  }
+}) as any);
 
 /**
  * Update user membership level
@@ -186,10 +183,10 @@ router.patch(
   requireRoles(['admin']),
   validateRequest(userIdParamSchema, 'params'),
   validateRequest(updateMembershipSchema, 'body'),
-  async (req: Request, res: Response): Promise<void> => {
+  (async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-      const { membership } = req.body;
+      const { membership } = req.body as any;
 
       const user = await MongoUser.findById(userId);
       if (!user) {
@@ -225,7 +222,7 @@ router.patch(
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json(createErrorResponse('Failed to update user membership'));
     }
-  },
+  }) as any,
 );
 
 /**
@@ -245,7 +242,7 @@ router.get(
   jwtCheck,
   requireRoles(['admin']),
   validateRequest(adminStatsQuerySchema),
-  async (req: Request, res: Response): Promise<void> => {
+  (async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const totalUsers = await MongoUser.countDocuments();
       const freeUsers = await MongoUser.countDocuments({ membership: 'free' });
@@ -293,7 +290,7 @@ router.get(
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json(createErrorResponse('Failed to fetch system statistics'));
     }
-  },
+  }) as any,
 );
 
 export default router;

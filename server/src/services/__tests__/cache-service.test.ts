@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { CacheService } from '../cache-service';
 import type { ScrapedContent } from '../../utils/web-scraper';
 import type { TransformationResult } from '../content-transformer';
@@ -74,8 +74,8 @@ describe('CacheService', () => {
     it('should handle URL normalization for cache keys', () => {
       // Arrange
       const url1 = 'https://example.com/article';
-      const url2 = 'https://example.com/article/'; // With trailing slash
-      const url3 = 'example.com/article'; // Without protocol
+      const _url2 = 'https://example.com/article/'; // With trailing slash
+      const _url3 = 'example.com/article'; // Without protocol
 
       // Act
       cacheService.setCachedContent(url1, mockScrapedContent);
@@ -329,7 +329,7 @@ describe('CacheService', () => {
     it('should handle special characters in URLs', () => {
       // Arrange
       const specialUrl = 'https://example.com/article?query=test&param=特殊文字';
-      const personaId = 'professional';
+      const _personaId = 'professional';
       const mockContent: ScrapedContent = {
         title: 'Test',
         content: 'Content',
@@ -348,7 +348,7 @@ describe('CacheService', () => {
     it('should handle very long URLs', () => {
       // Arrange
       const longUrl = 'https://example.com/' + 'a'.repeat(2000); // Very long URL
-      const personaId = 'professional';
+      const _personaId = 'professional';
       const mockContent: ScrapedContent = {
         title: 'Test',
         content: 'Content',
@@ -375,7 +375,7 @@ describe('CacheService', () => {
     it('should handle large numbers of cache entries', () => {
       // Arrange
       const baseUrl = 'https://example.com/article';
-      const personaId = 'professional';
+      const _personaId = 'professional';
       const numEntries = 1000;
 
       // Act - Add many cache entries
@@ -408,7 +408,7 @@ describe('CacheService', () => {
     it('should perform cache operations efficiently', () => {
       // Arrange
       const url = 'https://example.com/article';
-      const personaId = 'professional';
+      const _personaId = 'professional';
       const mockContent: ScrapedContent = {
         title: 'Test',
         content: 'Content',

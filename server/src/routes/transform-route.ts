@@ -32,16 +32,19 @@ import type { TransformationResult } from '../services/content-transformer';
 
 const router = express.Router();
 
-logger.transform.info('Transform routes module loaded');
-logger.transform.info('Registering transform routes', {
-  routes: [
-    'GET  /personas',
-    'POST / (URL transform)',
-    'POST /text (direct text transform)',
-    'GET  /cache/stats (dev only)',
-    'DELETE /cache (dev only)',
-  ],
-});
+// Only log route registration in production or when explicitly requested
+if (process.env.NODE_ENV === 'production' || process.env.LOG_ROUTE_REGISTRATION === 'true') {
+  logger.transform.info('Transform routes module loaded');
+  logger.transform.info('Registering transform routes', {
+    routes: [
+      'GET  /personas',
+      'POST / (URL transform)',
+      'POST /text (direct text transform)',
+      'GET  /cache/stats (dev only)',
+      'DELETE /cache (dev only)',
+    ],
+  });
+}
 
 /**
  * Health check endpoint for service monitoring

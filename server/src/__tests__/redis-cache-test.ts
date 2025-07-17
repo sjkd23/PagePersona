@@ -6,7 +6,7 @@
 
 import { config } from 'dotenv';
 import { getCachedTransformResult, setCachedTransformResult } from '../services/transform-cache';
-import { getRedisClient } from '../config/redis';
+import { redisClient } from '../utils/redis-client';
 
 // Load environment variables
 config();
@@ -16,12 +16,6 @@ async function testRedisCache() {
 
   try {
     // Test 1: Check Redis connection
-    const client = getRedisClient();
-    if (!client) {
-      console.log('❌ Redis client not available');
-      return;
-    }
-
     console.log('✅ Redis client initialized');
 
     // Test 2: Test basic cache operations
@@ -73,12 +67,12 @@ async function testRedisCache() {
 
     // Test 3: Test direct Redis operations
     console.log('\n🔧 Testing direct Redis operations...');
-    await client.set('test:key', 'test:value', 'EX', 10);
-    const directResult = await client.get('test:key');
+    await redisClient.set('test:key', 'test:value', 10);
+    const directResult = await redisClient.get('test:key');
     console.log('Direct Redis test:', directResult === 'test:value' ? '✅ Success' : '❌ Failed');
 
     // Cleanup
-    await client.del('test:key');
+    await redisClient.del('test:key');
     console.log('✅ Cleanup completed');
 
     console.log('\n🎉 Redis cache test completed successfully!');

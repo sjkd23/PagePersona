@@ -19,7 +19,7 @@ export { Auth0JwtPayload, ProcessedAuth0User } from './user-types';
 export interface AuthenticatedUserContext {
   jwtPayload: Auth0JwtPayload;
   auth0User: ProcessedAuth0User;
-  mongoUser: IMongoUser;
+  mongoUser?: IMongoUser;
 }
 
 // ============================================================================
@@ -29,6 +29,7 @@ export interface AuthenticatedUserContext {
 /**
  * Enhanced Express Request with proper typing for auth fields
  * Replaces unsafe (req as any) patterns
+ * Now properly extends Express Request and is compatible with middleware
  */
 export interface AuthenticatedRequest extends Request {
   /**
@@ -37,11 +38,36 @@ export interface AuthenticatedRequest extends Request {
    */
   userContext?: AuthenticatedUserContext;
 
+  /**
+   * Auth0 JWT information from express-jwt middleware
+   * Contains the decoded JWT payload with user info and permissions
+   */
+  auth?: {
+    sub: string;
+    aud: string | string[];
+    iss: string;
+    iat: number;
+    exp: number;
+    scope?: string;
+    permissions?: string[];
+    [key: string]: unknown;
+  };
+
   // Legacy fields (deprecated but kept for backward compatibility)
   user?: Auth0JwtPayload;
   mongoUser?: IMongoUser;
   auth0User?: ProcessedAuth0User;
   userId?: string;
+
+  // Standard Express Request properties (explicitly included for clarity)
+  body?: unknown;
+  params: Record<string, unknown>;
+  query: Record<string, unknown>;
+  headers: Record<string, string | string[] | undefined>;
+  method: string;
+  originalUrl: string;
+  path: string;
+  url: string;
 }
 
 /**

@@ -34,7 +34,10 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-if (cluster.isPrimary) {
+// Only use clustering in production, not during development
+const useCluster = process.env.NODE_ENV === 'production';
+
+if (useCluster && cluster.isPrimary) {
   const cpuCount = os.cpus().length;
   console.log(`Master ${process.pid} is running — forking ${cpuCount} workers`);
 
