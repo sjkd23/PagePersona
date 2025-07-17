@@ -19,7 +19,7 @@ import React, { createContext, useEffect, useState } from 'react';
 /**
  * Theme context interface defining available theme operations
  */
-interface ThemeContextType {
+export interface ThemeContextType {
   isDarkMode: boolean;
   toggleTheme: () => void;
 }

@@ -34,6 +34,7 @@
  * ```
  */
 
+import '../types/loader';
 import { Request, Response, NextFunction } from 'express';
 import { expressjwt as jwt, GetVerificationKey } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
@@ -56,7 +57,7 @@ export interface AuthenticatedRequest extends Request {
     exp: number;
     scope?: string;
     permissions?: string[];
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -346,7 +347,7 @@ export const optionalJwtCheck = (req: Request, res: Response, next: NextFunction
  * @param next Express next function
  */
 export const authErrorHandler = (
-  err: any,
+  err: Error & { name?: string; code?: string; status?: number },
   req: Request,
   res: Response,
   next: NextFunction,
@@ -359,7 +360,12 @@ export const authErrorHandler = (
       method: req.method,
     });
 
-    const errorResponse: any = {
+    const errorResponse: {
+      error: string;
+      message: string;
+      code: string;
+      details?: string;
+    } = {
       error: 'Unauthorized',
       message: 'Invalid or missing authentication token',
       code: err.code || 'INVALID_TOKEN',
@@ -395,16 +401,22 @@ export const attachUserInfo = (req: AuthenticatedRequest, res: Response, next: N
   // Extract user information from JWT claims
   const userInfo = {
     id: req.auth.sub,
-    email: req.auth.email,
-    name: req.auth.name,
-    picture: req.auth.picture,
+    email: req.auth.email as string | undefined,
+    name: req.auth.name as string | undefined,
+    picture: req.auth.picture as string | undefined,
     permissions: req.auth.permissions || [],
     roles: req.auth.roles || req.auth[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [],
     scope: req.auth.scope ? req.auth.scope.split(' ') : [],
+    // Include the required Auth0JwtPayload properties
+    sub: req.auth.sub,
+    iss: req.auth.iss,
+    aud: req.auth.aud,
+    iat: req.auth.iat,
+    exp: req.auth.exp,
   };
 
   // Attach to request for use in route handlers
-  (req as any).user = userInfo;
+  (req as Request & { user: typeof userInfo }).user = userInfo;
 
   logger.debug('User info attached to request', {
     userId: userInfo.id,

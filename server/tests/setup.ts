@@ -33,6 +33,6 @@ vi.useFakeTimers();
 vi.setConfig({ testTimeout: 10000 });
 
 // Add helper for mocking modules
-global.mockModule = (modulePath: string, mockImplementation: any) => {
-  vi.doMock(modulePath, () => mockImplementation);
+global.mockModule = (modulePath: string, mockImplementation: unknown) => {
+  vi.doMock(modulePath, () => mockImplementation as Record<string, unknown>);
 };

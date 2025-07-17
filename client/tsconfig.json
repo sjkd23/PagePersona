@@ -1,7 +1,7 @@
 {
   "files": [],
   "references": [
-    { "path": "../shared" },
+    { "path": "./tsconfig.typecheck.json" },
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ]

@@ -77,4 +77,6 @@ export interface ProcessedAuth0User {
     /** User's preferred locale */
     locale?: string;
   };
+  /** Index signature to satisfy Record<string, unknown> compatibility */
+  [key: string]: unknown;
 }

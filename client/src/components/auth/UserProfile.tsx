@@ -13,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuthContext';
 import { useNameSync } from '../../hooks/useNameSync';
 import ApiService, { setTokenGetter } from '../../lib/apiClient';
-import type { UserProfile } from '../../lib/apiClient';
+import type { UserProfile as UserProfileType } from '../../lib/apiClient';
 import { formatProfileField, hasValidName, formatFullName } from '../../utils/profileUtils';
 import ErrorDisplay from '../Transformer/ErrorDisplay';
 import { ErrorMapper, type UserFriendlyError } from '@pagepersonai/shared';
@@ -37,7 +37,7 @@ import './UserProfile.css';
 export default function UserProfile() {
   const { user, logout, getAccessToken } = useAuth();
   const { forceNameSync, extractNamesFromAuth0 } = useNameSync();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [enhancedError, setEnhancedError] = useState<UserFriendlyError | null>(null);

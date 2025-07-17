@@ -9,6 +9,7 @@ export default function GenerateButtonDemo({ className = '' }: GenerateButtonDem
         src="/images/landing_page/Generate_img.png"
         alt="Generate button with cursor click demo"
         className="generate-button-image"
+        loading="lazy"
       />
     </div>
   );

@@ -14,6 +14,7 @@
  */
 
 import { Response, NextFunction } from 'express';
+import { ZodError } from 'zod';
 import { logger } from './logger';
 import type { ApiResponse } from '@pagepersonai/shared';
 import type {
@@ -104,9 +105,9 @@ export function sendInternalError(res: Response, error: string = 'Internal serve
 
 /**
  * Middleware to catch and format unhandled route errors
- * Conforms to Express's standard error handler signature: (err, req, res, next)
+ * Conforms to Express's standard error handler signature: (err, req, res)
  */
-export const errorHandler: ErrorHandlerFunction = (err, req, res, _next) => {
+export const errorHandler: ErrorHandlerFunction = (err, req, res) => {
   logger.error('Unhandled route error', err as Error, {
     route: `${req.method} ${req.originalUrl}`,
     timestamp: new Date().toISOString(),
@@ -114,10 +115,10 @@ export const errorHandler: ErrorHandlerFunction = (err, req, res, _next) => {
 
   // Handle specific error types
   if (err && typeof err === 'object' && 'name' in err) {
-    if (err.name === 'ZodError') {
+    if (err instanceof ZodError) {
       res.status(HttpStatus.BAD_REQUEST).json({
         error: 'Validation failed',
-        issues: (err as any).issues,
+        issues: err.issues,
       });
       return;
     }

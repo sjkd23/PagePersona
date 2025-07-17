@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@shared': path.resolve(__dirname, '../shared'),
+      '@pagepersonai/shared': path.resolve(__dirname, '../shared/dist/index.js'),
+      '@shared': path.resolve(__dirname, '../shared/dist'),
       '@': path.resolve(__dirname, './src'),
     },
   },
@@ -19,12 +20,25 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Manual chunk splitting for better caching
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          auth: ['@auth0/auth0-react'],
-          markdown: ['react-markdown'],
-          personas: ['./src/components/PersonaSelector/PersonaSelector.tsx'],
-          ui: ['@headlessui/react'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor';
+            }
+            if (id.includes('react-markdown')) {
+              return 'markdown';
+            }
+            if (id.includes('@auth0/auth0-react')) {
+              return 'auth';
+            }
+            if (id.includes('@headlessui/react')) {
+              return 'ui';
+            }
+            return 'vendor';
+          }
+          if (id.includes('PersonaSelector')) {
+            return 'personas';
+          }
         },
       },
     },

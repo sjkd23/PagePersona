@@ -7,6 +7,7 @@
 
 import { useContext } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
+import type { ThemeContextType } from '../contexts/ThemeContext';
 
 /**
  * Theme context hook with validation
@@ -17,7 +18,7 @@ import { ThemeContext } from '../contexts/ThemeContext';
  * @returns Theme context containing state and toggle function
  * @throws Error if used outside of ThemeProvider context
  */
-export const useTheme = () => {
+export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
     throw new Error('useTheme must be used within a ThemeProvider');

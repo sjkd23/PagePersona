@@ -6,6 +6,9 @@
  * testing capabilities.
  */
 
+// Load type declarations for ts-node-dev
+import './types/loader';
+
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
@@ -21,7 +24,7 @@ import userRoutes from './routes/user-route';
 import monitorRoutes from './routes/monitor-route';
 import debugRoutes from './routes/debug-route';
 import { verifyAuth0Token, syncAuth0User } from './middleware/auth0-middleware';
-import trackUsage from './middleware/usage-middleware';
+import { trackUsage } from './middleware/usage-middleware';
 import { startSessionCleanup } from './utils/session-tracker';
 import { redisClient } from './utils/redis-client';
 import { logger } from './utils/logger';
@@ -254,16 +257,25 @@ if (process.env.NODE_ENV !== 'production') {
   app.use('/api/debug', debugRoutes);
 }
 
-app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
+app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage as any, gptRoutes);
 
 // Error handling middleware
-app.use(errorHandler);
+app.use(errorHandler as any);
 
 // Protected route example
 app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {
+  // Use type guard for better type safety
+  if (!req.userContext) {
+    res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
+      error: 'User context not found',
+    });
+    return;
+  }
+
   res.json({
     message: 'Authentication successful',
-    user: req.user,
+    user: req.userContext.jwtPayload,
   });
 });
 

@@ -108,14 +108,14 @@ export function validateTransformUrl(req: Request, res: Response, next: NextFunc
   // Validate URL
   const urlValidation = validateUrl(url);
   if (!urlValidation.isValid) {
-    sendValidationError(res, urlValidation.error!);
+    sendValidationError(res, urlValidation.error || 'Invalid URL');
     return;
   }
 
   // Validate persona
   const personaValidation = validatePersona(persona);
   if (!personaValidation.isValid) {
-    sendValidationError(res, personaValidation.error!);
+    sendValidationError(res, personaValidation.error || 'Invalid persona');
     return;
   }
 
@@ -131,14 +131,14 @@ export function validateTransformText(req: Request, res: Response, next: NextFun
   // Validate text
   const textValidation = validateText(text);
   if (!textValidation.isValid) {
-    sendValidationError(res, textValidation.error!);
+    sendValidationError(res, textValidation.error || 'Invalid text');
     return;
   }
 
   // Validate persona
   const personaValidation = validatePersona(persona);
   if (!personaValidation.isValid) {
-    sendValidationError(res, personaValidation.error!);
+    sendValidationError(res, personaValidation.error || 'Invalid persona');
     return;
   }
 

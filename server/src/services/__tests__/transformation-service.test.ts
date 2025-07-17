@@ -33,7 +33,7 @@ vi.mock('../../utils/logger', () => ({
   },
 }));
 
-const MockedContentTransformer = ContentTransformer as any;
+const _MockedContentTransformer = ContentTransformer as any;
 const MockedCachedContentTransformer = CachedContentTransformer as any;
 const MockedWebScraper = WebScraper as any;
 const mockedCacheService = cacheService as any;

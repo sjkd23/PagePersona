@@ -145,7 +145,9 @@ describe('auth0-sync', () => {
 
       expect(result.updated).toBe(true);
       expect(mongoUser.lastLoginAt).toBeDefined();
-      expect(mongoUser.lastLoginAt!.getTime()).toBeGreaterThan(originalDate.getTime());
+      expect(mongoUser.lastLoginAt && mongoUser.lastLoginAt.getTime()).toBeGreaterThan(
+        originalDate.getTime(),
+      );
     });
 
     it('should handle emailVerified boolean conversion', () => {

@@ -89,7 +89,9 @@ describe('usageMiddleware', () => {
 
       // Simulate response
       const responseData = JSON.stringify({ success: true });
-      mockRes.send!(responseData);
+      if (mockRes.send) {
+        mockRes.send(responseData);
+      }
 
       // No need to wait since we mocked setImmediate to run synchronously
       expect(usageTracking.incrementUserUsage).not.toHaveBeenCalled();
@@ -109,7 +111,9 @@ describe('usageMiddleware', () => {
 
       // Simulate response
       const responseData = JSON.stringify({ success: true });
-      mockRes.send!(responseData);
+      if (mockRes.send) {
+        mockRes.send(responseData);
+      }
 
       // No need to wait since we mocked setImmediate to run synchronously
       expect(mockNext).toHaveBeenCalled();

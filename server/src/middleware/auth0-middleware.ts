@@ -47,6 +47,7 @@
  * - optionalAuth0: Optional authentication for public routes
  */
 
+import '../types/loader';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { MongoUser } from '../models/mongo-user';
@@ -54,7 +55,7 @@ import { generateUsernameFromAuth0, ensureUniqueUsername } from '../utils/userna
 import { syncAuth0Fields, logSyncResults } from '../utils/auth0-sync';
 import { shouldPerformFullSync, updateSessionOnly } from '../utils/session-tracker';
 import { HttpStatus } from '../constants/http-status';
-import { ProcessedAuth0User } from '../types/common';
+import { ProcessedAuth0User, Auth0JwtPayload } from '../types/common';
 import { safeGetAuth0Claims } from '../utils/auth0-claims';
 import { logger } from '../utils/logger';
 
@@ -134,7 +135,7 @@ export const syncAuth0User = async (
       return;
     }
 
-    const jwtPayload = req.user; // Raw JWT payload from Auth0
+    const jwtPayload = req.user as Auth0JwtPayload; // Raw JWT payload from Auth0
 
     if (!jwtPayload || !jwtPayload.sub) {
       next();

@@ -134,7 +134,8 @@ describe('Auth0 Middleware', () => {
 
       // Should either call next() or return error response
       expect(
-        vi.mocked(mockNext).mock.calls.length + vi.mocked(mockResponse.status!).mock.calls.length,
+        vi.mocked(mockNext).mock.calls.length +
+          (mockResponse.status ? vi.mocked(mockResponse.status).mock.calls.length : 0),
       ).toBeGreaterThan(0);
     });
   });

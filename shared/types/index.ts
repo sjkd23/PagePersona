@@ -15,14 +15,14 @@ export type {
   ServerWebpageContent,
   ClientWebpageContent,
   WebpageContent, // Legacy alias for ClientWebpageContent
-} from './personas';
+} from './personas.js';
 
 // API types
-export type { ApiResponse, ApiError, LoadingState } from './api';
+export type { ApiResponse, ApiError, LoadingState } from './api.js';
 
 // User types
-export type { User, UserProfile, ChatMessage, ConversationHistory } from './user';
+export type { User, UserProfile, ChatMessage, ConversationHistory } from './user.js';
 
 // Error types
-export { ErrorCode, ERROR_MESSAGES, ErrorMapper } from './errors';
-export type { UserFriendlyError } from './errors';
+export { ErrorCode, ERROR_MESSAGES, ErrorMapper } from './errors.js';
+export type { UserFriendlyError } from './errors.js';

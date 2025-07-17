@@ -33,7 +33,7 @@ check_docker() {
 check_env() {
     if [ ! -f .env ]; then
         echo_warning ".env file not found. Creating from template..."
-        cp .env.docker .env
+        cp .env.development .env
         echo_error "Please update .env with your production credentials before continuing."
         exit 1
     fi

@@ -126,7 +126,10 @@ export class ContentTransformer {
       });
 
       // 5. Build success response
-      const persona = getPersona(personaId)!;
+      const persona = getPersona(personaId);
+      if (!persona) {
+        throw new Error(`Persona not found: ${personaId}`);
+      }
       const result: TransformationResult = {
         success: true,
         originalContent: {
@@ -184,7 +187,10 @@ export class ContentTransformer {
       });
 
       // 4. Build success response
-      const persona = getPersona(personaId)!;
+      const persona = getPersona(personaId);
+      if (!persona) {
+        throw new Error(`Persona not found: ${personaId}`);
+      }
       const result: TransformationResult = {
         success: true,
         originalContent: {
