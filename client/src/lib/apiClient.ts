@@ -19,7 +19,7 @@ import type { ApiResponse } from '@pagepersonai/shared';
 import type { ClientPersona } from '@pagepersonai/shared';
 import { ErrorCode } from '@pagepersonai/shared';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Global token getter function - configured by Auth0 provider
 let getAccessTokenFunction: (() => Promise<string | undefined>) | null = null;

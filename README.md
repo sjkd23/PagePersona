@@ -41,7 +41,7 @@ PagePersonAI revolutionizes content consumption by transforming any webpage thro
 #### Modern Development Experience
 
 - **Responsive Design**: Mobile-first UI built with React 18 and Tailwind CSS
-- **Production Ready**: Full Docker containerization with nginx reverse proxy
+- **Production Ready**: Optimized builds with modern deployment practices
 - **Type Safety**: End-to-end TypeScript with strict mode enabled
 - **Comprehensive Testing**: Unit and integration tests with Vitest framework
 
@@ -65,7 +65,7 @@ PagePersonAI implements a modern, scalable architecture designed for high perfor
 ┌─────────────────────────────────────────────────────────────────┐
 │                        API Gateway                              │
 ├─────────────────────────────────────────────────────────────────┤
-│  nginx Reverse Proxy + Load Balancer                           │
+│  Modern Load Balancer + Reverse Proxy                          │
 │  • SSL termination and security headers                        │
 │  • Request routing and static file serving                     │
 │  • Rate limiting and DDoS protection                           │
@@ -99,7 +99,7 @@ PagePersonAI implements a modern, scalable architecture designed for high perfor
 - **Database**: MongoDB for persistence, Redis for caching and session management
 - **AI Integration**: OpenAI GPT models with custom persona prompting
 - **Authentication**: Auth0 with social login and JWT token management
-- **DevOps**: Docker containerization, nginx reverse proxy, CI/CD ready
+- **DevOps**: Modern CI/CD pipeline with comprehensive testing
 
 ## 🚀 Quick Start
 
@@ -141,13 +141,16 @@ Ensure you have the following installed on your development machine:
 
 3. **Service Dependencies**
 
-   ```bash
-   # Option 1: Start local MongoDB and Redis
-   # MongoDB: mongod --dbpath /path/to/data
-   # Redis: redis-server
+   You'll need MongoDB and Redis running locally. You can install and run them directly:
 
-   # Option 2: Use Docker Compose for dependencies
-   docker-compose up -d mongodb redis
+   ```bash
+   # Install MongoDB and Redis locally
+   # MongoDB: Follow instructions at https://docs.mongodb.com/manual/installation/
+   # Redis: Follow instructions at https://redis.io/download
+
+   # Or use cloud services:
+   # MongoDB Atlas: https://www.mongodb.com/atlas
+   # Redis Cloud: https://redis.com/redis-enterprise-cloud/
    ```
 
 4. **Launch Development Environment**
@@ -171,16 +174,17 @@ Ensure you have the following installed on your development machine:
 
 ### Production Deployment
 
-For production deployment, use the provided Docker configuration:
+For production deployment, build the project and deploy to your preferred hosting platform:
 
 ```bash
-# Build production images
-docker-compose -f docker-compose.yml build
+# Build production version
+npm run build
 
-# Deploy with environment variables
-docker-compose -f docker-compose.yml up -d
-
-# Access at http://localhost (port 80)
+# Deploy to platforms like:
+# - Netlify: Connect your GitHub repo
+# - Vercel: Connect your GitHub repo  
+# - Render: Connect your GitHub repo
+# - Railway: Connect your GitHub repo
 ```
 
 ## Environment Variables
@@ -214,33 +218,6 @@ PORT=5000
 NODE_ENV=development
 ```
 
-## Docker Deployment
-
-### Quick Start with Docker Compose
-
-```bash
-# Copy environment file
-cp .env.development .env
-
-# Update .env with your credentials
-# Start all services
-docker-compose up -d
-
-# Access the application
-# Frontend: http://localhost
-# Backend API: http://localhost:5000
-```
-
-### Individual Container Builds
-
-```bash
-# Build server image
-docker build -t pagepersonai-server -f server/Dockerfile .
-
-# Build client image
-docker build -t pagepersonai-client -f client/Dockerfile .
-```
-
 ## API Documentation
 
 ### Interactive Documentation
@@ -272,11 +249,10 @@ PagePersonAI/
 ├── shared/                  # Shared types and constants
 ├── server/                  # Express.js API backend
 ├── client/                  # React frontend
-├── nginx/                   # Nginx configuration (for Docker)
+├── config/                  # Configuration files
 ├── eslint.config.mjs        # ESLint configuration
 ├── tsconfig.json           # TypeScript configuration
-├── vitest.config.ts        # Vitest configuration
-└── docker-compose.yml       # Multi-container setup
+└── vitest.config.ts        # Vitest configuration
 ```
 
 ## Development
