@@ -1,7 +1,7 @@
 /// &lt;reference types="vitest" /&gt;
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -19,7 +19,7 @@ export default defineConfig({
         lines: 90,
         functions: 90,
         branches: 90,
-        statements: 90
+        statements: 90,
       },
       all: true,
       exclude: [
@@ -39,20 +39,17 @@ export default defineConfig({
         // Assets
         'src/assets/**/*',
         // Generated files
-        'src/vite-env.d.ts'
+        'src/vite-env.d.ts',
       ],
-      include: [
-        'src/**/*.tsx',
-        'src/**/*.ts'
-      ]
+      include: ['src/**/*.tsx', 'src/**/*.ts'],
     },
-    setupFiles: ['./tests/setup.ts', './tests/test-globals.ts']
+    setupFiles: ['./tests/setup.ts', './tests/test-globals.ts'],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@tests': path.resolve(__dirname, './tests'),
-      '@shared': path.resolve(__dirname, '../shared')
-    }
-  }
-})
+      '@shared': path.resolve(__dirname, '../shared'),
+    },
+  },
+});

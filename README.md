@@ -9,34 +9,8 @@ Turn boring articles into engaging narratives, clear explanations, or creative s
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?logo=mongodb&logoColor=white)](https://mongodb.com/)
 [![OpenAI](https://img.shields.io/badge/OpenAI-412991?logo=openai&logoColor=white)](https://openai.com/)
 [![Auth0](https://img.shields.io/badge/Auth0-EB5424?logo=auth0&logoColor=white)](https://auth0.com/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://docker.com/)
 
----
-
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Getting Started](#getting-started)
-   - [Prerequisites](#prerequisites)
-   - [Clone & Install](#clone--install)
-   - [Environment Setup](#environment-setup)
-   - [Run in Development](#run-in-development)
-   - [Run in Production](#run-in-production)
-3. [Docker Deployment](#docker-deployment)
-4. [Environment Variables](#environment-variables)
-5. [API Documentation](#api-documentation)
-6. [Contributing](#contributing)
-7. [Versioning](#versioning)
-8. [Monorepo Structure](#monorepo-structure)
-9. [Development Workflow](#development-workflow)
-10. [Testing](#testing)
-11. [License](#license)
-
----
-
-## Project Overview
-
-## Project Overview
+## Overview
 
 PagePersonAI reimagines web content through different writing personas. Want to read a technical article as if it were written by a medieval knight? Or understand complex topics through simple explanations? This tool makes it happen.
 
@@ -44,62 +18,213 @@ PagePersonAI reimagines web content through different writing personas. Want to 
 
 - **AI-Powered Transformations**: Uses OpenAI's GPT models with custom persona prompts
 - **Multiple Personas**: ELI5, Medieval Knight, Anime Hacker, Plague Doctor, and Robot
-- **Flexible Input**: Transform content from URLs or paste text directly  
+- **Flexible Input**: Transform content from URLs or paste text directly
 - **Secure Authentication**: Auth0 integration with social logins
 - **Usage Tracking**: Rate limiting and analytics with tier-based access
 - **Smart Caching**: Redis-backed caching with MongoDB persistence
-- **Response Compression**: Gzip compression for optimized API responses
 - **Modern Interface**: Responsive React UI with Tailwind CSS
-- **Production Ready**: Docker containerization and CI/CD pipeline
-- **Well Tested**: Comprehensive test coverage
+- **Production Ready**: Docker containerization and nginx reverse proxy
 
----
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 18+ and npm 9+
 - MongoDB instance (local or cloud)
 - Redis instance (optional, for caching)
-- Docker and docker-compose (for containerized deployment)
 - OpenAI API key
 - Auth0 tenant and application
 
-### Clone & Install
+### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/<org>/PagePersonAI.git
-cd PagePersonAI
+git clone https://github.com/sjkd23/PagePersonai.git
+cd PagePersonai
 
-# Install all dependencies for all workspaces
+# Install dependencies
 npm install
 
-# Build all workspaces
+# Set up environment variables
+cp .env.development .env
+# Edit .env with your values
+
+# Build and start
 npm run build
+npm run start:dev
 ```
 
-### Environment Setup
+Access the application at:
+
+- Frontend: <http://localhost:5173>
+- Backend API: <http://localhost:5000>
+
+## Environment Variables
+
+Create a `.env` file with the following required variables:
+
+```env
+# OpenAI Configuration
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-4
+
+# Database
+MONGODB_URI=mongodb://localhost:27017/pagepersona
+
+# Authentication
+AUTH0_DOMAIN=your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+AUTH0_AUDIENCE=your-auth0-api-identifier
+AUTH0_ISSUER=https://your-auth0-domain.auth0.com/
+
+# Client Configuration
+VITE_API_URL=http://localhost:5000/api
+VITE_AUTH0_DOMAIN=your-auth0-domain.auth0.com
+VITE_AUTH0_CLIENT_ID=your-auth0-client-id
+VITE_AUTH0_AUDIENCE=your-auth0-api-identifier
+
+# Optional
+REDIS_URL=redis://localhost:6379
+PORT=5000
+NODE_ENV=development
+```
+
+## Docker Deployment
+
+### Quick Start with Docker Compose
 
 ```bash
-# Copy environment template
+# Copy environment file
 cp .env.development .env
 
-# Edit .env with your values
-# See Environment Variables section below for detailed configuration
+# Update .env with your credentials
+# Start all services
+docker-compose up -d
+
+# Access the application
+# Frontend: http://localhost
+# Backend API: http://localhost:5000
 ```
 
-### Run in Development
+### Individual Container Builds
 
 ```bash
-# Start development servers (server + client)
-npm run start:dev
+# Build server image
+docker build -t pagepersonai-server -f server/Dockerfile .
 
-# Or start individual services
+# Build client image
+docker build -t pagepersonai-client -f client/Dockerfile .
+```
+
+## API Documentation
+
+### Interactive Documentation
+
+- Development: <http://localhost:5000/docs>
+- Swagger UI with full API documentation
+
+### Main Endpoints
+
+- `POST /api/transform` - Transform content with selected persona
+- `GET /api/health` - Health check endpoint
+- `GET /api/user/profile` - Get user profile information
+
+### Authentication
+
+All API endpoints require Auth0 JWT tokens:
+
+```bash
+Authorization: Bearer <jwt_token>
+```
+
+## Project Structure
+
+This monorepo uses npm workspaces:
+
+```text
+PagePersonAI/
+├── config/                  # Configuration files
+│   ├── eslint.config.mjs   # ESLint configuration
+│   ├── .prettierrc         # Prettier configuration
+│   ├── tsconfig.json       # TypeScript configuration
+│   └── vitest.config.ts    # Vitest configuration
+├── shared/                  # Shared types and constants
+├── server/                  # Express.js API backend
+├── client/                  # React frontend
+├── nginx/                   # Reverse proxy configuration
+└── docker-compose.yml       # Multi-container setup
+```
+
+## Development
+
+### Available Scripts
+
+```bash
+# Development
+npm run start:dev           # Start both server and client in dev mode
+npm run build              # Build all workspaces
+npm run test               # Run all tests
+npm run test:coverage      # Run tests with coverage
+npm run lint               # Lint all code
+npm run format             # Format all code
+npm run typecheck          # TypeScript type checking
+npm run clean              # Clean build artifacts
+```
+
+### Working with Workspaces
+
+```bash
+# Build specific workspace
+npm run build --workspace=server
+npm run build --workspace=client
+
+# Run tests for specific workspace
+npm run test --workspace=server
+npm run test --workspace=client
+
+# Start individual services
 npm run start:dev --workspace=server
 npm run dev --workspace=client
 ```
+
+## Contributing
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Ensure all tests pass: `npm test`
+5. Run linting: `npm run lint`
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Submit a pull request
+
+### Code Standards
+
+- **ESLint**: Enforces coding standards and catches errors
+- **Prettier**: Automatic code formatting
+- **Husky**: Pre-commit hooks for code quality
+- **TypeScript**: Strict mode enabled for type safety
+- **Testing**: Comprehensive test coverage with Vitest
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- OpenAI for the GPT API
+- Auth0 for authentication services
+- The open-source community for amazing tools and libraries
+
+---
+
+_Ready to transform web content? Get started with the installation guide above!_
+npm run dev --workspace=client
+
+````
 
 Access the application at:
 - Frontend: http://localhost:5173
@@ -116,7 +241,7 @@ npm run start --workspace=server
 
 # Serve client build (use a web server like nginx)
 npm run serve --workspace=client
-```
+````
 
 ---
 
@@ -188,7 +313,7 @@ AUTH0_AUDIENCE=your-auth0-api-identifier         # Auth0 API identifier
 AUTH0_ISSUER=https://your-auth0-domain.auth0.com/ # Auth0 issuer URL (required for JWT validation)
 ```
 
-### Client Variables (VITE_ prefix)
+### Client Variables (VITE\_ prefix)
 
 ```env
 # API Configuration
@@ -239,6 +364,7 @@ VITE_HOTJAR_ID=XXXXXXX                          # Hotjar tracking ID
 ### Swagger UI
 
 Access the interactive API documentation at:
+
 - Development: http://localhost:5000/docs
 - Production: https://your-domain.com/docs
 
@@ -255,12 +381,12 @@ PagePersonAI uses Auth0 for secure authentication with JWT tokens and scope-base
 
 #### Required Auth0 Configuration
 
-1. **Create Auth0 Application**: 
+1. **Create Auth0 Application**:
    - Application Type: Single Page Application
    - Enable RS256 token signing algorithm
    - Configure Allowed Callback URLs: `http://localhost:5173` (development)
 
-2. **Create Auth0 API**: 
+2. **Create Auth0 API**:
    - Create an API in Auth0 Dashboard
    - Set API Identifier (this becomes your `AUTH0_AUDIENCE`)
    - Enable RS256 signing algorithm
@@ -591,6 +717,7 @@ open client/coverage/index.html
 #### Current Coverage Status
 
 As of the latest build:
+
 - **Server**: 31.57% overall (target: 90%)
 - **Client**: 23.06% overall (target: 90%)
 - **Well-Tested Components**: Individual modules achieving 80-100% coverage
@@ -608,6 +735,7 @@ To contribute to coverage improvements:
 #### Known Coverage Gaps
 
 Current areas needing test coverage:
+
 - Authentication middleware (auth.ts)
 - User route handlers (user-route.ts)
 - Redis configuration (redis.ts)
@@ -618,6 +746,7 @@ Current areas needing test coverage:
 #### Contributing Tests
 
 When adding new features:
+
 1. Write tests alongside new code
 2. Ensure new code meets coverage thresholds
 3. Update existing tests if changing functionality
@@ -633,8 +762,10 @@ npm run test:coverage --workspace=server
 ```
 
 # Run tests with coverage
+
 npm run test:coverage --workspace=server
-```
+
+````
 
 ### Testing Compression
 
@@ -646,7 +777,7 @@ npm run dev
 
 # In another terminal, run the compression test
 node test-compression.js
-```
+````
 
 This will test both small and large responses to ensure compression is working correctly.
 
@@ -666,4 +797,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-*Ready to transform web content? Get started with the installation guide above!*
+_Ready to transform web content? Get started with the installation guide above!_

@@ -13,7 +13,7 @@
     "test:coverage": "npm run test:coverage --workspace=server && npm run test:coverage --workspace=client",
     "test:coverage:ci": "npm run test:coverage:ci --workspace=server && npm run test:coverage --workspace=client",
     "lint": "eslint .",
-    "format": "prettier --write .",
+    "format": "prettier --write . --config config/.prettierrc",
     "typecheck": "tsc --build",
     "clean": "rimraf */dist */node_modules/.cache",
     "prepare": "husky"
@@ -42,7 +42,7 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix",
-      "prettier --write"
+      "prettier --write --config config/.prettierrc"
     ]
   },
   "dependencies": {

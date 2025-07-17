@@ -7,10 +7,12 @@ The PagePersonAI API provides AI-powered content transformation services using v
 ## API Documentation
 
 ### Swagger UI
+
 - **Local Development**: [http://localhost:5000/docs](http://localhost:5000/docs)
 - **OpenAPI Specification**: [http://localhost:5000/docs.json](http://localhost:5000/docs.json)
 
 ### Base URL
+
 - **Local Development**: `http://localhost:5000`
 - **Production**: TBD
 
@@ -25,30 +27,36 @@ Authorization: Bearer <your-jwt-token>
 ## Endpoints Overview
 
 ### Transform Service
+
 - `GET /api/transform/personas` - Get available personas
 - `POST /api/transform` - Transform webpage content
 - `POST /api/transform/text` - Transform text directly
 
 ### User Management
+
 - `GET /api/user/profile` - Get user profile (authenticated)
 - `PUT /api/user/profile` - Update user profile (authenticated)
 
 ### Admin Operations
+
 - `GET /api/admin/users` - List all users (admin only)
 - `PATCH /api/admin/users/:id/membership` - Update user membership (admin only)
 
 ### System Monitoring
+
 - `GET /api/health` - Health check
 - `GET /` - API information
 
 ## Quick Start
 
 1. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 2. **Start development server**:
+
    ```bash
    npm run dev
    ```
@@ -112,6 +120,7 @@ Error responses:
 ## Rate Limiting
 
 The API implements rate limiting to ensure fair usage:
+
 - Transform endpoints: Limited per user
 - Admin endpoints: Stricter limits
 - Public endpoints: Basic rate limiting

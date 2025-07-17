@@ -1,10 +1,10 @@
-# PagePersonAI - Project Structure Documentation
+# PagePersonAI - Project Structure
 
-This document outlines the complete project structure, architectural decisions, and development guidelines for the PagePersonAI application.
+This document outlines the project structure and development guidelines for the PagePersonAI application.
 
 ## Overview
 
-PagePersonAI is a modern full-stack application built with TypeScript, React, Node.js, and MongoDB. It transforms web content using AI-powered personas to create engaging, personalized reading experiences.
+PagePersonAI is a full-stack TypeScript application that transforms web content using AI-powered personas.
 
 ## Architecture
 
@@ -12,133 +12,105 @@ PagePersonAI is a modern full-stack application built with TypeScript, React, No
 
 ```text
 PagePersonAI/
+├── config/          # Configuration files (ESLint, Prettier, TypeScript)
 ├── client/          # React frontend application
 ├── server/          # Node.js Express backend API
 ├── shared/          # Shared TypeScript types and constants
 ├── nginx/           # Reverse proxy configuration
-├── .github/         # GitHub Actions CI/CD
-├── .husky/          # Git hooks for code quality
-└── docs/            # Project documentation
+└── .github/         # GitHub Actions CI/CD
 ```
 
 ### Technology Stack
 
 #### Frontend (client/)
 
-* React 18 with TypeScript
-* Vite for build tooling and development server
-* Tailwind CSS for styling
-* Auth0 for authentication
-* Vitest for testing
+- React 18 with TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- Auth0 for authentication
+- Vitest for testing
 
 #### Backend (server/)
 
-* Node.js with Express and TypeScript
-* MongoDB with Mongoose ODM
-* OpenAI API for content transformation
-* Redis for caching and session management
-* Auth0 for JWT validation
-* Rate limiting with express-rate-limit
+- Node.js with Express and TypeScript
+- MongoDB with Mongoose ODM
+- OpenAI API for content transformation
+- Redis for caching
+- Auth0 for JWT validation
 
 #### Shared (shared/)
 
-* TypeScript types shared between client and server
-* Constants and enums for consistency
-* Validation schemas and error handling
+- TypeScript types shared between client and server
+- Constants and personas definitions
 
 ## Key Features
 
 ### 1. AI-Powered Content Transformation
 
-* Multiple persona types (ELI5, Medieval Knight, Anime Hacker, etc.)
-* URL-based content extraction with Cheerio
-* Direct text transformation capability
-* OpenAI GPT-4 integration with custom prompts
+- Multiple persona types (ELI5, Medieval Knight, Anime Hacker, etc.)
+- URL-based content extraction
+- Direct text transformation
+- OpenAI GPT-4 integration
 
 ### 2. Authentication & Authorization
 
-* Auth0 integration with social logins
-* JWT token validation
-* Role-based access control
-* User profile management
+- Auth0 integration with social logins
+- JWT token validation
+- Role-based access control
 
 ### 3. Performance & Scalability
 
-* Redis caching for API responses
-* MongoDB for persistent data storage
-* Rate limiting with tier-based access
-* Clustering support for multi-core deployment
-
-### 4. Developer Experience
-
-* TypeScript for type safety
-* ESLint and Prettier for code quality
-* Husky for pre-commit hooks
-* Comprehensive test coverage
-* Hot reloading in development
+- Redis caching for API responses
+- MongoDB for persistent storage
+- Rate limiting with tier-based access
+- Nginx reverse proxy
 
 ## Development Workflow
 
 ### Prerequisites
 
-* Node.js 18+
-* MongoDB
-* Redis (optional, falls back to in-memory)
-* Auth0 account and application
+- Node.js 18+
+- MongoDB
+- Redis (optional)
+- Auth0 account
 
 ### Setup
 
-1. Clone the repository
+1. Clone repository
 2. Install dependencies: `npm install`
 3. Set up environment variables
-4. Start development servers: `npm run start:dev`
+4. Start development: `npm run start:dev`
 
 ### Available Scripts
 
-* `npm run build` - Build all workspaces
-* `npm run start:dev` - Start development servers
-* `npm run test` - Run tests across all workspaces
-* `npm run lint` - Lint all code
-* `npm run typecheck` - TypeScript type checking
+- `npm run build` - Build all workspaces
+- `npm run start:dev` - Start development servers
+- `npm run test` - Run tests
+- `npm run lint` - Lint code
+- `npm run format` - Format code
 
-## Security Considerations
+## Security
 
 ### Authentication
 
-* JWT tokens with RS256 signing
-* Auth0 integration for secure authentication
-* Rate limiting to prevent abuse
-* CORS configuration for cross-origin requests
+- JWT tokens with RS256 signing
+- Auth0 integration
+- Rate limiting to prevent abuse
 
 ### Data Protection
 
-* Environment variables for sensitive data
-* Secure headers with Helmet.js
-* Input validation and sanitization
-* MongoDB connection string encryption
-
-### API Security
-
-* Rate limiting per user and IP
-* Request body size limits
-* HTTPS enforcement in production
-* Content Security Policy headers
+- Environment variables for sensitive data
+- Input validation and sanitization
+- HTTPS enforcement in production
 
 ## Deployment
 
 ### Docker Support
 
-* Multi-stage builds for optimized images
-* Docker Compose for local development
-* Nginx reverse proxy configuration
-* Health checks for container monitoring
-
-### Production Considerations
-
-* Environment-specific configurations
-* Logging and monitoring setup
-* Graceful shutdown handling
-* Clustering for improved performance
+- Multi-stage builds
+- Docker Compose for development
+- Nginx reverse proxy
+- Health checks
 
 ## File Organization
 
@@ -150,12 +122,9 @@ client/
 │   ├── components/     # React components
 │   ├── hooks/          # Custom React hooks
 │   ├── contexts/       # React context providers
-│   ├── providers/      # Third-party integrations
 │   ├── utils/          # Utility functions
-│   ├── lib/            # External library configurations
 │   └── __tests__/      # Test files
-├── public/             # Static assets
-└── dist/               # Build output
+└── public/             # Static assets
 ```
 
 ### Server Structure
@@ -169,8 +138,6 @@ server/
 │   ├── routes/         # API routes
 │   ├── middleware/     # Express middleware
 │   ├── config/         # Configuration files
-│   ├── utils/          # Utility functions
-│   ├── types/          # TypeScript types
 │   └── __tests__/      # Test files
 └── dist/               # Compiled output
 ```
@@ -179,54 +146,26 @@ server/
 
 ### Code Quality
 
-* Use TypeScript for type safety
-* Follow ESLint and Prettier rules
-* Write comprehensive tests
-* Use descriptive variable and function names
-* Add JSDoc comments for complex functions
+- TypeScript for type safety
+- ESLint and Prettier for formatting
+- Comprehensive test coverage
+- Descriptive naming conventions
 
 ### Performance
 
-* Implement caching strategies
-* Use lazy loading for components
-* Optimize database queries
-* Monitor bundle sizes
-* Use CDN for static assets
+- Caching strategies
+- Lazy loading for components
+- Optimized database queries
+- Bundle size monitoring
 
-### Maintenance
+### Contributing
 
-* Keep dependencies updated
-* Monitor error rates and performance
-* Implement proper logging
-* Use semantic versioning
-* Document API changes
-
-## Contributing
-
-### Development Guidelines
-
-1. Create feature branches from `develop`
-2. Follow the existing code style
+1. Create feature branches
+2. Follow existing code style
 3. Write tests for new functionality
-4. Update documentation as needed
-5. Submit pull requests for review
-
-### Code Review Process
-
-* All changes require peer review
-* Automated tests must pass
-* Type checking must pass
-* Documentation must be updated
-
-## Support
-
-For questions, issues, or contributions:
-
-* Create GitHub issues for bugs
-* Use discussions for feature requests
-* Follow the contributing guidelines
-* Respect the code of conduct
+4. Update documentation
+5. Submit pull requests
 
 ---
 
-*This documentation is maintained by the PagePersonAI development team and updated regularly to reflect the current state of the project.*
+_This documentation is maintained by the PagePersonAI development team._
