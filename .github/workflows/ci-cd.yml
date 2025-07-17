@@ -72,11 +72,11 @@ jobs:
           MONGODB_URI: mongodb://test:test@localhost:27017/test?authSource=admin
           REDIS_URL: redis://localhost:6379
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          AUTH0_DOMAIN: test.auth0.com
+          AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
           JWT_SECRET: test-secret-for-ci-testing-minimum-32-chars
-          VITE_AUTH0_DOMAIN: test.auth0.com
-          VITE_AUTH0_CLIENT_ID: test-client-id
-          VITE_AUTH0_AUDIENCE: https://test.api
+          VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.VITE_AUTH0_AUDIENCE }}
 
       - name: Run coverage check
         run: npm run test:coverage:ci
@@ -85,11 +85,11 @@ jobs:
           MONGODB_URI: mongodb://test:test@localhost:27017/test?authSource=admin
           REDIS_URL: redis://localhost:6379
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          AUTH0_DOMAIN: test.auth0.com
+          AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
           JWT_SECRET: test-secret-for-ci-testing-minimum-32-chars
-          VITE_AUTH0_DOMAIN: test.auth0.com
-          VITE_AUTH0_CLIENT_ID: test-client-id
-          VITE_AUTH0_AUDIENCE: https://test.api
+          VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.VITE_AUTH0_AUDIENCE }}
 
       - name: Build project
         run: npm run build
