@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "strict": true,
+    "noImplicitAny": false,
     "declaration": true,
     "declarationMap": true,
     "composite": true,
@@ -23,5 +24,11 @@
     "typeRoots": ["node_modules/@types"]
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "vitest.config.ts"
+  ]
 }
