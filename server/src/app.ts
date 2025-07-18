@@ -298,8 +298,10 @@ app.use('*', (_req, res) => {
 function createServer(): void {
   const port = parseInt(process.env.PORT || '5000', 10);
 
+  console.log('→ about to call app.listen() on port', port);
+
   app
-    .listen(port, () => {
+    .listen(port, '0.0.0.0', () => {
       logger.info(`Listening on ${port}`);
       logger.info('Available endpoints:');
       logger.info('  GET  /docs - API Documentation (Swagger UI)');
