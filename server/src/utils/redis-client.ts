@@ -1,106 +1,70 @@
 import { createClient } from 'redis';
 
-const client = createClient({
+const baseRedisClient = createClient({
   url: process.env.REDIS_URL,
 });
 
-let connectionFailed = false;
-let warned = false;
-
-client.on('error', (err) => {
-  if (!warned) {
-    console.warn('⚠️ Redis error—falling back to memory store:', err.message);
-    warned = true;
-  }
-  connectionFailed = true;
-});
-
-client.on('connect', () => {
-  console.info('✅ Connected to Redis');
-  connectionFailed = false;
-});
-
-client.connect().catch((err) => {
+// connect immediately
+baseRedisClient.connect().catch((err) => {
   console.warn('⚠️ Redis connect failed:', err.message);
-  connectionFailed = true;
 });
 
-// Backward compatibility wrapper
-export const redisClient = {
-  getClient() {
-    return connectionFailed ? null : client;
-  },
-
-  async get(key: string): Promise<string | null> {
-    if (connectionFailed) return null;
-
+// Create a wrapper that handles unavailability gracefully
+const redisClient = {
+  async get(key: string) {
     try {
-      return await client.get(key);
+      const result = await baseRedisClient.get(key);
+      return result;
     } catch (error) {
-      if (!warned) {
-        console.warn(
-          '⚠️ Redis GET error:',
-          error instanceof Error ? error.message : 'Unknown error',
-        );
-        warned = true;
-      }
-      connectionFailed = true;
+      console.warn('Redis get operation failed:', error);
       return null;
     }
   },
 
-  async set(key: string, value: string, ttlSeconds?: number): Promise<boolean> {
-    if (connectionFailed) return false;
-
+  async set(key: string, value: string) {
     try {
-      if (ttlSeconds) {
-        await client.setEx(key, ttlSeconds, value);
-      } else {
-        await client.set(key, value);
-      }
-      return true;
+      const result = await baseRedisClient.set(key, value);
+      return result;
     } catch (error) {
-      if (!warned) {
-        console.warn(
-          '⚠️ Redis SET error:',
-          error instanceof Error ? error.message : 'Unknown error',
-        );
-        warned = true;
-      }
-      connectionFailed = true;
+      console.warn('Redis set operation failed:', error);
       return false;
     }
   },
 
-  async del(key: string): Promise<boolean> {
-    if (connectionFailed) return false;
-
+  async setEx(key: string, seconds: number, value: string) {
     try {
-      await client.del(key);
-      return true;
+      const result = await baseRedisClient.setEx(key, seconds, value);
+      return result;
     } catch (error) {
-      if (!warned) {
-        console.warn(
-          '⚠️ Redis DEL error:',
-          error instanceof Error ? error.message : 'Unknown error',
-        );
-        warned = true;
-      }
-      connectionFailed = true;
+      console.warn('Redis setEx operation failed:', error);
       return false;
     }
   },
 
-  async disconnect(): Promise<void> {
+  async del(key: string) {
     try {
-      await client.disconnect();
+      const result = await baseRedisClient.del(key);
+      return result;
     } catch (error) {
-      console.warn(
-        'Error disconnecting Redis:',
-        error instanceof Error ? error.message : 'Unknown error',
-      );
+      console.warn('Redis del operation failed:', error);
+      return false;
     }
   },
+
+  async disconnect() {
+    try {
+      const result = await baseRedisClient.disconnect();
+      return result;
+    } catch (error) {
+      console.warn('Redis disconnect operation failed:', error);
+      return undefined;
+    }
+  },
+
+  // Expose other methods for compatibility
+  isReady: baseRedisClient.isReady,
+  isOpen: baseRedisClient.isOpen,
+  connect: baseRedisClient.connect.bind(baseRedisClient),
 };
 
-export default client;
+export default redisClient;

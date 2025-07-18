@@ -111,7 +111,7 @@ describe('server/index', () => {
 
   afterAll(async () => {
     // Clean up
-    const { redisClient } = await import('../utils/redis-client');
+    const redisClient = (await import('../utils/redis-client')).default;
     await redisClient.disconnect();
   });
 

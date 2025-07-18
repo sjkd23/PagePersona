@@ -1,7 +1,5 @@
 import rateLimit from 'express-rate-limit';
-import RedisStore from 'rate-limit-redis';
-import client from '../utils/redis-client';
-import { getRedisClient, isRedisAvailable } from './redis';
+import { isRedisAvailable } from './redis';
 import { logger } from '../utils/logger';
 
 interface RateLimitOptions {
@@ -10,27 +8,22 @@ interface RateLimitOptions {
 }
 
 export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof rateLimit> {
-  // Use Redis store if available, log if not available but don't crash
-  const redisClient = getRedisClient();
-  const store =
-    redisClient && isRedisAvailable()
-      ? new RedisStore({
-          sendCommand: async (...args: [string, ...unknown[]]) => {
-            const [command, ...rest] = args;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return await (client as any)[command.toLowerCase()](...rest);
-          },
-        })
-      : undefined; // undefined means use default memory store
-
-  if (!store) {
+  // Check if Redis is available
+  if (!isRedisAvailable()) {
     logger.warn('Redis not available for rate limiting, using memory store');
-  } else {
-    logger.info('Using Redis for rate limiting storage');
+    return rateLimit({
+      windowMs: options.windowMs,
+      max: options.max,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'Too many requests, please try again later.' },
+    });
   }
 
+  // Redis is available, but temporarily disable Redis rate limiting
+  // until we resolve the sendCommand issue
+  logger.warn('Redis rate limiting temporarily disabled, using memory store');
   return rateLimit({
-    store,
     windowMs: options.windowMs,
     max: options.max,
     standardHeaders: true,
@@ -39,18 +32,13 @@ export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof 
   });
 }
 
+// Default rate limiter instance using memory store
 const rateLimiter = rateLimit({
-  store: new RedisStore({
-    sendCommand: async (...args: [string, ...unknown[]]) => {
-      const [command, ...rest] = args;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await (client as any)[command.toLowerCase()](...rest);
-    },
-  }),
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
 });
 
 export default rateLimiter;
