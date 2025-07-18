@@ -3,51 +3,21 @@
  *
  * This module provides comprehensive Auth0 integration with JWT validation,
  * scope enforcement, and permission checks for API routes.
- *
- * Features:
- * - JWT token validation with RS256 algorithm
- * - JWKS (JSON Web Key Set) caching and rate limiting
- * - Scope-based authorization middleware
- * - Permission checks with custom claims
- * - Error handling and logging
- * - TypeScript support with proper type definitions
- *
- * Security Features:
- * - Rate-limited JWKS requests (5 per minute)
- * - Token caching for performance
- * - Proper error handling and logging
- * - Configurable scope checking (any vs all scopes)
- * - Custom permissions claim support
- *
- * Usage:
- * ```typescript
- * import { jwtCheck, requireScopes } from '../middleware/auth';
- *
- * // Public routes (no auth required)
- * router.get('/public', publicController);
- *
- * // Protected routes (any authenticated user)
- * router.get('/user/profile', jwtCheck, userController);
- *
- * // Admin-only routes (specific scopes required)
- * router.get('/admin/stats', jwtCheck, requireScopes(['read:admin']), adminController);
- * ```
  */
 
 import '../types/loader';
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { expressjwt as jwt, GetVerificationKey } from 'express-jwt';
+import { expressjwt as jwt } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
 import jwtAuthz from 'express-jwt-authz';
 import { validateEnvironment } from '../utils/env-validation';
 import { logger } from '../utils/logger';
 
-// Get validated environment variables
+/** Load & validate environment, falling back to dev defaults if needed */
 let envConfig: ReturnType<typeof validateEnvironment>;
 try {
   envConfig = validateEnvironment();
-} catch (error) {
-  // In development, create a minimal config to allow server to start
+} catch {
   console.warn('⚠️ Auth middleware: Environment validation failed, using dev defaults');
   envConfig = {
     NODE_ENV: 'development' as const,
@@ -75,7 +45,7 @@ try {
     REDIS_DISABLED: false,
     WEB_SCRAPER_MAX_CONTENT_LENGTH: 8000,
     WEB_SCRAPER_REQUEST_TIMEOUT_MS: 10000,
-    WEB_SCRAPER_USER_AGENT: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+    WEB_SCRAPER_USER_AGENT: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
     ALLOWED_ORIGINS: undefined,
     AUTH0_CUSTOM_USER_ID_CLAIM: undefined,
     AUTH0_ROLES_CLAIM: undefined,
@@ -83,9 +53,7 @@ try {
   };
 }
 
-/**
- * Extended Express Request interface with Auth0 user information
- */
+/** Extended Request with Auth0 info */
 export interface AuthenticatedRequest extends Request {
   auth?: {
     sub: string;
@@ -95,119 +63,42 @@ export interface AuthenticatedRequest extends Request {
     exp: number;
     scope?: string;
     permissions?: string[];
+    roles?: string[];
+    email?: string;
+    name?: string;
+    picture?: string;
     [key: string]: unknown;
   };
 }
 
-/**
- * JWKS client configuration for retrieving Auth0 public keys
- *
- * Configuration includes:
- * - Caching for performance optimization
- * - Rate limiting to prevent abuse
- * - Proper error handling
- */
-const jwksClient = jwksRsa({
+/** Secret provider for express-jwt using JWKS from Auth0 */
+const jwtSecret = jwksRsa.expressJwtSecret({
   cache: true,
   rateLimit: true,
   jwksRequestsPerMinute: 5,
   jwksUri: `${envConfig.AUTH0_ISSUER}.well-known/jwks.json`,
-  timeout: 10000,
+  timeout: 10_000,
   requestHeaders: {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     'User-Agent': 'PagePersonAI-Server/1.0.0',
   },
 });
 
-/**
- * Get verification key for JWT validation
- *
- * @param header JWT header containing key ID
- * @param callback Callback function for async key retrieval
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getKey: GetVerificationKey = (header: any, callback: any) => {
-  if (!header.kid) {
-    logger.error('JWT header missing key ID');
-    return callback(new Error('JWT header missing key ID'));
-  }
-
-  jwksClient.getSigningKey(header.kid, (err, key) => {
-    if (err) {
-      logger.error('Failed to get signing key from JWKS', {
-        error: err.message,
-        kid: header.kid,
-      });
-      return callback(err);
-    }
-
-    if (!key) {
-      logger.error('No signing key found', { kid: header.kid });
-      return callback(new Error('No signing key found'));
-    }
-
-    const signingKey = 'publicKey' in key ? key.publicKey : key.rsaPublicKey;
-    if (!signingKey) {
-      logger.error('Invalid signing key format', { kid: header.kid });
-      return callback(new Error('Invalid signing key format'));
-    }
-
-    callback(null, signingKey);
-  });
-};
-
-/**
- * JWT Check Middleware
- *
- * Validates JWT tokens from Auth0 using RS256 algorithm.
- * Attaches decoded token information to req.auth for use in subsequent middleware.
- *
- * Features:
- * - Validates token signature using Auth0's public keys
- * - Verifies token audience and issuer
- * - Checks token expiration
- * - Handles various token formats (Bearer, query param, etc.)
- *
- * @throws 401 Unauthorized if token is invalid or missing
- * @throws 403 Forbidden if token is valid but lacks required claims
- */
+/** Middleware: validate JWT and attach decoded token to req.auth */
 export const jwtCheck = jwt({
-  secret: getKey,
+  secret: jwtSecret,
   audience: envConfig.AUTH0_AUDIENCE,
   issuer: envConfig.AUTH0_ISSUER,
   algorithms: ['RS256'],
   requestProperty: 'auth',
   getToken: (req: Request) => {
-    // Check Authorization header first
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      return authHeader.substring(7);
-    }
-
-    // Fallback to query parameter or body
+    const h = req.headers.authorization;
+    if (h && h.startsWith('Bearer ')) return h.slice(7);
     return (req.query.token as string) || req.body.token;
   },
 });
 
-/**
- * Scope-based Authorization Middleware Factory
- *
- * Creates middleware that enforces specific scopes for route access.
- * Scopes can be checked individually (any) or all required (all).
- *
- * @param scopes Array of required scopes
- * @param options Configuration options for scope checking
- * @returns Express middleware function
- *
- * @example
- * ```typescript
- * // Require any of the listed scopes
- * router.get('/admin', jwtCheck, requireScopes(['read:admin', 'write:admin']), handler);
- *
- * // Require all listed scopes
- * router.post('/admin/users', jwtCheck, requireScopes(['read:admin', 'write:users'], { checkAllScopes: true }), handler);
- * ```
- */
+/** Scope-based authorization */
 export function requireScopes(
   scopes: string[],
   options: {
@@ -226,26 +117,16 @@ export function requireScopes(
   });
 }
 
-/**
- * Permission-based Authorization Middleware Factory
- *
- * Creates middleware that checks for specific permissions in custom claims.
- * Useful for more granular authorization beyond standard scopes.
- *
- * @param permissions Array of required permissions
- * @param options Configuration options
- * @returns Express middleware function
- */
+/** Permission-based authorization */
 export function requirePermissions(permissions: string[], options: { requireAll?: boolean } = {}) {
   const { requireAll = false } = options;
 
   return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    const userPermissions = req.auth?.permissions || [];
-
-    if (!Array.isArray(userPermissions)) {
-      logger.warn('User permissions not found or invalid format', {
-        userId: req.auth?.sub,
-        permissions: userPermissions,
+    const userPerms = req.auth?.permissions || [];
+    if (!Array.isArray(userPerms)) {
+      logger.warn('Permissions missing or malformed', {
+        user: req.auth?.sub,
+        permissions: userPerms,
       });
       res.status(403).json({
         error: 'Forbidden',
@@ -254,18 +135,17 @@ export function requirePermissions(permissions: string[], options: { requireAll?
       return;
     }
 
-    const hasPermission = requireAll
-      ? permissions.every((permission) => userPermissions.includes(permission))
-      : permissions.some((permission) => userPermissions.includes(permission));
+    const ok = requireAll
+      ? permissions.every((p) => userPerms.includes(p))
+      : permissions.some((p) => userPerms.includes(p));
 
-    if (!hasPermission) {
+    if (!ok) {
       logger.warn('Permission check failed', {
-        userId: req.auth?.sub,
-        requiredPermissions: permissions,
-        userPermissions,
+        user: req.auth?.sub,
+        required: permissions,
+        has: userPerms,
         requireAll,
       });
-
       res.status(403).json({
         error: 'Forbidden',
         message: 'Insufficient permissions',
@@ -276,25 +156,14 @@ export function requirePermissions(permissions: string[], options: { requireAll?
     }
 
     logger.debug('Permission check passed', {
-      userId: req.auth?.sub,
-      requiredPermissions: permissions,
-      userPermissions,
+      user: req.auth?.sub,
+      permissions: userPerms,
     });
-
     next();
   };
 }
 
-/**
- * Role-based Authorization Middleware Factory
- *
- * Creates middleware that checks for specific roles in custom claims.
- * Roles are typically broader than permissions (e.g., 'admin', 'user', 'moderator').
- *
- * @param roles Array of required roles
- * @param options Configuration options
- * @returns Express middleware function
- */
+/** Role-based authorization */
 export function requireRoles(roles: string[], options: { requireAll?: boolean } = {}) {
   const { requireAll = false } = options;
 
@@ -302,8 +171,8 @@ export function requireRoles(roles: string[], options: { requireAll?: boolean } 
     const userRoles = req.auth?.roles || req.auth?.[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [];
 
     if (!Array.isArray(userRoles)) {
-      logger.warn('User roles not found or invalid format', {
-        userId: req.auth?.sub,
+      logger.warn('Roles missing or malformed', {
+        user: req.auth?.sub,
         roles: userRoles,
       });
       res.status(403).json({
@@ -313,18 +182,17 @@ export function requireRoles(roles: string[], options: { requireAll?: boolean } 
       return;
     }
 
-    const hasRole = requireAll
-      ? roles.every((role) => userRoles.includes(role))
-      : roles.some((role) => userRoles.includes(role));
+    const ok = requireAll
+      ? roles.every((r) => userRoles.includes(r))
+      : roles.some((r) => userRoles.includes(r));
 
-    if (!hasRole) {
+    if (!ok) {
       logger.warn('Role check failed', {
-        userId: req.auth?.sub,
-        requiredRoles: roles,
-        userRoles,
+        user: req.auth?.sub,
+        required: roles,
+        has: userRoles,
         requireAll,
       });
-
       res.status(403).json({
         error: 'Forbidden',
         message: 'Insufficient roles',
@@ -335,55 +203,27 @@ export function requireRoles(roles: string[], options: { requireAll?: boolean } 
     }
 
     logger.debug('Role check passed', {
-      userId: req.auth?.sub,
-      requiredRoles: roles,
-      userRoles,
+      user: req.auth?.sub,
+      roles: userRoles,
     });
-
     next();
   };
 }
 
-/**
- * Optional JWT Check Middleware
- *
- * Similar to jwtCheck but doesn't fail if no token is provided.
- * Useful for routes that work for both authenticated and anonymous users.
- *
- * @param req Express request object
- * @param res Express response object
- * @param next Express next function
- */
+/** Optional JWT: if token present, validate, else continue */
 export const optionalJwtCheck = (req: Request, res: Response, next: NextFunction): void => {
-  const authHeader = req.headers.authorization;
+  const h = req.headers.authorization;
+  if (!h || !h.startsWith('Bearer ')) return next();
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // No token provided, continue without authentication
-    return next();
-  }
-
-  // Token provided, validate it
   jwtCheck(req, res, (err) => {
     if (err) {
-      logger.debug('Optional JWT validation failed', { error: err.message });
-      // Don't fail the request, just continue without auth
-      return next();
+      logger.debug('Optional JWT failed', { error: err.message });
     }
     next();
   });
 };
 
-/**
- * Auth0 Error Handler Middleware
- *
- * Handles JWT validation errors and provides appropriate error responses.
- * Should be used after JWT middleware to catch authentication errors.
- *
- * @param err Error object from JWT middleware
- * @param req Express request object
- * @param res Express response object
- * @param next Express next function
- */
+/** Error handler for Auth0 JWT failures */
 export const authErrorHandler = (
   err: Error & { name?: string; code?: string; status?: number },
   req: Request,
@@ -398,98 +238,55 @@ export const authErrorHandler = (
       method: req.method,
     });
 
-    const errorResponse: {
-      error: string;
-      message: string;
-      code: string;
-      details?: string;
-    } = {
+    const resp: Record<string, unknown> = {
       error: 'Unauthorized',
       message: 'Invalid or missing authentication token',
       code: err.code || 'INVALID_TOKEN',
     };
-
-    // Don't expose internal error details in production
     if (envConfig.NODE_ENV !== 'production') {
-      errorResponse.details = err.message;
+      resp.details = err.message;
     }
-
-    res.status(401).json(errorResponse);
+    res.status(401).json(resp);
     return;
   }
-
   next(err);
 };
 
-/**
- * User Information Middleware
- *
- * Extracts and formats user information from JWT token.
- * Attaches user info to req.user for easy access in route handlers.
- *
- * @param req Express request object
- * @param res Express response object
- * @param next Express next function
- */
+/** Attach user info from req.auth into req.user */
 export const attachUserInfo = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ): void => {
-  if (!req.auth) {
-    return next();
+  if (req.auth) {
+    const userInfo = {
+      id: req.auth.sub,
+      email: req.auth.email as string | undefined,
+      name: req.auth.name as string | undefined,
+      picture: req.auth.picture as string | undefined,
+      permissions: req.auth.permissions || [],
+      roles: req.auth.roles || req.auth[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [],
+      scope: req.auth.scope?.split(' ') || [],
+      sub: req.auth.sub,
+      iss: req.auth.iss,
+      aud: req.auth.aud,
+      iat: req.auth.iat,
+      exp: req.auth.exp,
+    };
+    // @ts-ignore attach dynamic user prop
+    req.user = userInfo;
+    logger.debug('User info attached', { user: userInfo.id });
   }
-
-  // Extract user information from JWT claims
-  const userInfo = {
-    id: req.auth.sub,
-    email: req.auth.email as string | undefined,
-    name: req.auth.name as string | undefined,
-    picture: req.auth.picture as string | undefined,
-    permissions: req.auth.permissions || [],
-    roles: req.auth.roles || req.auth[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [],
-    scope: req.auth.scope ? req.auth.scope.split(' ') : [],
-    // Include the required Auth0JwtPayload properties
-    sub: req.auth.sub,
-    iss: req.auth.iss,
-    aud: req.auth.aud,
-    iat: req.auth.iat,
-    exp: req.auth.exp,
-  };
-
-  // Attach to request for use in route handlers
-  (req as Request & { user: typeof userInfo }).user = userInfo;
-
-  logger.debug('User info attached to request', {
-    userId: userInfo.id,
-    email: userInfo.email,
-    permissions: userInfo.permissions,
-    roles: userInfo.roles,
-  });
-
   next();
 };
 
-/**
- * Development-only middleware for debugging authentication
- * Only active in development environment
- */
+/** Development-only debug middleware */
 export const debugAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
   if (envConfig.NODE_ENV === 'development') {
-    logger.debug('Auth Debug Info', {
+    logger.debug('Auth Debug', {
       path: req.path,
       method: req.method,
-      hasAuth: !!req.auth,
-      auth: req.auth
-        ? {
-            sub: req.auth.sub,
-            aud: req.auth.aud,
-            iss: req.auth.iss,
-            exp: req.auth.exp,
-            scope: req.auth.scope,
-            permissions: req.auth.permissions,
-          }
-        : null,
+      auth: req.auth,
     });
   }
   next();
