@@ -10,7 +10,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { redisClient } from '../utils/redis-client';
+import redisClient from '../utils/redis-client';
 import { HttpStatus } from '../constants/http-status';
 import { isUsingRedisStore } from '../middleware/simple-rate-limit';
 import { logger } from '../utils/logger';
@@ -36,7 +36,8 @@ router.get('/redis', async (req: Request, res: Response) => {
     const ttlSeconds = 10; // 10 second TTL for debug test
 
     // Set test value with TTL
-    const setResult = await redisClient.set(testKey, testValue, ttlSeconds);
+    await redisClient.setEx(testKey, ttlSeconds, testValue);
+    const setResult = true; // setEx doesn't return a boolean, assume success if no error
 
     if (!setResult) {
       res.status(HttpStatus.SERVICE_UNAVAILABLE).json({

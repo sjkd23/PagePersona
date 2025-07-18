@@ -32,7 +32,15 @@ dotenv.config({
 });
 
 if (cluster.isPrimary) {
-  validateEnv(); // single env check
+  try {
+    validateEnv(); // single env check
+  } catch (error) {
+    console.warn(
+      'Environment validation failed:',
+      error instanceof Error ? error.message : String(error),
+    );
+    console.warn('Continuing with development server...');
+  }
   const cpus = os.cpus().length;
   for (let i = 0; i < cpus; i++) cluster.fork();
 

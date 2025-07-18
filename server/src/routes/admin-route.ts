@@ -23,7 +23,7 @@ import {
 } from '../utils/userSerializer';
 import { HttpStatus } from '../constants/http-status';
 import { logger } from '../utils/logger';
-import { redisClient } from '../utils/redis-client';
+import redisClient from '../utils/redis-client';
 import { validateRequest } from '../middleware/validation';
 import {
   updateMembershipSchema,

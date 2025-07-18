@@ -1,15 +1,15 @@
 // This file provides backward compatibility for the old Redis interface
 // while using the centralized redis-client from utils/redis-client.ts
-import { redisClient as centralizedClient } from '../utils/redis-client';
+import redisClient from '../utils/redis-client';
 
-export { centralizedClient as redisClient };
+export { redisClient };
 
 export const getRedisClient = () => {
   // Check if Redis is disabled or URL not configured
   if (process.env.REDIS_DISABLED === 'true' || !process.env.REDIS_URL) {
     return null;
   }
-  return centralizedClient.getClient();
+  return redisClient;
 };
 
 export const getRedisClientAsync = async () => {
@@ -17,7 +17,7 @@ export const getRedisClientAsync = async () => {
   if (process.env.REDIS_DISABLED === 'true' || !process.env.REDIS_URL) {
     return null;
   }
-  return centralizedClient.getClient();
+  return redisClient;
 };
 
 export const isRedisAvailable = () => {
@@ -29,7 +29,7 @@ export const isRedisAvailable = () => {
 };
 
 export const disconnectRedis = async () => {
-  await centralizedClient.disconnect();
+  await redisClient.disconnect();
 };
 
 export const safeRedisOperation = async <T>(

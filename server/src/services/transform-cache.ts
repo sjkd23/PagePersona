@@ -5,7 +5,7 @@
  * with proper error handling and fallback behavior.
  */
 
-import { redisClient } from '../utils/redis-client';
+import redisClient from '../utils/redis-client';
 import { logger } from '../utils/logger';
 import type { TransformationResult } from './content-transformer';
 
@@ -54,7 +54,7 @@ export async function setCachedTransformResult(
   const cacheKey = generateCacheKey(url, persona);
 
   try {
-    await redisClient.set(cacheKey, JSON.stringify(result), CACHE_TTL);
+    await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
     logger.info('Cached transformation result', {
       url,
       persona,
@@ -116,7 +116,7 @@ export async function setCachedTextTransformResult(
   const cacheKey = generateTextCacheKey(text, persona);
 
   try {
-    await redisClient.set(cacheKey, JSON.stringify(result), CACHE_TTL);
+    await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
     logger.info('Cached text transformation result', {
       persona,
       textLength: text.length,
