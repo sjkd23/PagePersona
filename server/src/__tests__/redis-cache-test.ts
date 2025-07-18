@@ -4,12 +4,8 @@
  * Simple test to verify Redis caching functionality
  */
 
-import { config } from 'dotenv';
 import { getCachedTransformResult, setCachedTransformResult } from '../services/transform-cache';
-import { redisClient } from '../utils/redis-client';
-
-// Load environment variables
-config();
+import redisClient from '../utils/redis-client';
 
 async function testRedisCache() {
   console.log('🧪 Testing Redis Cache Functionality...\n');
@@ -67,7 +63,7 @@ async function testRedisCache() {
 
     // Test 3: Test direct Redis operations
     console.log('\n🔧 Testing direct Redis operations...');
-    await redisClient.set('test:key', 'test:value', 10);
+    await redisClient.setEx('test:key', 10, 'test:value');
     const directResult = await redisClient.get('test:key');
     console.log('Direct Redis test:', directResult === 'test:value' ? '✅ Success' : '❌ Failed');
 

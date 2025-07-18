@@ -4,11 +4,7 @@
  * This script tests Redis caching functionality with graceful fallback
  */
 
-import { config } from 'dotenv';
 import { CachedContentTransformer } from '../services/cached-content-transformer';
-
-// Load environment variables from development file
-config({ path: '../../../.env.development' });
 
 async function testCachedTransformer() {
   console.log('🧪 Testing Cached Content Transformer...\n');
