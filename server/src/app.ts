@@ -42,6 +42,7 @@ try {
 // Initialize Express application
 const app = express();
 app.disable('x-powered-by'); // Security: Hide Express.js version information
+app.set('trust proxy', 1); // Trust first proxy (Render, Cloudflare, etc.)
 
 // Security headers with Helmet
 app.use(
@@ -262,7 +263,17 @@ if (process.env.NODE_ENV !== 'production') {
   app.use('/api/debug', debugRoutes);
 }
 
+// Protected GPT endpoint
 app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
+
+// Handle UnauthorizedError from JWT/auth middleware
+app.use((err: Error, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (err.name === 'UnauthorizedError') {
+    // err.message will contain the JWT-auth failure reason
+    return res.status(401).json({ success: false, error: err.message });
+  }
+  return next(err);
+});
 
 // Error handling middleware
 app.use(errorHandler);
