@@ -1,5 +1,6 @@
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
+import client from '../utils/redis-client';
 import { getRedisClient, isRedisAvailable } from './redis';
 import { logger } from '../utils/logger';
 
@@ -15,11 +16,9 @@ export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof 
     redisClient && isRedisAvailable()
       ? new RedisStore({
           sendCommand: async (...args: [string, ...unknown[]]) => {
-            // Convert args to the format expected by ioredis
             const [command, ...rest] = args;
-            // Use explicit any for Redis command invocation as it's a dynamic interface
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return await (redisClient as any)[command.toLowerCase()](...rest);
+            return await (client as any)[command.toLowerCase()](...rest);
           },
         })
       : undefined; // undefined means use default memory store
@@ -39,3 +38,19 @@ export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof 
     message: { error: 'Too many requests, please try again later.' },
   });
 }
+
+const rateLimiter = rateLimit({
+  store: new RedisStore({
+    sendCommand: async (...args: [string, ...unknown[]]) => {
+      const [command, ...rest] = args;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return await (client as any)[command.toLowerCase()](...rest);
+    },
+  }),
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export default rateLimiter;

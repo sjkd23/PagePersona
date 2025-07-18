@@ -84,30 +84,23 @@ const envSchema = z.object({
  * Validate all environment variables against the schema
  */
 export function validateEnv(): z.infer<typeof envSchema> {
+  const required = [
+    'MONGODB_URI',
+    'OPENAI_API_KEY',
+    'AUTH0_DOMAIN',
+    'AUTH0_AUDIENCE',
+    'AUTH0_ISSUER',
+    'JWT_SECRET',
+  ];
+  const missing = required.filter((key) => !process.env[key]);
+  if (missing.length) throw new Error(`Missing ENV vars: ${missing.join(', ')}`);
+  logger.info('✅ Environment validated');
+
+  // Still return parsed config for compatibility
   const parseResult = envSchema.safeParse(process.env);
-
   if (!parseResult.success) {
-    // List missing required variables
-    const requiredVars = [
-      'MONGODB_URI',
-      'OPENAI_API_KEY',
-      'AUTH0_DOMAIN',
-      'AUTH0_CLIENT_ID',
-      'AUTH0_CLIENT_SECRET',
-      'AUTH0_AUDIENCE',
-      'AUTH0_ISSUER',
-      'JWT_SECRET',
-    ];
-    const missing = requiredVars.filter((key) => !process.env[key]);
-
-    if (missing.length > 0) {
-      throw new Error(`Missing ENV: ${missing.join(', ')}`);
-    }
-
     throw new Error('Environment validation failed. Please check your .env file.');
   }
-
-  logger.info('Environment validated');
   return parseResult.data;
 }
 

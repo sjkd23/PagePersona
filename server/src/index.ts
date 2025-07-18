@@ -18,24 +18,21 @@
  * @module ServerApp
  */
 
-// Load environment variables first - consolidated dotenv configuration
 import dotenv from 'dotenv';
-dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
-  debug: false,
-});
-
-// Load type declarations for ts-node-dev
-import './types/loader';
-
 import cluster from 'cluster';
 import os from 'os';
 import { validateEnv } from './utils/env-validation';
 import createServer from './app';
 
-// Clustering setup - run validation once, then fork
+// Load env once, silently
+dotenv.config({
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
+  debug: false,
+  override: false,
+});
+
 if (cluster.isPrimary) {
-  validateEnv(); // run once, then fork
+  validateEnv(); // single env check
   const cpus = os.cpus().length;
   for (let i = 0; i < cpus; i++) cluster.fork();
 
@@ -44,5 +41,5 @@ if (cluster.isPrimary) {
     cluster.fork();
   });
 } else {
-  createServer(); // actual Express startup
+  createServer(); // start express app
 }

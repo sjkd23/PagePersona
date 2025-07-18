@@ -4,16 +4,12 @@
  * This test shows the complete flow including proper persona usage
  */
 
-import { config } from 'dotenv';
 import {
   getCachedTransformResult,
   setCachedTransformResult,
   getCachedTextTransformResult,
   setCachedTextTransformResult,
 } from '../services/transform-cache';
-
-// Load environment variables
-config({ path: '../../../.env.development' });
 
 async function testIntegration() {
   console.log('🧪 Testing Redis Caching Integration...\n');
