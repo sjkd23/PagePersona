@@ -26,14 +26,8 @@
  * @since 1.0.0
  */
 
-import dotenv from 'dotenv';
-import path from 'path';
 import { logger } from '../utils/logger';
 import { validateEnvironment } from '../utils/env-validation';
-
-// Load environment variables from root directory
-const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
-dotenv.config({ path: path.resolve(__dirname, '../../..', envFile) });
 
 // Validate and get environment configuration
 export const config = validateEnvironment();

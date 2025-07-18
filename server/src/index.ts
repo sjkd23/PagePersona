@@ -21,18 +21,20 @@
 // Load type declarations for ts-node-dev
 import './types/loader';
 
+import dotenv from 'dotenv';
 import cluster from 'cluster';
 import os from 'os';
-import dotenv from 'dotenv';
 import app from './app';
 import { validateEnvironment } from './utils/env-validation';
 import { logger } from './utils/logger';
 import { redisClient } from './utils/redis-client';
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env file with production support
+dotenv.config({
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
+});
 
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
 // Only use clustering in production, not during development
 const useCluster = process.env.NODE_ENV === 'production';
@@ -55,8 +57,8 @@ if (useCluster && cluster.isPrimary) {
 
   // Start the server
   app
-    .listen(PORT, () => {
-      logger.info(`Worker ${process.pid} listening on port ${PORT}`);
+    .listen(port, () => {
+      logger.info(`Worker ${process.pid} listening on port ${port}`);
       logger.info('Available endpoints:');
       logger.info('  GET  /docs - API Documentation (Swagger UI)');
       logger.info('  GET  /docs.json - OpenAPI Specification');
@@ -72,8 +74,8 @@ if (useCluster && cluster.isPrimary) {
     })
     .on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        logger.error(`Port ${PORT} is already in use`);
-        logger.error('Try: netstat -ano | findstr :' + PORT + ' to find the process');
+        logger.error(`Port ${port} is already in use`);
+        logger.error('Try: netstat -ano | findstr :' + port + ' to find the process');
         process.exit(1);
       } else {
         logger.error('Server error:', err);

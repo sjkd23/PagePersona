@@ -1,13 +1,7 @@
 // Environment validation and safety checks for all environment variables
 
 import { z } from 'zod';
-import path from 'path';
-import dotenv from 'dotenv';
 import { logger } from './logger';
-
-// Load environment variables from root
-const envFile = `.env.${process.env.NODE_ENV || 'development'}`;
-dotenv.config({ path: path.resolve(__dirname, '../../..', envFile) });
 
 // Comprehensive environment schema
 const envSchema = z.object({
