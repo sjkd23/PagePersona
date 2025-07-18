@@ -1,98 +1,36 @@
-import { createClient, RedisClientType } from 'redis';
-import { logger } from '../utils/logger';
+// This file provides backward compatibility for the old Redis interface
+// while using the centralized redis-client from utils/redis-client.ts
+import { redisClient as centralizedClient } from '../utils/redis-client';
 
-type Redis = RedisClientType;
+export { centralizedClient as redisClient };
 
-class RedisManager {
-  private client: RedisClientType | null = null;
-  private isConnected: boolean = false;
-  private connectionAttempted: boolean = false;
-  private connectionFailed: boolean = false;
-
-  constructor() {
-    this.client = null;
+export const getRedisClient = () => {
+  // Check if Redis is disabled or URL not configured
+  if (process.env.REDIS_DISABLED === 'true' || !process.env.REDIS_URL) {
+    return null;
   }
+  return centralizedClient.getClient();
+};
 
-  private async initializeClient(): Promise<void> {
-    if (this.connectionAttempted) {
-      return;
-    }
-
-    this.connectionAttempted = true;
-
-    // Check if Redis is disabled
-    if (process.env.REDIS_DISABLED === 'true') {
-      logger.info('Redis is disabled by environment variable');
-      this.connectionFailed = true;
-      return;
-    }
-
-    // Check if Redis URL is provided
-    if (!process.env.REDIS_URL) {
-      logger.info('Redis URL not provided, using in-memory fallback');
-      this.connectionFailed = true;
-      return;
-    }
-
-    try {
-      this.client = createClient({
-        url: process.env.REDIS_URL,
-      });
-
-      this.client.on('error', (err) => {
-        logger.error('Redis client error:', err);
-        this.isConnected = false;
-        this.connectionFailed = true;
-      });
-
-      this.client.on('connect', () => {
-        logger.info('Redis client connected');
-        this.isConnected = true;
-        this.connectionFailed = false;
-      });
-
-      await this.client.connect();
-    } catch (error) {
-      logger.error('Failed to initialize Redis client:', error);
-      this.connectionFailed = true;
-      this.client = null;
-    }
+export const getRedisClientAsync = async () => {
+  // Check if Redis is disabled or URL not configured
+  if (process.env.REDIS_DISABLED === 'true' || !process.env.REDIS_URL) {
+    return null;
   }
+  return centralizedClient.getClient();
+};
 
-  public getClient(): RedisClientType | null {
-    // For sync usage, return client directly if available
-    if (this.connectionFailed || !this.client) {
-      return null;
-    }
-    return this.client;
+export const isRedisAvailable = () => {
+  // Return false if Redis is explicitly disabled or URL not configured
+  if (process.env.REDIS_DISABLED === 'true' || !process.env.REDIS_URL) {
+    return false;
   }
+  return true;
+};
 
-  public async getClientAsync(): Promise<RedisClientType | null> {
-    if (!this.connectionAttempted) {
-      await this.initializeClient();
-    }
-    return this.client;
-  }
-
-  public isAvailable(): boolean {
-    return this.isConnected && !this.connectionFailed;
-  }
-
-  public async disconnect(): Promise<void> {
-    if (this.client) {
-      await this.client.disconnect();
-      this.client = null;
-      this.isConnected = false;
-    }
-  }
-}
-
-const redisManager = new RedisManager();
-
-export const getRedisClient = (): Redis | null => redisManager.getClient();
-export const getRedisClientAsync = (): Promise<Redis | null> => redisManager.getClientAsync();
-export const isRedisAvailable = (): boolean => redisManager.isAvailable();
-export const disconnectRedis = (): Promise<void> => redisManager.disconnect();
+export const disconnectRedis = async () => {
+  await centralizedClient.disconnect();
+};
 
 export const safeRedisOperation = async <T>(
   operation: () => Promise<T>,
@@ -100,12 +38,13 @@ export const safeRedisOperation = async <T>(
   fallback: T,
 ): Promise<T> => {
   try {
-    if (!redisManager.isAvailable()) {
+    // Check if Redis is available first
+    if (!isRedisAvailable()) {
       return fallback;
     }
     return await operation();
   } catch (error) {
-    logger.error(`Redis operation ${operationName} failed:`, error);
+    console.warn(`Redis operation ${operationName} failed:`, error);
     return fallback;
   }
 };
