@@ -31,7 +31,7 @@ dotenv.config({
   override: false,
 });
 
-if (cluster.isPrimary) {
+if (process.env.NODE_ENV !== 'production' && cluster.isPrimary) {
   try {
     validateEnv(); // single env check
   } catch (error) {
