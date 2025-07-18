@@ -11,7 +11,7 @@ interface RateLimitOptions {
 export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof rateLimit> {
   const redisClient = getRedisClient();
 
-  // Use Redis store if available, otherwise fallback to memory store
+  // Use Redis store if available, log if not available but don't crash
   const store =
     redisClient && isRedisAvailable()
       ? new RedisStore({
@@ -26,7 +26,11 @@ export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof 
       : undefined; // undefined means use default memory store
 
   if (!store) {
-    logger.warn('Redis not available for rate limiting, using memory store');
+    logger.warn(
+      'Redis not available for rate limiting, using memory store - this may cause issues in multi-instance deployments',
+    );
+  } else {
+    logger.info('Using Redis for rate limiting storage');
   }
 
   return rateLimit({

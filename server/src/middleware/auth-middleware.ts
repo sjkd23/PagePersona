@@ -14,10 +14,6 @@
 
 import { expressjwt } from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
-import dotenv from 'dotenv';
-
-// Load environment variables for Auth0 configuration
-dotenv.config();
 
 /**
  * JWT authentication middleware configuration

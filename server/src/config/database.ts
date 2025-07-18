@@ -17,11 +17,7 @@
  */
 
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import { logger } from '../utils/logger';
-
-// Load environment variables
-dotenv.config();
 
 // MongoDB connection string with development fallback
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/pagepersona';
