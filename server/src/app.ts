@@ -287,4 +287,62 @@ app.use('*', (_req, res) => {
   });
 });
 
-export default app;
+/**
+ * Create and start the Express server
+ */
+function createServer(): void {
+  const port = parseInt(process.env.PORT || '5000', 10);
+
+  app
+    .listen(port, () => {
+      logger.info(`Listening on ${port}`);
+      logger.info('Available endpoints:');
+      logger.info('  GET  /docs - API Documentation (Swagger UI)');
+      logger.info('  GET  /docs.json - OpenAPI Specification');
+      logger.info('  GET  /api/health - Health check');
+      logger.info('  GET  /api/transform/personas - Available personas');
+      logger.info('  POST /api/transform - Transform content from URL');
+      logger.info('  POST /api/transform/text - Transform text content directly');
+      logger.info('  GET  /api/user/profile - User profile (protected)');
+      logger.info('  PUT  /api/user/profile - Update profile (protected)');
+      if (process.env.NODE_ENV !== 'production') {
+        logger.info('  GET  /api/debug/redis - Redis connectivity test');
+      }
+    })
+    .on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        logger.error(`Port ${port} is already in use`);
+        logger.error('Try: netstat -ano | findstr :' + port + ' to find the process');
+        process.exit(1);
+      } else {
+        logger.error('Server error:', err);
+        process.exit(1);
+      }
+    });
+
+  // Graceful shutdown handlers
+  const gracefulShutdown = async (signal: string) => {
+    logger.info(`${signal} received. Starting graceful shutdown...`);
+
+    try {
+      // Disconnect from Redis
+      await redisClient.disconnect();
+      logger.info('Redis connection closed successfully');
+
+      // Add any other cleanup here (database, etc.)
+      logger.info('Graceful shutdown completed');
+      process.exit(0);
+    } catch (error) {
+      logger.error('Error during graceful shutdown', error, {
+        signal,
+        action: 'forced_exit',
+      });
+      process.exit(1);
+    }
+  };
+
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+}
+
+export default createServer;

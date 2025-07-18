@@ -83,15 +83,10 @@ const envSchema = z.object({
 /**
  * Validate all environment variables against the schema
  */
-export function validateEnvironment(): z.infer<typeof envSchema> {
+export function validateEnv(): z.infer<typeof envSchema> {
   const parseResult = envSchema.safeParse(process.env);
 
   if (!parseResult.success) {
-    logger.error('❌ Environment validation failed:');
-    parseResult.error.errors.forEach((error) => {
-      logger.error(`  • ${error.path.join('.')}: ${error.message}`);
-    });
-
     // List missing required variables
     const requiredVars = [
       'MONGODB_URI',
@@ -103,17 +98,24 @@ export function validateEnvironment(): z.infer<typeof envSchema> {
       'AUTH0_ISSUER',
       'JWT_SECRET',
     ];
-    const missingRequired = requiredVars.filter((key) => !process.env[key]);
+    const missing = requiredVars.filter((key) => !process.env[key]);
 
-    if (missingRequired.length > 0) {
-      logger.error('❌ Missing required environment variables:');
-      missingRequired.forEach((key) => logger.error(`  • ${key}`));
+    if (missing.length > 0) {
+      throw new Error(`Missing ENV: ${missing.join(', ')}`);
     }
 
     throw new Error('Environment validation failed. Please check your .env file.');
   }
 
+  logger.info('Environment validated');
   return parseResult.data;
+}
+
+/**
+ * Validate all environment variables against the schema (legacy export)
+ */
+export function validateEnvironment(): z.infer<typeof envSchema> {
+  return validateEnv();
 }
 
 /**
@@ -133,39 +135,44 @@ export function validateAuth0Environment(): {
     redisUrl?: string;
   };
 } {
-  const _envConfig = validateEnvironment();
+  try {
+    const _envConfig = validateEnvironment();
 
-  const missing: string[] = [];
-  const warnings: string[] = [];
+    const missing: string[] = [];
+    const warnings: string[] = [];
 
-  // Production-specific warnings
-  if (_envConfig.NODE_ENV === 'production') {
-    if (!_envConfig.REDIS_URL) {
-      warnings.push(
-        'REDIS_URL not set in production - rate limiting and caching will not persist across restarts',
-      );
+    // Production-specific warnings
+    if (_envConfig.NODE_ENV === 'production') {
+      if (!_envConfig.REDIS_URL) {
+        warnings.push(
+          'REDIS_URL not set in production - rate limiting and caching will not persist across restarts',
+        );
+      }
+      if (!_envConfig.CLIENT_URL) {
+        warnings.push('CLIENT_URL not set - CORS may not work properly');
+      }
     }
-    if (!_envConfig.CLIENT_URL) {
-      warnings.push('CLIENT_URL not set - CORS may not work properly');
-    }
+
+    const config = {
+      domain: _envConfig.AUTH0_DOMAIN,
+      audience: _envConfig.AUTH0_AUDIENCE,
+      clientId: _envConfig.AUTH0_CLIENT_ID,
+      environment: _envConfig.NODE_ENV,
+      mongoUri: _envConfig.MONGODB_URI,
+      openaiApiKey: '***hidden***',
+      redisUrl: _envConfig.REDIS_URL,
+    };
+
+    return {
+      isValid: missing.length === 0,
+      missing,
+      warnings,
+      config,
+    };
+  } catch (error) {
+    // If validation fails, throw with the expected message
+    throw new Error('Environment validation failed');
   }
-
-  const config = {
-    domain: _envConfig.AUTH0_DOMAIN,
-    audience: _envConfig.AUTH0_AUDIENCE,
-    clientId: _envConfig.AUTH0_CLIENT_ID,
-    environment: _envConfig.NODE_ENV,
-    mongoUri: _envConfig.MONGODB_URI,
-    openaiApiKey: '***hidden***',
-    redisUrl: _envConfig.REDIS_URL,
-  };
-
-  return {
-    isValid: missing.length === 0,
-    missing,
-    warnings,
-    config,
-  };
 }
 
 /**
@@ -225,10 +232,14 @@ export function getEnvironmentInfo(): {
   timestamp: string;
   nodeVersion: string;
 } {
-  const validation = validateAuth0Environment();
-  return {
-    ...validation,
-    timestamp: new Date().toISOString(),
-    nodeVersion: process.version,
-  };
+  try {
+    const validation = validateAuth0Environment();
+    return {
+      ...validation,
+      timestamp: new Date().toISOString(),
+      nodeVersion: process.version,
+    };
+  } catch (error) {
+    throw new Error('Environment validation failed');
+  }
 }
