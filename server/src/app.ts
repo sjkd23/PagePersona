@@ -13,6 +13,7 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
+import path from 'path';
 import { connectToDatabase } from './config/database';
 import { errorHandler } from './utils/response-helpers';
 import gptRoutes from './routes/gpt-route';
@@ -175,11 +176,21 @@ app.use(
 // Setup Swagger documentation
 setupSwagger(app);
 
-// Global rate limiting middleware
-app.use(createRateLimiter(rateLimitConfigs.free));
+// Serve static files from client dist folder with proper MIME types
+app.use(
+  express.static(path.join(__dirname, '../../client/dist'), {
+    setHeaders: (res, path) => {
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      } else if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      }
+    },
+  }),
+);
 
-// Stricter rate limiting for transform endpoint
-app.use('/api/transform', createRateLimiter(rateLimitConfigs.premium));
+// Apply rate limiting to all API routes (single application)
+app.use('/api', createRateLimiter(rateLimitConfigs.free));
 
 /**
  * @openapi
@@ -245,9 +256,6 @@ app.get('/', (_req, res) => {
   });
 });
 
-// Apply rate limiting to all API routes
-app.use(createRateLimiter(rateLimitConfigs.free));
-
 // API Routes
 app.use('/api/monitor', monitorRoutes);
 app.use('/api/transform', createRateLimiter(rateLimitConfigs.premium), transformRoutes);
@@ -296,12 +304,17 @@ app.get('/api/protected', jwtAuth, syncAuth0User, (req, res) => {
   });
 });
 
-// 404 handler
-app.use('*', (_req, res) => {
+// 404 handler for API routes
+app.use('/api/*', (_req, res) => {
   res.status(HttpStatus.NOT_FOUND).json({
     success: false,
-    error: 'Route not found',
+    error: 'API route not found',
   });
+});
+
+// Catch-all handler: serve client app for non-API routes
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
 });
 
 /**
