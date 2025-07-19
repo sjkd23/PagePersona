@@ -9,10 +9,14 @@ const mockRedisInstance = {
   status: 'ready',
   get: vi.fn(),
   set: vi.fn(),
+  setEx: vi.fn(),
   del: vi.fn(),
   exists: vi.fn(),
   expire: vi.fn(),
   ttl: vi.fn(),
+  sendCommand: vi.fn(),
+  isReady: false,
+  isOpen: false,
 };
 
 const mockCreateClient = vi.fn().mockImplementation(() => mockRedisInstance);
