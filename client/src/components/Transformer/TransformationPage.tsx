@@ -53,6 +53,27 @@ export default function TransformationPage() {
   const { state, actions, history, removeFromHistory, clearHistory, MAX_TEXT_LENGTH } =
     useTransformation();
 
+  // Form submission handler to prevent auto-triggering
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await actions.handleTransform();
+  };
+
+  // Optional: To add debounced auto-transform for live updates, uncomment this:
+  // const useDebouncedEffect = (fn: () => void, deps: any[], ms = 500) => {
+  //   const timeout = useRef<NodeJS.Timeout | undefined>(undefined);
+  //   useEffect(() => {
+  //     clearTimeout(timeout.current);
+  //     timeout.current = setTimeout(fn, ms);
+  //     return () => clearTimeout(timeout.current);
+  //   }, deps);
+  // };
+  // useDebouncedEffect(() => {
+  //   if (state.selectedPersona && state.url && actions.isValidInput()) {
+  //     actions.handleTransform();
+  //   }
+  // }, [state.url, state.selectedPersona], 1000);
+
   const copyToClipboard = async () => {
     if (!state.content?.transformedContent) return;
 
@@ -469,27 +490,29 @@ export default function TransformationPage() {
             )
           )}
 
-          <button
-            onClick={actions.handleTransform}
-            disabled={
-              state.isLoading ||
-              !state.selectedPersona ||
-              !state.url.trim() ||
-              !actions.isValidInput()
-            }
-            className={`generate-button-floating generate-button-orange ${state.isLoading || !state.selectedPersona || !state.url.trim() || !actions.isValidInput() ? 'generate-button-disabled' : 'generate-button-active'}`}
-          >
-            {state.isLoading ? (
-              <>
-                <div className="generate-spinner"></div>
-                <span>Generating...</span>
-              </>
-            ) : !state.selectedPersona || !state.url.trim() ? (
-              'Complete steps 1 & 2 first'
-            ) : (
-              'Generate'
-            )}
-          </button>
+          <form onSubmit={handleSubmit}>
+            <button
+              type="submit"
+              disabled={
+                state.isLoading ||
+                !state.selectedPersona ||
+                !state.url.trim() ||
+                !actions.isValidInput()
+              }
+              className={`generate-button-floating generate-button-orange ${state.isLoading || !state.selectedPersona || !state.url.trim() || !actions.isValidInput() ? 'generate-button-disabled' : 'generate-button-active'}`}
+            >
+              {state.isLoading ? (
+                <>
+                  <div className="generate-spinner"></div>
+                  <span>Generating...</span>
+                </>
+              ) : !state.selectedPersona || !state.url.trim() ? (
+                'Complete steps 1 & 2 first'
+              ) : (
+                'Generate'
+              )}
+            </button>
+          </form>
         </div>
 
         {/* Results Row: Original Text and Transformed Text - Only show after generate button is clicked */}

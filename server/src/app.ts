@@ -251,7 +251,12 @@ app.use(createRateLimiter(rateLimitConfigs.free));
 // API Routes
 app.use('/api/monitor', monitorRoutes);
 app.use('/api/transform', createRateLimiter(rateLimitConfigs.premium), transformRoutes);
-app.use('/api/user', userRoutes);
+app.use(
+  '/api/user',
+  jwtAuth, // 1) verify JWT
+  syncAuth0User, // 2) upsert/fetch Mongo user & attach to req.userContext
+  userRoutes, // 3) your profile/sync handlers
+);
 app.use('/api/admin', adminRoutes);
 
 // Debug routes only available in development
