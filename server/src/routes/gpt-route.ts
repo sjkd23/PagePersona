@@ -10,7 +10,7 @@
  */
 
 import express from 'express';
-import { validateRequest } from '../middleware/validation';
+import { validateRequest } from '../middleware/zod-validation';
 import { chatMessageSchema } from '../schemas/chat.schema';
 import promptCall from '../utils/gpt/prompt-call';
 

@@ -15,7 +15,8 @@ import '../types/loader';
 import express, { Response } from 'express';
 import type { AuthenticatedRequest } from '../types/common';
 import { MongoUser } from '../models/mongo-user';
-import { jwtCheck, requireRoles, authErrorHandler } from '../middleware/auth';
+import jwtAuth from '../middleware/jwtAuth';
+import { requireRoles, authErrorHandler } from '../middleware/auth-middleware';
 import {
   createSuccessResponse,
   createErrorResponse,
@@ -24,7 +25,7 @@ import {
 import { HttpStatus } from '../constants/http-status';
 import { logger } from '../utils/logger';
 import redisClient from '../utils/redis-client';
-import { validateRequest } from '../middleware/validation';
+import { validateRequest } from '../middleware/zod-validation';
 import {
   updateMembershipSchema,
   userIdParamSchema,
@@ -128,7 +129,7 @@ router.use(authErrorHandler);
  */
 router.get(
   '/users',
-  jwtCheck,
+  jwtAuth,
   requireRoles(['admin']),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -183,7 +184,7 @@ router.get(
  */
 router.patch(
   '/users/:userId/membership',
-  jwtCheck,
+  jwtAuth,
   requireRoles(['admin']),
   validateRequest(userIdParamSchema, 'params'),
   validateRequest(updateMembershipSchema, 'body'),
@@ -243,7 +244,7 @@ router.patch(
  */
 router.get(
   '/stats',
-  jwtCheck,
+  jwtAuth,
   requireRoles(['admin']),
   validateRequest(adminStatsQuerySchema),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {

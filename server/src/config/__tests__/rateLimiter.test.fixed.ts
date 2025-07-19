@@ -1,7 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createRateLimiter } from '../rateLimiter';
 import { logger } from '../../utils/logger';
-import { createClient } from 'redis';
 
 // Mock dependencies
 vi.mock('express-rate-limit', () => ({
@@ -22,10 +21,12 @@ vi.mock('rate-limit-redis', () => ({
 }));
 
 // Mock redis module
+const mockCreateClient = vi.fn().mockImplementation(() => ({
+  sendCommand: vi.fn(),
+}));
+
 vi.mock('redis', () => ({
-  createClient: vi.fn().mockImplementation(() => ({
-    sendCommand: vi.fn(),
-  })),
+  createClient: mockCreateClient,
 }));
 
 // Mock env-validation with a writable parsedEnv
@@ -56,12 +57,9 @@ describe('Rate Limiter Configuration', () => {
       REDIS_URL: 'redis://localhost:6379',
     };
     // Reset the Redis client mock
-    vi.mocked(createClient).mockImplementation(
-      () =>
-        ({
-          sendCommand: vi.fn(),
-        }) as any,
-    );
+    mockCreateClient.mockImplementation(() => ({
+      sendCommand: vi.fn(),
+    }));
   });
 
   describe('createRateLimiter', () => {
@@ -123,7 +121,7 @@ describe('Rate Limiter Configuration', () => {
 
     it('should fallback to memory store on Redis error', () => {
       // Mock createClient to throw an error
-      vi.mocked(createClient).mockImplementation(() => {
+      mockCreateClient.mockImplementation(() => {
         throw new Error('Redis connection failed');
       });
 

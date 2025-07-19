@@ -153,6 +153,51 @@ export function validateParams<T>(schema: ZodSchema<T>) {
 }
 
 /**
+ * Generic validation middleware factory (backwards compatibility)
+ *
+ * Creates Express middleware that validates request data against a Zod schema.
+ * This function maintains backwards compatibility with the old validation.ts API.
+ *
+ * @param schema Zod schema to validate against
+ * @param target Which part of the request to validate ('body', 'query', 'params')
+ * @returns Express middleware function
+ */
+export function validateRequest<T>(
+  schema: ZodSchema<T>,
+  target: 'body' | 'query' | 'params' = 'body',
+) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const result = schema.safeParse(req[target]);
+
+      if (!result.success) {
+        logger.validation.warn('Request validation failed', {
+          path: req.path,
+          method: req.method,
+          target,
+          errors: result.error.format(),
+          data: req[target],
+        });
+
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          error: 'Validation failed',
+          issues: result.error.issues,
+        });
+        return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any)[target] = result.data;
+      next();
+    } catch (error) {
+      logger.validation.error('Validation middleware error', error);
+      next(error);
+    }
+  };
+}
+
+/**
  * Format Zod validation errors into a user-friendly structure
  *
  * Transforms Zod's nested error structure into a flat object where

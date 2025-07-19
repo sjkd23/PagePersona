@@ -7,8 +7,21 @@ vi.mock('dotenv', () => ({
   config: vi.fn(),
 }));
 
-vi.mock('./utils/env-validation', () => ({
-  ensureSafeAuth0Config: vi.fn(),
+vi.mock('../utils/env-validation', () => ({
+  parsedEnv: {
+    NODE_ENV: 'test',
+    PORT: 5000,
+    MONGODB_URI: 'mongodb://localhost:27017/test',
+    OPENAI_API_KEY: 'test-key',
+    AUTH0_DOMAIN: 'test.auth0.com',
+    AUTH0_AUDIENCE: 'test-audience',
+    AUTH0_CLIENT_ID: 'test-client-id',
+    AUTH0_CLIENT_SECRET: 'test-client-secret',
+    AUTH0_ISSUER: 'https://test.auth0.com/',
+    JWT_SECRET: 'test-secret-at-least-32-characters-long',
+    JWT_EXPIRES_IN: '7d',
+    OPENAI_MODEL: 'gpt-4',
+  },
 }));
 
 vi.mock('./config/database', () => ({
@@ -59,6 +72,17 @@ vi.mock('./routes/monitor-route', () => ({
 
 vi.mock('./routes/debug-route', () => ({
   default: express.Router(),
+}));
+
+vi.mock('./middleware/jwtAuth', () => ({
+  default: vi.fn((req: any, res: any, next: any) => {
+    req.user = { sub: 'test-user-123' };
+    next();
+  }),
+  verifyAuth0Token: vi.fn((req: any, res: any, next: any) => {
+    req.user = { sub: 'test-user-123' };
+    next();
+  }),
 }));
 
 vi.mock('./middleware/auth0-middleware', () => ({

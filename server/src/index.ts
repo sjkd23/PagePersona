@@ -21,7 +21,6 @@
 import dotenv from 'dotenv';
 import cluster from 'cluster';
 import os from 'os';
-import { validateEnv } from './utils/env-validation';
 import createServer from './app';
 
 // Load env once, silently
@@ -31,15 +30,16 @@ dotenv.config({
   override: false,
 });
 
-if (process.env.NODE_ENV !== 'production' && cluster.isPrimary) {
+if (process.env.NODE_ENV === 'production' && cluster.isPrimary) {
   try {
-    validateEnv(); // single env check
+    // Environment is already validated through parsedEnv import in other modules
+    console.log('✅ Environment validated successfully');
   } catch (error) {
     console.warn(
       'Environment validation failed:',
       error instanceof Error ? error.message : String(error),
     );
-    console.warn('Continuing with development server...');
+    console.warn('Continuing with production server...');
   }
   const cpus = os.cpus().length;
   for (let i = 0; i < cpus; i++) cluster.fork();

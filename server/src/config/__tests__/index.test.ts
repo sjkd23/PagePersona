@@ -3,12 +3,13 @@ import { config, getConfig, dbConfig, auth0Config, jwtConfig, openaiConfig } fro
 
 // Mock the env-validation module to avoid actual validation
 vi.mock('../../utils/env-validation', () => ({
-  validateEnvironment: vi.fn(() => ({
+  parsedEnv: {
     MONGODB_URI: 'mongodb://localhost:27017/test',
     AUTH0_DOMAIN: 'test.auth0.com',
     AUTH0_CLIENT_ID: 'test-client-id',
     AUTH0_CLIENT_SECRET: 'test-client-secret',
     AUTH0_AUDIENCE: 'https://test.api',
+    AUTH0_ISSUER: 'https://test.auth0.com/',
     JWT_SECRET: 'test-jwt-secret',
     JWT_EXPIRES_IN: '1h',
     OPENAI_API_KEY: 'test-openai-key',
@@ -18,10 +19,9 @@ vi.mock('../../utils/env-validation', () => ({
     WEB_SCRAPER_MAX_CONTENT_LENGTH: 8000,
     WEB_SCRAPER_REQUEST_TIMEOUT_MS: 10000,
     WEB_SCRAPER_USER_AGENT: 'test-user-agent',
-    SERVER_PORT: 3001,
-    CORS_ORIGIN: 'http://localhost:3000',
+    PORT: 3001,
     NODE_ENV: 'test',
-  })),
+  },
 }));
 
 describe('Config Module', () => {

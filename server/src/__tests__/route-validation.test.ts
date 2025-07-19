@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import { validateRequest } from '../middleware/validation';
+import { validateRequest } from '../middleware/zod-validation';
 import { transformSchema, transformTextSchema } from '../schemas/transform.schema';
 import { userProfileUpdateSchema } from '../schemas/user.schema';
 import { chatMessageSchema } from '../schemas/chat.schema';
