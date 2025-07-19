@@ -1,70 +1,33 @@
-import { createClient } from 'redis';
+import { createClient, type RedisClientType } from 'redis';
 
-const baseRedisClient = createClient({
+const baseRedisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL,
 });
 
-// connect immediately
-baseRedisClient.connect().catch((err) => {
-  console.warn('⚠️ Redis connect failed:', err.message);
-});
+// Connect immediately and log success or failure
+baseRedisClient
+  .connect()
+  .then(() => console.log('✅ Redis client connected'))
+  .catch((err) => console.error('❌ Redis connection error:', err));
 
-// Create a wrapper that handles unavailability gracefully
+// Create a wrapper that maintains backward compatibility and proper typing
 const redisClient = {
-  async get(key: string) {
-    try {
-      const result = await baseRedisClient.get(key);
-      return result;
-    } catch (error) {
-      console.warn('Redis get operation failed:', error);
-      return null;
-    }
-  },
+  // Expose the native Redis client methods with proper typing
+  get: baseRedisClient.get.bind(baseRedisClient),
+  set: baseRedisClient.set.bind(baseRedisClient),
+  setEx: baseRedisClient.setEx.bind(baseRedisClient),
+  del: baseRedisClient.del.bind(baseRedisClient),
 
-  async set(key: string, value: string) {
-    try {
-      const result = await baseRedisClient.set(key, value);
-      return result;
-    } catch (error) {
-      console.warn('Redis set operation failed:', error);
-      return false;
-    }
-  },
-
-  async setEx(key: string, seconds: number, value: string) {
-    try {
-      const result = await baseRedisClient.setEx(key, seconds, value);
-      return result;
-    } catch (error) {
-      console.warn('Redis setEx operation failed:', error);
-      return false;
-    }
-  },
-
-  async del(key: string) {
-    try {
-      const result = await baseRedisClient.del(key);
-      return result;
-    } catch (error) {
-      console.warn('Redis del operation failed:', error);
-      return false;
-    }
-  },
-
+  // Maintain backward compatibility for disconnect (return Promise)
   async disconnect() {
-    try {
-      const result = await baseRedisClient.disconnect();
-      return result;
-    } catch (error) {
-      console.warn('Redis disconnect operation failed:', error);
-      return undefined;
-    }
+    return await baseRedisClient.disconnect();
   },
 
-  // Expose other methods for compatibility
+  // Expose other methods and properties for compatibility
   isReady: baseRedisClient.isReady,
   isOpen: baseRedisClient.isOpen,
   connect: baseRedisClient.connect.bind(baseRedisClient),
+  sendCommand: baseRedisClient.sendCommand.bind(baseRedisClient),
 };
 
 export default redisClient;

@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import { parsedEnv } from '../utils/env-validation';
 import { logger } from '../utils/logger';
-import { createClient } from 'redis';
+import redisClient from '../utils/redis-client';
 
 interface RateLimitOptions {
   windowMs: number;
@@ -23,11 +23,6 @@ export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof 
   }
 
   try {
-    // Create Redis client for rate limiting
-    const redisClient = createClient({
-      url: parsedEnv.REDIS_URL,
-    });
-
     // Use Redis store for distributed rate limiting
     logger.info('Using Redis store for rate limiting');
     return rateLimit({

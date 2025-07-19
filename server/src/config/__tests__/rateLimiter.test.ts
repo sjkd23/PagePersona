@@ -24,7 +24,16 @@ vi.mock('rate-limit-redis', () => ({
 // Mock redis module
 vi.mock('redis', () => ({
   createClient: vi.fn().mockImplementation(() => ({
+    connect: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn(),
+    set: vi.fn(),
+    setEx: vi.fn(),
+    del: vi.fn(),
+    disconnect: vi.fn().mockResolvedValue(undefined),
     sendCommand: vi.fn(),
+    isReady: false,
+    isOpen: false,
+    on: vi.fn(),
   })),
 }));
 
@@ -121,10 +130,14 @@ describe('Rate Limiter Configuration', () => {
       });
     });
 
-    it('should fallback to memory store on Redis error', () => {
-      // Mock createClient to throw an error
-      vi.mocked(createClient).mockImplementation(() => {
-        throw new Error('Redis connection failed');
+    it('should fallback to memory store on Redis error', async () => {
+      // Get the mocked RedisStore and make it throw an error temporarily
+      const { default: RedisStore } = await import('rate-limit-redis');
+      const mockRedisStore = vi.mocked(RedisStore);
+
+      // Temporarily make it throw an error
+      mockRedisStore.mockImplementationOnce(() => {
+        throw new Error('Redis store initialization failed');
       });
 
       const options = {

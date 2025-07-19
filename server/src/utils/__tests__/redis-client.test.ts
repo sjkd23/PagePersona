@@ -9,6 +9,7 @@ vi.mock('redis', () => {
     del: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
     setEx: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
     disconnect: vi.fn().mockResolvedValue(undefined),
+    sendCommand: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
     on: vi.fn(),
     isReady: false,
     isOpen: false,
