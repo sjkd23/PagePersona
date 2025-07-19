@@ -26,6 +26,7 @@ import express, { Request, Response, RequestHandler } from 'express';
 import type { AuthenticatedRequest, ProcessedAuth0User } from '../types/common';
 import { MongoUser, type IMongoUser } from '../models/mongo-user';
 import jwtAuth from '../middleware/jwtAuth';
+import { syncAuth0User } from '../middleware/auth0-middleware'; // Import syncAuth0User middleware to populate req.userContext.mongoUser
 import { authErrorHandler } from '../middleware/auth-middleware';
 import { createRateLimiter } from '../config/rateLimiter';
 import { validateRequest } from '../middleware/zod-validation';
@@ -133,6 +134,7 @@ router.get(
   '/profile',
   validateRequest(userProfileQuerySchema, 'query'),
   jwtAuth,
+  syncAuth0User, // Inject syncAuth0User middleware to populate req.userContext.mongoUser
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
@@ -253,7 +255,7 @@ router.post(
   '/sync',
   syncRateLimit,
   jwtAuth,
-
+  syncAuth0User, // Inject syncAuth0User middleware to populate req.userContext.mongoUser
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
