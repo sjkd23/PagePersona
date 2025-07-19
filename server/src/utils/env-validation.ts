@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { logger } from './logger';
 
 // Comprehensive environment schema
-const envSchema = z.object({
+export const envSchema = z.object({
   // Node environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
