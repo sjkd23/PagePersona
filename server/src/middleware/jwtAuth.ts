@@ -35,6 +35,8 @@ export default expressjwt({
   audience: parsedEnv.AUTH0_AUDIENCE,
   issuer: `https://${parsedEnv.AUTH0_DOMAIN}/`,
   algorithms: ['RS256'],
+  requestProperty: 'user',
+  credentialsRequired: true,
 });
 
 // ─── Utility Functions ──────────────────────────────────────────────────────────
