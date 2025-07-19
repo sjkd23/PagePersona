@@ -20,7 +20,7 @@ import { getAllClientPersonas } from '@pagepersonai/shared';
 import { optionalAuth0 } from '../middleware/auth0-middleware';
 import { checkUsageLimit } from '../middleware/usage-limit-middleware';
 import { sendSuccess, sendInternalError } from '../utils/response-helpers';
-import { validateRequest } from '../middleware/validation';
+import { validateRequest } from '../middleware/zod-validation';
 import { transformSchema, transformTextSchema } from '../schemas/transform.schema';
 import { logger } from '../utils/logger';
 import { HttpStatus } from '../constants/http-status';

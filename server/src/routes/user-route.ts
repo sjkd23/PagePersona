@@ -25,7 +25,15 @@ import '../types/loader';
 import express, { Request, Response, RequestHandler } from 'express';
 import type { AuthenticatedRequest, ProcessedAuth0User } from '../types/common';
 import { MongoUser, type IMongoUser } from '../models/mongo-user';
-import { jwtCheck, authErrorHandler } from '../middleware/auth';
+import jwtAuth from '../middleware/jwtAuth';
+import { authErrorHandler } from '../middleware/auth-middleware';
+import { createRateLimiter } from '../config/rateLimiter';
+import { validateRequest } from '../middleware/zod-validation';
+import { userProfileUpdateSchema, userProfileQuerySchema } from '../schemas/user.schema';
+import { HttpStatus } from '../constants/http-status';
+import { userService, UserProfileUpdateRequest } from '../services/user-service';
+import { logger } from '../utils/logger';
+import * as userSerializer from '../utils/userSerializer';
 
 interface UserUpdateArgs {
   userId: unknown;
@@ -35,7 +43,6 @@ interface UserUpdateArgs {
   newFirstName: string;
   newLastName: string;
 }
-import * as userSerializer from '../utils/userSerializer';
 
 // Helper type for authenticated route handlers
 type AuthenticatedRequestHandler = (
@@ -49,18 +56,18 @@ const _authHandler = (handler: AuthenticatedRequestHandler): RequestHandler => {
   return handler as RequestHandler;
 };
 
-import {
-  syncRateLimit,
-  profileUpdateRateLimit,
-  testEndpointRateLimit,
-} from '../middleware/simple-rate-limit';
-import { validateRequest } from '../middleware/validation';
-import { userProfileUpdateSchema, userProfileQuerySchema } from '../schemas/user.schema';
-import { HttpStatus } from '../constants/http-status';
-import { userService, UserProfileUpdateRequest } from '../services/user-service';
-import { logger } from '../utils/logger';
-
 const router = express.Router();
+
+// Create specific rate limiters
+const syncRateLimit = createRateLimiter({ max: 5, windowMs: 60 * 1000 }); // 5 per minute
+const profileUpdateRateLimit = createRateLimiter({
+  max: 3,
+  windowMs: 60 * 1000,
+}); // 3 per minute
+const testEndpointRateLimit = createRateLimiter({
+  max: 10,
+  windowMs: 60 * 1000,
+}); // 10 per minute
 
 // Apply auth error handler to all routes
 router.use(authErrorHandler);
@@ -125,7 +132,7 @@ router.use(authErrorHandler);
 router.get(
   '/profile',
   validateRequest(userProfileQuerySchema, 'query'),
-  jwtCheck,
+  jwtAuth,
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
@@ -181,7 +188,7 @@ router.put(
   '/profile',
   profileUpdateRateLimit,
   validateRequest(userProfileUpdateSchema, 'body'),
-  jwtCheck,
+  jwtAuth,
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const mongoUser = req.userContext?.mongoUser;
@@ -215,7 +222,7 @@ router.put(
 );
 
 // Get user usage stats
-router.get('/usage', jwtCheck, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.get('/usage', jwtAuth, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const mongoUser = req.userContext?.mongoUser;
 
@@ -245,7 +252,7 @@ router.get('/usage', jwtCheck, async (req: AuthenticatedRequest, res: Response):
 router.post(
   '/sync',
   syncRateLimit,
-  jwtCheck,
+  jwtAuth,
 
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
@@ -300,7 +307,7 @@ if (process.env.NODE_ENV !== 'production') {
   router.get(
     '/test-auth',
     testEndpointRateLimit,
-    jwtCheck,
+    jwtAuth,
 
     async (req: AuthenticatedRequest, res: Response): Promise<void> => {
       const authUser = req.userContext?.auth0User;
@@ -436,7 +443,7 @@ if (process.env.NODE_ENV !== 'production') {
   // Debug endpoint to check user name data (development only)
   router.get(
     '/debug/name-data',
-    jwtCheck,
+    jwtAuth,
 
     async (req: AuthenticatedRequest, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
@@ -501,7 +508,7 @@ if (process.env.NODE_ENV !== 'production') {
   router.post(
     '/debug/force-name-sync',
     testEndpointRateLimit,
-    jwtCheck,
+    jwtAuth,
 
     async (req: AuthenticatedRequest, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
@@ -585,7 +592,7 @@ if (process.env.NODE_ENV !== 'production') {
   router.post(
     '/debug/migrate-empty-names',
     testEndpointRateLimit,
-    jwtCheck,
+    jwtAuth,
     async (req: AuthenticatedRequest, res: Response): Promise<void> => {
       if (process.env.NODE_ENV === 'production') {
         res

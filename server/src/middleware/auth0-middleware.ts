@@ -59,7 +59,10 @@ import { ProcessedAuth0User, Auth0JwtPayload } from '../types/common';
 import { safeGetAuth0Claims } from '../utils/auth0-claims';
 import { logger } from '../utils/logger';
 
-export { verifyAuth0Token } from './jwt-verification';
+import jwtAuth from './jwtAuth';
+
+// Re-export the JWT middleware for backward compatibility
+export const verifyAuth0Token = jwtAuth;
 
 /**
  * Helper function to verify Auth0 token with error handling
@@ -71,10 +74,8 @@ export { verifyAuth0Token } from './jwt-verification';
  */
 const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean> => {
   try {
-    const { verifyAuth0Token } = await import('./jwt-verification');
-
     return new Promise<boolean>((resolve) => {
-      verifyAuth0Token(req, res, (err: unknown) => {
+      jwtAuth(req, res, (err: unknown) => {
         if (err) {
           const errorMessage = err instanceof Error ? err.message : String(err);
           logger.debug('Optional Auth0 verification failed', {

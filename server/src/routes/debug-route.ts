@@ -12,10 +12,19 @@
 import { Router, Request, Response } from 'express';
 import redisClient from '../utils/redis-client';
 import { HttpStatus } from '../constants/http-status';
-import { isUsingRedisStore } from '../middleware/simple-rate-limit';
 import { logger } from '../utils/logger';
+import { createRateLimiter } from '../config/rateLimiter';
+import { rateLimitConfigs } from '../config/rate-limit-configs';
 
 const router = Router();
+
+// Apply rate limiting to debug routes
+router.use(createRateLimiter(rateLimitConfigs.free));
+
+// Helper function to check if Redis store is being used
+const isUsingRedisStore = () => {
+  return !!process.env.REDIS_URL;
+};
 
 /**
  * Test Redis connectivity and rate limiting configuration

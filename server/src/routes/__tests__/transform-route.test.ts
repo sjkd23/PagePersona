@@ -8,6 +8,13 @@ vi.mock('../../../shared/constants/personas', () => ({
   getAllClientPersonas: vi.fn().mockReturnValue([{ id: 'professional', name: 'Professional' }]),
 }));
 
+vi.mock('../../middleware/jwtAuth', () => ({
+  default: vi.fn((req: any, res: any, next: any) => {
+    req.user = { sub: 'test-user-123' };
+    next();
+  }),
+}));
+
 vi.mock('../../middleware/auth0-middleware', () => ({
   optionalAuth0: vi.fn((req: any, res: any, next: any) => {
     req.user = { sub: 'test-user-id', email: 'test@example.com' };
@@ -19,9 +26,15 @@ vi.mock('../../middleware/usage-limit-middleware', () => ({
   checkUsageLimit: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
-vi.mock('../../config/simple-rate-limit-configs', () => ({
-  createTieredRateLimit: vi.fn().mockReturnValue((req: any, res: any, next: any) => next()),
-  getUserMembershipTierSync: vi.fn().mockReturnValue('free'),
+vi.mock('../../middleware/zod-validation', () => ({
+  validateRequest: vi.fn(() => (req: any, res: any, next: any) => next()),
+  validateBody: vi.fn(() => (req: any, res: any, next: any) => next()),
+  validateQuery: vi.fn(() => (req: any, res: any, next: any) => next()),
+  validateParams: vi.fn(() => (req: any, res: any, next: any) => next()),
+}));
+
+vi.mock('../../config/rateLimiter', () => ({
+  createRateLimiter: vi.fn().mockReturnValue((req: any, res: any, next: any) => next()),
 }));
 
 vi.mock('../../utils/response-helpers', () => ({
@@ -89,10 +102,6 @@ vi.mock('../../middleware/validation-schemas', () => ({
       })),
     },
   },
-}));
-
-vi.mock('../../middleware/zod-validation', () => ({
-  validateBody: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 describe('Transform Route', () => {

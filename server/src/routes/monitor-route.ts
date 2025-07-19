@@ -13,8 +13,8 @@
  */
 
 import { Router } from 'express';
-import { getEnvironmentInfo } from '../utils/env-validation';
-import { getJwtInfo } from '../middleware/jwt-verification';
+import { parsedEnv } from '../utils/env-validation';
+import { getJwtInfo } from '../middleware/jwtAuth';
 import { getSessionStats } from '../utils/session-tracker';
 
 const router = Router();
@@ -49,7 +49,16 @@ if (process.env.NODE_ENV !== 'production') {
    * @access Development/staging environments only
    */
   router.get('/auth0', (_req, res) => {
-    const envInfo = getEnvironmentInfo();
+    const envInfo = {
+      nodeEnv: parsedEnv.NODE_ENV,
+      port: parsedEnv.PORT,
+      hasMongodbUri: !!parsedEnv.MONGODB_URI,
+      hasOpenaiApiKey: !!parsedEnv.OPENAI_API_KEY,
+      hasAuth0Domain: !!parsedEnv.AUTH0_DOMAIN,
+      hasRedisUrl: !!parsedEnv.REDIS_URL,
+      auth0Domain: parsedEnv.AUTH0_DOMAIN,
+      auth0Audience: parsedEnv.AUTH0_AUDIENCE,
+    };
     const jwtInfo = getJwtInfo();
 
     res.json({
@@ -86,7 +95,16 @@ if (process.env.NODE_ENV !== 'production') {
    * @access Development/staging environments only
    */
   router.get('/full', (_req, res) => {
-    const envInfo = getEnvironmentInfo();
+    const envInfo = {
+      nodeEnv: parsedEnv.NODE_ENV,
+      port: parsedEnv.PORT,
+      hasMongodbUri: !!parsedEnv.MONGODB_URI,
+      hasOpenaiApiKey: !!parsedEnv.OPENAI_API_KEY,
+      hasAuth0Domain: !!parsedEnv.AUTH0_DOMAIN,
+      hasRedisUrl: !!parsedEnv.REDIS_URL,
+      auth0Domain: parsedEnv.AUTH0_DOMAIN,
+      auth0Audience: parsedEnv.AUTH0_AUDIENCE,
+    };
     const jwtInfo = getJwtInfo();
     const sessionStats = getSessionStats();
 

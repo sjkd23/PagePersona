@@ -1,6 +1,8 @@
 import rateLimit from 'express-rate-limit';
-import { isRedisAvailable } from './redis';
+import RedisStore from 'rate-limit-redis';
+import { parsedEnv } from '../utils/env-validation';
 import { logger } from '../utils/logger';
+import { createClient } from 'redis';
 
 interface RateLimitOptions {
   windowMs: number;
@@ -8,9 +10,9 @@ interface RateLimitOptions {
 }
 
 export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof rateLimit> {
-  // Check if Redis is available
-  if (!isRedisAvailable()) {
-    logger.warn('Redis not available for rate limiting, using memory store');
+  // Check if Redis URL is available in environment
+  if (!parsedEnv.REDIS_URL) {
+    logger.warn('REDIS_URL not configured, using memory store for rate limiting');
     return rateLimit({
       windowMs: options.windowMs,
       max: options.max,
@@ -20,25 +22,35 @@ export function createRateLimiter(options: RateLimitOptions): ReturnType<typeof 
     });
   }
 
-  // Redis is available, but temporarily disable Redis rate limiting
-  // until we resolve the sendCommand issue
-  logger.warn('Redis rate limiting temporarily disabled, using memory store');
-  return rateLimit({
-    windowMs: options.windowMs,
-    max: options.max,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { error: 'Too many requests, please try again later.' },
-  });
+  try {
+    // Create Redis client for rate limiting
+    const redisClient = createClient({
+      url: parsedEnv.REDIS_URL,
+    });
+
+    // Use Redis store for distributed rate limiting
+    logger.info('Using Redis store for rate limiting');
+    return rateLimit({
+      store: new RedisStore({
+        sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+      }),
+      windowMs: options.windowMs,
+      max: options.max,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'Too many requests, please try again later.' },
+    });
+  } catch (error) {
+    logger.error(
+      'Failed to initialize Redis store for rate limiting, falling back to memory store:',
+      error,
+    );
+    return rateLimit({
+      windowMs: options.windowMs,
+      max: options.max,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: { error: 'Too many requests, please try again later.' },
+    });
+  }
 }
-
-// Default rate limiter instance using memory store
-const rateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many requests, please try again later.' },
-});
-
-export default rateLimiter;

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { validateRequest } from '../middleware/validation';
+import { validateRequest } from '../middleware/zod-validation';
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
@@ -53,13 +53,14 @@ describe('validateRequest middleware', () => {
       issues: expect.arrayContaining([
         expect.objectContaining({
           path: ['name'],
-          message: expect.stringContaining('String must contain at least 1 character'),
+          message: 'String must contain at least 1 character(s)',
         }),
         expect.objectContaining({
           path: ['age'],
-          message: expect.stringContaining('Number must be greater than or equal to 0'),
+          message: 'Number must be greater than or equal to 0',
         }),
       ]),
+      success: false,
     });
     expect(mockNext).not.toHaveBeenCalled();
   });

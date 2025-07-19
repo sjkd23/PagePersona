@@ -81,10 +81,8 @@ vi.mock('../../models/mongo-user', () => ({
   },
 }));
 
-vi.mock('../../middleware/simple-rate-limit', () => ({
-  syncRateLimit: vi.fn((req: any, res: any, next: any) => next()),
-  profileUpdateRateLimit: vi.fn((req: any, res: any, next: any) => next()),
-  testEndpointRateLimit: vi.fn((req: any, res: any, next: any) => next()),
+vi.mock('../../config/rateLimiter', () => ({
+  createRateLimiter: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
 vi.mock('../../middleware/validation', () => ({
