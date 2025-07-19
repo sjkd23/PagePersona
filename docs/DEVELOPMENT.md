@@ -52,8 +52,26 @@ This document provides comprehensive development guidelines, best practices, and
 
 2. **Set up environment variables**:
 
+   Create environment variable files:
+
    ```bash
-   cp .env.development .env
+   # Create .env file for the root (Unix/Linux/macOS)
+   touch .env
+   
+   # Create .env files for each workspace (Unix/Linux/macOS)
+   touch client/.env
+   touch server/.env
+   ```
+
+   Or on Windows:
+
+   ```cmd
+   # Create .env file for the root (Windows)
+   echo. > .env
+   
+   # Create .env files for each workspace (Windows)
+   echo. > client\.env
+   echo. > server\.env
    ```
 
    Required variables:
@@ -78,6 +96,7 @@ This document provides comprehensive development guidelines, best practices, and
    # Optional
    REDIS_URL=redis://localhost:6379
    NODE_ENV=development
+   PORT=5000
    ```
 
 3. **Database setup**:
@@ -228,7 +247,7 @@ Types:
 - **Vitest**: Fast unit testing framework
 - **React Testing Library**: Component testing
 - **SuperTest**: API endpoint testing
-- **MongoDB Memory Server**: Database testing
+- **MongoDB**: Database testing with real MongoDB instances
 
 ### Test Categories
 
@@ -236,27 +255,39 @@ Types:
 
 ```bash
 # Run unit tests
-npm run test:unit
+npm run test
 
 # Run with coverage
-npm run test:unit:coverage
+npm run test:coverage
+
+# Run tests in watch mode
+npm run test:watch
 ```
 
 #### Integration Tests
 
 ```bash
-# Run integration tests
-npm run test:integration
+# Run all tests (includes integration tests)
+npm run test
 
-# Run API tests
-npm run test:api
+# Run tests with coverage
+npm run test:coverage
 ```
 
-#### E2E Tests
+#### Available Test Scripts
 
 ```bash
-# Run end-to-end tests
-npm run test:e2e
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# CI coverage (server only)
+npm run test:coverage:ci
 ```
 
 ### Testing Best Practices
@@ -264,7 +295,7 @@ npm run test:e2e
 1. **Test Naming**: Use descriptive test names
 2. **Test Structure**: Follow Arrange-Act-Assert pattern
 3. **Mock External Dependencies**: Use mocks for external services
-4. **Test Coverage**: Aim for >80% coverage
+4. **Test Coverage**: Aim for >30% coverage (current threshold)
 5. **Test Data**: Use factories for test data generation
 
 ## Code Style and Quality
@@ -401,7 +432,8 @@ curl -X POST https://your-domain.auth0.com/oauth/token \
 npm run build
 
 # Test production build locally
-npm run start:prod
+npm run build
+npm run preview  # Uses vite preview for client
 ```
 
 ### Platform Deployment

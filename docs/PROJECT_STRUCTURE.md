@@ -244,7 +244,7 @@ Each component/module includes:
 
 1. **TypeScript Strict Mode**: All code uses TypeScript with strict type checking
 2. **ESLint and Prettier**: Consistent code style and formatting
-3. **Comprehensive Testing**: Unit, integration, and e2e tests with >80% coverage
+3. **Comprehensive Testing**: Unit and integration tests with >30% coverage threshold
 4. **Error Handling**: Comprehensive error handling with proper logging
 5. **Performance**: Optimized code with proper caching and lazy loading
 

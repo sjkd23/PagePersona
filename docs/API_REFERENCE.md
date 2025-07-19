@@ -352,17 +352,34 @@ GET /api/health
 
 ```json
 {
-  "success": true,
-  "data": {
-    "status": "healthy",
-    "timestamp": "2024-01-15T10:30:00Z",
-    "version": "1.0.0",
-    "services": {
-      "database": "connected",
-      "redis": "connected",
-      "openai": "connected"
-    }
-  }
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "uptime": 1234.56
+}
+```
+
+### Advanced Health Check
+
+Get detailed system health information (development only).
+
+```http
+GET /api/monitor/health
+```
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "uptime": 1234.56,
+  "memory": {
+    "rss": 73728000,
+    "heapTotal": 52428800,
+    "heapUsed": 28311552,
+    "external": 1089536
+  },
+  "version": "v18.17.0"
 }
 ```
 
@@ -378,19 +395,9 @@ GET /api/
 
 ```json
 {
-  "success": true,
-  "data": {
-    "name": "PagePersonAI API",
-    "version": "1.0.0",
-    "description": "AI-powered content transformation service",
-    "documentation": "/docs",
-    "endpoints": {
-      "transform": "/api/transform",
-      "user": "/api/user",
-      "admin": "/api/admin",
-      "health": "/api/health"
-    }
-  }
+  "message": "PagePersonAI API",
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
@@ -449,44 +456,51 @@ Common error codes and their meanings:
 
 ## SDKs and Client Libraries
 
-### JavaScript/TypeScript
+### Example Usage
 
-```bash
-npm install @pagepersonai/client
-```
+#### JavaScript/TypeScript (using fetch)
 
 ```javascript
-import { PagePersonAI } from '@pagepersonai/client';
+// Example API client usage
+const API_BASE_URL = 'http://localhost:5000/api';
 
-const client = new PagePersonAI({
-  apiKey: 'your-api-key',
-  baseUrl: 'https://api.pagepersonai.com/api'
-});
-
-const result = await client.transform({
-  url: 'https://example.com/article',
-  persona: 'eli5'
-});
+async function transformContent(url, persona, token) {
+  const response = await fetch(`${API_BASE_URL}/transform`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      url: url,
+      persona: persona
+    })
+  });
+  
+  return response.json();
+}
 ```
 
-### Python
-
-```bash
-pip install pagepersonai
-```
+#### Python (using requests)
 
 ```python
-from pagepersonai import PagePersonAI
+import requests
 
-client = PagePersonAI(
-    api_key='your-api-key',
-    base_url='https://api.pagepersonai.com/api'
-)
+API_BASE_URL = 'http://localhost:5000/api'
 
-result = client.transform(
-    url='https://example.com/article',
-    persona='eli5'
-)
+def transform_content(url, persona, token):
+    response = requests.post(
+        f'{API_BASE_URL}/transform',
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
+        },
+        json={
+            'url': url,
+            'persona': persona
+        }
+    )
+    return response.json()
 ```
 
 ## Support
