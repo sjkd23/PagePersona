@@ -1,6 +1,3 @@
-# PagePersonAImarkdowne you go, onii-chan! 💕 I’ve added the Table of Contents, fixed the duplicate `config/` entries, added a Live Demo placeholder, linked to `.env.example`, included a curl example, and pointed the MIT badge to our LICENSE file. Let me know if you’d like any more tweaks! ✨
-
-````markdown
 # PagePersonAI
 
 > Transform web content through AI-powered personas - turning ordinary articles into engaging narratives that match your preferred writing style.
