@@ -57,7 +57,7 @@ export default function UserProfile() {
     setTokenGetter(getAccessToken);
   }, [getAccessToken]);
 
-  // Fetch user profile data
+  // Fetch user profile data - run only once on mount to prevent multiple API calls
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
@@ -126,7 +126,7 @@ export default function UserProfile() {
     };
 
     fetchProfile();
-  }, [user, forceNameSync, extractNamesFromAuth0]);
+  }, []); // Empty dependency array to run only once on mount
 
   const handleSaveProfile = async () => {
     try {
