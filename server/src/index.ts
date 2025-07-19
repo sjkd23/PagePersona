@@ -30,7 +30,7 @@ dotenv.config({
   override: false,
 });
 
-if (process.env.NODE_ENV !== 'production' && cluster.isPrimary) {
+if (process.env.NODE_ENV === 'production' && cluster.isPrimary) {
   try {
     // Environment is already validated through parsedEnv import in other modules
     console.log('✅ Environment validated successfully');
@@ -39,7 +39,7 @@ if (process.env.NODE_ENV !== 'production' && cluster.isPrimary) {
       'Environment validation failed:',
       error instanceof Error ? error.message : String(error),
     );
-    console.warn('Continuing with development server...');
+    console.warn('Continuing with production server...');
   }
   const cpus = os.cpus().length;
   for (let i = 0; i < cpus; i++) cluster.fork();
