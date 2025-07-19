@@ -24,7 +24,6 @@
 - [Quick Start](#quick-start)  
 - [Environment Variables](#environment-variables)  
 - [API Documentation](#api-documentation)  
-- [Live Demo](#live-demo)  
 - [Project Structure](#project-structure)  
 - [Contributing](#contributing)  
 - [License](#license)  
@@ -215,15 +214,6 @@ curl -X POST http://localhost:5000/api/transform \
     "persona": "medieval_knight"
 }'
 ```
-
----
-
-## Live Demo
-
-> *(Add a GIF or screenshot here, e.g. `docs/demo.gif`)*
-> ![Transformation Demo](docs/demo.gif)
-
----
 
 ## Project Structure
 
