@@ -14,6 +14,7 @@
     "test:coverage:ci": "npm run test:coverage:ci --workspace=server && npm run test:coverage --workspace=client",
     "lint": "eslint . --fix",
     "format": "prettier --write . --config config/.prettierrc",
+    "format:check": "prettier --check . --config config/.prettierrc",
     "typecheck": "tsc --build",
     "clean": "rimraf */dist */node_modules/.cache",
     "husky:install": "husky install"
