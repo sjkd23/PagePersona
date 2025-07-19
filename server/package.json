@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:coverage:ci": "vitest run --coverage --config vitest.config.ci.ts",
+    "test:coverage:ci": "vitest run --coverage",
     "lint": "eslint ."
   },
   "keywords": [

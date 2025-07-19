@@ -7,7 +7,7 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'http://localhost:5000';
 
 async function testRateLimiting() {
   console.log('🧪 Testing Rate Limiting...\n');

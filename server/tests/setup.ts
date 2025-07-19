@@ -22,7 +22,7 @@ process.env.REDIS_URL = 'redis://localhost:6379';
 process.env.OPENAI_API_KEY = 'test-openai-key';
 process.env.JWT_SECRET = 'test-jwt-secret-for-testing-minimum-32-chars';
 process.env.CORS_ORIGIN = 'http://localhost:3000';
-process.env.SERVER_PORT = '3001';
+process.env.SERVER_PORT = '5000';
 
 // Mock global fetch for API calls
 global.fetch = vi.fn();
