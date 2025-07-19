@@ -177,13 +177,16 @@ app.use(
 setupSwagger(app);
 
 // Serve static files from client dist folder with proper MIME types
+// This middleware is positioned BEFORE rate limiting to bypass static asset restrictions
 app.use(
   express.static(path.join(__dirname, '../../client/dist'), {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-      } else if (path.endsWith('.css')) {
+      } else if (filePath.endsWith('.css')) {
         res.setHeader('Content-Type', 'text/css; charset=utf-8');
+      } else if (filePath.endsWith('.wasm')) {
+        res.setHeader('Content-Type', 'application/wasm');
       }
     },
   }),
