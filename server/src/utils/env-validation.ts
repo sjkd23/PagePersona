@@ -81,9 +81,10 @@ const envSchema = z.object({
 });
 
 /**
- * Validate all environment variables against the schema
+ * Parse and validate environment variables with fail-fast validation
+ * This replaces all previous validation functions with a single, simple export
  */
-export function validateEnv(): z.infer<typeof envSchema> {
+function parseEnvironment(): z.infer<typeof envSchema> {
   const required = [
     'MONGODB_URI',
     'OPENAI_API_KEY',
@@ -151,7 +152,7 @@ export function validateEnv(): z.infer<typeof envSchema> {
 
   logger.info('✅ Environment validated');
 
-  // Still return parsed config for compatibility
+  // Parse and return validated config
   const parseResult = envSchema.safeParse(process.env);
   if (!parseResult.success) {
     throw new Error('Environment validation failed. Please check your .env file.');
@@ -160,141 +161,7 @@ export function validateEnv(): z.infer<typeof envSchema> {
 }
 
 /**
- * Validate all environment variables against the schema (legacy export)
+ * Single source of truth for all environment variables
+ * Use this instead of process.env throughout the application
  */
-export function validateEnvironment(): z.infer<typeof envSchema> {
-  return validateEnv();
-}
-
-/**
- * Validate critical Auth0 configuration
- */
-export function validateAuth0Environment(): {
-  isValid: boolean;
-  missing: string[];
-  warnings: string[];
-  config: {
-    domain: string;
-    audience: string;
-    clientId: string;
-    environment: string;
-    mongoUri: string;
-    openaiApiKey: string;
-    redisUrl?: string;
-  };
-} {
-  try {
-    const _envConfig = validateEnvironment();
-
-    const missing: string[] = [];
-    const warnings: string[] = [];
-
-    // Production-specific warnings
-    if (_envConfig.NODE_ENV === 'production') {
-      if (!_envConfig.REDIS_URL) {
-        warnings.push(
-          'REDIS_URL not set in production - rate limiting and caching will not persist across restarts',
-        );
-      }
-      if (!_envConfig.CLIENT_URL) {
-        warnings.push('CLIENT_URL not set - CORS may not work properly');
-      }
-    }
-
-    const config = {
-      domain: _envConfig.AUTH0_DOMAIN,
-      audience: _envConfig.AUTH0_AUDIENCE,
-      clientId: _envConfig.AUTH0_CLIENT_ID,
-      environment: _envConfig.NODE_ENV,
-      mongoUri: _envConfig.MONGODB_URI,
-      openaiApiKey: '***hidden***',
-      redisUrl: _envConfig.REDIS_URL,
-    };
-
-    return {
-      isValid: missing.length === 0,
-      missing,
-      warnings,
-      config,
-    };
-  } catch (error) {
-    // If validation fails, throw with the expected message
-    throw new Error('Environment validation failed');
-  }
-}
-
-/**
- * Ensure safe environment configuration or exit
- */
-export function ensureSafeAuth0Config(): void {
-  try {
-    validateEnvironment();
-    const validation = validateAuth0Environment();
-
-    if (!validation.isValid) {
-      logger.error('❌ Critical environment configuration errors:');
-      for (const missing of validation.missing) {
-        logger.error(`   - Missing required environment variable: ${missing}`);
-      }
-
-      // In development, log errors but don't exit
-      if (process.env.NODE_ENV !== 'production') {
-        logger.warn('🚧 Development mode: continuing with missing configuration...');
-        return;
-      }
-
-      logger.error('🚨 Application cannot start with missing configuration');
-      process.exit(1);
-    }
-
-    if (validation.warnings.length > 0) {
-      logger.warn('⚠️  Environment configuration warnings:');
-      for (const warning of validation.warnings) {
-        logger.warn(`   - ${warning}`);
-      }
-    }
-
-    logger.info('✅ Environment validation passed:', {
-      domain: validation.config.domain,
-      audience: validation.config.audience,
-      environment: validation.config.environment,
-      mongoUri: validation.config.mongoUri ? 'SET' : 'NOT SET',
-      openaiApiKey: validation.config.openaiApiKey ? 'SET' : 'NOT SET',
-      redisUrl: validation.config.redisUrl ? 'SET' : 'NOT SET',
-    });
-  } catch (error) {
-    logger.error('❌ Environment validation failed:', error);
-    process.exit(1);
-  }
-}
-
-/**
- * Get current environment info for debugging
- */
-export function getEnvironmentInfo(): {
-  isValid: boolean;
-  missing: string[];
-  warnings: string[];
-  config: {
-    domain: string;
-    audience: string;
-    clientId: string;
-    environment: string;
-    mongoUri: string;
-    openaiApiKey: string;
-    redisUrl?: string;
-  };
-  timestamp: string;
-  nodeVersion: string;
-} {
-  try {
-    const validation = validateAuth0Environment();
-    return {
-      ...validation,
-      timestamp: new Date().toISOString(),
-      nodeVersion: process.version,
-    };
-  } catch (error) {
-    throw new Error('Environment validation failed');
-  }
-}
+export const parsedEnv = parseEnvironment();

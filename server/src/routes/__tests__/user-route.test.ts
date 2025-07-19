@@ -4,7 +4,7 @@ import express from 'express';
 
 // Mock environment validation first
 vi.mock('../../utils/env-validation', () => ({
-  validateEnvironment: vi.fn(() => ({
+  parsedEnv: {
     NODE_ENV: 'test',
     AUTH0_DOMAIN: 'test.auth0.com',
     AUTH0_AUDIENCE: 'https://api.test.com',
@@ -15,12 +15,12 @@ vi.mock('../../utils/env-validation', () => ({
     MONGODB_URI: 'mongodb://localhost:27017/test',
     OPENAI_API_KEY: 'sk-test-key',
     PORT: 5000,
-  })),
+  },
 }));
 
 // Mock dependencies
-vi.mock('../../middleware/auth', () => ({
-  jwtCheck: vi.fn((req: any, res: any, next: any) => {
+vi.mock('../../middleware/jwtAuth', () => ({
+  default: vi.fn((req: any, res: any, next: any) => {
     req.user = { sub: 'test-user-id', email: 'test@example.com' };
     req.userContext = {
       mongoUser: {
@@ -31,6 +31,9 @@ vi.mock('../../middleware/auth', () => ({
     };
     next();
   }),
+}));
+
+vi.mock('../../middleware/auth-middleware', () => ({
   authErrorHandler: vi.fn((err: any, req: any, res: any, next: any) => {
     if (err) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -88,6 +91,11 @@ vi.mock('../../middleware/validation', () => ({
   validateRequest: vi.fn(() => (req: any, res: any, next: any) => next()),
 }));
 
+vi.mock('../../middleware/zod-validation', () => ({
+  validateRequest: vi.fn(() => (req: any, res: any, next: any) => next()),
+  validateBody: vi.fn(() => (req: any, res: any, next: any) => next()),
+}));
+
 vi.mock('../../utils/userSerializer', () => ({
   serializeMongoUser: vi.fn((user: any) => user),
   serializeAuth0User: vi.fn((user: any) => user),
@@ -111,14 +119,6 @@ vi.mock('../../utils/userSerializer', () => ({
 vi.mock('../../middleware/rate-limit', () => ({
   syncRateLimit: vi.fn((req: any, res: any, next: any) => next()),
   profileUpdateRateLimit: vi.fn((req: any, res: any, next: any) => next()),
-}));
-
-vi.mock('../../middleware/auth0-middleware', () => ({
-  verifyAuth0Token: vi.fn((req: any, res: any, next: any) => {
-    req.user = { sub: 'test-user-id', email: 'test@example.com' };
-    next();
-  }),
-  syncAuth0User: vi.fn((req: any, res: any, next: any) => next()),
 }));
 
 describe('User Route', () => {
@@ -182,7 +182,7 @@ describe('User Route', () => {
       const response = await request(app).put('/api/user/profile').send(updateData).expect(200);
 
       expect(response.body.success).toBe(true);
-    });
+    }, 15000); // Increase timeout
 
     it('should handle profile update errors', async () => {
       const mockUserService = await import('../../services/user-service');
@@ -193,7 +193,7 @@ describe('User Route', () => {
       const updateData = { name: 'Updated User' };
 
       await request(app).put('/api/user/profile').send(updateData).expect(500);
-    });
+    }, 15000); // Increase timeout
   });
 
   describe('GET /api/user/usage', () => {

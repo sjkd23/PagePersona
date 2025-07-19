@@ -22,8 +22,7 @@ import {
   requireRoles,
   authErrorHandler,
   AuthenticatedRequest,
-} from '../middleware/auth';
-import { validateEnvironment } from '../utils/env-validation';
+} from '../middleware/auth-middleware';
 
 // Mock express-jwt-authz
 const mockAuthzMiddleware = vi.fn((req: Request, res: Response, next: NextFunction) => next());
@@ -33,11 +32,20 @@ vi.mock('express-jwt-authz', () => mockExpressJwtAuthz);
 
 // Mock the environment validation
 vi.mock('../utils/env-validation', () => ({
-  validateEnvironment: vi.fn(() => ({
+  parsedEnv: {
     AUTH0_ISSUER: 'https://test-domain.auth0.com/',
     AUTH0_AUDIENCE: 'test-audience',
     NODE_ENV: 'test',
-  })),
+    PORT: 5000,
+    MONGODB_URI: 'mongodb://localhost:27017/test',
+    OPENAI_API_KEY: 'test-key',
+    AUTH0_DOMAIN: 'test.auth0.com',
+    AUTH0_CLIENT_ID: 'test-client-id',
+    AUTH0_CLIENT_SECRET: 'test-client-secret',
+    JWT_SECRET: 'test-secret-at-least-32-characters-long',
+    JWT_EXPIRES_IN: '7d',
+    OPENAI_MODEL: 'gpt-4',
+  },
 }));
 
 // Mock the logger
@@ -57,9 +65,9 @@ vi.mock('express-jwt-authz', () => ({
 
 // Mock jwks-rsa
 vi.mock('jwks-rsa', () => ({
-  default: vi.fn(() => ({
-    getSigningKey: vi.fn(),
-  })),
+  default: {
+    expressJwtSecret: vi.fn(() => 'mock-secret'),
+  },
 }));
 
 // Mock express-jwt-authz

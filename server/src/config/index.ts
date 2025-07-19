@@ -27,47 +27,10 @@
  */
 
 import { logger } from '../utils/logger';
-import { validateEnvironment } from '../utils/env-validation';
+import { parsedEnv } from '../utils/env-validation';
 
-// Validate and get environment configuration
-let config: ReturnType<typeof validateEnvironment>;
-try {
-  config = validateEnvironment();
-} catch (error) {
-  logger.warn('Environment validation failed, using development defaults');
-  config = {
-    NODE_ENV: 'development' as const,
-    PORT: 5000,
-    MONGODB_URI: 'mongodb://localhost:27017/pagepersonai-dev',
-    OPENAI_API_KEY: 'missing',
-    OPENAI_MODEL: 'gpt-4',
-    AUTH0_DOMAIN: 'dev.example.com',
-    AUTH0_CLIENT_ID: 'dev-client-id',
-    AUTH0_CLIENT_SECRET: 'dev-client-secret',
-    AUTH0_AUDIENCE: 'dev-audience',
-    AUTH0_ISSUER: 'https://dev.example.com/',
-    JWT_SECRET: 'dev-jwt-secret-minimum-32-characters-long',
-    JWT_EXPIRES_IN: '7d',
-    CLIENT_URL: 'http://localhost:3000',
-    LOG_LEVEL: 'info' as const,
-    RATE_LIMIT_WINDOW_MS: 900000,
-    RATE_LIMIT_MAX_REQUESTS: 100,
-    DAILY_LIMIT_FREE: 10,
-    DAILY_LIMIT_PREMIUM: 100,
-    CACHE_TTL: 3600,
-    REDIS_URL: undefined,
-    REDIS_PASSWORD: undefined,
-    REDIS_DB: 0,
-    REDIS_DISABLED: false,
-    WEB_SCRAPER_MAX_CONTENT_LENGTH: 8000,
-    WEB_SCRAPER_REQUEST_TIMEOUT_MS: 10000,
-    WEB_SCRAPER_USER_AGENT: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    ALLOWED_ORIGINS: undefined,
-    AUTH0_CUSTOM_USER_ID_CLAIM: undefined,
-    AUTH0_ROLES_CLAIM: undefined,
-    AUTH0_PERMISSIONS_CLAIM: undefined,
-  };
-}
+// Use validated environment configuration
+const config = parsedEnv;
 
 export { config };
 

@@ -21,7 +21,6 @@
 import dotenv from 'dotenv';
 import cluster from 'cluster';
 import os from 'os';
-import { validateEnv } from './utils/env-validation';
 import createServer from './app';
 
 // Load env once, silently
@@ -33,7 +32,8 @@ dotenv.config({
 
 if (process.env.NODE_ENV !== 'production' && cluster.isPrimary) {
   try {
-    validateEnv(); // single env check
+    // Environment is already validated through parsedEnv import in other modules
+    console.log('✅ Environment validated successfully');
   } catch (error) {
     console.warn(
       'Environment validation failed:',

@@ -13,7 +13,6 @@ import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import helmet from 'helmet';
-import { ensureSafeAuth0Config } from './utils/env-validation';
 import { connectToDatabase } from './config/database';
 import { errorHandler } from './utils/response-helpers';
 import gptRoutes from './routes/gpt-route';
@@ -23,7 +22,8 @@ import { HttpStatus } from './constants/http-status';
 import userRoutes from './routes/user-route';
 import monitorRoutes from './routes/monitor-route';
 import debugRoutes from './routes/debug-route';
-import { verifyAuth0Token, syncAuth0User } from './middleware/auth0-middleware';
+import jwtAuth from './middleware/jwtAuth';
+import { syncAuth0User } from './middleware/auth0-middleware';
 import { trackUsage } from './middleware/usage-middleware';
 import { startSessionCleanup } from './utils/session-tracker';
 import redisClient from './utils/redis-client';
@@ -32,12 +32,8 @@ import { setupSwagger } from './swagger';
 import { createRateLimiter } from './config/rateLimiter';
 import { rateLimitConfigs } from './config/rate-limit-configs';
 
-// Validate critical Auth0 configuration on startup
-try {
-  ensureSafeAuth0Config();
-} catch (error) {
-  console.warn('⚠️ Auth0 config validation failed in dev mode, continuing...');
-}
+// Environment is already validated through parsedEnv import in other modules
+console.log('✅ Using validated environment configuration');
 
 // Initialize Express application
 const app = express();
@@ -264,7 +260,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Protected GPT endpoint
-app.use('/api/gpt', verifyAuth0Token, syncAuth0User, trackUsage, gptRoutes);
+app.use('/api/gpt', jwtAuth, syncAuth0User, trackUsage, gptRoutes);
 
 // Handle UnauthorizedError from JWT/auth middleware
 app.use((err: Error, _req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -279,7 +275,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, next: express
 app.use(errorHandler);
 
 // Protected route example
-app.get('/api/protected', verifyAuth0Token, syncAuth0User, (req, res) => {
+app.get('/api/protected', jwtAuth, syncAuth0User, (req, res) => {
   // Use type guard for better type safety
   if (!req.userContext) {
     res.status(HttpStatus.UNAUTHORIZED).json({
