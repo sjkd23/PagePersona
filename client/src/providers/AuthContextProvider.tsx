@@ -22,6 +22,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [customClaims, setCustomClaims] = useState<CustomClaims | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasAttemptedSync, setHasAttemptedSync] = useState(false); // Track if we've attempted sync to prevent infinite loop
 
   const getAccessToken = useCallback(async () => {
     try {
@@ -37,6 +38,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
   const syncUser = useCallback(async () => {
     if (!isAuthenticated || !user || isSyncing) return;
     setIsSyncing(true);
+    setHasAttemptedSync(true); // Mark that we've attempted sync
     try {
       const token = await getAccessToken();
       if (token) {
@@ -59,13 +61,13 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, user, isSyncing, getAccessToken]);
 
-  // Only sync once when user becomes authenticated and we don't have a profile yet
+  // Only sync once when user becomes authenticated and we haven't attempted sync yet
   useEffect(() => {
-    if (isAuthenticated && user && !userProfile && !isSyncing) {
-      syncUser();
+    if (isAuthenticated && user && !hasAttemptedSync && !isSyncing) {
+      syncUser(); // Run syncUser only once to prevent infinite sync-retry loop
       setTokenGetter(getAccessToken);
     }
-  }, [isAuthenticated, user, userProfile, isSyncing, syncUser, getAccessToken]);
+  }, [isAuthenticated, user, hasAttemptedSync, isSyncing, syncUser, getAccessToken]);
 
   const login = () =>
     loginWithRedirect({
@@ -82,6 +84,7 @@ export function AuthContextProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUserProfile(null);
     setCustomClaims(null);
+    setHasAttemptedSync(false); // Reset sync attempt state on logout
     auth0Logout({ logoutParams: { returnTo: redirectUri } });
   };
 
