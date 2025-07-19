@@ -71,5 +71,36 @@ shared/**/*.d.ts.map
 *.temp
 test-*.js
 *-test.js
+*.test.new.ts
+*.test.fixed.ts
+*.backup
 files.txt
 *pagepersonai-server@*
+
+# IDE and system files
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# Package manager files
+package-lock.json.backup
+yarn.lock.backup
+
+# Development files
+.env.development
+.env.production
+.env.test

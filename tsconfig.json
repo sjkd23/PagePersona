@@ -14,8 +14,8 @@
   "files": [],
   "references": [
     // Build order: shared -> server -> client
-    { "path": "../shared" },
-    { "path": "../server" },
-    { "path": "../client/tsconfig.typecheck.json" }
+    { "path": "./shared" },
+    { "path": "./server" },
+    { "path": "./client/tsconfig.typecheck.json" }
   ]
 }
