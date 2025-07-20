@@ -60,8 +60,8 @@ function AppContent() {
       return user.name;
     }
 
-    // Fallback to nickname or email
-    return user.nickname || user.email?.split('@')[0] || 'User';
+    // Prioritize email, then fallback to nickname
+    return user.email || user.nickname || 'User';
   }, [user]);
 
   // Set up SEO and structured data based on current page

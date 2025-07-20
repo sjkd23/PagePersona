@@ -92,6 +92,7 @@ const MongoUserSchema = new Schema<IMongoUser>(
     email: {
       type: String,
       required: true,
+      unique: true,
       index: true,
     },
     username: {

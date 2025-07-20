@@ -76,9 +76,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 /**
  * Synchronizes user profile data with the backend service
  *
- * Attempts to retrieve existing user profile or create a new one through
- * the sync endpoint. Includes JWT validation, token expiry checking, and
- * comprehensive error handling with detailed logging.
+ * Optimized sync process: tries GET first for existing users, then POST for new users.
+ * Includes JWT validation, token expiry checking, and comprehensive error handling.
  *
  * @param {string} accessToken - JWT access token for authentication
  * @returns {Promise<UserProfile | null>} User profile data or null if failed
@@ -90,35 +89,26 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
   }
 
   try {
-    logger.sync.info('Starting user sync with backend');
-    logger.sync.debug('Token preview', {
-      preview: accessToken.substring(0, 50) + '...',
-    });
-
-    // Debug JWT structure
-    const tokenParts = accessToken.split('.');
-    if (tokenParts.length === 3) {
-      try {
-        const payload = JSON.parse(atob(tokenParts[1]));
-        logger.sync.debug('JWT info', {
-          sub: payload.sub?.substring(0, 10) + '...',
-          aud: payload.aud,
-          exp: new Date(payload.exp * 1000).toISOString(),
-          scope: payload.scope,
-        });
-
-        // Check if token is expired
-        if (payload.exp * 1000 < Date.now()) {
-          logger.sync.error('Token is expired');
-          return null;
-        }
-      } catch {
-        logger.sync.error('Cannot decode JWT payload');
-      }
+    // Validate JWT payload and check expiration
+    const parts = accessToken.split('.');
+    let payload;
+    try {
+      payload = JSON.parse(atob(parts[1]));
+    } catch {
+      logger.sync.error('Cannot decode JWT payload');
+      return null;
     }
 
-    // Try to get existing profile first
-    logger.sync.debug('Fetching user profile');
+    // Check token expiration
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < currentTime) {
+      logger.sync.error('Token is expired');
+      return null;
+    }
+
+    logger.sync.info('Starting user sync with backend');
+
+    // 1️⃣ Try GET /user/profile for existing users
     const profileRes = await fetch(`${API_URL}/user/profile`, {
       method: 'GET',
       headers: {
@@ -127,37 +117,14 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
       },
     });
 
-    logger.sync.debug('Profile response status', { status: profileRes.status });
-
-    if (profileRes.status === 404) {
-      logger.sync.debug('User not found, triggering sync');
-
-      // Try manual sync
-      const syncRes = await fetch(`${API_URL}/user/sync`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      logger.sync.debug('Sync response status', { status: syncRes.status });
-
-      if (!syncRes.ok) {
-        const errorText = await syncRes.text();
-        logger.sync.error('Sync request failed', undefined, {
-          status: syncRes.status,
-          errorText,
-        });
-        return null;
-      }
-
-      const syncData: UserSyncResponse = await syncRes.json();
-      logger.sync.info('Sync successful', { success: syncData.success });
-      return syncData.success ? (syncData.data ?? null) : null;
+    if (profileRes.ok) {
+      const result: UserSyncResponse = await profileRes.json();
+      logger.sync.info('Profile retrieved', { success: result.success });
+      return result.success ? (result.data ?? null) : null;
     }
 
-    if (!profileRes.ok) {
+    // If not found, but not another error
+    if (profileRes.status !== 404) {
       const errorText = await profileRes.text();
       logger.sync.error('Profile request failed', undefined, {
         status: profileRes.status,
@@ -166,9 +133,25 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
       return null;
     }
 
-    const profileData: UserSyncResponse = await profileRes.json();
-    logger.sync.info('Profile retrieved', { success: profileData.success });
-    return profileData.success ? (profileData.data ?? null) : null;
+    // 2️⃣ POST /user/sync for new users
+    const syncRes = await fetch(`${API_URL}/user/sync`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!syncRes.ok) {
+      const errorText = await syncRes.text();
+      logger.sync.error('Sync request failed', undefined, {
+        status: syncRes.status,
+        errorText,
+      });
+      return null;
+    }
+
+    const syncResult: UserSyncResponse = await syncRes.json();
+    return syncResult.success ? (syncResult.data ?? null) : null;
   } catch (err) {
     logger.sync.error('Error during user sync', err);
     return null;

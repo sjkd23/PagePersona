@@ -181,7 +181,7 @@ setupSwagger(app);
 app.use(
   express.static(path.join(__dirname, '../../client/dist'), {
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.js')) {
+      if (filePath.endsWith('.js') || filePath.endsWith('.tsx')) {
         res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
       } else if (filePath.endsWith('.css')) {
         res.setHeader('Content-Type', 'text/css; charset=utf-8');
