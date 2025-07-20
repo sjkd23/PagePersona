@@ -393,8 +393,8 @@ export default function UserProfile() {
                             theme: newTheme,
                           },
                         }));
-                        // Update theme immediately in global context for live preview
-                        // The actual save to database happens only when user clicks Save
+                        // Only sync for live preview, don't persist until Save is clicked
+                        // This prevents conflicts with the header theme toggle
                         syncThemeFromProfile(newTheme);
                       }}
                       className="form-input"

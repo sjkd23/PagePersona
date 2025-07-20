@@ -8,7 +8,7 @@
  */
 
 import { useTheme } from './useThemeHook';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import ApiService from '../lib/apiClient';
 import type { ThemeOption } from '../components/auth/types';
 import type { UserProfile } from '../lib/apiClient';
@@ -37,9 +37,19 @@ export interface UseProfileThemeReturn {
 export const useProfileTheme = (): UseProfileThemeReturn => {
   const { isDarkMode, toggleTheme } = useTheme();
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isUpdatingRef = useRef(false);
 
   // Convert boolean to theme option
   const currentTheme: ThemeOption = isDarkMode ? 'dark' : 'light';
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /**
    * Update theme in both global context and user profile
@@ -50,32 +60,46 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
    */
   const updateTheme = useCallback(
     async (theme: ThemeOption): Promise<void> => {
-      // Only toggle if the theme is actually changing
-      const shouldToggle = (theme === 'dark') !== isDarkMode;
-
-      if (shouldToggle) {
-        toggleTheme();
+      // Prevent circular updates
+      if (isUpdatingRef.current) {
+        return;
       }
 
-      // Clear existing timeout
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+      isUpdatingRef.current = true;
 
-      // Debounce the API call to prevent rate limiting
-      debounceTimeoutRef.current = setTimeout(async () => {
-        try {
-          await ApiService.updateUserProfile({
-            preferences: {
-              theme,
-            } as Record<string, unknown>,
-          } as Partial<UserProfile>);
-        } catch (error) {
-          console.error('Failed to update theme preference in profile:', error);
-          // Note: We don't revert the local theme change as the user might want
-          // to retry the save operation later
+      try {
+        // Only toggle if the theme is actually changing
+        const shouldToggle = (theme === 'dark') !== isDarkMode;
+
+        if (shouldToggle) {
+          toggleTheme();
         }
-      }, 1000); // 1 second debounce
+
+        // Clear existing timeout
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current);
+        }
+
+        // Debounce the API call to prevent rate limiting
+        debounceTimeoutRef.current = setTimeout(async () => {
+          try {
+            await ApiService.updateUserProfile({
+              preferences: {
+                theme,
+              } as Record<string, unknown>,
+            } as Partial<UserProfile>);
+          } catch (error) {
+            console.error('Failed to update theme preference in profile:', error);
+            // Note: We don't revert the local theme change as the user might want
+            // to retry the save operation later
+          } finally {
+            isUpdatingRef.current = false;
+          }
+        }, 2000); // Increased debounce to 2 seconds for better rate limiting
+      } catch (error) {
+        isUpdatingRef.current = false;
+        throw error;
+      }
     },
     [isDarkMode, toggleTheme],
   );
@@ -85,10 +109,16 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
    *
    * This function is used to synchronize the global theme state
    * with the theme preference loaded from the user's profile.
-   * It should be called when the profile is first loaded.
+   * It should be called when the profile is first loaded or
+   * when making non-persisted theme changes (like live preview).
    */
   const syncThemeFromProfile = useCallback(
     (profileTheme: ThemeOption): void => {
+      // Prevent circular updates during sync
+      if (isUpdatingRef.current) {
+        return;
+      }
+
       const shouldToggle = (profileTheme === 'dark') !== isDarkMode;
 
       if (shouldToggle) {
