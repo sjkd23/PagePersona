@@ -1,21 +1,85 @@
 /* Landing Page Main Layout */
+:root {
+  /* Light mode theme variables (default) */
+  --nav-bg: #a4bcd9;
+  --hero-bg: linear-gradient(180deg, #f0f8ff 0%, #e3f2fd 100%);
+  --hero-text: #1f2937;
+  --hero-description: #4b5563;
+  --hero-pattern-opacity: 0.05;
+  --text-light: #6b7280;
+  --text-dark: #1f2937;
+  --page-bg: #f3f5f7;
+  --page-text: #294769;
+}
+
+.dark {
+  /* Dark mode theme variables */
+  --nav-bg: #1e293b;
+  --hero-bg: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+  --hero-text: #ffffff;
+  --hero-description: #e2e8f0;
+  --hero-pattern-opacity: 0.1;
+  --text-light: #e2e8f0;
+  --text-dark: #ffffff;
+  --page-bg: #0f172a;
+  --page-text: #e2e8f0;
+}
+
 .landing-page {
   min-height: calc(100vh - 120px);
-  background: #f3f5f7;
-  color: #294769;
+  background: var(--page-bg);
+  color: var(--page-text);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
 }
 
-.dark .landing-page {
-  background: #0f172a;
-  color: #e2e8f0;
+.main-content {
+  min-height: calc(100vh - 200px);
 }
 
-.main-content {
-  padding: 4rem 2rem;
-  min-height: calc(100vh - 200px);
+/* Hero Section */
+.hero-section {
+  background: var(--hero-bg);
+  color: var(--hero-text);
+  padding-top: 10rem;
+  text-align: center;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1.5rem 0;
+  color: var(--hero-text);
+}
+
+.hero-description {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin: 0 auto 2rem auto;
+  max-width: 60ch;
+  color: var(--hero-description);
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 1.5rem 0; /* Reduced from 3rem to 1.5rem for mobile */
+  }
+  
+  .hero-title {
+    font-size: 2.25rem;
+    color: var(--hero-text);
+  }
+  
+  .hero-description {
+    font-size: 1rem;
+    color: var(--hero-description);
+  }
 }
 
 .content-container {
@@ -25,7 +89,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 5rem;
-  padding-top: 2rem;
+  padding: 4rem 0 2rem 0;
 }
 
 /* Visual Items */

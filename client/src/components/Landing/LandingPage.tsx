@@ -77,13 +77,32 @@ export default function LandingPage({
     <div className="landing-page">
       {/* Main content section containing feature showcase and calls-to-action */}
       <main className="main-content" role="main">
+        {/* Hero Section */}
+        <section className="hero-section" role="banner">
+          <div className="container">
+            <h1 className="hero-title">Give Any Webpage Its Own Personality</h1>
+            <p className="hero-description">
+              From complicated to concise, from boring to bold, your pages reimagined.
+            </p>
+          </div>
+          {/* Primary CTA Section */}
+          <CTASection
+            isAuthenticated={isAuthenticated}
+            userName={userName}
+            onShowLogin={onShowLogin}
+            onShowSignup={onShowSignup}
+          />
+        </section>
+
+        {/* How It Works Header */}
+        <section className="how-it-works-header" role="complementary">
+          <div className="container">
+            <h2 className="section-title">How it works</h2>
+          </div>
+        </section>
+
+        {/* Step-by-Step Guide */}
         <HowItWorksSection />
-        <CTASection
-          isAuthenticated={isAuthenticated}
-          userName={userName}
-          onShowLogin={onShowLogin}
-          onShowSignup={onShowSignup}
-        />
       </main>
 
       {/* Features Section */}
