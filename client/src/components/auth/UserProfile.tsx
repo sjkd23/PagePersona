@@ -135,6 +135,33 @@ export default function UserProfile() {
     fetchProfile();
   }, [user, syncThemeFromProfile, forceNameSync, extractNamesFromAuth0]); // Added missing dependencies
 
+  // Listen for header theme toggle events when editing
+  useEffect(() => {
+    const handleHeaderThemeToggle = (event: globalThis.Event) => {
+      const customEvent = event as globalThis.CustomEvent<{
+        theme: 'light' | 'dark';
+      }>;
+      const newTheme = customEvent.detail.theme;
+
+      // Update the edit form to reflect the header theme change
+      if (editing) {
+        setEditForm((prev) => ({
+          ...prev,
+          preferences: {
+            ...prev.preferences,
+            theme: newTheme,
+          },
+        }));
+      }
+    };
+
+    window.addEventListener('headerThemeToggle', handleHeaderThemeToggle);
+
+    return () => {
+      window.removeEventListener('headerThemeToggle', handleHeaderThemeToggle);
+    };
+  }, [editing]);
+
   const handleSaveProfile = async () => {
     try {
       setLoading(true);

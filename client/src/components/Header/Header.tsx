@@ -35,6 +35,7 @@ interface HeaderProps {
   onProfile?: () => void;
   onTransform?: () => void;
   userName?: string;
+  isOnProfilePage?: boolean;
 }
 
 /**
@@ -51,6 +52,7 @@ export default function Header({
   onProfile,
   onTransform,
   userName,
+  isOnProfilePage = false,
 }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -60,7 +62,7 @@ export default function Header({
         {/* Left navigation section: Logo and theme controls */}
         <div className="nav-left">
           <Logo onHome={onHome} />
-          <ThemeToggle />
+          <ThemeToggle isOnProfilePage={isOnProfilePage} />
         </div>
 
         {/* Center navigation section: Primary transform action */}
