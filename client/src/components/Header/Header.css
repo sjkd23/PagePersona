@@ -1,20 +1,32 @@
 /* Header Module Styles */
 
+/* Header theme variables */
+:root {
+  --nav-bg: #a4bcd9;
+  --nav-text: #1f2937;
+  --nav-logo-text: #294769;
+  --nav-border: rgba(0, 0, 0, 0.1);
+  --nav-shadow: rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --nav-bg: #1e293b;
+  --nav-text: #e2e8f0;
+  --nav-logo-text: #e2e8f0;
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --nav-shadow: rgba(0, 0, 0, 0.3);
+}
+
 /* Header Component Styles */
 .app-header {
-  background: #a4bcd9;
+  background: var(--nav-bg);
   padding: 1.5rem 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px var(--nav-shadow);
+  border-bottom: 1px solid var(--nav-border);
   position: sticky;
   top: 0;
   z-index: 1000;
   transition: background-color 0.3s ease;
-}
-
-.dark .app-header {
-  background: #1e293b;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header-content {
@@ -47,13 +59,9 @@
 .logo h1 {
   font-size: 2.2rem;
   font-weight: 700;
-  color: #294769;
+  color: var(--nav-logo-text);
   margin: 0;
   transition: color 0.3s ease;
-}
-
-.dark .logo h1 {
-  color: #e2e8f0;
 }
 
 .logo-icon {
@@ -77,14 +85,10 @@
 }
 
 .welcome-text {
-  color: #294769;
+  color: var(--nav-text);
   font-weight: 500;
   margin-right: 0.5rem;
   transition: color 0.3s ease;
-}
-
-.dark .welcome-text {
-  color: #e2e8f0;
 }
 
 .nav-btn {

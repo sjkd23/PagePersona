@@ -1,7 +1,30 @@
+/* Button Theme Variables */
+:root {
+  /* Light mode button variables (default) */
+  --btn-primary-bg: #3b82f6; /* Brand blue for light mode */
+  --btn-primary-hover: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-outline-border: #3b82f6;
+  --btn-outline-text: #3b82f6;
+  --btn-outline-hover-bg: #3b82f6;
+  --btn-outline-hover-text: #ffffff;
+}
+
+.dark {
+  /* Dark mode button variables */
+  --btn-primary-bg: #294769;
+  --btn-primary-hover: #1e3651;
+  --btn-primary-text: #ffffff;
+  --btn-outline-border: rgba(255, 255, 255, 0.75);
+  --btn-outline-text: rgba(255, 255, 255, 0.9);
+  --btn-outline-hover-bg: rgba(255, 255, 255, 1);
+  --btn-outline-hover-text: #1f2937;
+}
+
 /* Button Styles */
 .btn-primary {
-  background: #294769;
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   padding: 0.625rem 1.25rem;
   border: none;
   border-radius: 0.25rem;
@@ -13,13 +36,13 @@
 }
 
 .btn-primary:hover {
-  background: #1e3651;
+  background: var(--btn-primary-hover);
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: #294769;
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   padding: 0.625rem 1.25rem;
   border: none;
   border-radius: 0.25rem;
@@ -31,7 +54,27 @@
 }
 
 .btn-secondary:hover {
-  background: #1e3651;
+  background: var(--btn-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--btn-outline-text);
+  border: 2px solid var(--btn-outline-border);
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-outline:hover {
+  background: var(--btn-outline-hover-bg);
+  color: var(--btn-outline-hover-text);
+  border-color: var(--btn-outline-hover-bg);
   transform: translateY(-1px);
 }
 

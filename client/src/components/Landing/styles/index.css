@@ -7,6 +7,16 @@
 @import './buttons.css';
 @import './responsive.css';
 
+/* How It Works Header Section */
+.how-it-works-header {
+  padding: 3rem 2rem 1rem 2rem;
+  background: transparent;
+}
+
+.how-it-works-header .section-title {
+  margin-bottom: 2rem;
+}
+
 /* Features Section Styles */
 .features-section {
   padding: 6rem 2rem;
