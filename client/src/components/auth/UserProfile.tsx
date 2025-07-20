@@ -38,7 +38,7 @@ import './UserProfile.css';
 export default function UserProfile() {
   const { user, logout, getAccessToken } = useAuth();
   const { forceNameSync, extractNamesFromAuth0 } = useNameSync();
-  const { currentTheme, updateTheme, syncThemeFromProfile } = useProfileTheme();
+  const { currentTheme, syncThemeFromProfile } = useProfileTheme();
   const [profile, setProfile] = useState<UserProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -384,7 +384,7 @@ export default function UserProfile() {
                   {editing ? (
                     <select
                       value={editForm.preferences.theme}
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const newTheme = e.target.value as 'light' | 'dark';
                         setEditForm((prev) => ({
                           ...prev,
@@ -393,8 +393,9 @@ export default function UserProfile() {
                             theme: newTheme,
                           },
                         }));
-                        // Update theme immediately in global context and database
-                        await updateTheme(newTheme);
+                        // Update theme immediately in global context for live preview
+                        // The actual save to database happens only when user clicks Save
+                        syncThemeFromProfile(newTheme);
                       }}
                       className="form-input"
                     >
