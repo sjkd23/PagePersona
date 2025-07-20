@@ -171,6 +171,7 @@ function AppContent() {
         <Header
           isAuthenticated={true}
           userName={fullName}
+          isOnProfilePage={true}
           onHome={() => {
             setShowProfile(false);
             setCurrentPage('landing');
@@ -198,6 +199,7 @@ function AppContent() {
         <Header
           isAuthenticated={true}
           userName={fullName}
+          isOnProfilePage={false}
           onHome={() => {
             setShowProfile(false);
             setCurrentPage('landing');
@@ -229,6 +231,7 @@ function AppContent() {
       <Header
         isAuthenticated={true}
         userName={fullName}
+        isOnProfilePage={false}
         onHome={() => {
           setShowProfile(false);
           setCurrentPage('landing');

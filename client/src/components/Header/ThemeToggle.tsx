@@ -1,13 +1,32 @@
 import React from 'react';
 import { useProfileTheme } from '../../hooks/useProfileTheme';
 
-const ThemeToggle: React.FC = () => {
-  const { currentTheme, updateTheme } = useProfileTheme();
+interface ThemeToggleProps {
+  isOnProfilePage?: boolean;
+}
+
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ isOnProfilePage = false }) => {
+  const { currentTheme, updateTheme, toggleThemeOnly } = useProfileTheme();
   const isDarkMode = currentTheme === 'dark';
 
   const handleToggle = async () => {
     const newTheme = isDarkMode ? 'light' : 'dark';
-    await updateTheme(newTheme);
+
+    if (isOnProfilePage) {
+      // On profile page: just toggle the UI theme, don't persist immediately
+      // This allows the user to see the change and decide to save via profile form
+      toggleThemeOnly();
+
+      // Dispatch a custom event to notify the profile page about theme change
+      window.dispatchEvent(
+        new window.CustomEvent('headerThemeToggle', {
+          detail: { theme: newTheme },
+        }),
+      );
+    } else {
+      // Not on profile page: update theme and persist immediately
+      await updateTheme(newTheme);
+    }
   };
 
   return (

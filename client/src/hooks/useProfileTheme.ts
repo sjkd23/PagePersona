@@ -12,6 +12,7 @@ import { useCallback, useRef, useEffect } from 'react';
 import ApiService from '../lib/apiClient';
 import type { ThemeOption } from '../components/auth/types';
 import type { UserProfile } from '../lib/apiClient';
+import type { ProfileEditForm } from '../components/auth/types';
 
 /**
  * Profile theme hook interface
@@ -21,8 +22,15 @@ export interface UseProfileThemeReturn {
   currentTheme: ThemeOption;
   /** Update theme in both global context and user profile */
   updateTheme: (theme: ThemeOption) => Promise<void>;
+  /** Toggle theme UI only (no persistence) - for header when editing profile */
+  toggleThemeOnly: () => void;
   /** Sync global theme with user profile theme */
   syncThemeFromProfile: (profileTheme: ThemeOption) => void;
+  /** Update theme and sync with edit form (for profile editing) */
+  updateThemeAndForm: (
+    theme: ThemeOption,
+    setEditForm?: (updater: (prev: ProfileEditForm) => ProfileEditForm) => void,
+  ) => void;
 }
 
 /**
@@ -128,9 +136,64 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
     [isDarkMode, toggleTheme],
   );
 
+  /**
+   * Toggle theme UI only without persistence
+   *
+   * This function only changes the global theme state without
+   * making any API calls. Perfect for header toggle when user
+   * is editing their profile.
+   */
+  const toggleThemeOnly = useCallback((): void => {
+    // Prevent circular updates
+    if (isUpdatingRef.current) {
+      return;
+    }
+
+    toggleTheme();
+  }, [toggleTheme]);
+
+  /**
+   * Update theme and sync with edit form
+   *
+   * This function updates the global theme and also updates
+   * the profile edit form if provided. Used when the header
+   * theme toggle should update the profile form as well.
+   */
+  const updateThemeAndForm = useCallback(
+    (
+      theme: ThemeOption,
+      setEditForm?: (updater: (prev: ProfileEditForm) => ProfileEditForm) => void,
+    ): void => {
+      // Prevent circular updates
+      if (isUpdatingRef.current) {
+        return;
+      }
+
+      const shouldToggle = (theme === 'dark') !== isDarkMode;
+
+      if (shouldToggle) {
+        toggleTheme();
+      }
+
+      // Update the edit form if provided
+      if (setEditForm) {
+        setEditForm((prev: ProfileEditForm) => ({
+          ...prev,
+          preferences: {
+            ...prev.preferences,
+            theme,
+          },
+        }));
+      }
+    },
+    [isDarkMode, toggleTheme],
+  );
+
   return {
     currentTheme,
     updateTheme,
+    toggleThemeOnly,
     syncThemeFromProfile,
+    updateThemeAndForm,
   };
 };
