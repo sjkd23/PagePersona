@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuthContext';
 import { useNameSync } from '../../hooks/useNameSync';
+import { useProfileTheme } from '../../hooks/useProfileTheme';
 import ApiService, { setTokenGetter } from '../../lib/apiClient';
 import type { UserProfile as UserProfileType } from '../../lib/apiClient';
 import { formatProfileField, hasValidName, formatFullName } from '../../utils/profileUtils';
@@ -37,6 +38,7 @@ import './UserProfile.css';
 export default function UserProfile() {
   const { user, logout, getAccessToken } = useAuth();
   const { forceNameSync, extractNamesFromAuth0 } = useNameSync();
+  const { currentTheme, updateTheme, syncThemeFromProfile } = useProfileTheme();
   const [profile, setProfile] = useState<UserProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,6 +79,9 @@ export default function UserProfile() {
             preferences: response.data.preferences,
           });
 
+          // Sync the global theme with the user's profile theme preference
+          syncThemeFromProfile(response.data.preferences.theme);
+
           // Auto-sync names if they're missing or empty
           if (!hasValidName(response.data.firstName, response.data.lastName)) {
             const syncResult = await forceNameSync();
@@ -91,6 +96,8 @@ export default function UserProfile() {
                   lastName: updatedResponse.data.lastName || '',
                   preferences: updatedResponse.data.preferences,
                 });
+                // Re-sync theme after profile update
+                syncThemeFromProfile(updatedResponse.data.preferences.theme);
               }
             } else {
               // Fallback: try manual update with Auth0 data
@@ -126,7 +133,7 @@ export default function UserProfile() {
     };
 
     fetchProfile();
-  }, []); // Empty dependency array to run only once on mount
+  }, [user, syncThemeFromProfile, forceNameSync, extractNamesFromAuth0]); // Added missing dependencies
 
   const handleSaveProfile = async () => {
     try {
@@ -375,15 +382,18 @@ export default function UserProfile() {
                   {editing ? (
                     <select
                       value={editForm.preferences.theme}
-                      onChange={(e) =>
+                      onChange={async (e) => {
+                        const newTheme = e.target.value as 'light' | 'dark';
                         setEditForm((prev) => ({
                           ...prev,
                           preferences: {
                             ...prev.preferences,
-                            theme: e.target.value as 'light' | 'dark',
+                            theme: newTheme,
                           },
-                        }))
-                      }
+                        }));
+                        // Update theme immediately in global context and database
+                        await updateTheme(newTheme);
+                      }}
                       className="form-input"
                     >
                       <option value="light">Light Theme</option>
@@ -391,7 +401,7 @@ export default function UserProfile() {
                     </select>
                   ) : (
                     <div className="form-value">
-                      {profile?.preferences.theme === 'dark' ? 'Dark Theme' : 'Light Theme'}
+                      {currentTheme === 'dark' ? 'Dark Theme' : 'Light Theme'}
                     </div>
                   )}
                 </div>

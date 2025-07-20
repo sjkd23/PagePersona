@@ -168,6 +168,16 @@
     gap: 24px;
   }
 
+  /* Mobile column ordering - transformed text first */
+  .results-row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .results-row .result-card:last-child {
+    order: -1; /* Move transformed text card to top on mobile */
+  }
+
   .main-content {
     padding: 20px 16px;
   }
@@ -207,5 +217,31 @@
   .content-text-box {
     padding: 20px;
     max-height: 300px;
+  }
+
+  /* Ensure cards fit mobile screens properly */
+  .card {
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .result-card {
+    width: 100%;
+    max-width: calc(100vw - 32px);
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  /* Improve text readability on mobile */
+  .content-text-box {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Better spacing for mobile */
+  .card-title {
+    font-size: 16px;
   }
 }
