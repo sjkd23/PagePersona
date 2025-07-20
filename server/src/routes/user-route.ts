@@ -62,9 +62,9 @@ const router = express.Router();
 // Create specific rate limiters
 const syncRateLimit = createRateLimiter({ max: 5, windowMs: 60 * 1000 }); // 5 per minute
 const profileUpdateRateLimit = createRateLimiter({
-  max: 3,
+  max: 20,
   windowMs: 60 * 1000,
-}); // 3 per minute
+}); // 20 per minute (increased for theme toggle functionality)
 const testEndpointRateLimit = createRateLimiter({
   max: 10,
   windowMs: 60 * 1000,

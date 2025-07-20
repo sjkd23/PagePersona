@@ -12,6 +12,7 @@ import React from 'react';
 import type { UserProfile } from '../../lib/apiClient';
 import type { ProfileEditForm, ThemeOption, LanguageOption } from './types';
 import { formatProfileField } from '../../utils/profileUtils';
+import { useProfileTheme } from '../../hooks/useProfileTheme';
 
 /**
  * Props for the ProfileForm component
@@ -49,6 +50,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   onFormChange,
   isLoading = false,
 }) => {
+  const { syncThemeFromProfile } = useProfileTheme();
+
   /**
    * Handle preference changes
    */
@@ -60,6 +63,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
       ...editForm.preferences,
       [key]: value,
     });
+
+    // If theme is being changed, sync immediately for live preview
+    if (key === 'theme' && typeof value === 'string') {
+      syncThemeFromProfile(value as ThemeOption);
+    }
   };
 
   /**
