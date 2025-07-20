@@ -1,12 +1,18 @@
 import React from 'react';
-import { useTheme } from '../../hooks/useThemeHook';
+import { useProfileTheme } from '../../hooks/useProfileTheme';
 
 const ThemeToggle: React.FC = () => {
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { currentTheme, updateTheme } = useProfileTheme();
+  const isDarkMode = currentTheme === 'dark';
+
+  const handleToggle = async () => {
+    const newTheme = isDarkMode ? 'light' : 'dark';
+    await updateTheme(newTheme);
+  };
 
   return (
     <button
-      onClick={toggleTheme}
+      onClick={handleToggle}
       className="theme-toggle-btn"
       aria-label="Toggle theme"
       title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}

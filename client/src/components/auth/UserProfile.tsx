@@ -149,6 +149,8 @@ export default function UserProfile() {
       if (response.data) {
         setProfile(response.data);
         setEditing(false);
+        // Apply the saved theme immediately
+        syncThemeFromProfile(response.data.preferences.theme);
       }
     } catch (err) {
       const mappedError = ErrorMapper.mapError(err);

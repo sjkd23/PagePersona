@@ -8,7 +8,7 @@
  */
 
 import { useTheme } from './useThemeHook';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import ApiService from '../lib/apiClient';
 import type { ThemeOption } from '../components/auth/types';
 import type { UserProfile } from '../lib/apiClient';
@@ -36,6 +36,7 @@ export interface UseProfileThemeReturn {
  */
 export const useProfileTheme = (): UseProfileThemeReturn => {
   const { isDarkMode, toggleTheme } = useTheme();
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Convert boolean to theme option
   const currentTheme: ThemeOption = isDarkMode ? 'dark' : 'light';
@@ -45,6 +46,7 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
    *
    * This function updates the global theme state and also persists
    * the preference to the user's profile in the database.
+   * Uses debouncing to prevent rate-limit 429 errors from rapid toggles.
    */
   const updateTheme = useCallback(
     async (theme: ThemeOption): Promise<void> => {
@@ -55,18 +57,25 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
         toggleTheme();
       }
 
-      // Update user profile in database
-      try {
-        await ApiService.updateUserProfile({
-          preferences: {
-            theme,
-          } as Record<string, unknown>,
-        } as Partial<UserProfile>);
-      } catch (error) {
-        console.error('Failed to update theme preference in profile:', error);
-        // Note: We don't revert the local theme change as the user might want
-        // to retry the save operation later
+      // Clear existing timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
       }
+
+      // Debounce the API call to prevent rate limiting
+      debounceTimeoutRef.current = setTimeout(async () => {
+        try {
+          await ApiService.updateUserProfile({
+            preferences: {
+              theme,
+            } as Record<string, unknown>,
+          } as Partial<UserProfile>);
+        } catch (error) {
+          console.error('Failed to update theme preference in profile:', error);
+          // Note: We don't revert the local theme change as the user might want
+          // to retry the save operation later
+        }
+      }, 1000); // 1 second debounce
     },
     [isDarkMode, toggleTheme],
   );
