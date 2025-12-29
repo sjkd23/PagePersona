@@ -32,6 +32,7 @@ import { logger } from './utils/logger';
 import { setupSwagger } from './swagger';
 import { createRateLimiter } from './config/rateLimiter';
 import { rateLimitConfigs } from './config/rate-limit-configs';
+import { startKeepAlive } from './utils/keep-alive';
 
 // Environment is already validated through parsedEnv import in other modules
 console.log('✅ Using validated environment configuration');
@@ -343,6 +344,9 @@ function createServer(): void {
       if (process.env.NODE_ENV !== 'production') {
         logger.info('  GET  /api/debug/redis - Redis connectivity test');
       }
+
+      // Start keep-alive service to prevent cold starts
+      startKeepAlive();
     })
     .on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
