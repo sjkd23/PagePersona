@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface UnauthenticatedNavProps {
   onLogin?: () => void;
@@ -38,7 +38,7 @@ export default function UnauthenticatedNav({
     if (onLogin) {
       onLogin();
     } else {
-      handleNavClick('login');
+      handleNavClick("login");
     }
   };
 
@@ -46,7 +46,7 @@ export default function UnauthenticatedNav({
     if (onSignup) {
       onSignup();
     } else {
-      handleNavClick('signup');
+      handleNavClick("signup");
     }
   };
 
@@ -60,21 +60,31 @@ export default function UnauthenticatedNav({
         <button className="nav-btn secondary" onClick={handleSignup}>
           Sign Up
         </button>
-        <button className="nav-btn primary" onClick={() => handleNavClick('contact')}>
+        <button
+          className="nav-btn primary"
+          onClick={() => handleNavClick("contact")}
+        >
           Contact
         </button>
       </nav>
 
       {/* Mobile Hamburger Menu */}
       <div className="mobile-nav">
-        <button className="hamburger-btn" onClick={toggleMenu} aria-label="Toggle navigation menu">
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
+        <button
+          className="hamburger-btn"
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+        >
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
         </button>
 
         {isMenuOpen && (
-          <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
+          <div
+            className="mobile-menu-overlay"
+            onClick={() => setIsMenuOpen(false)}
+          >
             <nav className="mobile-menu" onClick={(e) => e.stopPropagation()}>
               <button
                 className="mobile-nav-btn transform"
@@ -82,15 +92,23 @@ export default function UnauthenticatedNav({
               >
                 Transform
               </button>
-              <button className="mobile-nav-btn" onClick={() => handleMenuItemClick(handleLogin)}>
+              <button
+                className="mobile-nav-btn"
+                onClick={() => handleMenuItemClick(handleLogin)}
+              >
                 Log In
               </button>
-              <button className="mobile-nav-btn" onClick={() => handleMenuItemClick(handleSignup)}>
+              <button
+                className="mobile-nav-btn"
+                onClick={() => handleMenuItemClick(handleSignup)}
+              >
                 Sign Up
               </button>
               <button
                 className="mobile-nav-btn primary"
-                onClick={() => handleMenuItemClick(() => handleNavClick('contact'))}
+                onClick={() =>
+                  handleMenuItemClick(() => handleNavClick("contact"))
+                }
               >
                 Contact
               </button>

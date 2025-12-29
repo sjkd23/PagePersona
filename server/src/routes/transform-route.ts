@@ -14,34 +14,50 @@
  * - DELETE /cache: Development cache clearing
  */
 
-import '../types/loader';
-import express, { Request, Response } from 'express';
-import { getAllClientPersonas } from '@pagepersonai/shared';
-import { optionalAuth0 } from '../middleware/auth0-middleware';
-import { checkUsageLimit } from '../middleware/usage-limit-middleware';
-import { sendSuccess, sendInternalError } from '../utils/response-helpers';
-import { validateRequest } from '../middleware/zod-validation';
-import { transformSchema, transformTextSchema } from '../schemas/transform.schema';
-import { logger } from '../utils/logger';
-import { HttpStatus } from '../constants/http-status';
-import { createTransformationService } from '../services/transformation-service';
-import { cacheService } from '../services/cache-service';
-import { ErrorCode, ErrorMapper } from '@pagepersonai/shared';
-import { sanitize } from '../utils/sanitizer';
-import type { TransformationResult } from '../services/content-transformer';
+import "../types/loader";
+import express, { Request, Response } from "express";
+import { getAllClientPersonas } from "@pagepersonai/shared";
+import { optionalAuth0 } from "../middleware/auth0-middleware";
+import { checkUsageLimit } from "../middleware/usage-limit-middleware";
+import { sendSuccess, sendInternalError } from "../utils/response-helpers";
+import { validateRequest } from "../middleware/zod-validation";
+import {
+  transformSchema,
+  transformTextSchema,
+} from "../schemas/transform.schema";
+import { logger } from "../utils/logger";
+import { HttpStatus } from "../constants/http-status";
+import { cacheService } from "../services/cache-service";
+import { ErrorCode, ErrorMapper } from "@pagepersonai/shared";
+import { sanitize } from "../utils/sanitizer";
+import type { TransformationResult } from "../services/content-transformer";
+import {
+  generateJobId,
+  acquireJobLock,
+  createJob,
+  getJob,
+} from "../services/job-manager";
+import {
+  processWebpageTransformJob,
+  processTextTransformJob,
+  getCachedResult,
+} from "../services/job-processor";
 
 const router = express.Router();
 
 // Only log route registration in production or when explicitly requested
-if (process.env.NODE_ENV === 'production' || process.env.LOG_ROUTE_REGISTRATION === 'true') {
-  logger.transform.info('Transform routes module loaded');
-  logger.transform.info('Registering transform routes', {
+if (
+  process.env.NODE_ENV === "production" ||
+  process.env.LOG_ROUTE_REGISTRATION === "true"
+) {
+  logger.transform.info("Transform routes module loaded");
+  logger.transform.info("Registering transform routes", {
     routes: [
-      'GET  /personas',
-      'POST / (URL transform)',
-      'POST /text (direct text transform)',
-      'GET  /cache/stats (dev only)',
-      'DELETE /cache (dev only)',
+      "GET  /personas",
+      "POST / (URL transform)",
+      "POST /text (direct text transform)",
+      "GET  /cache/stats (dev only)",
+      "DELETE /cache (dev only)",
     ],
   });
 }
@@ -74,8 +90,8 @@ if (process.env.NODE_ENV === 'production' || process.env.LOG_ROUTE_REGISTRATION 
  * @route GET /test
  * @returns {object} Success response with status message
  */
-router.get('/test', (_req: Request, res: Response) => {
-  sendSuccess(res, { message: 'Transform routes are working' });
+router.get("/test", (_req: Request, res: Response) => {
+  sendSuccess(res, { message: "Transform routes are working" });
 });
 
 /**
@@ -117,15 +133,15 @@ router.get('/test', (_req: Request, res: Response) => {
  * @returns {object} Success response containing personas array
  * @throws {500} Internal server error if persona fetching fails
  */
-router.get('/personas', (_req: Request, res: Response) => {
+router.get("/personas", (_req: Request, res: Response) => {
   try {
     // Return client personas with all UI fields (avatarUrl, theme, etc.)
     const personas = getAllClientPersonas();
 
     sendSuccess(res, { personas });
   } catch (error) {
-    logger.transform.error('Error fetching personas', error);
-    sendInternalError(res, 'Failed to fetch personas');
+    logger.transform.error("Error fetching personas", error);
+    sendInternalError(res, "Failed to fetch personas");
   }
 });
 
@@ -215,12 +231,12 @@ router.get('/personas', (_req: Request, res: Response) => {
  * @throws {500} Internal server error for processing failures
  */
 router.post(
-  '/',
-  /*transformRateLimit,*/ validateRequest(transformSchema, 'body'),
+  "/",
+  /*transformRateLimit,*/ validateRequest(transformSchema, "body"),
   optionalAuth0,
   checkUsageLimit(),
   async (req: Request, res: Response): Promise<void> => {
-    logger.transform.info('POST /api/transform route hit');
+    logger.transform.info("POST /api/transform route hit");
 
     try {
       const { url, persona } = req.body;
@@ -231,57 +247,103 @@ router.post(
       ).userContext?.mongoUser;
       const userId = mongoUser?._id?.toString();
 
-      const transformationService = createTransformationService();
-      const result = await transformationService.transformWebpage({
-        url,
-        persona,
-        userId,
-      });
+      // Generate deterministic job ID based on request parameters
+      const jobId = generateJobId(url, persona);
 
-      if (result.success && result.data) {
-        // Sanitize the transformation result to prevent XSS
-        const sanitizedResult = sanitizeTransformationResult(result.data);
-        res.json(sanitizedResult);
-        return;
-      } else if (result.data) {
-        // Sanitize the transformation result to prevent XSS
-        const sanitizedResult = sanitizeTransformationResult(result.data);
-        res.json(sanitizedResult);
-        return;
-      } else {
-        // Service failed completely - return enhanced error with user-friendly message
-        const statusCode =
-          result.errorCode === ErrorCode.INVALID_URL
-            ? HttpStatus.BAD_REQUEST
-            : result.errorCode === ErrorCode.SCRAPING_FAILED
-              ? HttpStatus.BAD_REQUEST
-              : result.errorCode === ErrorCode.NETWORK_ERROR
-                ? HttpStatus.BAD_GATEWAY
-                : result.errorCode === ErrorCode.TRANSFORMATION_FAILED
-                  ? HttpStatus.INTERNAL_SERVER_ERROR
-                  : HttpStatus.INTERNAL_SERVER_ERROR;
-
-        res.status(statusCode).json({
-          success: false,
-          error: result.error || 'Failed to transform webpage content. Please try again later.',
-          errorCode: result.errorCode,
-          details: result.details,
-          timestamp: new Date(),
+      // Check if cached result exists - return immediately if found
+      const cachedResult = getCachedResult(url, persona);
+      if (cachedResult) {
+        logger.transform.info(
+          "Cache hit! Returning cached result immediately",
+          { jobId },
+        );
+        const sanitizedResult = sanitizeTransformationResult(cachedResult);
+        res.status(HttpStatus.OK).json({
+          status: "done",
+          data: sanitizedResult,
+          jobId,
+          cached: true,
         });
         return;
       }
+
+      // Check if job already exists
+      const existingJob = await getJob(jobId);
+      if (existingJob) {
+        // Job already queued or in progress
+        logger.transform.info(
+          "Job already exists, returning existing job status",
+          {
+            jobId,
+            status: existingJob.status,
+          },
+        );
+
+        if (existingJob.status === "done" && existingJob.data) {
+          // Job completed - return the result
+          const sanitizedResult = sanitizeTransformationResult(
+            existingJob.data as TransformationResult,
+          );
+          res.status(HttpStatus.OK).json({
+            status: "done",
+            data: sanitizedResult,
+            jobId,
+          });
+        } else {
+          // Job still processing or queued
+          res.status(HttpStatus.ACCEPTED).json({
+            status: existingJob.status,
+            jobId,
+            stage: existingJob.stage,
+            progress: existingJob.progress,
+            error: existingJob.error,
+          });
+        }
+        return;
+      }
+
+      // Create new job record
+      await createJob(jobId);
+
+      // Try to acquire lock to process this job
+      const lockAcquired = await acquireJobLock(jobId);
+      if (lockAcquired) {
+        // We got the lock - start background processing
+        // Use setImmediate to ensure this runs outside the request context
+        setImmediate(() => {
+          processWebpageTransformJob(jobId, url, persona, userId).catch(
+            (error) => {
+              logger.transform.error("Background job failed", { jobId, error });
+            },
+          );
+        });
+
+        logger.transform.info("Background job started", { jobId });
+      } else {
+        // Another worker is already processing this job
+        logger.transform.info("Job lock held by another worker", { jobId });
+      }
+
+      // Return 202 Accepted with job ID for polling
+      res.status(HttpStatus.ACCEPTED).json({
+        status: "queued",
+        jobId,
+        message: "Transformation job queued. Use the jobId to check status.",
+      });
+      return;
     } catch (error) {
-      logger.transform.error('Webpage transformation route error', error);
+      logger.transform.error("Webpage transformation route error", error);
 
       // Create user-friendly error response
       const userFriendlyError = ErrorMapper.mapError(error);
 
       // Handle specific known errors
       if (error instanceof Error) {
-        if (error.message.includes('OpenAI API key is not configured')) {
+        if (error.message.includes("OpenAI API key is not configured")) {
           res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             success: false,
-            error: 'Our AI service is currently unavailable. Please try again later.',
+            error:
+              "Our AI service is currently unavailable. Please try again later.",
             errorCode: ErrorCode.SERVICE_UNAVAILABLE,
             timestamp: new Date(),
           });
@@ -371,12 +433,12 @@ router.post(
  * @throws {500} Internal server error for processing failures
  */
 router.post(
-  '/text',
-  /*transformRateLimit,*/ validateRequest(transformTextSchema, 'body'),
+  "/text",
+  /*transformRateLimit,*/ validateRequest(transformTextSchema, "body"),
   optionalAuth0,
   checkUsageLimit(),
   async (req: Request, res: Response): Promise<void> => {
-    logger.transform.info('POST /api/transform/text route hit');
+    logger.transform.info("POST /api/transform/text route hit");
 
     try {
       const { text, persona } = req.body;
@@ -387,38 +449,91 @@ router.post(
       ).userContext?.mongoUser;
       const userId = mongoUser?._id?.toString();
 
-      const transformationService = createTransformationService();
-      const result = await transformationService.transformText({
-        text,
-        persona,
-        userId,
-      });
+      // Use text sample as URL for job ID generation (consistent with text caching)
+      const textIdentifier = `text:${text.substring(0, 100)}`;
+      const jobId = generateJobId(textIdentifier, persona);
 
-      if (result.success && result.data) {
-        // Sanitize the transformation result to prevent XSS
-        const sanitizedResult = sanitizeTransformationResult(result.data);
-        res.json(sanitizedResult);
-        return;
-      } else {
-        // Use enhanced error information from service
-        const statusCode =
-          result.errorCode === ErrorCode.INVALID_TEXT
-            ? HttpStatus.BAD_REQUEST
-            : result.errorCode === ErrorCode.TRANSFORMATION_FAILED
-              ? HttpStatus.INTERNAL_SERVER_ERROR
-              : HttpStatus.INTERNAL_SERVER_ERROR;
-
-        res.status(statusCode).json({
-          success: false,
-          error: result.error || 'Failed to transform text. Please try again.',
-          errorCode: result.errorCode,
-          details: result.details,
-          timestamp: new Date(),
+      // Check if cached result exists
+      const cachedResult = getCachedResult(textIdentifier, persona);
+      if (cachedResult) {
+        logger.transform.info(
+          "Text cache hit! Returning cached result immediately",
+          { jobId },
+        );
+        const sanitizedResult = sanitizeTransformationResult(cachedResult);
+        res.status(HttpStatus.OK).json({
+          status: "done",
+          data: sanitizedResult,
+          jobId,
+          cached: true,
         });
         return;
       }
+
+      // Check if job already exists
+      const existingJob = await getJob(jobId);
+      if (existingJob) {
+        logger.transform.info("Text job already exists", {
+          jobId,
+          status: existingJob.status,
+        });
+
+        if (existingJob.status === "done" && existingJob.data) {
+          const sanitizedResult = sanitizeTransformationResult(
+            existingJob.data as TransformationResult,
+          );
+          res.status(HttpStatus.OK).json({
+            status: "done",
+            data: sanitizedResult,
+            jobId,
+          });
+        } else {
+          res.status(HttpStatus.ACCEPTED).json({
+            status: existingJob.status,
+            jobId,
+            stage: existingJob.stage,
+            progress: existingJob.progress,
+            error: existingJob.error,
+          });
+        }
+        return;
+      }
+
+      // Create new job record
+      await createJob(jobId);
+
+      // Try to acquire lock to process this job
+      const lockAcquired = await acquireJobLock(jobId);
+      if (lockAcquired) {
+        // Start background processing
+        setImmediate(() => {
+          processTextTransformJob(jobId, text, persona, userId).catch(
+            (error) => {
+              logger.transform.error("Background text job failed", {
+                jobId,
+                error,
+              });
+            },
+          );
+        });
+
+        logger.transform.info("Background text job started", { jobId });
+      } else {
+        logger.transform.info("Text job lock held by another worker", {
+          jobId,
+        });
+      }
+
+      // Return 202 Accepted with job ID for polling
+      res.status(HttpStatus.ACCEPTED).json({
+        status: "queued",
+        jobId,
+        message:
+          "Text transformation job queued. Use the jobId to check status.",
+      });
+      return;
     } catch (error) {
-      logger.transform.error('Text transformation route error', error);
+      logger.transform.error("Text transformation route error", error);
 
       // Create user-friendly error response
       const userFriendlyError = ErrorMapper.mapError(error);
@@ -434,8 +549,120 @@ router.post(
   },
 );
 
+/**
+ * Get transformation job status and result
+ *
+ * Polls for the status of an asynchronous transformation job.
+ * Returns job progress, stage information, and final result when complete.
+ *
+ * @openapi
+ * /api/transform/jobs/{jobId}:
+ *   get:
+ *     summary: Get transformation job status
+ *     tags: [Transform]
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Unique job identifier returned from POST /api/transform
+ *     responses:
+ *       '200':
+ *         description: Job status retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [queued, running, done, error]
+ *                 stage:
+ *                   type: string
+ *                   enum: [scrape, clean, llm, save]
+ *                 progress:
+ *                   type: number
+ *                   minimum: 0
+ *                   maximum: 100
+ *                 data:
+ *                   $ref: '#/components/schemas/TransformResponse'
+ *                 error:
+ *                   type: string
+ *       '404':
+ *         description: Job not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *
+ * @route GET /jobs/:jobId
+ * @param {string} jobId - Unique job identifier
+ * @returns {object} Job status, progress, and result data
+ */
+router.get(
+  "/jobs/:jobId",
+  async (req: Request, res: Response): Promise<void> => {
+    const { jobId } = req.params;
+
+    logger.transform.info("GET /api/transform/jobs/:jobId route hit", {
+      jobId,
+    });
+
+    try {
+      const job = await getJob(jobId);
+
+      if (!job) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          error: "Job not found",
+          errorCode: ErrorCode.UNKNOWN_ERROR,
+          timestamp: new Date(),
+        });
+        return;
+      }
+
+      // If job is done and has data, sanitize it
+      if (job.status === "done" && job.data) {
+        const sanitizedData = sanitizeTransformationResult(
+          job.data as TransformationResult,
+        );
+        res.status(HttpStatus.OK).json({
+          status: job.status,
+          stage: job.stage,
+          progress: job.progress,
+          data: sanitizedData,
+          jobId: job.jobId,
+          createdAt: job.createdAt,
+          updatedAt: job.updatedAt,
+        });
+        return;
+      }
+
+      // Return job status without data for queued/running/error states
+      res.status(HttpStatus.OK).json({
+        status: job.status,
+        stage: job.stage,
+        progress: job.progress,
+        error: job.error,
+        jobId: job.jobId,
+        createdAt: job.createdAt,
+        updatedAt: job.updatedAt,
+      });
+    } catch (error) {
+      logger.transform.error("Error getting job status", { jobId, error });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        error: "Failed to retrieve job status",
+        errorCode: ErrorCode.UNKNOWN_ERROR,
+        timestamp: new Date(),
+      });
+    }
+  },
+);
+
 // Development and debugging endpoints (non-production environment only)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   /**
    * Get cache statistics for debugging purposes
    *
@@ -443,13 +670,13 @@ if (process.env.NODE_ENV !== 'production') {
    * @returns {object} Cache performance and usage statistics
    * @access Development environment only
    */
-  router.get('/cache/stats', (_req: Request, res: Response) => {
+  router.get("/cache/stats", (_req: Request, res: Response) => {
     try {
       const stats = cacheService.getCacheStats();
       sendSuccess(res, { cacheStats: stats });
     } catch (error) {
-      logger.transform.error('Error getting cache stats', error);
-      sendInternalError(res, 'Failed to get cache statistics');
+      logger.transform.error("Error getting cache stats", error);
+      sendInternalError(res, "Failed to get cache statistics");
     }
   });
 
@@ -460,13 +687,13 @@ if (process.env.NODE_ENV !== 'production') {
    * @returns {object} Success confirmation of cache clearing
    * @access Development environment only
    */
-  router.delete('/cache', (_req: Request, res: Response) => {
+  router.delete("/cache", (_req: Request, res: Response) => {
     try {
       cacheService.clearAllCaches();
-      sendSuccess(res, null, 'All caches cleared');
+      sendSuccess(res, null, "All caches cleared");
     } catch (error) {
-      logger.transform.error('Error clearing cache', error);
-      sendInternalError(res, 'Failed to clear cache');
+      logger.transform.error("Error clearing cache", error);
+      sendInternalError(res, "Failed to clear cache");
     }
   });
 }
@@ -479,7 +706,9 @@ export default router;
  * Applies HTML sanitization to user-supplied and AI-generated content
  * to ensure safe rendering in web applications.
  */
-function sanitizeTransformationResult(result: TransformationResult): TransformationResult {
+function sanitizeTransformationResult(
+  result: TransformationResult,
+): TransformationResult {
   return {
     ...result,
     transformedContent: sanitize(result.transformedContent),

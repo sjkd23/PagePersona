@@ -3,7 +3,7 @@
  */
 
 // Prompts
-export { BASE_SYSTEM_PROMPT } from './prompts.js';
+export { BASE_SYSTEM_PROMPT } from "./prompts.js";
 
 // Personas
 export {
@@ -16,4 +16,4 @@ export {
   getAllClientPersonas,
   getFullPersona,
   getAllFullPersonas,
-} from './personas.js';
+} from "./personas.js";

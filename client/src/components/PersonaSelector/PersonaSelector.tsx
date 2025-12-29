@@ -14,16 +14,16 @@
  * - Responsive design for mobile and desktop
  */
 
-import './PersonaSelector.css';
-import { useState, useEffect } from 'react';
-import type { ClientPersona as Persona } from '@pagepersonai/shared';
-import ApiService from '../../lib/apiClient';
-import PersonaDropdown from './PersonaDropdown';
-import PersonaDetails from './PersonaDetails';
-import PersonaLoadingState from './PersonaLoadingState';
-import PersonaErrorState from './PersonaErrorState';
-import ErrorDisplay from '../Transformer/ErrorDisplay';
-import { ErrorMapper, type UserFriendlyError } from '@pagepersonai/shared';
+import "./PersonaSelector.css";
+import { useState, useEffect } from "react";
+import type { ClientPersona as Persona } from "@pagepersonai/shared";
+import ApiService from "../../lib/apiClient";
+import PersonaDropdown from "./PersonaDropdown";
+import PersonaDetails from "./PersonaDetails";
+import PersonaLoadingState from "./PersonaLoadingState";
+import PersonaErrorState from "./PersonaErrorState";
+import ErrorDisplay from "../Transformer/ErrorDisplay";
+import { ErrorMapper, type UserFriendlyError } from "@pagepersonai/shared";
 
 /**
  * Persona selector component props interface
@@ -40,11 +40,16 @@ interface PersonaSelectorProps {
  * interaction, and selection state management with comprehensive
  * error handling and loading states.
  */
-const PersonaSelector = ({ selectedPersona, onPersonaSelect }: PersonaSelectorProps) => {
+const PersonaSelector = ({
+  selectedPersona,
+  onPersonaSelect,
+}: PersonaSelectorProps) => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [enhancedError, setEnhancedError] = useState<UserFriendlyError | null>(null);
+  const [enhancedError, setEnhancedError] = useState<UserFriendlyError | null>(
+    null,
+  );
 
   /**
    * Fetch available personas from API
@@ -64,16 +69,16 @@ const PersonaSelector = ({ selectedPersona, onPersonaSelect }: PersonaSelectorPr
         setPersonas(frontendPersonas);
       } else {
         const mappedError = ErrorMapper.mapError(
-          new Error(response.error || 'Failed to load personas'),
+          new Error(response.error || "Failed to load personas"),
         );
         setEnhancedError(mappedError);
-        setError(response.error || 'Failed to load personas');
+        setError(response.error || "Failed to load personas");
       }
     } catch (err) {
-      console.error('Error loading personas:', err);
+      console.error("Error loading personas:", err);
       const mappedError = ErrorMapper.mapError(err);
       setEnhancedError(mappedError);
-      setError('Failed to connect to server');
+      setError("Failed to connect to server");
     } finally {
       setLoading(false);
     }
@@ -98,7 +103,7 @@ const PersonaSelector = ({ selectedPersona, onPersonaSelect }: PersonaSelectorPr
         errorCode={enhancedError.code}
         title={enhancedError.title}
         helpText={enhancedError.helpText}
-        actionText={enhancedError.actionText || 'Try Again'}
+        actionText={enhancedError.actionText || "Try Again"}
         onAction={fetchPersonas}
         onDismiss={() => {
           setEnhancedError(null);
@@ -108,7 +113,10 @@ const PersonaSelector = ({ selectedPersona, onPersonaSelect }: PersonaSelectorPr
         className="persona-error"
       />
     ) : (
-      <PersonaErrorState error={error || 'Unknown error'} onRetry={fetchPersonas} />
+      <PersonaErrorState
+        error={error || "Unknown error"}
+        onRetry={fetchPersonas}
+      />
     );
   }
 

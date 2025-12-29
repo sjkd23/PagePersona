@@ -26,8 +26,8 @@
  * @since 1.0.0
  */
 
-import { logger } from '../utils/logger';
-import { parsedEnv } from '../utils/env-validation';
+import { logger } from "../utils/logger";
+import { parsedEnv } from "../utils/env-validation";
 
 // Use validated environment configuration
 const config = parsedEnv;
@@ -110,7 +110,7 @@ export const usageLimitConfig = {
 
 // CORS configuration
 export const corsConfig = {
-  origin: config.CLIENT_URL || 'http://localhost:5173',
+  origin: config.CLIENT_URL || "http://localhost:5173",
   credentials: true,
 };
 
@@ -127,21 +127,21 @@ export const cacheConfig = {
 // Validate critical configurations on startup
 export function validateCriticalConfig(): void {
   const criticalChecks = [
-    { name: 'MongoDB URI', value: config.MONGODB_URI },
-    { name: 'Auth0 Domain', value: config.AUTH0_DOMAIN },
-    { name: 'OpenAI API Key', value: config.OPENAI_API_KEY },
-    { name: 'JWT Secret', value: config.JWT_SECRET },
+    { name: "MongoDB URI", value: config.MONGODB_URI },
+    { name: "Auth0 Domain", value: config.AUTH0_DOMAIN },
+    { name: "OpenAI API Key", value: config.OPENAI_API_KEY },
+    { name: "JWT Secret", value: config.JWT_SECRET },
   ];
 
   const failures = criticalChecks.filter((check) => !check.value);
 
   if (failures.length > 0) {
-    logger.error('❌ Critical configuration missing:');
+    logger.error("❌ Critical configuration missing:");
     failures.forEach((failure) => {
       logger.error(`  • ${failure.name}`);
     });
     process.exit(1);
   }
 
-  logger.info('✅ All critical configurations validated');
+  logger.info("✅ All critical configurations validated");
 }

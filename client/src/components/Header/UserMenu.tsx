@@ -1,6 +1,6 @@
-import { Menu } from '@headlessui/react';
-import Avatar from './Avatar';
-import { useLogout } from '../../hooks/useLogout';
+import { Menu } from "@headlessui/react";
+import Avatar from "./Avatar";
+import { useLogout } from "../../hooks/useLogout";
 
 interface UserMenuProps {
   userName?: string;
@@ -8,7 +8,11 @@ interface UserMenuProps {
   onTransform?: () => void;
 }
 
-export default function UserMenu({ userName, onProfile, onTransform }: UserMenuProps) {
+export default function UserMenu({
+  userName,
+  onProfile,
+  onTransform,
+}: UserMenuProps) {
   const { logout } = useLogout();
 
   return (
@@ -16,8 +20,18 @@ export default function UserMenu({ userName, onProfile, onTransform }: UserMenuP
       <Menu.Button className="user-menu-button">
         <Avatar userName={userName} />
         <span className="welcome-text">Welcome, {userName}!</span>
-        <svg className="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <svg
+          className="dropdown-arrow"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </Menu.Button>
 
@@ -27,7 +41,7 @@ export default function UserMenu({ userName, onProfile, onTransform }: UserMenuP
             {({ active }) => (
               <button
                 onClick={onTransform}
-                className={`dropdown-item mobile-only ${active ? 'active' : ''}`}
+                className={`dropdown-item mobile-only ${active ? "active" : ""}`}
               >
                 <svg
                   className="dropdown-icon"
@@ -49,7 +63,10 @@ export default function UserMenu({ userName, onProfile, onTransform }: UserMenuP
           <div className="dropdown-separator mobile-only"></div>
           <Menu.Item>
             {({ active }) => (
-              <button onClick={onProfile} className={`dropdown-item ${active ? 'active' : ''}`}>
+              <button
+                onClick={onProfile}
+                className={`dropdown-item ${active ? "active" : ""}`}
+              >
                 <svg
                   className="dropdown-icon"
                   fill="none"
@@ -69,7 +86,10 @@ export default function UserMenu({ userName, onProfile, onTransform }: UserMenuP
           </Menu.Item>
           <Menu.Item>
             {({ active }) => (
-              <button onClick={logout} className={`dropdown-item ${active ? 'active' : ''}`}>
+              <button
+                onClick={logout}
+                className={`dropdown-item ${active ? "active" : ""}`}
+              >
                 <svg
                   className="dropdown-icon"
                   fill="none"

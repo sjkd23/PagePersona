@@ -1,5 +1,5 @@
-import React from 'react';
-import type { ClientPersona as Persona } from '@pagepersonai/shared';
+import React from "react";
+import type { ClientPersona as Persona } from "@pagepersonai/shared";
 
 interface PersonaDropdownProps {
   personas: Persona[];
@@ -13,7 +13,7 @@ const PersonaDropdown: React.FC<PersonaDropdownProps> = ({
   onSelect,
 }) => (
   <select
-    value={selectedPersona || ''}
+    value={selectedPersona || ""}
     onChange={(e) => {
       const persona = personas.find((p) => p.id === e.target.value);
       if (persona) onSelect(persona);

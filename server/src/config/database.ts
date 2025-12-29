@@ -16,11 +16,12 @@
  * - MONGODB_URI: MongoDB connection string (defaults to localhost for development)
  */
 
-import mongoose from 'mongoose';
-import { logger } from '../utils/logger';
+import mongoose from "mongoose";
+import { logger } from "../utils/logger";
 
 // MongoDB connection string with development fallback
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/pagepersona';
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/pagepersona";
 
 /**
  * Establish connection to MongoDB database
@@ -43,22 +44,22 @@ export const connectToDatabase = async (): Promise<void> => {
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
 
     // Set up connection event handlers for monitoring
-    mongoose.connection.on('error', (err: Error) => {
-      logger.error('MongoDB connection error:', err);
+    mongoose.connection.on("error", (err: Error) => {
+      logger.error("MongoDB connection error:", err);
     });
 
-    mongoose.connection.on('disconnected', () => {
-      logger.info('MongoDB disconnected');
+    mongoose.connection.on("disconnected", () => {
+      logger.info("MongoDB disconnected");
     });
 
     // Handle graceful shutdown on process termination
-    process.on('SIGINT', async () => {
+    process.on("SIGINT", async () => {
       await mongoose.connection.close();
-      logger.info('MongoDB connection closed through app termination');
+      logger.info("MongoDB connection closed through app termination");
       process.exit(0);
     });
   } catch (error) {
-    logger.error('Database connection failed:', error);
+    logger.error("Database connection failed:", error);
     process.exit(1);
   }
 };
@@ -77,9 +78,9 @@ export const connectToDatabase = async (): Promise<void> => {
 export const disconnectFromDatabase = async (): Promise<void> => {
   try {
     await mongoose.connection.close();
-    logger.info('MongoDB connection closed');
+    logger.info("MongoDB connection closed");
   } catch (error) {
-    logger.error('Error closing database connection:', error);
+    logger.error("Error closing database connection:", error);
   }
 };
 

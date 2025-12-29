@@ -1,5 +1,5 @@
-import type { HistoryItem } from '../../hooks/useTransformationHistory';
-import './styles/TransformationHistory.css';
+import type { HistoryItem } from "../../hooks/useTransformationHistory";
+import "./styles/TransformationHistory.css";
 
 interface TransformationHistoryProps {
   history: HistoryItem[];
@@ -20,11 +20,15 @@ export default function TransformationHistory({
 }: TransformationHistoryProps) {
   const formatDate = (date: Date) => {
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60),
+    );
 
     if (diffInHours < 1) {
-      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-      return diffInMinutes <= 1 ? 'Just now' : `${diffInMinutes}m ago`;
+      const diffInMinutes = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60),
+      );
+      return diffInMinutes <= 1 ? "Just now" : `${diffInMinutes}m ago`;
     } else if (diffInHours < 24) {
       return `${diffInHours}h ago`;
     } else {
@@ -33,7 +37,9 @@ export default function TransformationHistory({
   };
 
   const truncateText = (text: string, maxLength: number = 100) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    return text.length > maxLength
+      ? text.substring(0, maxLength) + "..."
+      : text;
   };
 
   const getUrlDomain = (url: string) => {
@@ -47,7 +53,9 @@ export default function TransformationHistory({
   return (
     <>
       {/* Sidebar */}
-      <div className={`transformation-history-sidebar${isOpen ? '' : ' closed'}`}>
+      <div
+        className={`transformation-history-sidebar${isOpen ? "" : " closed"}`}
+      >
         <div className="transformation-history-container">
           {/* Header */}
           <div className="transformation-history-header">
@@ -67,7 +75,8 @@ export default function TransformationHistory({
               )}
             </div>
             <p className="transformation-history-summary">
-              {history.length} transformation{history.length !== 1 ? 's' : ''} saved
+              {history.length} transformation{history.length !== 1 ? "s" : ""}{" "}
+              saved
             </p>
           </div>
 
@@ -76,10 +85,12 @@ export default function TransformationHistory({
             {history.length === 0 ? (
               <div className="transformation-history-empty">
                 <div className="transformation-history-empty-icon">📜</div>
-                <p className="transformation-history-empty-title">No transformations yet</p>
+                <p className="transformation-history-empty-title">
+                  No transformations yet
+                </p>
                 <p className="transformation-history-empty-desc">
-                  Your transformation history will appear here as you generate content with
-                  different personas
+                  Your transformation history will appear here as you generate
+                  content with different personas
                 </p>
               </div>
             ) : (
@@ -113,13 +124,19 @@ export default function TransformationHistory({
                     {/* Source Info */}
                     <div className="transformation-history-source">
                       <div className="transformation-history-source-chip">
-                        <span>{item.originalUrl === 'Direct Text Input' ? '📝' : '🌐'}</span>
-                        {item.originalUrl === 'Direct Text Input'
-                          ? 'Text Input'
+                        <span>
+                          {item.originalUrl === "Direct Text Input"
+                            ? "📝"
+                            : "🌐"}
+                        </span>
+                        {item.originalUrl === "Direct Text Input"
+                          ? "Text Input"
                           : getUrlDomain(item.originalUrl)}
                       </div>
                       {item.originalTitle && (
-                        <p className="transformation-history-source-title">{item.originalTitle}</p>
+                        <p className="transformation-history-source-title">
+                          {item.originalTitle}
+                        </p>
                       )}
                     </div>
 
@@ -161,7 +178,9 @@ export default function TransformationHistory({
       </div>
 
       {/* Overlay */}
-      {isOpen && <div className="transformation-history-overlay" onClick={onToggle} />}
+      {isOpen && (
+        <div className="transformation-history-overlay" onClick={onToggle} />
+      )}
     </>
   );
 }

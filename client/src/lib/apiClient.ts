@@ -15,11 +15,12 @@
  * - Environment-based configuration
  */
 
-import type { ApiResponse } from '@pagepersonai/shared';
-import type { ClientPersona } from '@pagepersonai/shared';
-import { ErrorCode } from '@pagepersonai/shared';
+import type { ApiResponse } from "@pagepersonai/shared";
+import type { ClientPersona } from "@pagepersonai/shared";
+import { ErrorCode } from "@pagepersonai/shared";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 /**
  * Default request timeout in milliseconds (15 seconds)
@@ -92,9 +93,9 @@ export interface UserProfile {
   avatar?: string;
   isEmailVerified: boolean;
   role: string;
-  membership: 'free' | 'premium' | 'admin';
+  membership: "free" | "premium" | "admin";
   preferences: {
-    theme: 'light' | 'dark';
+    theme: "light" | "dark";
     language: string;
     notifications: boolean;
   };
@@ -133,12 +134,39 @@ export interface TransformTextRequest {
 }
 
 /**
+ * Job status response from async transformation endpoints
+ */
+export interface JobStatusResponse {
+  status: "queued" | "running" | "done" | "error";
+  jobId: string;
+  stage?: "scrape" | "clean" | "llm" | "save";
+  progress?: number;
+  data?: TransformResponse;
+  error?: string;
+  message?: string;
+  cached?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Poll configuration options
+ */
+export interface PollOptions {
+  maxAttempts?: number;
+  intervalMs?: number;
+  onProgress?: (status: JobStatusResponse) => void;
+}
+
+/**
  * Core HTTP client for making authenticated requests
  */
 class HttpClient {
-  private async getHeaders(customHeaders?: HeadersInit): Promise<Record<string, string>> {
+  private async getHeaders(
+    customHeaders?: HeadersInit,
+  ): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...((customHeaders as Record<string, string>) || {}),
     };
 
@@ -147,7 +175,7 @@ class HttpClient {
       try {
         const token = await getAccessTokenFunction();
         if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
+          headers["Authorization"] = `Bearer ${token}`;
         }
       } catch {
         // Failed to get token - continue without auth
@@ -157,12 +185,18 @@ class HttpClient {
     return headers;
   }
 
-  async request<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  async request<T = unknown>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
     // Create abort controller for timeout
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), DEFAULT_TIMEOUT_MS);
+    const timeoutId = setTimeout(
+      () => abortController.abort(),
+      DEFAULT_TIMEOUT_MS,
+    );
 
     const config: RequestInit = {
       headers: await this.getHeaders(options.headers),
@@ -179,7 +213,7 @@ class HttpClient {
         // Return enhanced error information from server
         return {
           success: false,
-          error: data.error || 'Request failed',
+          error: data.error || "Request failed",
           errorCode: data.errorCode,
           title: data.title,
           helpText: data.helpText,
@@ -198,33 +232,40 @@ class HttpClient {
       return { success: true, ...data } as T;
     } catch (error) {
       clearTimeout(timeoutId);
-      
+
       // Handle timeout specifically
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (error instanceof Error && error.name === "AbortError") {
         return {
           success: false,
-          error: 'Request timed out. Please check your connection and try again.',
+          error:
+            "Request timed out. Please check your connection and try again.",
           errorCode: ErrorCode.NETWORK_ERROR,
           timestamp: new Date(),
         } as T;
       }
-      
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error',
+        error: error instanceof Error ? error.message : "Network error",
         errorCode: ErrorCode.NETWORK_ERROR,
         timestamp: new Date(),
       } as T;
     }
   }
 
-  async get<T = unknown>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+  async get<T = unknown>(
+    endpoint: string,
+    customHeaders?: HeadersInit,
+  ): Promise<ApiResponse<T>> {
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), DEFAULT_TIMEOUT_MS);
-    
+    const timeoutId = setTimeout(
+      () => abortController.abort(),
+      DEFAULT_TIMEOUT_MS,
+    );
+
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'GET',
+        method: "GET",
         headers: await this.getHeaders(customHeaders),
         signal: abortController.signal,
       });
@@ -234,22 +275,23 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.error || 'Request failed',
+        error: response.ok ? undefined : data.error || "Request failed",
         message: data.message,
       };
     } catch (error) {
       clearTimeout(timeoutId);
-      
-      if (error instanceof Error && error.name === 'AbortError') {
+
+      if (error instanceof Error && error.name === "AbortError") {
         return {
           success: false,
-          error: 'Request timed out. Please check your connection and try again.',
+          error:
+            "Request timed out. Please check your connection and try again.",
         };
       }
-      
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error',
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
@@ -260,11 +302,14 @@ class HttpClient {
     customHeaders?: HeadersInit,
   ): Promise<ApiResponse<T>> {
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), DEFAULT_TIMEOUT_MS);
-    
+    const timeoutId = setTimeout(
+      () => abortController.abort(),
+      DEFAULT_TIMEOUT_MS,
+    );
+
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
+        method: "POST",
         headers: await this.getHeaders(customHeaders),
         body: body ? JSON.stringify(body) : undefined,
         signal: abortController.signal,
@@ -275,22 +320,23 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.error || 'Request failed',
+        error: response.ok ? undefined : data.error || "Request failed",
         message: data.message,
       };
     } catch (error) {
       clearTimeout(timeoutId);
-      
-      if (error instanceof Error && error.name === 'AbortError') {
+
+      if (error instanceof Error && error.name === "AbortError") {
         return {
           success: false,
-          error: 'Request timed out. Please check your connection and try again.',
+          error:
+            "Request timed out. Please check your connection and try again.",
         };
       }
-      
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error',
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
@@ -302,7 +348,7 @@ class HttpClient {
   ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: await this.getHeaders(customHeaders),
         body: body ? JSON.stringify(body) : undefined,
       });
@@ -311,13 +357,13 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.error || 'Request failed',
+        error: response.ok ? undefined : data.error || "Request failed",
         message: data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error',
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
   }
@@ -328,7 +374,7 @@ class HttpClient {
   ): Promise<ApiResponse<T>> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: await this.getHeaders(customHeaders),
       });
 
@@ -336,15 +382,79 @@ class HttpClient {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        error: response.ok ? undefined : data.error || 'Request failed',
+        error: response.ok ? undefined : data.error || "Request failed",
         message: data.message,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Network error',
+        error: error instanceof Error ? error.message : "Network error",
       };
     }
+  }
+
+  /**
+   * Poll for job completion with configurable interval and max attempts
+   *
+   * @param jobId - Job identifier to poll
+   * @param options - Polling configuration
+   * @returns Promise resolving to job result when complete
+   */
+  async pollJobStatus(
+    jobId: string,
+    options: PollOptions = {},
+  ): Promise<JobStatusResponse> {
+    const {
+      maxAttempts = 120, // 2 minutes at 1 second intervals
+      intervalMs = 1000,
+      onProgress,
+    } = options;
+
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+
+      try {
+        const response = await this.get<JobStatusResponse>(
+          `/transform/jobs/${jobId}`,
+        );
+
+        if (!response.success) {
+          throw new Error(response.error || "Failed to get job status");
+        }
+
+        const jobStatus = response.data;
+        if (!jobStatus) {
+          throw new Error("Job status data is missing");
+        }
+
+        // Call progress callback if provided
+        if (onProgress) {
+          onProgress(jobStatus);
+        }
+
+        // Check if job is complete
+        if (jobStatus.status === "done" || jobStatus.status === "error") {
+          return jobStatus;
+        }
+
+        // Wait before next poll
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      } catch (error) {
+        // If this is the last attempt, throw the error
+        if (attempts >= maxAttempts) {
+          throw error;
+        }
+        // Otherwise, wait and retry
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      }
+    }
+
+    // Max attempts reached
+    throw new Error(
+      "Job polling timed out. The transformation is still processing.",
+    );
   }
 }
 
@@ -356,63 +466,174 @@ class ApiClient {
 
   // Transform-related methods
   transform = {
-    webpage: async (request: TransformRequest): Promise<TransformResponse> => {
-      return this.http.request<TransformResponse>('/transform', {
-        method: 'POST',
-        body: JSON.stringify(request),
-      });
+    /**
+     * Transform webpage with async job polling
+     *
+     * Initiates transformation and polls for completion.
+     * Returns immediately if cached result is available.
+     */
+    webpage: async (
+      request: TransformRequest,
+      pollOptions?: PollOptions,
+    ): Promise<TransformResponse> => {
+      // Initiate transformation
+      const initResponse = await this.http.request<JobStatusResponse>(
+        "/transform",
+        {
+          method: "POST",
+          body: JSON.stringify(request),
+        },
+      );
+
+      // Check if we got an immediate result (cache hit)
+      if (initResponse.status === "done" && initResponse.data) {
+        return {
+          success: true,
+          ...initResponse.data,
+        };
+      }
+
+      // If we got a jobId, poll for completion
+      if (initResponse.jobId) {
+        const jobResult = await this.http.pollJobStatus(
+          initResponse.jobId,
+          pollOptions,
+        );
+
+        if (jobResult.status === "done" && jobResult.data) {
+          return {
+            success: true,
+            ...jobResult.data,
+          };
+        } else if (jobResult.status === "error") {
+          return {
+            success: false,
+            error: jobResult.error || "Transformation failed",
+          };
+        }
+      }
+
+      // Fallback error
+      return {
+        success: false,
+        error: "Failed to initiate transformation",
+      };
     },
 
-    text: async (request: TransformTextRequest): Promise<TransformResponse> => {
-      return this.http.request<TransformResponse>('/transform/text', {
-        method: 'POST',
-        body: JSON.stringify(request),
-      });
+    /**
+     * Transform text with async job polling
+     */
+    text: async (
+      request: TransformTextRequest,
+      pollOptions?: PollOptions,
+    ): Promise<TransformResponse> => {
+      // Initiate transformation
+      const initResponse = await this.http.request<JobStatusResponse>(
+        "/transform/text",
+        {
+          method: "POST",
+          body: JSON.stringify(request),
+        },
+      );
+
+      // Check if we got an immediate result (cache hit)
+      if (initResponse.status === "done" && initResponse.data) {
+        return {
+          success: true,
+          ...initResponse.data,
+        };
+      }
+
+      // If we got a jobId, poll for completion
+      if (initResponse.jobId) {
+        const jobResult = await this.http.pollJobStatus(
+          initResponse.jobId,
+          pollOptions,
+        );
+
+        if (jobResult.status === "done" && jobResult.data) {
+          return {
+            success: true,
+            ...jobResult.data,
+          };
+        } else if (jobResult.status === "error") {
+          return {
+            success: false,
+            error: jobResult.error || "Text transformation failed",
+          };
+        }
+      }
+
+      // Fallback error
+      return {
+        success: false,
+        error: "Failed to initiate text transformation",
+      };
+    },
+
+    /**
+     * Get job status without blocking
+     */
+    getJobStatus: async (jobId: string): Promise<JobStatusResponse> => {
+      const response = await this.http.get<JobStatusResponse>(
+        `/transform/jobs/${jobId}`,
+      );
+      if (!response.success) {
+        throw new Error(response.error || "Failed to get job status");
+      }
+      if (!response.data) {
+        throw new Error("Job status data is missing");
+      }
+      return response.data;
     },
 
     personas: async (): Promise<PersonaResponse> => {
-      return this.http.request<PersonaResponse>('/transform/personas');
+      return this.http.request<PersonaResponse>("/transform/personas");
     },
   };
 
   // User-related methods
   user = {
     profile: async (): Promise<UserProfileResponse> => {
-      return this.http.request<UserProfileResponse>('/user/profile');
+      return this.http.request<UserProfileResponse>("/user/profile");
     },
 
-    updateProfile: async (updates: Partial<UserProfile>): Promise<UserProfileResponse> => {
-      return this.http.request<UserProfileResponse>('/user/profile', {
-        method: 'PUT',
+    updateProfile: async (
+      updates: Partial<UserProfile>,
+    ): Promise<UserProfileResponse> => {
+      return this.http.request<UserProfileResponse>("/user/profile", {
+        method: "PUT",
         body: JSON.stringify(updates),
       });
     },
 
     usage: async (): Promise<UsageStatsResponse> => {
-      return this.http.request<UsageStatsResponse>('/user/usage');
+      return this.http.request<UsageStatsResponse>("/user/usage");
     },
   };
 
   // Auth-related methods
   auth = {
     user: async (): Promise<ApiResponse> => {
-      return this.http.get('/auth/user');
+      return this.http.get("/auth/user");
     },
 
     protected: async (): Promise<ApiResponse> => {
-      return this.http.get('/protected');
+      return this.http.get("/protected");
     },
   };
 
   // General utility methods
   general = {
     healthCheck: async (): Promise<HealthCheckResponse> => {
-      return this.http.request<HealthCheckResponse>('/health');
+      return this.http.request<HealthCheckResponse>("/health");
     },
   };
 
   // Legacy compatibility methods (for backward compatibility during migration)
-  async transformWebpage(request: TransformRequest): Promise<TransformResponse> {
+  async transformWebpage(
+    request: TransformRequest,
+  ): Promise<TransformResponse> {
     return this.transform.webpage(request);
   }
 
@@ -424,7 +645,9 @@ class ApiClient {
     return this.user.profile();
   }
 
-  async updateUserProfile(updates: Partial<UserProfile>): Promise<UserProfileResponse> {
+  async updateUserProfile(
+    updates: Partial<UserProfile>,
+  ): Promise<UserProfileResponse> {
     return this.user.updateProfile(updates);
   }
 
@@ -432,7 +655,9 @@ class ApiClient {
     return this.user.usage();
   }
 
-  async transformText(request: TransformTextRequest): Promise<TransformResponse> {
+  async transformText(
+    request: TransformTextRequest,
+  ): Promise<TransformResponse> {
     return this.transform.text(request);
   }
 
@@ -460,17 +685,17 @@ export const transformContent = async (
   if (getAccessToken) {
     const originalGetter = getAccessTokenFunction;
     setTokenGetter(getAccessToken);
-    const result = await apiClient.http.post('/transform', { url, persona });
+    const result = await apiClient.http.post("/transform", { url, persona });
     if (originalGetter) {
       setTokenGetter(originalGetter);
     }
     return result;
   }
-  return apiClient.http.post('/transform', { url, persona });
+  return apiClient.http.post("/transform", { url, persona });
 };
 
 export const getPersonas = async (): Promise<ApiResponse> => {
-  return apiClient.http.get('/transform/personas');
+  return apiClient.http.get("/transform/personas");
 };
 
 export const getProtectedData = async (
@@ -478,7 +703,7 @@ export const getProtectedData = async (
 ): Promise<ApiResponse> => {
   const originalGetter = getAccessTokenFunction;
   setTokenGetter(getAccessToken);
-  const result = await apiClient.http.get('/protected');
+  const result = await apiClient.http.get("/protected");
   if (originalGetter) {
     setTokenGetter(originalGetter);
   }
@@ -490,7 +715,7 @@ export const getUserProfile = async (
 ): Promise<ApiResponse> => {
   const originalGetter = getAccessTokenFunction;
   setTokenGetter(getAccessToken);
-  const result = await apiClient.http.get('/auth/user');
+  const result = await apiClient.http.get("/auth/user");
   if (originalGetter) {
     setTokenGetter(originalGetter);
   }

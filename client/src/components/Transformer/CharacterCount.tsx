@@ -38,7 +38,7 @@ export default function CharacterCount({
   current,
   max,
   hasError = false,
-  className = '',
+  className = "",
 }: CharacterCountProps) {
   const percentage = (current / max) * 100;
   const isWarning = percentage > 90 && !hasError;
@@ -47,10 +47,10 @@ export default function CharacterCount({
     <div
       className={`character-count ${
         hasError
-          ? 'character-count-error'
+          ? "character-count-error"
           : isWarning
-            ? 'character-count-warning'
-            : 'character-count-normal'
+            ? "character-count-warning"
+            : "character-count-normal"
       } ${className}`}
     >
       {current.toLocaleString()} / {max.toLocaleString()} characters

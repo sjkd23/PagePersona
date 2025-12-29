@@ -2,7 +2,7 @@ interface UrlInputDemoProps {
   className?: string;
 }
 
-export default function UrlInputDemo({ className = '' }: UrlInputDemoProps) {
+export default function UrlInputDemo({ className = "" }: UrlInputDemoProps) {
   return (
     <div className={`visual-item ${className}`}>
       <img

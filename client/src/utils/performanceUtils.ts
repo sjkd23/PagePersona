@@ -19,8 +19,8 @@ export class PerformanceUtils {
    *
    * @param imageSelector - CSS selector for images to lazy load
    */
-  static setupLazyLoading(imageSelector: string = 'img[data-src]'): void {
-    if (!('IntersectionObserver' in window)) {
+  static setupLazyLoading(imageSelector: string = "img[data-src]"): void {
+    if (!("IntersectionObserver" in window)) {
       // Fallback for browsers without IntersectionObserver
       this.loadAllImages(imageSelector);
       return;
@@ -35,15 +35,15 @@ export class PerformanceUtils {
 
             if (src) {
               img.src = src;
-              img.removeAttribute('data-src');
-              img.classList.add('loaded');
+              img.removeAttribute("data-src");
+              img.classList.add("loaded");
               observer.unobserve(img);
             }
           }
         });
       },
       {
-        rootMargin: '50px 0px',
+        rootMargin: "50px 0px",
         threshold: 0.01,
       },
     );
@@ -60,8 +60,8 @@ export class PerformanceUtils {
    */
   static prefetchResources(resources: string[]): void {
     resources.forEach((resource) => {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
+      const link = document.createElement("link");
+      link.rel = "prefetch";
       link.href = resource;
       document.head.appendChild(link);
     });
@@ -74,12 +74,12 @@ export class PerformanceUtils {
    */
   static preloadFonts(fonts: string[]): void {
     fonts.forEach((font) => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
+      const link = document.createElement("link");
+      link.rel = "preload";
       link.href = font;
-      link.as = 'font';
-      link.type = 'font/woff2';
-      link.crossOrigin = 'anonymous';
+      link.as = "font";
+      link.type = "font/woff2";
+      link.crossOrigin = "anonymous";
       document.head.appendChild(link);
     });
   }
@@ -89,13 +89,13 @@ export class PerformanceUtils {
    *
    * @param swPath - Path to service worker file
    */
-  static async setupServiceWorker(swPath: string = '/sw.js'): Promise<void> {
-    if ('serviceWorker' in navigator) {
+  static async setupServiceWorker(swPath: string = "/sw.js"): Promise<void> {
+    if ("serviceWorker" in navigator) {
       try {
         const registration = await navigator.serviceWorker.register(swPath);
-        console.log('SW registered: ', registration);
+        console.log("SW registered: ", registration);
       } catch (registrationError) {
-        console.log('SW registration failed: ', registrationError);
+        console.log("SW registration failed: ", registrationError);
       }
     }
   }
@@ -158,8 +158,8 @@ export class PerformanceUtils {
     new PerformanceObserver((entryList) => {
       const entries = entryList.getEntries();
       const lastEntry = entries[entries.length - 1];
-      console.log('LCP:', lastEntry.startTime);
-    }).observe({ entryTypes: ['largest-contentful-paint'] });
+      console.log("LCP:", lastEntry.startTime);
+    }).observe({ entryTypes: ["largest-contentful-paint"] });
 
     // First Input Delay (FID)
     new PerformanceObserver((entryList) => {
@@ -169,9 +169,9 @@ export class PerformanceUtils {
           processingStart: number;
           startTime: number;
         };
-        console.log('FID:', fidEntry.processingStart - fidEntry.startTime);
+        console.log("FID:", fidEntry.processingStart - fidEntry.startTime);
       });
-    }).observe({ entryTypes: ['first-input'] });
+    }).observe({ entryTypes: ["first-input"] });
 
     // Cumulative Layout Shift (CLS)
     let clsValue = 0;
@@ -186,11 +186,11 @@ export class PerformanceUtils {
         ) => {
           if (!entry.hadRecentInput && entry.value) {
             clsValue += entry.value;
-            console.log('CLS:', clsValue);
+            console.log("CLS:", clsValue);
           }
         },
       );
-    }).observe({ entryTypes: ['layout-shift'] });
+    }).observe({ entryTypes: ["layout-shift"] });
   }
 
   /**
@@ -199,28 +199,31 @@ export class PerformanceUtils {
   static setupResourceHints(): void {
     // DNS prefetch for external domains
     const dnsPrefetchDomains = [
-      '//fonts.googleapis.com',
-      '//fonts.gstatic.com',
-      '//api.openai.com',
-      '//auth0.com',
+      "//fonts.googleapis.com",
+      "//fonts.gstatic.com",
+      "//api.openai.com",
+      "//auth0.com",
     ];
 
     dnsPrefetchDomains.forEach((domain) => {
-      const link = document.createElement('link');
-      link.rel = 'dns-prefetch';
+      const link = document.createElement("link");
+      link.rel = "dns-prefetch";
       link.href = domain;
       document.head.appendChild(link);
     });
 
     // Preconnect to critical domains
-    const preconnectDomains = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
+    const preconnectDomains = [
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com",
+    ];
 
     preconnectDomains.forEach((domain) => {
-      const link = document.createElement('link');
-      link.rel = 'preconnect';
+      const link = document.createElement("link");
+      link.rel = "preconnect";
       link.href = domain;
-      if (domain.includes('gstatic')) {
-        link.crossOrigin = 'anonymous';
+      if (domain.includes("gstatic")) {
+        link.crossOrigin = "anonymous";
       }
       document.head.appendChild(link);
     });
@@ -230,14 +233,14 @@ export class PerformanceUtils {
    * Optimize images by adding loading="lazy" attribute
    */
   static optimizeImages(): void {
-    document.querySelectorAll('img').forEach((img) => {
+    document.querySelectorAll("img").forEach((img) => {
       if (!img.loading) {
-        img.loading = 'lazy';
+        img.loading = "lazy";
       }
 
       // Add alt text if missing (accessibility and SEO)
       if (!img.alt) {
-        img.alt = img.title || 'Image';
+        img.alt = img.title || "Image";
       }
     });
   }
@@ -248,7 +251,7 @@ export class PerformanceUtils {
    * @param criticalCSS - Critical CSS string to inline
    */
   static inlineCriticalCSS(criticalCSS: string): void {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = criticalCSS;
     document.head.appendChild(style);
   }
@@ -261,7 +264,7 @@ export class PerformanceUtils {
       const src = image.dataset.src;
       if (src) {
         image.src = src;
-        image.removeAttribute('data-src');
+        image.removeAttribute("data-src");
       }
     });
   }
@@ -271,7 +274,7 @@ export class PerformanceUtils {
  * React Hook for performance monitoring
  */
 export function usePerformanceMonitoring(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   // Monitor Web Vitals in development
   if (import.meta.env.DEV) {

@@ -19,10 +19,10 @@
 //
 // ==========================================
 
-import { IMongoUser } from '../models/mongo-user';
-import type { DateLike, Auth0JwtPayload } from '../types/common';
-import { safeGetAuth0Claims, safeGetEmail } from './auth0-claims';
-import { logger } from './logger';
+import { IMongoUser } from "../models/mongo-user";
+import type { DateLike, Auth0JwtPayload } from "../types/common";
+import { safeGetAuth0Claims, safeGetEmail } from "./auth0-claims";
+import { logger } from "./logger";
 
 // ==========================================
 // TYPE DEFINITIONS
@@ -108,17 +108,17 @@ export interface NormalizedUserContext {
 export function serializeMongoUser(user: IMongoUser): SerializedUser {
   // Safety check: Log the user object if any critical fields are missing for debugging
   if (!user?._id || !user?.auth0Id || !user?.email || !user?.username) {
-    logger.warn('serializeMongoUser: Incomplete user object detected:', {
+    logger.warn("serializeMongoUser: Incomplete user object detected:", {
       hasId: !!user?._id,
       hasAuth0Id: !!user?.auth0Id,
       hasEmail: !!user?.email,
       hasUsername: !!user?.username,
-      userKeys: user ? Object.keys(user) : 'user is null/undefined',
+      userKeys: user ? Object.keys(user) : "user is null/undefined",
     });
   }
 
   // Safely handle user ID conversion
-  const userId = user?._id?.toString() || 'unknown';
+  const userId = user?._id?.toString() || "unknown";
 
   // Safely handle dates with fallbacks using safe conversion utilities
   const now = new Date();
@@ -131,25 +131,25 @@ export function serializeMongoUser(user: IMongoUser): SerializedUser {
 
   // Safely handle preferences with defaults
   const preferences = user?.preferences || {
-    theme: 'light',
-    language: 'en',
+    theme: "light",
+    language: "en",
     notifications: true,
   };
 
   return {
     id: userId,
-    auth0Id: user?.auth0Id || '',
-    email: user?.email || '',
-    username: user?.username || '',
+    auth0Id: user?.auth0Id || "",
+    email: user?.email || "",
+    username: user?.username || "",
     firstName: user?.firstName || undefined,
     lastName: user?.lastName || undefined,
     avatar: user?.avatar || undefined,
     isEmailVerified: user?.isEmailVerified || false,
-    role: user?.role || 'user',
-    membership: user?.membership || 'free',
+    role: user?.role || "user",
+    membership: user?.membership || "free",
     preferences: {
-      theme: preferences.theme || 'light',
-      language: preferences.language || 'en',
+      theme: preferences.theme || "light",
+      language: preferences.language || "en",
       notifications: preferences.notifications !== false, // default to true
     },
     usage: {
@@ -162,7 +162,9 @@ export function serializeMongoUser(user: IMongoUser): SerializedUser {
     },
     createdAt: safeCreatedAt.toISOString(),
     updatedAt: safeUpdatedAt.toISOString(),
-    lastLoginAt: user?.lastLoginAt ? safeToISOString(user.lastLoginAt) : undefined,
+    lastLoginAt: user?.lastLoginAt
+      ? safeToISOString(user.lastLoginAt)
+      : undefined,
   };
 }
 
@@ -170,9 +172,11 @@ export function serializeMongoUser(user: IMongoUser): SerializedUser {
  * Serialize Auth0 user data to a normalized format
  * Handles raw Auth0 JWT payloads or processed user objects
  */
-export function serializeAuth0User(auth0User: Auth0JwtPayload): SerializedAuth0User {
+export function serializeAuth0User(
+  auth0User: Auth0JwtPayload,
+): SerializedAuth0User {
   if (!auth0User) {
-    throw new Error('Auth0 user object is required for serialization');
+    throw new Error("Auth0 user object is required for serialization");
   }
 
   try {
@@ -192,9 +196,9 @@ export function serializeAuth0User(auth0User: Auth0JwtPayload): SerializedAuth0U
       updatedAt: claims.updatedAt,
     };
   } catch (error) {
-    logger.error('Failed to serialize Auth0 user:', error);
+    logger.error("Failed to serialize Auth0 user:", error);
     throw new Error(
-      `Auth0 user serialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Auth0 user serialization failed: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
   }
 }
@@ -210,7 +214,9 @@ export function normalizeUserContext(context: {
   isNewUser?: boolean;
 }): NormalizedUserContext {
   if (!context.mongoUser || !context.userId) {
-    throw new Error('MongoDB user and userId are required for context normalization');
+    throw new Error(
+      "MongoDB user and userId are required for context normalization",
+    );
   }
 
   const serializedMongoUser = serializeMongoUser(context.mongoUser);
@@ -290,18 +296,22 @@ export function serializeUserSummary(user: IMongoUser): SerializedUserSummary {
   const displayName =
     user.firstName && user.lastName
       ? `${user.firstName} ${user.lastName}`
-      : user.username || user.email?.split('@')[0] || 'Unknown User';
+      : user.username || user.email?.split("@")[0] || "Unknown User";
 
   return {
-    id: user._id?.toString() || 'unknown',
-    email: user.email || '',
-    username: user.username || '',
+    id: user._id?.toString() || "unknown",
+    email: user.email || "",
+    username: user.username || "",
     displayName,
     avatar: user.avatar,
-    role: user.role || 'user',
-    membership: user.membership || 'free',
-    memberSince: user.createdAt ? safeToISOString(user.createdAt) : new Date().toISOString(),
-    lastActive: user.lastLoginAt ? safeToISOString(user.lastLoginAt) : undefined,
+    role: user.role || "user",
+    membership: user.membership || "free",
+    memberSince: user.createdAt
+      ? safeToISOString(user.createdAt)
+      : new Date().toISOString(),
+    lastActive: user.lastLoginAt
+      ? safeToISOString(user.lastLoginAt)
+      : undefined,
     totalTransformations: user.usage?.totalTransformations || 0,
     monthlyUsage: user.usage?.monthlyUsage || 0,
     isEmailVerified: user.isEmailVerified || false,
@@ -363,8 +373,11 @@ export function createErrorResponse(
  * @param user - User object of unknown structure
  * @param label - Label for the log output
  */
-export function safeLogUser(user: unknown, label: string = 'User object'): void {
-  if (!user || typeof user !== 'object') {
+export function safeLogUser(
+  user: unknown,
+  label: string = "User object",
+): void {
+  if (!user || typeof user !== "object") {
     logger.debug(`${label}: Invalid or null user`);
     return;
   }
@@ -373,10 +386,10 @@ export function safeLogUser(user: unknown, label: string = 'User object'): void 
     // Safe property access with type checking
     const userRecord = user as Record<string, unknown>;
     const safeUser = {
-      _id: userRecord._id?.toString?.() || 'No ID',
-      auth0Id: userRecord.auth0Id || 'No Auth0 ID',
-      email: userRecord.email || 'No email',
-      username: userRecord.username || 'No username',
+      _id: userRecord._id?.toString?.() || "No ID",
+      auth0Id: userRecord.auth0Id || "No Auth0 ID",
+      email: userRecord.email || "No email",
+      username: userRecord.username || "No username",
       hasUsage: !!userRecord.usage,
       hasPreferences: !!userRecord.preferences,
       createdAt: userRecord.createdAt,
@@ -401,7 +414,7 @@ export function safeToISOString(
 ): string {
   try {
     // Handle null, undefined, or empty values
-    if (dateValue == null || dateValue === '') {
+    if (dateValue == null || dateValue === "") {
       return fallback.toISOString();
     }
 
@@ -410,7 +423,7 @@ export function safeToISOString(
 
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      logger.warn('safeToISOString: Invalid date detected', {
+      logger.warn("safeToISOString: Invalid date detected", {
         dateValue,
         fallback: fallback.toISOString(),
       });
@@ -419,7 +432,7 @@ export function safeToISOString(
 
     return date.toISOString();
   } catch (error) {
-    logger.warn('safeToISOString: Error converting date', { dateValue, error });
+    logger.warn("safeToISOString: Error converting date", { dateValue, error });
     return fallback.toISOString();
   }
 }
@@ -427,16 +440,19 @@ export function safeToISOString(
 /**
  * Safely create a Date object with fallback
  */
-export function safeDate(dateValue: DateLike, fallback: Date = new Date()): Date {
+export function safeDate(
+  dateValue: DateLike,
+  fallback: Date = new Date(),
+): Date {
   try {
-    if (dateValue == null || dateValue === '') {
+    if (dateValue == null || dateValue === "") {
       return fallback;
     }
 
     const date = new Date(dateValue);
 
     if (isNaN(date.getTime())) {
-      logger.warn('safeDate: Invalid date detected', {
+      logger.warn("safeDate: Invalid date detected", {
         dateValue,
         fallback: fallback.toISOString(),
       });
@@ -445,7 +461,7 @@ export function safeDate(dateValue: DateLike, fallback: Date = new Date()): Date
 
     return date;
   } catch (error) {
-    logger.warn('safeDate: Error creating date', { dateValue, error });
+    logger.warn("safeDate: Error creating date", { dateValue, error });
     return fallback;
   }
 }

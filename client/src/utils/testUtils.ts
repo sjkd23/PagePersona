@@ -14,7 +14,7 @@
  * })
  */
 
-import { act } from '@testing-library/react';
+import { act } from "@testing-library/react";
 
 // Helper to wrap async operations that trigger React updates
 export const actAsync = async (fn: () => Promise<void> | void) => {

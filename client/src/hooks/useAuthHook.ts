@@ -5,4 +5,4 @@
  * where hooks and components shouldn't be in the same file.
  */
 
-export { useAuth } from './useAuth';
+export { useAuth } from "./useAuth";

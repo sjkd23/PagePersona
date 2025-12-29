@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ContentTransformer } from '../content-transformer';
-import type { ScrapedContent } from '../../utils/web-scraper';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ContentTransformer } from "../content-transformer";
+import type { ScrapedContent } from "../../utils/web-scraper";
 
 // Mock OpenAI
-vi.mock('openai', () => {
+vi.mock("openai", () => {
   return {
     default: vi.fn().mockImplementation(() => ({
       chat: {
@@ -16,81 +16,87 @@ vi.mock('openai', () => {
 });
 
 // Mock personas data
-vi.mock('../../shared/constants/personas', () => ({
+vi.mock("../../shared/constants/personas", () => ({
   getPersona: vi.fn().mockImplementation((id: string) => {
-    if (!id || id.trim() === '') {
+    if (!id || id.trim() === "") {
       return null;
     }
     return {
-      id: 'test-persona',
-      name: 'Test Persona',
-      description: 'A test persona for testing',
-      systemPrompt: 'You are a test assistant. Transform the provided content.',
-      prompt: 'You are a test assistant',
+      id: "test-persona",
+      name: "Test Persona",
+      description: "A test persona for testing",
+      systemPrompt: "You are a test assistant. Transform the provided content.",
+      prompt: "You are a test assistant",
     };
   }),
 }));
 
-describe('ContentTransformer', () => {
+describe("ContentTransformer", () => {
   let contentTransformer: ContentTransformer;
-  const mockApiKey = 'test-api-key';
+  const mockApiKey = "test-api-key";
 
   beforeEach(() => {
     vi.clearAllMocks();
     contentTransformer = new ContentTransformer(mockApiKey);
   });
 
-  describe('constructor', () => {
-    it('should initialize with API key', () => {
+  describe("constructor", () => {
+    it("should initialize with API key", () => {
       expect(contentTransformer).toBeInstanceOf(ContentTransformer);
     });
   });
 
-  describe('transformContent', () => {
+  describe("transformContent", () => {
     const mockScrapedContent: ScrapedContent = {
-      title: 'Test Article',
-      content: 'This is test content for transformation.',
-      url: 'https://example.com/test',
+      title: "Test Article",
+      content: "This is test content for transformation.",
+      url: "https://example.com/test",
       metadata: {
-        description: 'Test description',
-        author: 'Test Author',
-        publishDate: '2023-01-01',
+        description: "Test description",
+        author: "Test Author",
+        publishDate: "2023-01-01",
         wordCount: 8,
       },
     };
 
-    it('should return error for null scraped content', async () => {
-      const result = await contentTransformer.transformContent(null as any, 'test-persona');
+    it("should return error for null scraped content", async () => {
+      const result = await contentTransformer.transformContent(
+        null as any,
+        "test-persona",
+      );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Invalid scraped content');
+      expect(result.error).toContain("Invalid scraped content");
     });
 
-    it('should return error for undefined scraped content', async () => {
-      const result = await contentTransformer.transformContent(undefined as any, 'test-persona');
+    it("should return error for undefined scraped content", async () => {
+      const result = await contentTransformer.transformContent(
+        undefined as any,
+        "test-persona",
+      );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Invalid scraped content');
+      expect(result.error).toContain("Invalid scraped content");
     });
 
-    it('should validate scraped content structure', async () => {
-      const invalidContent = { title: 'Test' }; // Missing required fields
+    it("should validate scraped content structure", async () => {
+      const invalidContent = { title: "Test" }; // Missing required fields
 
       const result = await contentTransformer.transformContent(
         invalidContent as any,
-        'test-persona',
+        "test-persona",
       );
 
       expect(result.success).toBe(false);
     });
 
-    it('should handle valid transformation request structure', async () => {
+    it("should handle valid transformation request structure", async () => {
       // Mock successful OpenAI response
       const mockOpenAIResponse = {
         choices: [
           {
             message: {
-              content: 'Transformed content here',
+              content: "Transformed content here",
             },
           },
         ],
@@ -102,7 +108,7 @@ describe('ContentTransformer', () => {
       };
 
       // Get the mock instance and setup the response
-      const OpenAI = await import('openai');
+      const OpenAI = await import("openai");
       const mockCreate = vi.fn().mockResolvedValue(mockOpenAIResponse);
       (OpenAI.default as any).mockImplementation(() => ({
         chat: {
@@ -115,48 +121,57 @@ describe('ContentTransformer', () => {
       // Create new instance to use mocked OpenAI
       const transformer = new ContentTransformer(mockApiKey);
 
-      const result = await transformer.transformContent(mockScrapedContent, 'test-persona');
+      const result = await transformer.transformContent(
+        mockScrapedContent,
+        "test-persona",
+      );
 
       // The actual implementation might return success or failure based on internal validation
       // This test verifies the method can be called with valid parameters
-      expect(result).toHaveProperty('success');
-      expect(result).toHaveProperty('originalContent');
-      expect(result.originalContent.title).toBe('Test Article');
-      expect(result.originalContent.url).toBe('https://example.com/test');
+      expect(result).toHaveProperty("success");
+      expect(result).toHaveProperty("originalContent");
+      expect(result.originalContent.title).toBe("Test Article");
+      expect(result.originalContent.url).toBe("https://example.com/test");
     });
   });
 
-  describe('input validation', () => {
-    it('should handle empty string persona', async () => {
+  describe("input validation", () => {
+    it("should handle empty string persona", async () => {
       const mockScrapedContent: ScrapedContent = {
-        title: 'Test',
-        content: 'Test content',
-        url: 'https://example.com',
+        title: "Test",
+        content: "Test content",
+        url: "https://example.com",
         metadata: {
           wordCount: 2,
         },
       };
 
-      const result = await contentTransformer.transformContent(mockScrapedContent, '');
+      const result = await contentTransformer.transformContent(
+        mockScrapedContent,
+        "",
+      );
 
       expect(result.success).toBe(false);
     });
 
-    it('should handle malformed URL in scraped content', async () => {
+    it("should handle malformed URL in scraped content", async () => {
       const malformedContent: ScrapedContent = {
-        title: 'Test',
-        content: 'Test content',
-        url: 'not-a-valid-url',
+        title: "Test",
+        content: "Test content",
+        url: "not-a-valid-url",
         metadata: {
           wordCount: 2,
         },
       };
 
-      const result = await contentTransformer.transformContent(malformedContent, 'test-persona');
+      const result = await contentTransformer.transformContent(
+        malformedContent,
+        "test-persona",
+      );
 
       // Should still process but may include the malformed URL in the result
-      expect(result).toHaveProperty('success');
-      expect(result.originalContent.url).toBe('not-a-valid-url');
+      expect(result).toHaveProperty("success");
+      expect(result.originalContent.url).toBe("not-a-valid-url");
     });
   });
 });

@@ -1,8 +1,8 @@
 // Auth0 claim utilities for safe, consistent access to user data
 // Handles environment variations and provides fallbacks
 
-import type { Auth0JwtPayload } from '../types/common';
-import { logger } from './logger';
+import type { Auth0JwtPayload } from "../types/common";
+import { logger } from "./logger";
 
 interface SafeAuth0Claims {
   sub: string;
@@ -21,16 +21,16 @@ interface SafeAuth0Claims {
  * Standard Auth0 claim mappings that should be consistent across environments
  */
 const STANDARD_CLAIMS = {
-  sub: 'sub', // Always present, unique identifier
-  email: 'email', // Standard email claim
-  emailVerified: 'email_verified', // Email verification status
-  name: 'name', // Full name
-  givenName: 'given_name', // First name
-  familyName: 'family_name', // Last name
-  nickname: 'nickname', // Username/nickname
-  picture: 'picture', // Profile picture URL
-  locale: 'locale', // User locale
-  updatedAt: 'updated_at', // Last update timestamp
+  sub: "sub", // Always present, unique identifier
+  email: "email", // Standard email claim
+  emailVerified: "email_verified", // Email verification status
+  name: "name", // Full name
+  givenName: "given_name", // First name
+  familyName: "family_name", // Last name
+  nickname: "nickname", // Username/nickname
+  picture: "picture", // Profile picture URL
+  locale: "locale", // User locale
+  updatedAt: "updated_at", // Last update timestamp
 } as const;
 
 /**
@@ -40,24 +40,30 @@ const STANDARD_CLAIMS = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ENVIRONMENT_CLAIMS = {
   // Custom claims might have different paths per environment
-  customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
-  roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
-  permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions',
+  customUserId:
+    process.env.AUTH0_CUSTOM_USER_ID_CLAIM ||
+    "https://api.pagepersona.com/user_id",
+  roles: process.env.AUTH0_ROLES_CLAIM || "https://api.pagepersona.com/roles",
+  permissions:
+    process.env.AUTH0_PERMISSIONS_CLAIM ||
+    "https://api.pagepersona.com/permissions",
 };
 
 /**
  * Safely extract standard claims from Auth0 user object
  * Provides consistent access regardless of JWT structure variations
  */
-export function safeGetAuth0Claims(auth0User: Auth0JwtPayload): SafeAuth0Claims {
+export function safeGetAuth0Claims(
+  auth0User: Auth0JwtPayload,
+): SafeAuth0Claims {
   if (!auth0User) {
-    throw new Error('Auth0 user object is required');
+    throw new Error("Auth0 user object is required");
   }
 
   // Sub is required - this should always be present
   const sub = auth0User[STANDARD_CLAIMS.sub];
   if (!sub) {
-    throw new Error('Auth0 sub claim is missing - invalid JWT token');
+    throw new Error("Auth0 sub claim is missing - invalid JWT token");
   }
 
   return {
@@ -77,16 +83,22 @@ export function safeGetAuth0Claims(auth0User: Auth0JwtPayload): SafeAuth0Claims 
 /**
  * Get custom claims with environment-specific handling
  */
-export function safeGetCustomClaims(auth0User: Auth0JwtPayload): Record<string, unknown> {
+export function safeGetCustomClaims(
+  auth0User: Auth0JwtPayload,
+): Record<string, unknown> {
   if (!auth0User) {
     return {};
   }
 
   // Read environment claims dynamically to allow for test overrides
   const environmentClaims = {
-    customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
-    roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
-    permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions',
+    customUserId:
+      process.env.AUTH0_CUSTOM_USER_ID_CLAIM ||
+      "https://api.pagepersona.com/user_id",
+    roles: process.env.AUTH0_ROLES_CLAIM || "https://api.pagepersona.com/roles",
+    permissions:
+      process.env.AUTH0_PERMISSIONS_CLAIM ||
+      "https://api.pagepersona.com/permissions",
   };
 
   return {
@@ -104,19 +116,32 @@ export function safeGetEmail(auth0User: Auth0JwtPayload): string | null {
 
   // Try standard email claim first
   const standardEmail = auth0User[STANDARD_CLAIMS.email];
-  if (standardEmail && typeof standardEmail === 'string' && standardEmail.includes('@')) {
+  if (
+    standardEmail &&
+    typeof standardEmail === "string" &&
+    standardEmail.includes("@")
+  ) {
     return standardEmail;
   }
 
   // Fallback to sub if it looks like an email
   const sub = auth0User[STANDARD_CLAIMS.sub];
-  if (sub && typeof sub === 'string' && sub.includes('@') && !sub.startsWith('auth0|')) {
+  if (
+    sub &&
+    typeof sub === "string" &&
+    sub.includes("@") &&
+    !sub.startsWith("auth0|")
+  ) {
     return sub;
   }
 
   // Check for environment-specific email claims
   const customEmail = auth0User[`${process.env.AUTH0_DOMAIN}/email`];
-  if (customEmail && typeof customEmail === 'string' && customEmail.includes('@')) {
+  if (
+    customEmail &&
+    typeof customEmail === "string" &&
+    customEmail.includes("@")
+  ) {
     return customEmail;
   }
 
@@ -127,7 +152,7 @@ export function safeGetEmail(auth0User: Auth0JwtPayload): string | null {
  * Safe name extraction with fallback hierarchy
  */
 export function safeGetDisplayName(auth0User: Auth0JwtPayload): string {
-  if (!auth0User) return 'Anonymous User';
+  if (!auth0User) return "Anonymous User";
 
   const claims = safeGetAuth0Claims(auth0User);
 
@@ -137,7 +162,10 @@ export function safeGetDisplayName(auth0User: Auth0JwtPayload): string {
   }
 
   if (claims.givenName || claims.familyName) {
-    return [claims.givenName, claims.familyName].filter(Boolean).join(' ').trim();
+    return [claims.givenName, claims.familyName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
   }
 
   if (claims.nickname && claims.nickname.trim()) {
@@ -146,12 +174,12 @@ export function safeGetDisplayName(auth0User: Auth0JwtPayload): string {
 
   const email = safeGetEmail(auth0User);
   if (email) {
-    return email.split('@')[0]; // Use email username part
+    return email.split("@")[0]; // Use email username part
   }
 
   // Last resort: use sub but clean it up
   const sub = claims.sub;
-  if (sub.startsWith('auth0|')) {
+  if (sub.startsWith("auth0|")) {
     return `User ${sub.slice(-6)}`; // "User abc123"
   }
 
@@ -168,12 +196,12 @@ export function validateAuth0User(auth0User: Auth0JwtPayload): {
   const errors: string[] = [];
 
   if (!auth0User) {
-    errors.push('Auth0 user object is null or undefined');
+    errors.push("Auth0 user object is null or undefined");
     return { isValid: false, errors };
   }
 
-  if (typeof auth0User !== 'object') {
-    errors.push('Auth0 user is not an object');
+  if (typeof auth0User !== "object") {
+    errors.push("Auth0 user is not an object");
     return { isValid: false, errors };
   }
 
@@ -182,14 +210,14 @@ export function validateAuth0User(auth0User: Auth0JwtPayload): {
     errors.push('Missing required "sub" claim');
   }
 
-  if (typeof auth0User.sub !== 'string') {
-    errors.push('Sub claim must be a string');
+  if (typeof auth0User.sub !== "string") {
+    errors.push("Sub claim must be a string");
   }
 
   // Check optional but important fields
   const email = safeGetEmail(auth0User);
   if (auth0User.email && !email) {
-    errors.push('Email claim is present but invalid format');
+    errors.push("Email claim is present but invalid format");
   }
 
   return {
@@ -202,49 +230,57 @@ export function validateAuth0User(auth0User: Auth0JwtPayload): {
  * Debug utility - log all claims for troubleshooting
  * Only logs in non-production environments
  */
-export function debugAuth0Claims(auth0User: Auth0JwtPayload, userId?: string): void {
+export function debugAuth0Claims(
+  auth0User: Auth0JwtPayload,
+  userId?: string,
+): void {
   // Only log in non-production environments
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     return;
   }
 
   try {
-    const userIdText = userId ? ` for user ${userId}` : '';
+    const userIdText = userId ? ` for user ${userId}` : "";
     logger.debug(`Auth0 Claims Debug${userIdText}:`);
 
     // Log standard claims
     const standardClaims = safeGetAuth0Claims(auth0User);
-    logger.debug('Standard Claims:', { claims: standardClaims });
+    logger.debug("Standard Claims:", { claims: standardClaims });
 
     // Log custom claims
     const customClaims = safeGetCustomClaims(auth0User);
-    logger.debug('Custom Claims:', { claims: customClaims });
+    logger.debug("Custom Claims:", { claims: customClaims });
 
     // Log safe email
     const email = safeGetEmail(auth0User);
-    logger.debug('Safe Email:', { email });
+    logger.debug("Safe Email:", { email });
 
     // Log display name
     const displayName = safeGetDisplayName(auth0User);
-    logger.debug('Display Name:', { displayName });
+    logger.debug("Display Name:", { displayName });
 
     // Check for unknown claims
     const environmentClaims = {
-      customUserId: process.env.AUTH0_CUSTOM_USER_ID_CLAIM || 'https://api.pagepersona.com/user_id',
-      roles: process.env.AUTH0_ROLES_CLAIM || 'https://api.pagepersona.com/roles',
-      permissions: process.env.AUTH0_PERMISSIONS_CLAIM || 'https://api.pagepersona.com/permissions',
+      customUserId:
+        process.env.AUTH0_CUSTOM_USER_ID_CLAIM ||
+        "https://api.pagepersona.com/user_id",
+      roles:
+        process.env.AUTH0_ROLES_CLAIM || "https://api.pagepersona.com/roles",
+      permissions:
+        process.env.AUTH0_PERMISSIONS_CLAIM ||
+        "https://api.pagepersona.com/permissions",
     };
 
     const knownClaimKeys = new Set([
       ...Object.values(STANDARD_CLAIMS),
       ...Object.values(environmentClaims),
-      'iss',
-      'aud',
-      'iat',
-      'exp',
-      'azp',
-      'scope',
-      'gty',
+      "iss",
+      "aud",
+      "iat",
+      "exp",
+      "azp",
+      "scope",
+      "gty",
     ]);
 
     const unknownClaimEntries = Object.entries(auth0User)
@@ -252,9 +288,9 @@ export function debugAuth0Claims(auth0User: Auth0JwtPayload, userId?: string): v
       .map(([key, value]) => `${key}: ${value}`);
 
     if (unknownClaimEntries.length > 0) {
-      logger.debug('Unknown Claims:', { claims: unknownClaimEntries });
+      logger.debug("Unknown Claims:", { claims: unknownClaimEntries });
     }
   } catch (error) {
-    logger.error('Error debugging Auth0 claims:', error);
+    logger.error("Error debugging Auth0 claims:", error);
   }
 }

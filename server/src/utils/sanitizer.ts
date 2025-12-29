@@ -13,7 +13,7 @@
  * - Configurable whitelist of allowed content
  */
 
-import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from "sanitize-html";
 
 /**
  * Sanitize HTML content to prevent XSS attacks
@@ -26,29 +26,29 @@ import sanitizeHtml from 'sanitize-html';
  * @returns Sanitized HTML content safe for rendering
  */
 export function sanitize(content: string): string {
-  if (!content || typeof content !== 'string') {
-    return '';
+  if (!content || typeof content !== "string") {
+    return "";
   }
 
   return sanitizeHtml(content, {
     // Allow safe HTML tags including images
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
 
     // Configure allowed attributes for each tag
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
-      img: ['src', 'alt', 'title', 'width', 'height'],
-      a: ['href', 'rel', 'target'],
+      img: ["src", "alt", "title", "width", "height"],
+      a: ["href", "rel", "target"],
     },
 
     // Allow safe URL schemes
-    allowedSchemes: ['http', 'https', 'data', 'mailto'],
+    allowedSchemes: ["http", "https", "data", "mailto"],
 
     // Transform links to be secure by default
     transformTags: {
-      a: sanitizeHtml.simpleTransform('a', {
-        rel: 'noopener noreferrer',
-        target: '_blank',
+      a: sanitizeHtml.simpleTransform("a", {
+        rel: "noopener noreferrer",
+        target: "_blank",
       }),
     },
 
@@ -60,7 +60,7 @@ export function sanitize(content: string): string {
     allowProtocolRelative: false,
 
     // Additional security options
-    disallowedTagsMode: 'discard',
+    disallowedTagsMode: "discard",
     allowedIframeHostnames: [], // No iframes allowed
   });
 }
@@ -75,16 +75,16 @@ export function sanitize(content: string): string {
  * @returns HTML-encoded safe text content
  */
 export function sanitizeText(content: string): string {
-  if (!content || typeof content !== 'string') {
-    return '';
+  if (!content || typeof content !== "string") {
+    return "";
   }
 
   return content
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
 }
 
 /**
@@ -98,13 +98,13 @@ export function sanitizeText(content: string): string {
  * @returns Sanitized content with limited HTML allowed
  */
 export function sanitizeUserInput(content: string): string {
-  if (!content || typeof content !== 'string') {
-    return '';
+  if (!content || typeof content !== "string") {
+    return "";
   }
 
   return sanitizeHtml(content, {
     // Very limited set of allowed tags for user input
-    allowedTags: ['b', 'i', 'em', 'strong', 'p', 'br'],
+    allowedTags: ["b", "i", "em", "strong", "p", "br"],
 
     // No attributes allowed for user input
     allowedAttributes: {},
@@ -113,7 +113,7 @@ export function sanitizeUserInput(content: string): string {
     allowedSchemes: [],
 
     // Strip all potentially dangerous content
-    disallowedTagsMode: 'discard',
+    disallowedTagsMode: "discard",
     allowedIframeHostnames: [],
     allowedClasses: {},
     allowedStyles: {},

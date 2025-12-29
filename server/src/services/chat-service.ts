@@ -13,8 +13,8 @@
  * - Response validation and formatting
  */
 
-import OpenAI from 'openai';
-import { logger } from '../utils/logger';
+import OpenAI from "openai";
+import { logger } from "../utils/logger";
 
 /**
  * Chat message structure interface
@@ -23,7 +23,7 @@ import { logger } from '../utils/logger';
  * thread with role-based message typing.
  */
 interface ChatMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -80,9 +80,14 @@ export class ChatService {
    * @returns Promise resolving to structured chat response
    */
   async sendChatMessages(request: ChatRequest): Promise<ChatResponse> {
-    const { messages, model = 'gpt-4o-mini', maxTokens = 1000, temperature = 0.7 } = request;
+    const {
+      messages,
+      model = "gpt-4o-mini",
+      maxTokens = 1000,
+      temperature = 0.7,
+    } = request;
 
-    logger.openai.info('Starting chat completion', {
+    logger.openai.info("Starting chat completion", {
       messageCount: messages?.length || 0,
       model,
       maxTokens,
@@ -107,19 +112,19 @@ export class ChatService {
         temperature,
       });
 
-      logger.openai.info('Chat completion successful', {
+      logger.openai.info("Chat completion successful", {
         choicesCount: completion.choices?.length || 0,
         usage: completion.usage,
       });
 
       // Validate response
       if (!completion.choices || completion.choices.length === 0) {
-        throw new Error('No response generated from OpenAI');
+        throw new Error("No response generated from OpenAI");
       }
 
       const responseContent = completion.choices[0].message.content;
       if (!responseContent) {
-        throw new Error('Empty response content from OpenAI');
+        throw new Error("Empty response content from OpenAI");
       }
 
       return {
@@ -128,7 +133,7 @@ export class ChatService {
         usage: completion.usage || undefined,
       };
     } catch (error) {
-      logger.openai.error('Chat completion failed', error);
+      logger.openai.error("Chat completion failed", error);
       return {
         success: false,
         error: this.formatError(error),
@@ -141,32 +146,32 @@ export class ChatService {
    */
   private getValidationError(messages: ChatMessage[]): string | null {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return 'Messages array is required and cannot be empty';
+      return "Messages array is required and cannot be empty";
     }
 
-    const validRoles = ['system', 'user', 'assistant'];
+    const validRoles = ["system", "user", "assistant"];
 
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i];
 
-      if (!msg || typeof msg !== 'object') {
+      if (!msg || typeof msg !== "object") {
         return `Message at index ${i} is not an object`;
       }
 
-      if (!msg.role || typeof msg.role !== 'string') {
+      if (!msg.role || typeof msg.role !== "string") {
         return `Message at index ${i} has invalid role`;
       }
 
-      if (!msg.content || typeof msg.content !== 'string') {
+      if (!msg.content || typeof msg.content !== "string") {
         return `Message at index ${i} has invalid content`;
       }
 
       if (!validRoles.includes(msg.role)) {
-        return `Message at index ${i} has invalid role: ${msg.role}. Must be one of: ${validRoles.join(', ')}`;
+        return `Message at index ${i} has invalid role: ${msg.role}. Must be one of: ${validRoles.join(", ")}`;
       }
     }
 
-    logger.openai.debug('All messages validated successfully', {
+    logger.openai.debug("All messages validated successfully", {
       count: messages.length,
     });
     return null;
@@ -177,34 +182,34 @@ export class ChatService {
    */
   private validateMessages(messages: ChatMessage[]): void {
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      throw new Error('Messages array is required and cannot be empty');
+      throw new Error("Messages array is required and cannot be empty");
     }
 
-    const validRoles = ['system', 'user', 'assistant'];
+    const validRoles = ["system", "user", "assistant"];
 
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i];
 
-      if (!msg || typeof msg !== 'object') {
+      if (!msg || typeof msg !== "object") {
         throw new Error(`Message at index ${i} is not an object`);
       }
 
-      if (!msg.role || typeof msg.role !== 'string') {
+      if (!msg.role || typeof msg.role !== "string") {
         throw new Error(`Message at index ${i} has invalid role`);
       }
 
-      if (!msg.content || typeof msg.content !== 'string') {
+      if (!msg.content || typeof msg.content !== "string") {
         throw new Error(`Message at index ${i} has invalid content`);
       }
 
       if (!validRoles.includes(msg.role)) {
         throw new Error(
-          `Message at index ${i} has invalid role: ${msg.role}. Must be one of: ${validRoles.join(', ')}`,
+          `Message at index ${i} has invalid role: ${msg.role}. Must be one of: ${validRoles.join(", ")}`,
         );
       }
     }
 
-    logger.openai.debug('All messages validated successfully', {
+    logger.openai.debug("All messages validated successfully", {
       count: messages.length,
     });
   }
@@ -215,13 +220,13 @@ export class ChatService {
   private formatError(error: unknown): string {
     if (error instanceof Error) {
       // Map specific error messages to match test expectations
-      if (error.message.includes('No response generated from OpenAI')) {
-        return 'No response generated';
+      if (error.message.includes("No response generated from OpenAI")) {
+        return "No response generated";
       }
       return error.message;
     }
 
-    return 'An unexpected error occurred during chat completion';
+    return "An unexpected error occurred during chat completion";
   }
 }
 
@@ -232,7 +237,7 @@ export function createChatService(): ChatService {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('OpenAI API key is not configured');
+    throw new Error("OpenAI API key is not configured");
   }
 
   return new ChatService(apiKey);

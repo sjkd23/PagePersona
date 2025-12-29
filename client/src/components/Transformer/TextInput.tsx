@@ -8,7 +8,7 @@
  * @module TextInput
  */
 
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
 /**
  * Props for the TextInput component
@@ -31,7 +31,7 @@ interface TextInputProps {
   hasError?: boolean;
   className?: string;
   autoFocus?: boolean;
-  'data-testid'?: string;
+  "data-testid"?: string;
 }
 
 /**
@@ -46,12 +46,12 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     {
       value,
       onChange,
-      placeholder = '',
+      placeholder = "",
       disabled = false,
       hasError = false,
-      className = '',
+      className = "",
       autoFocus = false,
-      'data-testid': testId,
+      "data-testid": testId,
       ...props
     },
     ref,
@@ -65,14 +65,14 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         placeholder={placeholder}
         disabled={disabled}
         autoFocus={autoFocus}
-        data-testid={testId || 'text-input'}
-        className={`text-input ${hasError ? 'text-input-error' : ''} ${className}`}
+        data-testid={testId || "text-input"}
+        className={`text-input ${hasError ? "text-input-error" : ""} ${className}`}
         {...props}
       />
     );
   },
 );
 
-TextInput.displayName = 'TextInput';
+TextInput.displayName = "TextInput";
 
 export default TextInput;

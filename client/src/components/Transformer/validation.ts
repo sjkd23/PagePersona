@@ -45,12 +45,12 @@ export function validateUrl(url: string): ValidationResult {
       new URL(`https://${url}`);
       // Additional check: make sure it has a valid domain structure
       const testUrl = new URL(`https://${url}`);
-      if (!testUrl.hostname.includes('.') || testUrl.hostname.length < 3) {
-        return { isValid: false, error: 'Please enter a valid URL' };
+      if (!testUrl.hostname.includes(".") || testUrl.hostname.length < 3) {
+        return { isValid: false, error: "Please enter a valid URL" };
       }
       return { isValid: true, error: null };
     } catch {
-      return { isValid: false, error: 'Please enter a valid URL' };
+      return { isValid: false, error: "Please enter a valid URL" };
     }
   }
 }
@@ -66,7 +66,10 @@ export function validateUrl(url: string): ValidationResult {
  * @param {number} [maxLength=10000] - Maximum allowed character length
  * @returns {ValidationResult} Validation result with success status and error message
  */
-export function validateText(text: string, maxLength: number = 10000): ValidationResult {
+export function validateText(
+  text: string,
+  maxLength: number = 10000,
+): ValidationResult {
   const trimmedText = text.trim();
 
   if (trimmedText.length < 50) {
@@ -99,10 +102,10 @@ export function validateText(text: string, maxLength: number = 10000): Validatio
  */
 export function validateInput(
   value: string,
-  mode: 'url' | 'text',
+  mode: "url" | "text",
   maxTextLength: number = 10000,
 ): ValidationResult {
-  if (mode === 'url') {
+  if (mode === "url") {
     return validateUrl(value);
   } else {
     return validateText(value, maxTextLength);
@@ -120,9 +123,9 @@ export function validateInput(
  */
 export function formatUrl(url: string): string {
   const trimmed = url.trim();
-  if (!trimmed) return '';
+  if (!trimmed) return "";
 
-  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
     return `https://${trimmed}`;
   }
 

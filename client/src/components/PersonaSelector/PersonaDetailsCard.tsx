@@ -8,8 +8,8 @@
  * @module PersonaDetailsCard
  */
 
-import React from 'react';
-import type { ClientPersona as Persona } from '@pagepersonai/shared';
+import React from "react";
+import type { ClientPersona as Persona } from "@pagepersonai/shared";
 
 /**
  * Props for the PersonaDetailsCard component
@@ -35,19 +35,30 @@ interface PersonaDetailsCardProps {
  * @param {PersonaDetailsCardProps} props - Component props
  * @returns {JSX.Element} The rendered persona details card
  */
-const PersonaDetailsCard: React.FC<PersonaDetailsCardProps> = ({ persona, selected, onClick }) => (
+const PersonaDetailsCard: React.FC<PersonaDetailsCardProps> = ({
+  persona,
+  selected,
+  onClick,
+}) => (
   <div
-    className={`persona-card${selected ? ' selected' : ''} ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
+    className={`persona-card${selected ? " selected" : ""} ${onClick ? "cursor-pointer" : "cursor-default"}`}
     onClick={onClick}
     tabIndex={0}
     role="button"
     aria-pressed={selected}
   >
-    <img src={persona.avatarUrl} alt={persona.label} className="persona-avatar" loading="lazy" />
+    <img
+      src={persona.avatarUrl}
+      alt={persona.label}
+      className="persona-avatar"
+      loading="lazy"
+    />
     <div className="persona-name">{persona.label}</div>
     <div className="persona-description">{persona.description}</div>
     {persona.exampleTexts && (
-      <div className="persona-example">&ldquo;{persona.exampleTexts}&rdquo;</div>
+      <div className="persona-example">
+        &ldquo;{persona.exampleTexts}&rdquo;
+      </div>
     )}
     {selected && (
       <div className="selected-indicator">

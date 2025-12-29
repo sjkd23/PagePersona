@@ -15,12 +15,12 @@
  * - SEO-optimized semantic HTML structure
  */
 
-import { useEffect } from 'react';
-import './styles/index.css';
-import type { LandingPageProps } from './types';
-import HowItWorksSection from './HowItWorksSection';
-import CTASection from './CTASection';
-import { SEOUtils } from '../../utils/seoUtils';
+import { useEffect } from "react";
+import "./styles/index.css";
+import type { LandingPageProps } from "./types";
+import HowItWorksSection from "./HowItWorksSection";
+import CTASection from "./CTASection";
+import { SEOUtils } from "../../utils/seoUtils";
 
 /**
  * Landing Page Component
@@ -38,29 +38,29 @@ export default function LandingPage({
   useEffect(() => {
     const faqs = [
       {
-        question: 'What is PagePersonAI?',
+        question: "What is PagePersonAI?",
         answer:
-          'PagePersonAI is an AI-powered tool that transforms web content into different writing styles using various personas like Hemingway, Medieval Knight, or ELI5 explanations.',
+          "PagePersonAI is an AI-powered tool that transforms web content into different writing styles using various personas like Hemingway, Medieval Knight, or ELI5 explanations.",
       },
       {
-        question: 'How does the AI transformation work?',
+        question: "How does the AI transformation work?",
         answer:
-          'Simply paste a URL or text, choose your preferred persona, and our AI will rewrite the content in that specific style while maintaining the original meaning.',
+          "Simply paste a URL or text, choose your preferred persona, and our AI will rewrite the content in that specific style while maintaining the original meaning.",
       },
       {
-        question: 'Is PagePersonAI free to use?',
+        question: "Is PagePersonAI free to use?",
         answer:
-          'Yes! We offer a free tier with limited transformations per month. Premium plans are available for unlimited usage.',
+          "Yes! We offer a free tier with limited transformations per month. Premium plans are available for unlimited usage.",
       },
       {
-        question: 'What types of content can I transform?',
+        question: "What types of content can I transform?",
         answer:
-          'You can transform any text content including articles, blog posts, news stories, research papers, and more. Just paste a URL or directly input your text.',
+          "You can transform any text content including articles, blog posts, news stories, research papers, and more. Just paste a URL or directly input your text.",
       },
       {
-        question: 'How accurate are the AI transformations?',
+        question: "How accurate are the AI transformations?",
         answer:
-          'Our AI maintains the core meaning and facts while adapting the writing style to match your chosen persona. The accuracy depends on the complexity of the source material.',
+          "Our AI maintains the core meaning and facts while adapting the writing style to match your chosen persona. The accuracy depends on the complexity of the source material.",
       },
     ];
 
@@ -68,7 +68,7 @@ export default function LandingPage({
 
     // Cleanup function to remove structured data when component unmounts
     return () => {
-      const faqSchema = document.getElementById('faq-schema');
+      const faqSchema = document.getElementById("faq-schema");
       if (faqSchema) faqSchema.remove();
     };
   }, []);
@@ -82,7 +82,8 @@ export default function LandingPage({
           <div className="container">
             <h1 className="hero-title">Give Any Webpage Its Own Personality</h1>
             <p className="hero-description">
-              From complicated to concise, from boring to bold, your pages reimagined.
+              From complicated to concise, from boring to bold, your pages
+              reimagined.
             </p>
           </div>
           {/* Primary CTA Section */}
@@ -116,8 +117,8 @@ export default function LandingPage({
               </div>
               <h3>Advanced AI Technology</h3>
               <p>
-                Powered by state-of-the-art language models for accurate and engaging
-                transformations.
+                Powered by state-of-the-art language models for accurate and
+                engaging transformations.
               </p>
             </article>
 
@@ -127,7 +128,8 @@ export default function LandingPage({
               </div>
               <h3>Lightning Fast</h3>
               <p>
-                Get your transformed content in seconds, not minutes. No waiting around for results.
+                Get your transformed content in seconds, not minutes. No waiting
+                around for results.
               </p>
             </article>
 
@@ -137,8 +139,8 @@ export default function LandingPage({
               </div>
               <h3>Creative Personas</h3>
               <p>
-                Choose from unique writing styles including historical figures, fictional
-                characters, and educational formats.
+                Choose from unique writing styles including historical figures,
+                fictional characters, and educational formats.
               </p>
             </article>
 
@@ -148,8 +150,8 @@ export default function LandingPage({
               </div>
               <h3>Mobile Friendly</h3>
               <p>
-                Transform content on any device—desktop, tablet, or mobile. Perfect for reading on
-                the go.
+                Transform content on any device—desktop, tablet, or mobile.
+                Perfect for reading on the go.
               </p>
             </article>
 
@@ -159,8 +161,8 @@ export default function LandingPage({
               </div>
               <h3>Privacy Focused</h3>
               <p>
-                Your content is processed securely and not stored permanently. Privacy is our
-                priority.
+                Your content is processed securely and not stored permanently.
+                Privacy is our priority.
               </p>
             </article>
 
@@ -170,8 +172,8 @@ export default function LandingPage({
               </div>
               <h3>High Quality Output</h3>
               <p>
-                Maintains the original meaning while adapting tone, style, and complexity to your
-                chosen persona.
+                Maintains the original meaning while adapting tone, style, and
+                complexity to your chosen persona.
               </p>
             </article>
           </div>
@@ -186,32 +188,32 @@ export default function LandingPage({
             <div className="use-case">
               <h3>Students & Educators</h3>
               <p>
-                Transform complex academic papers into ELI5 explanations or engaging story formats
-                for better understanding.
+                Transform complex academic papers into ELI5 explanations or
+                engaging story formats for better understanding.
               </p>
             </div>
 
             <div className="use-case">
               <h3>Content Creators</h3>
               <p>
-                Repurpose existing content into different styles for various audiences and
-                platforms.
+                Repurpose existing content into different styles for various
+                audiences and platforms.
               </p>
             </div>
 
             <div className="use-case">
               <h3>Professionals</h3>
               <p>
-                Convert technical documentation into accessible formats for stakeholders and
-                clients.
+                Convert technical documentation into accessible formats for
+                stakeholders and clients.
               </p>
             </div>
 
             <div className="use-case">
               <h3>Curious Readers</h3>
               <p>
-                Make dry articles more entertaining by transforming them into your favorite writing
-                style.
+                Make dry articles more entertaining by transforming them into
+                your favorite writing style.
               </p>
             </div>
           </div>

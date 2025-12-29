@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import mongoose from 'mongoose';
-import { MongoUser } from './mongo-user';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import mongoose from "mongoose";
+import { MongoUser } from "./mongo-user";
 
 // Mock mongoose
-vi.mock('mongoose', () => ({
+vi.mock("mongoose", () => ({
   __esModule: true,
   default: {
     Schema: vi.fn(),
@@ -27,7 +27,7 @@ vi.mock('mongoose', () => ({
 }));
 
 // Mock logger
-vi.mock('../utils/logger', () => ({
+vi.mock("../utils/logger", () => ({
   logger: {
     database: {
       info: vi.fn(),
@@ -38,7 +38,7 @@ vi.mock('../utils/logger', () => ({
   },
 }));
 
-describe('MongoUser Model', () => {
+describe("MongoUser Model", () => {
   let mockUserDoc: any;
   let mockModel: any;
 
@@ -47,25 +47,25 @@ describe('MongoUser Model', () => {
 
     // Create a mock user document
     mockUserDoc = {
-      _id: 'mockUserId',
-      auth0Id: 'auth0|test123',
-      email: 'test@example.com',
-      username: 'testuser',
-      firstName: 'Test',
-      lastName: 'User',
+      _id: "mockUserId",
+      auth0Id: "auth0|test123",
+      email: "test@example.com",
+      username: "testuser",
+      firstName: "Test",
+      lastName: "User",
       usageCount: 5,
       dailyUsage: 3,
-      lastUsageDate: new Date('2024-01-01'),
-      dailyUsageDate: new Date('2024-01-01'),
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      lastUsageDate: new Date("2024-01-01"),
+      dailyUsageDate: new Date("2024-01-01"),
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-01"),
       isNew: false,
       save: vi.fn().mockResolvedValue(true),
       toObject: vi.fn().mockReturnValue({
-        _id: 'mockUserId',
-        auth0Id: 'auth0|test123',
-        email: 'test@example.com',
-        username: 'testuser',
+        _id: "mockUserId",
+        auth0Id: "auth0|test123",
+        email: "test@example.com",
+        username: "testuser",
       }),
     };
 
@@ -87,13 +87,13 @@ describe('MongoUser Model', () => {
     vi.resetAllMocks();
   });
 
-  describe('Schema Definition', () => {
-    it('should define the user schema with required fields', () => {
+  describe("Schema Definition", () => {
+    it("should define the user schema with required fields", () => {
       // The mongoose Schema constructor should be a function
       expect(mongoose.Schema).toBeDefined();
       expect(mongoose.model).toBeDefined();
-      expect(typeof mongoose.Schema).toBe('function');
-      expect(typeof mongoose.model).toBe('function');
+      expect(typeof mongoose.Schema).toBe("function");
+      expect(typeof mongoose.model).toBe("function");
 
       // Test that we can create a schema instance (this will call our mock)
       const MockedSchema = vi.mocked(mongoose.Schema);
@@ -101,40 +101,42 @@ describe('MongoUser Model', () => {
     });
   });
 
-  describe('User Creation', () => {
-    it('should create a new user with valid data', async () => {
+  describe("User Creation", () => {
+    it("should create a new user with valid data", async () => {
       const userData = {
-        auth0Id: 'auth0|newuser123',
-        email: 'newuser@example.com',
-        username: 'newuser',
-        firstName: 'New',
-        lastName: 'User',
+        auth0Id: "auth0|newuser123",
+        email: "newuser@example.com",
+        username: "newuser",
+        firstName: "New",
+        lastName: "User",
       };
 
-      mockModel.create.mockResolvedValue({ ...userData, _id: 'newUserId' });
+      mockModel.create.mockResolvedValue({ ...userData, _id: "newUserId" });
 
       const result = await mockModel.create(userData);
 
-      expect(result).toHaveProperty('_id');
+      expect(result).toHaveProperty("_id");
       expect(result.auth0Id).toBe(userData.auth0Id);
       expect(result.email).toBe(userData.email);
     });
 
-    it('should handle creation errors gracefully', async () => {
+    it("should handle creation errors gracefully", async () => {
       const userData = {
-        auth0Id: 'auth0|invalid',
-        email: 'invalid-email',
+        auth0Id: "auth0|invalid",
+        email: "invalid-email",
       };
 
-      mockModel.create.mockRejectedValue(new Error('Validation error'));
+      mockModel.create.mockRejectedValue(new Error("Validation error"));
 
-      await expect(mockModel.create(userData)).rejects.toThrow('Validation error');
+      await expect(mockModel.create(userData)).rejects.toThrow(
+        "Validation error",
+      );
     });
   });
 
-  describe('User Queries', () => {
-    it('should find user by Auth0 ID', async () => {
-      const auth0Id = 'auth0|test123';
+  describe("User Queries", () => {
+    it("should find user by Auth0 ID", async () => {
+      const auth0Id = "auth0|test123";
       mockModel.findOne.mockResolvedValue(mockUserDoc);
 
       const result = await mockModel.findOne({ auth0Id });
@@ -143,8 +145,8 @@ describe('MongoUser Model', () => {
       expect(result).toBe(mockUserDoc);
     });
 
-    it('should find user by email', async () => {
-      const email = 'test@example.com';
+    it("should find user by email", async () => {
+      const email = "test@example.com";
       mockModel.findOne.mockResolvedValue(mockUserDoc);
 
       const result = await mockModel.findOne({ email });
@@ -153,8 +155,8 @@ describe('MongoUser Model', () => {
       expect(result).toBe(mockUserDoc);
     });
 
-    it('should find user by MongoDB ID', async () => {
-      const userId = 'mockUserId';
+    it("should find user by MongoDB ID", async () => {
+      const userId = "mockUserId";
       mockModel.findById.mockResolvedValue(mockUserDoc);
 
       const result = await mockModel.findById(userId);
@@ -163,21 +165,21 @@ describe('MongoUser Model', () => {
       expect(result).toBe(mockUserDoc);
     });
 
-    it('should return null when user not found', async () => {
+    it("should return null when user not found", async () => {
       mockModel.findOne.mockResolvedValue(null);
 
-      const result = await mockModel.findOne({ auth0Id: 'nonexistent' });
+      const result = await mockModel.findOne({ auth0Id: "nonexistent" });
 
       expect(result).toBeNull();
     });
   });
 
-  describe('User Updates', () => {
-    it('should update user successfully', async () => {
-      const userId = 'mockUserId';
+  describe("User Updates", () => {
+    it("should update user successfully", async () => {
+      const userId = "mockUserId";
       const updateData = {
-        firstName: 'Updated',
-        lastName: 'Name',
+        firstName: "Updated",
+        lastName: "Name",
       };
 
       mockModel.findByIdAndUpdate.mockResolvedValue({
@@ -189,22 +191,26 @@ describe('MongoUser Model', () => {
         new: true,
       });
 
-      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(userId, updateData, { new: true });
+      expect(mockModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        userId,
+        updateData,
+        { new: true },
+      );
       expect(result.firstName).toBe(updateData.firstName);
       expect(result.lastName).toBe(updateData.lastName);
     });
 
-    it('should handle upsert operations', async () => {
-      const auth0Id = 'auth0|newuser';
+    it("should handle upsert operations", async () => {
+      const auth0Id = "auth0|newuser";
       const userData = {
-        email: 'new@example.com',
-        username: 'newuser',
+        email: "new@example.com",
+        username: "newuser",
       };
 
       mockModel.findOneAndUpdate.mockResolvedValue({
         ...userData,
         auth0Id,
-        _id: 'newUserId',
+        _id: "newUserId",
         isNew: true,
       });
 
@@ -223,9 +229,9 @@ describe('MongoUser Model', () => {
     });
   });
 
-  describe('Usage Tracking', () => {
-    it('should increment usage count correctly', async () => {
-      const userId = 'mockUserId';
+  describe("Usage Tracking", () => {
+    it("should increment usage count correctly", async () => {
+      const userId = "mockUserId";
       const today = new Date();
 
       // Mock the user with current date for daily usage
@@ -252,8 +258,8 @@ describe('MongoUser Model', () => {
       expect(result.dailyUsage).toBe(5);
     });
 
-    it('should reset daily usage for new day', async () => {
-      const userId = 'mockUserId';
+    it("should reset daily usage for new day", async () => {
+      const userId = "mockUserId";
       const today = new Date();
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
@@ -288,8 +294,8 @@ describe('MongoUser Model', () => {
     });
   });
 
-  describe('User Statistics', () => {
-    it('should get user count statistics', async () => {
+  describe("User Statistics", () => {
+    it("should get user count statistics", async () => {
       mockModel.countDocuments.mockResolvedValue(100);
 
       const count = await mockModel.countDocuments();
@@ -297,7 +303,7 @@ describe('MongoUser Model', () => {
       expect(count).toBe(100);
     });
 
-    it('should aggregate usage statistics', async () => {
+    it("should aggregate usage statistics", async () => {
       const mockAggregation = [
         {
           _id: null,
@@ -314,8 +320,8 @@ describe('MongoUser Model', () => {
           $group: {
             _id: null,
             totalUsers: { $sum: 1 },
-            totalUsage: { $sum: '$usageCount' },
-            averageUsage: { $avg: '$usageCount' },
+            totalUsage: { $sum: "$usageCount" },
+            averageUsage: { $avg: "$usageCount" },
           },
         },
       ]);
@@ -324,99 +330,111 @@ describe('MongoUser Model', () => {
     });
   });
 
-  describe('Data Validation', () => {
-    it('should validate required fields', async () => {
+  describe("Data Validation", () => {
+    it("should validate required fields", async () => {
       const invalidUserData = {
         // Missing required fields like auth0Id, email
-        firstName: 'Test',
+        firstName: "Test",
       };
 
       mockModel.create.mockRejectedValue(
-        new Error('User validation failed: auth0Id: Path `auth0Id` is required.'),
+        new Error(
+          "User validation failed: auth0Id: Path `auth0Id` is required.",
+        ),
       );
 
-      await expect(mockModel.create(invalidUserData)).rejects.toThrow('User validation failed');
+      await expect(mockModel.create(invalidUserData)).rejects.toThrow(
+        "User validation failed",
+      );
     });
 
-    it('should validate email format', async () => {
+    it("should validate email format", async () => {
       const invalidEmailData = {
-        auth0Id: 'auth0|test',
-        email: 'invalid-email-format',
-        username: 'test',
+        auth0Id: "auth0|test",
+        email: "invalid-email-format",
+        username: "test",
       };
 
       mockModel.create.mockRejectedValue(
-        new Error('User validation failed: email: Please enter a valid email'),
+        new Error("User validation failed: email: Please enter a valid email"),
       );
 
       await expect(mockModel.create(invalidEmailData)).rejects.toThrow(
-        'email: Please enter a valid email',
+        "email: Please enter a valid email",
       );
     });
 
-    it('should enforce unique constraints', async () => {
+    it("should enforce unique constraints", async () => {
       const duplicateUserData = {
-        auth0Id: 'auth0|existing',
-        email: 'existing@example.com',
-        username: 'existing',
+        auth0Id: "auth0|existing",
+        email: "existing@example.com",
+        username: "existing",
       };
 
-      mockModel.create.mockRejectedValue(new Error('E11000 duplicate key error'));
+      mockModel.create.mockRejectedValue(
+        new Error("E11000 duplicate key error"),
+      );
 
-      await expect(mockModel.create(duplicateUserData)).rejects.toThrow('duplicate key error');
+      await expect(mockModel.create(duplicateUserData)).rejects.toThrow(
+        "duplicate key error",
+      );
     });
   });
 
-  describe('Document Methods', () => {
-    it('should save document changes', async () => {
-      mockUserDoc.firstName = 'Updated';
+  describe("Document Methods", () => {
+    it("should save document changes", async () => {
+      mockUserDoc.firstName = "Updated";
       await mockUserDoc.save();
 
       expect(mockUserDoc.save).toHaveBeenCalled();
     });
 
-    it('should convert to object', () => {
+    it("should convert to object", () => {
       const obj = mockUserDoc.toObject();
 
-      expect(obj).toHaveProperty('_id');
-      expect(obj).toHaveProperty('auth0Id');
-      expect(obj).toHaveProperty('email');
+      expect(obj).toHaveProperty("_id");
+      expect(obj).toHaveProperty("auth0Id");
+      expect(obj).toHaveProperty("email");
     });
 
-    it('should handle save errors', async () => {
-      mockUserDoc.save.mockRejectedValue(new Error('Save failed'));
+    it("should handle save errors", async () => {
+      mockUserDoc.save.mockRejectedValue(new Error("Save failed"));
 
-      await expect(mockUserDoc.save()).rejects.toThrow('Save failed');
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('should handle network errors', async () => {
-      mockModel.findOne.mockRejectedValue(new Error('Network error'));
-
-      await expect(mockModel.findOne({ auth0Id: 'test' })).rejects.toThrow('Network error');
-    });
-
-    it('should handle timeout errors', async () => {
-      mockModel.create.mockRejectedValue(new Error('Operation timed out'));
-
-      await expect(mockModel.create({})).rejects.toThrow('Operation timed out');
-    });
-
-    it('should handle connection errors', async () => {
-      mockModel.findById.mockRejectedValue(new Error('Connection lost'));
-
-      await expect(mockModel.findById('test')).rejects.toThrow('Connection lost');
+      await expect(mockUserDoc.save()).rejects.toThrow("Save failed");
     });
   });
 
-  describe('Performance and Optimization', () => {
-    it('should handle batch operations', async () => {
-      const userIds = ['id1', 'id2', 'id3'];
+  describe("Error Handling", () => {
+    it("should handle network errors", async () => {
+      mockModel.findOne.mockRejectedValue(new Error("Network error"));
+
+      await expect(mockModel.findOne({ auth0Id: "test" })).rejects.toThrow(
+        "Network error",
+      );
+    });
+
+    it("should handle timeout errors", async () => {
+      mockModel.create.mockRejectedValue(new Error("Operation timed out"));
+
+      await expect(mockModel.create({})).rejects.toThrow("Operation timed out");
+    });
+
+    it("should handle connection errors", async () => {
+      mockModel.findById.mockRejectedValue(new Error("Connection lost"));
+
+      await expect(mockModel.findById("test")).rejects.toThrow(
+        "Connection lost",
+      );
+    });
+  });
+
+  describe("Performance and Optimization", () => {
+    it("should handle batch operations", async () => {
+      const userIds = ["id1", "id2", "id3"];
       mockModel.find = vi.fn().mockResolvedValue([
-        { ...mockUserDoc, _id: 'id1' },
-        { ...mockUserDoc, _id: 'id2' },
-        { ...mockUserDoc, _id: 'id3' },
+        { ...mockUserDoc, _id: "id1" },
+        { ...mockUserDoc, _id: "id2" },
+        { ...mockUserDoc, _id: "id3" },
       ]);
 
       const result = await mockModel.find({ _id: { $in: userIds } });
@@ -425,7 +443,7 @@ describe('MongoUser Model', () => {
       expect(mockModel.find).toHaveBeenCalledWith({ _id: { $in: userIds } });
     });
 
-    it('should support pagination', async () => {
+    it("should support pagination", async () => {
       mockModel.find = vi.fn().mockReturnValue({
         skip: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue([mockUserDoc]),
@@ -437,7 +455,7 @@ describe('MongoUser Model', () => {
       expect(result).toEqual([mockUserDoc]);
     });
 
-    it('should support sorting', async () => {
+    it("should support sorting", async () => {
       mockModel.find = vi.fn().mockReturnValue({
         sort: vi.fn().mockResolvedValue([mockUserDoc]),
       });

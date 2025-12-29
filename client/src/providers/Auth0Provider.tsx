@@ -1,8 +1,8 @@
 // src/providers/Auth0Provider.tsx
-import type { ReactNode } from 'react';
-import { Auth0Provider as Auth0ProviderBase } from '@auth0/auth0-react';
-import { domain, clientId, redirectUri, audience } from '../config/auth';
-import { AuthContextProvider } from './AuthContextProvider';
+import type { ReactNode } from "react";
+import { Auth0Provider as Auth0ProviderBase } from "@auth0/auth0-react";
+import { domain, clientId, redirectUri, audience } from "../config/auth";
+import { AuthContextProvider } from "./AuthContextProvider";
 
 export function Auth0Provider({ children }: { children: ReactNode }) {
   if (!domain || !clientId) {
@@ -16,18 +16,14 @@ export function Auth0Provider({ children }: { children: ReactNode }) {
       authorizationParams={{
         redirect_uri: redirectUri,
         audience,
-        scope: 'openid profile email',
+        scope: "openid profile email",
       }}
       useRefreshTokens={true}
       cacheLocation="localstorage"
       onRedirectCallback={(appState) => {
         // Clean up URL after Auth0 callback to prevent reprocessing
         const targetUrl = appState?.returnTo || window.location.pathname;
-        window.history.replaceState(
-          {},
-          document.title,
-          targetUrl,
-        );
+        window.history.replaceState({}, document.title, targetUrl);
       }}
     >
       <AuthContextProvider>{children}</AuthContextProvider>

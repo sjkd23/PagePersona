@@ -4,19 +4,21 @@
  * Generate a unique username from Auth0 user data
  * Includes Auth0 sub for uniqueness and handles edge cases
  */
-import type { ProcessedAuth0User } from '../types/common';
+import type { ProcessedAuth0User } from "../types/common";
 
 /**
  * Generate a username from Auth0 user data
  * Provides fallback logic for different Auth0 user structures
  */
-export function generateUsernameFromAuth0(auth0User: ProcessedAuth0User): string {
+export function generateUsernameFromAuth0(
+  auth0User: ProcessedAuth0User,
+): string {
   const { sub, nickname, name, email } = auth0User;
 
   // Extract short identifier from Auth0 sub (e.g., "auth0|123abc" -> "123abc")
-  const subId = sub?.split('|').pop()?.slice(-6) || 'user';
+  const subId = sub?.split("|").pop()?.slice(-6) || "user";
 
-  let baseUsername = '';
+  let baseUsername = "";
 
   // Try different sources in order of preference
   if (nickname && isValidUsernameBase(nickname)) {
@@ -24,10 +26,10 @@ export function generateUsernameFromAuth0(auth0User: ProcessedAuth0User): string
   } else if (name && isValidUsernameBase(name)) {
     baseUsername = sanitizeUsername(name);
   } else if (email && isValidUsernameBase(email)) {
-    const emailBase = email.split('@')[0];
+    const emailBase = email.split("@")[0];
     baseUsername = sanitizeUsername(emailBase);
   } else {
-    baseUsername = 'user';
+    baseUsername = "user";
   }
 
   // Always include part of Auth0 sub for uniqueness
@@ -53,8 +55,8 @@ function isValidUsernameBase(str: string): boolean {
 function sanitizeUsername(str: string): string {
   return str
     .toLowerCase()
-    .replace(/[^a-z0-9._-]/g, '') // Remove invalid chars
-    .replace(/^[._-]+|[._-]+$/g, '') // Remove leading/trailing special chars
+    .replace(/[^a-z0-9._-]/g, "") // Remove invalid chars
+    .replace(/^[._-]+|[._-]+$/g, "") // Remove leading/trailing special chars
     .slice(0, 15); // Limit length to leave room for sub ID
 }
 

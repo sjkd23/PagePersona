@@ -8,10 +8,10 @@
  * @module ProfileStats
  */
 
-import React from 'react';
-import type { UserProfile } from '../../lib/apiClient';
-import type { MembershipTier } from './types';
-import { calculateUsageStats, hasPremiumAccess } from './utils/membershipUtils';
+import React from "react";
+import type { UserProfile } from "../../lib/apiClient";
+import type { MembershipTier } from "./types";
+import { calculateUsageStats, hasPremiumAccess } from "./utils/membershipUtils";
 
 /**
  * Props for the ProfileStats component
@@ -33,21 +33,27 @@ interface ProfileStatsProps {
  * @param props - Component props containing profile data and handlers
  * @returns JSX element displaying profile statistics and actions
  */
-export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout }) => {
+export const ProfileStats: React.FC<ProfileStatsProps> = ({
+  profile,
+  onLogout,
+}) => {
   // Get membership tier and stats
-  const membershipTier = (profile?.membership || 'free') as MembershipTier;
-  const usageStats = calculateUsageStats(profile?.usage?.monthlyUsage || 0, membershipTier);
+  const membershipTier = (profile?.membership || "free") as MembershipTier;
+  const usageStats = calculateUsageStats(
+    profile?.usage?.monthlyUsage || 0,
+    membershipTier,
+  );
   const hasUpgradeAccess = !hasPremiumAccess(membershipTier);
 
   /**
    * Format date for display
    */
   const formatDate = (dateString?: string): string => {
-    if (!dateString) return 'Unknown';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    if (!dateString) return "Unknown";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -56,24 +62,25 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
    */
   const getActivityStatus = (): { status: string; className: string } => {
     const lastActive = profile?.lastLoginAt;
-    if (!lastActive) return { status: 'Unknown', className: 'status-info' };
+    if (!lastActive) return { status: "Unknown", className: "status-info" };
 
     const daysSinceActive = Math.floor(
       (Date.now() - new Date(lastActive).getTime()) / (1000 * 60 * 60 * 24),
     );
 
-    if (daysSinceActive === 0) return { status: 'Active today', className: 'status-verified' };
+    if (daysSinceActive === 0)
+      return { status: "Active today", className: "status-verified" };
     if (daysSinceActive <= 7)
       return {
         status: `${daysSinceActive} days ago`,
-        className: 'status-verified',
+        className: "status-verified",
       };
     if (daysSinceActive <= 30)
       return {
         status: `${daysSinceActive} days ago`,
-        className: 'status-warning',
+        className: "status-warning",
       };
-    return { status: 'Inactive', className: 'status-disabled' };
+    return { status: "Inactive", className: "status-disabled" };
   };
 
   const activityStatus = getActivityStatus();
@@ -85,7 +92,9 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
       {/* Usage Statistics */}
       <div className="stats-container">
         <div className="stat-card remaining-transformations">
-          <div className="stat-number">{usageStats.monthlyLimit - usageStats.currentUsage}</div>
+          <div className="stat-number">
+            {usageStats.monthlyLimit - usageStats.currentUsage}
+          </div>
           <div className="stat-label">
             Remaining Transformations
             <div className="stat-sublabel">Resets monthly</div>
@@ -93,12 +102,16 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
         </div>
 
         <div className="stat-card">
-          <div className="stat-number">{profile?.usage?.totalTransformations || 0}</div>
+          <div className="stat-number">
+            {profile?.usage?.totalTransformations || 0}
+          </div>
           <div className="stat-label">Total Transformations</div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-number">{Math.round(usageStats.percentage)}%</div>
+          <div className="stat-number">
+            {Math.round(usageStats.percentage)}%
+          </div>
           <div className="stat-label">Monthly Usage</div>
         </div>
       </div>
@@ -121,8 +134,11 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
 
         <div className="info-card">
           <div className="label">User ID</div>
-          <div className="value" style={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
-            {profile?.id ? profile.id.slice(-8) : 'N/A'}
+          <div
+            className="value"
+            style={{ fontFamily: "monospace", fontSize: "0.8rem" }}
+          >
+            {profile?.id ? profile.id.slice(-8) : "N/A"}
           </div>
         </div>
       </div>
@@ -131,17 +147,20 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
       {hasUpgradeAccess && (
         <div
           className="info-card"
-          style={{ backgroundColor: '#f0f9ff', border: '2px solid #3b82f6' }}
+          style={{ backgroundColor: "#f0f9ff", border: "2px solid #3b82f6" }}
         >
-          <div className="label" style={{ color: '#1e40af', fontWeight: 'bold' }}>
+          <div
+            className="label"
+            style={{ color: "#1e40af", fontWeight: "bold" }}
+          >
             🚀 Upgrade Available
           </div>
-          <div className="value" style={{ color: '#1e40af' }}>
+          <div className="value" style={{ color: "#1e40af" }}>
             Get unlimited transformations and premium features
           </div>
           <button
             className="btn btn-info btn-small"
-            style={{ marginTop: '0.75rem', width: '100%' }}
+            style={{ marginTop: "0.75rem", width: "100%" }}
             onClick={() => {
               // Upgrade flow not implemented yet
             }}
@@ -161,7 +180,7 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
               // Profile export not implemented yet
             }}
             className="btn btn-secondary btn-small"
-            style={{ width: '100%', marginBottom: '0.75rem' }}
+            style={{ width: "100%", marginBottom: "0.75rem" }}
           >
             📄 Export Profile Data
           </button>
@@ -171,12 +190,16 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
               // Account settings not implemented yet
             }}
             className="btn btn-secondary btn-small"
-            style={{ width: '100%', marginBottom: '0.75rem' }}
+            style={{ width: "100%", marginBottom: "0.75rem" }}
           >
             ⚙️ Account Settings
           </button>
 
-          <button onClick={onLogout} className="btn btn-danger btn-small" style={{ width: '100%' }}>
+          <button
+            onClick={onLogout}
+            className="btn btn-danger btn-small"
+            style={{ width: "100%" }}
+          >
             🚪 Sign Out
           </button>
         </div>
@@ -188,16 +211,16 @@ export const ProfileStats: React.FC<ProfileStatsProps> = ({ profile, onLogout })
             <a
               href="mailto:support@pagepersona.ai"
               className="text-blue-600 hover:text-blue-800 text-sm"
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: "none" }}
             >
               📧 Contact Support
             </a>
           </div>
-          <div className="value" style={{ marginTop: '0.5rem' }}>
+          <div className="value" style={{ marginTop: "0.5rem" }}>
             <a
               href="/docs"
               className="text-blue-600 hover:text-blue-800 text-sm"
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: "none" }}
             >
               📚 Documentation
             </a>

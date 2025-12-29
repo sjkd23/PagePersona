@@ -10,17 +10,17 @@
 /**
  * Membership tier levels available in the application
  */
-export type MembershipTier = 'free' | 'premium' | 'admin';
+export type MembershipTier = "free" | "premium" | "admin";
 
 /**
  * Theme options for user preferences
  */
-export type ThemeOption = 'light' | 'dark';
+export type ThemeOption = "light" | "dark";
 
 /**
  * Language options for user preferences
  */
-export type LanguageOption = 'en' | 'fr' | 'es' | string;
+export type LanguageOption = "en" | "fr" | "es" | string;
 
 /**
  * User preferences interface

@@ -8,7 +8,7 @@
  * @module TextArea
  */
 
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
 /**
  * Props for the TextArea component
@@ -33,7 +33,7 @@ interface TextAreaProps {
   rows?: number;
   maxLength?: number;
   className?: string;
-  'data-testid'?: string;
+  "data-testid"?: string;
 }
 
 /**
@@ -48,13 +48,13 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     {
       value,
       onChange,
-      placeholder = '',
+      placeholder = "",
       disabled = false,
       hasError = false,
       rows = 3,
       maxLength,
-      className = '',
-      'data-testid': testId,
+      className = "",
+      "data-testid": testId,
       ...props
     },
     ref,
@@ -68,14 +68,14 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         disabled={disabled}
         rows={rows}
         maxLength={maxLength}
-        data-testid={testId || 'text-area'}
-        className={`text-area ${hasError ? 'text-area-error' : ''} ${className}`}
+        data-testid={testId || "text-area"}
+        className={`text-area ${hasError ? "text-area-error" : ""} ${className}`}
         {...props}
       />
     );
   },
 );
 
-TextArea.displayName = 'TextArea';
+TextArea.displayName = "TextArea";
 
 export default TextArea;

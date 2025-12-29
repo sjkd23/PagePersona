@@ -5,9 +5,9 @@
  * with proper error handling and fallback behavior.
  */
 
-import redisClient from '../utils/redis-client';
-import { logger } from '../utils/logger';
-import type { TransformationResult } from './content-transformer';
+import redisClient from "../utils/redis-client";
+import { logger } from "../utils/logger";
+import type { TransformationResult } from "./content-transformer";
 
 const CACHE_TTL = Number(process.env.CACHE_TTL_SECONDS) || 3600;
 
@@ -15,7 +15,7 @@ const CACHE_TTL = Number(process.env.CACHE_TTL_SECONDS) || 3600;
  * Generate cache key for transformation results
  */
 function generateCacheKey(url: string, persona: string): string {
-  const encodedUrl = Buffer.from(url).toString('base64');
+  const encodedUrl = Buffer.from(url).toString("base64");
   return `transform:${persona}:${encodedUrl}`;
 }
 
@@ -31,14 +31,14 @@ export async function getCachedTransformResult(
   try {
     const cached = await redisClient.get(cacheKey);
     if (cached) {
-      logger.info('Cache hit for transformation', { url, persona });
+      logger.info("Cache hit for transformation", { url, persona });
       return JSON.parse(cached);
     }
 
-    logger.info('Cache miss for transformation', { url, persona });
+    logger.info("Cache miss for transformation", { url, persona });
     return null;
   } catch (error) {
-    logger.error('Error getting cached transformation result:', error);
+    logger.error("Error getting cached transformation result:", error);
     return null;
   }
 }
@@ -55,13 +55,13 @@ export async function setCachedTransformResult(
 
   try {
     await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
-    logger.info('Cached transformation result', {
+    logger.info("Cached transformation result", {
       url,
       persona,
       ttl: CACHE_TTL,
     });
   } catch (error) {
-    logger.error('Error caching transformation result:', error);
+    logger.error("Error caching transformation result:", error);
   }
 }
 
@@ -71,7 +71,7 @@ export async function setCachedTransformResult(
 function generateTextCacheKey(text: string, persona: string): string {
   // Use first 100 characters and create hash for consistent key generation
   const textSample = text.substring(0, 100);
-  const textHash = Buffer.from(textSample).toString('base64');
+  const textHash = Buffer.from(textSample).toString("base64");
   return `transform:text:${persona}:${textHash}`;
 }
 
@@ -87,20 +87,20 @@ export async function getCachedTextTransformResult(
   try {
     const cached = await redisClient.get(cacheKey);
     if (cached) {
-      logger.info('Cache hit for text transformation', {
+      logger.info("Cache hit for text transformation", {
         persona,
         textLength: text.length,
       });
       return JSON.parse(cached);
     }
 
-    logger.info('Cache miss for text transformation', {
+    logger.info("Cache miss for text transformation", {
       persona,
       textLength: text.length,
     });
     return null;
   } catch (error) {
-    logger.error('Error getting cached text transformation result:', error);
+    logger.error("Error getting cached text transformation result:", error);
     return null;
   }
 }
@@ -117,27 +117,30 @@ export async function setCachedTextTransformResult(
 
   try {
     await redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(result));
-    logger.info('Cached text transformation result', {
+    logger.info("Cached text transformation result", {
       persona,
       textLength: text.length,
       ttl: CACHE_TTL,
     });
   } catch (error) {
-    logger.error('Error caching text transformation result:', error);
+    logger.error("Error caching text transformation result:", error);
   }
 }
 
 /**
  * Clear cache for a specific URL and persona
  */
-export async function clearTransformCache(url: string, persona: string): Promise<void> {
+export async function clearTransformCache(
+  url: string,
+  persona: string,
+): Promise<void> {
   const cacheKey = generateCacheKey(url, persona);
 
   try {
     await redisClient.del(cacheKey);
-    logger.info('Cleared transformation cache', { url, persona });
+    logger.info("Cleared transformation cache", { url, persona });
   } catch (error) {
-    logger.error('Error clearing transformation cache:', error);
+    logger.error("Error clearing transformation cache:", error);
   }
 }
 
@@ -147,9 +150,9 @@ export async function clearTransformCache(url: string, persona: string): Promise
 export async function clearAllTransformCache(): Promise<void> {
   try {
     // Note: This would need to be implemented in redis-client if needed
-    logger.info('Clear all transformation cache requested');
+    logger.info("Clear all transformation cache requested");
   } catch (error) {
-    logger.error('Error clearing all transformation cache:', error);
+    logger.error("Error clearing all transformation cache:", error);
   }
 }
 
@@ -163,10 +166,10 @@ export async function getCacheStats(): Promise<{
 } | null> {
   try {
     // Note: This would need to be implemented in redis-client if needed
-    logger.info('Cache stats requested');
+    logger.info("Cache stats requested");
     return null;
   } catch (error) {
-    logger.error('Error getting cache stats:', error);
+    logger.error("Error getting cache stats:", error);
     return null;
   }
 }

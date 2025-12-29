@@ -1,5 +1,5 @@
-import { Component } from 'react';
-import type { ReactNode } from 'react';
+import { Component } from "react";
+import type { ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -38,10 +38,14 @@ class ErrorBoundary extends Component<Props, State> {
               Oops! Something went wrong
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6 transition-colors duration-300">
-              We encountered an unexpected error. Please refresh the page and try again.
+              We encountered an unexpected error. Please refresh the page and
+              try again.
             </p>
             <div className="space-y-3">
-              <button onClick={() => window.location.reload()} className="w-full btn-primary">
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full btn-primary"
+              >
                 Refresh Page
               </button>
               <button

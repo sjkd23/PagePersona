@@ -13,8 +13,8 @@
  * - Performance-optimized indexing
  */
 
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import { logger } from '../utils/logger';
+import mongoose, { Schema, Document, Model } from "mongoose";
+import { logger } from "../utils/logger";
 
 /**
  * MongoDB User Document Interface
@@ -101,23 +101,23 @@ const MongoUserSchema = new Schema<IMongoUser>(
       unique: true,
       index: true,
     },
-    firstName: { type: String, default: '' },
-    lastName: { type: String, default: '' },
-    avatar: { type: String, default: '' },
+    firstName: { type: String, default: "" },
+    lastName: { type: String, default: "" },
+    avatar: { type: String, default: "" },
     isEmailVerified: { type: Boolean, default: false },
     role: {
       type: String,
-      default: 'user',
-      enum: ['user', 'admin', 'moderator'],
+      default: "user",
+      enum: ["user", "admin", "moderator"],
     },
     membership: {
       type: String,
-      default: 'free',
-      enum: ['free', 'premium', 'admin'],
+      default: "free",
+      enum: ["free", "premium", "admin"],
     },
     preferences: {
-      theme: { type: String, default: 'light', enum: ['light', 'dark'] },
-      language: { type: String, default: 'en' },
+      theme: { type: String, default: "light", enum: ["light", "dark"] },
+      language: { type: String, default: "en" },
       notifications: { type: Boolean, default: true },
     },
     usage: {
@@ -132,7 +132,7 @@ const MongoUserSchema = new Schema<IMongoUser>(
   },
   {
     timestamps: true,
-    collection: 'users',
+    collection: "users",
   },
 );
 
@@ -147,10 +147,14 @@ MongoUserSchema.index({ createdAt: -1 });
  * automatic monthly reset handling to prevent race conditions.
  * Uses UTC time calculations to avoid timezone-related issues.
  */
-MongoUserSchema.methods.incrementUsage = async function (this: IMongoUser): Promise<void> {
+MongoUserSchema.methods.incrementUsage = async function (
+  this: IMongoUser,
+): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
   const resetDate = new Date(this.usage.usageResetDate);
 
   // Check if we need to reset monthly usage (new month) - timezone safe
@@ -164,12 +168,12 @@ MongoUserSchema.methods.incrementUsage = async function (this: IMongoUser): Prom
       { _id: this._id },
       {
         $set: {
-          'usage.monthlyUsage': 1,
-          'usage.usageResetDate': currentMonthUTC,
-          'usage.lastTransformation': now,
+          "usage.monthlyUsage": 1,
+          "usage.usageResetDate": currentMonthUTC,
+          "usage.lastTransformation": now,
         },
         $inc: {
-          'usage.totalTransformations': 1,
+          "usage.totalTransformations": 1,
         },
       },
     );
@@ -185,11 +189,11 @@ MongoUserSchema.methods.incrementUsage = async function (this: IMongoUser): Prom
       { _id: this._id },
       {
         $inc: {
-          'usage.totalTransformations': 1,
-          'usage.monthlyUsage': 1,
+          "usage.totalTransformations": 1,
+          "usage.monthlyUsage": 1,
         },
         $set: {
-          'usage.lastTransformation': now,
+          "usage.lastTransformation": now,
         },
       },
     );
@@ -201,10 +205,14 @@ MongoUserSchema.methods.incrementUsage = async function (this: IMongoUser): Prom
   }
 };
 
-MongoUserSchema.methods.incrementFailedAttempt = async function (this: IMongoUser): Promise<void> {
+MongoUserSchema.methods.incrementFailedAttempt = async function (
+  this: IMongoUser,
+): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
   const resetDate = new Date(this.usage.usageResetDate);
 
   // Check if we need to reset monthly usage (new month) - timezone safe
@@ -218,11 +226,11 @@ MongoUserSchema.methods.incrementFailedAttempt = async function (this: IMongoUse
       { _id: this._id },
       {
         $set: {
-          'usage.monthlyFailed': 1,
-          'usage.usageResetDate': currentMonthUTC,
+          "usage.monthlyFailed": 1,
+          "usage.usageResetDate": currentMonthUTC,
         },
         $inc: {
-          'usage.failedAttempts': 1,
+          "usage.failedAttempts": 1,
         },
       },
     );
@@ -237,8 +245,8 @@ MongoUserSchema.methods.incrementFailedAttempt = async function (this: IMongoUse
       { _id: this._id },
       {
         $inc: {
-          'usage.failedAttempts': 1,
-          'usage.monthlyFailed': 1,
+          "usage.failedAttempts": 1,
+          "usage.monthlyFailed": 1,
         },
       },
     );
@@ -249,16 +257,23 @@ MongoUserSchema.methods.incrementFailedAttempt = async function (this: IMongoUse
   }
 };
 
-MongoUserSchema.methods.resetMonthlyUsage = async function (this: IMongoUser): Promise<void> {
+MongoUserSchema.methods.resetMonthlyUsage = async function (
+  this: IMongoUser,
+): Promise<void> {
   const now = new Date();
   // Use UTC to prevent timezone-related issues
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
   this.usage.monthlyUsage = 0;
   this.usage.usageResetDate = currentMonthUTC;
   await this.save();
 };
 
-MongoUserSchema.methods.checkUsageLimit = function (this: IMongoUser, limit: number): boolean {
+MongoUserSchema.methods.checkUsageLimit = function (
+  this: IMongoUser,
+  limit: number,
+): boolean {
   return this.usage.monthlyUsage < limit;
 };
 
@@ -269,11 +284,13 @@ MongoUserSchema.statics.findByAuth0Id = function (auth0Id: string) {
 
 MongoUserSchema.statics.getUsageStats = async function () {
   const now = new Date();
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
 
   const totalUsers = await this.countDocuments();
   const activeUsersThisMonth = await this.countDocuments({
-    'usage.lastTransformation': {
+    "usage.lastTransformation": {
       $gte: currentMonthUTC,
     },
   });
@@ -282,7 +299,7 @@ MongoUserSchema.statics.getUsageStats = async function () {
     {
       $group: {
         _id: null,
-        total: { $sum: '$usage.totalTransformations' },
+        total: { $sum: "$usage.totalTransformations" },
       },
     },
   ]);
@@ -295,9 +312,13 @@ MongoUserSchema.statics.getUsageStats = async function () {
 };
 
 // Static method for atomic usage increment by ID (race-condition safe)
-MongoUserSchema.statics.incrementUsageById = async function (userId: string): Promise<boolean> {
+MongoUserSchema.statics.incrementUsageById = async function (
+  userId: string,
+): Promise<boolean> {
   const now = new Date();
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
 
   try {
     // First, try to increment usage for users whose monthly usage doesn't need reset
@@ -305,17 +326,17 @@ MongoUserSchema.statics.incrementUsageById = async function (userId: string): Pr
       {
         _id: userId,
         $or: [
-          { 'usage.usageResetDate': { $gte: currentMonthUTC } },
-          { 'usage.usageResetDate': { $exists: false } },
+          { "usage.usageResetDate": { $gte: currentMonthUTC } },
+          { "usage.usageResetDate": { $exists: false } },
         ],
       },
       {
         $inc: {
-          'usage.totalTransformations': 1,
-          'usage.monthlyUsage': 1,
+          "usage.totalTransformations": 1,
+          "usage.monthlyUsage": 1,
         },
         $set: {
-          'usage.lastTransformation': now,
+          "usage.lastTransformation": now,
         },
       },
     );
@@ -329,19 +350,19 @@ MongoUserSchema.statics.incrementUsageById = async function (userId: string): Pr
       { _id: userId },
       {
         $set: {
-          'usage.monthlyUsage': 1,
-          'usage.usageResetDate': currentMonthUTC,
-          'usage.lastTransformation': now,
+          "usage.monthlyUsage": 1,
+          "usage.usageResetDate": currentMonthUTC,
+          "usage.lastTransformation": now,
         },
         $inc: {
-          'usage.totalTransformations': 1,
+          "usage.totalTransformations": 1,
         },
       },
     );
 
     return resetUpdate.modifiedCount > 0;
   } catch (error) {
-    logger.error('Failed to increment usage by ID:', error);
+    logger.error("Failed to increment usage by ID:", error);
     return false;
   }
 };
@@ -351,7 +372,9 @@ MongoUserSchema.statics.incrementFailedAttemptById = async function (
   userId: string,
 ): Promise<boolean> {
   const now = new Date();
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
 
   try {
     // First, try to increment failed attempts for users whose monthly usage doesn't need reset
@@ -359,14 +382,14 @@ MongoUserSchema.statics.incrementFailedAttemptById = async function (
       {
         _id: userId,
         $or: [
-          { 'usage.usageResetDate': { $gte: currentMonthUTC } },
-          { 'usage.usageResetDate': { $exists: false } },
+          { "usage.usageResetDate": { $gte: currentMonthUTC } },
+          { "usage.usageResetDate": { $exists: false } },
         ],
       },
       {
         $inc: {
-          'usage.failedAttempts': 1,
-          'usage.monthlyFailed': 1,
+          "usage.failedAttempts": 1,
+          "usage.monthlyFailed": 1,
         },
       },
     );
@@ -380,26 +403,30 @@ MongoUserSchema.statics.incrementFailedAttemptById = async function (
       { _id: userId },
       {
         $set: {
-          'usage.monthlyFailed': 1,
-          'usage.usageResetDate': currentMonthUTC,
+          "usage.monthlyFailed": 1,
+          "usage.usageResetDate": currentMonthUTC,
         },
         $inc: {
-          'usage.failedAttempts': 1,
+          "usage.failedAttempts": 1,
         },
       },
     );
 
     return resetUpdate.modifiedCount > 0;
   } catch (error) {
-    logger.error('Failed to increment failed attempt by ID:', error);
+    logger.error("Failed to increment failed attempt by ID:", error);
     return false;
   }
 };
 
 // Bulk usage increment for high-throughput scenarios
-MongoUserSchema.statics.bulkIncrementUsage = async function (userIds: string[]): Promise<number> {
+MongoUserSchema.statics.bulkIncrementUsage = async function (
+  userIds: string[],
+): Promise<number> {
   const now = new Date();
-  const currentMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const currentMonthUTC = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+  );
 
   try {
     // First pass: increment users who don't need monthly reset
@@ -407,17 +434,17 @@ MongoUserSchema.statics.bulkIncrementUsage = async function (userIds: string[]):
       {
         _id: { $in: userIds },
         $or: [
-          { 'usage.usageResetDate': { $gte: currentMonthUTC } },
-          { 'usage.usageResetDate': { $exists: false } },
+          { "usage.usageResetDate": { $gte: currentMonthUTC } },
+          { "usage.usageResetDate": { $exists: false } },
         ],
       },
       {
         $inc: {
-          'usage.totalTransformations': 1,
-          'usage.monthlyUsage': 1,
+          "usage.totalTransformations": 1,
+          "usage.monthlyUsage": 1,
         },
         $set: {
-          'usage.lastTransformation': now,
+          "usage.lastTransformation": now,
         },
       },
     );
@@ -426,25 +453,28 @@ MongoUserSchema.statics.bulkIncrementUsage = async function (userIds: string[]):
     const resetUpdates = await this.updateMany(
       {
         _id: { $in: userIds },
-        'usage.usageResetDate': { $lt: currentMonthUTC },
+        "usage.usageResetDate": { $lt: currentMonthUTC },
       },
       {
         $set: {
-          'usage.monthlyUsage': 1,
-          'usage.usageResetDate': currentMonthUTC,
-          'usage.lastTransformation': now,
+          "usage.monthlyUsage": 1,
+          "usage.usageResetDate": currentMonthUTC,
+          "usage.lastTransformation": now,
         },
         $inc: {
-          'usage.totalTransformations': 1,
+          "usage.totalTransformations": 1,
         },
       },
     );
 
     return normalUpdates.modifiedCount + resetUpdates.modifiedCount;
   } catch (error) {
-    logger.error('Failed bulk usage increment:', error);
+    logger.error("Failed bulk usage increment:", error);
     return 0;
   }
 };
 
-export const MongoUser = mongoose.model<IMongoUser, IMongoUserModel>('MongoUser', MongoUserSchema);
+export const MongoUser = mongoose.model<IMongoUser, IMongoUserModel>(
+  "MongoUser",
+  MongoUserSchema,
+);

@@ -55,9 +55,9 @@
  * - URL normalization for consistent cache keys
  */
 
-import NodeCache from 'node-cache';
-import type { ScrapedContent } from '../utils/web-scraper';
-import type { TransformationResult } from '../services/content-transformer';
+import NodeCache from "node-cache";
+import type { ScrapedContent } from "../utils/web-scraper";
+import type { TransformationResult } from "../services/content-transformer";
 
 /**
  * Cache Service Class
@@ -114,7 +114,10 @@ export class CacheService {
    * @param personaId - Persona identifier used for transformation
    * @returns Cached transformation result or null if not found
    */
-  getCachedTransformation(url: string, personaId: string): TransformationResult | null {
+  getCachedTransformation(
+    url: string,
+    personaId: string,
+  ): TransformationResult | null {
     const cacheKey = this.createTransformKey(url, personaId);
     return this.transformCache.get<TransformationResult>(cacheKey) || null;
   }
@@ -126,7 +129,11 @@ export class CacheService {
    * @param personaId - Persona identifier used for transformation
    * @param result - Transformation result to cache
    */
-  setCachedTransformation(url: string, personaId: string, result: TransformationResult): void {
+  setCachedTransformation(
+    url: string,
+    personaId: string,
+    result: TransformationResult,
+  ): void {
     const cacheKey = this.createTransformKey(url, personaId);
     this.transformCache.set(cacheKey, result);
   }

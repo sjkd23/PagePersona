@@ -5,12 +5,12 @@
  * scope enforcement, and permission checks for API routes.
  */
 
-import '../types/loader';
-import { Request, Response, NextFunction, RequestHandler } from 'express';
-import jwtAuthz from 'express-jwt-authz';
-import { parsedEnv } from '../utils/env-validation';
-import { logger } from '../utils/logger';
-import jwtAuth from './jwtAuth';
+import "../types/loader";
+import { Request, Response, NextFunction, RequestHandler } from "express";
+import jwtAuthz from "express-jwt-authz";
+import { parsedEnv } from "../utils/env-validation";
+import { logger } from "../utils/logger";
+import jwtAuth from "./jwtAuth";
 
 /** Use validated environment configuration */
 const envConfig = parsedEnv;
@@ -45,30 +45,41 @@ export function requireScopes(
     failWithError?: boolean;
   } = {},
 ): RequestHandler {
-  const { checkAllScopes = false, customScopeKey = 'permissions', failWithError = true } = options;
+  const {
+    checkAllScopes = false,
+    customScopeKey = "permissions",
+    failWithError = true,
+  } = options;
 
   return jwtAuthz(scopes, {
     customScopeKey,
     checkAllScopes,
     failWithError,
-    customUserKey: 'auth',
+    customUserKey: "auth",
   });
 }
 
 /** Permission-based authorization */
-export function requirePermissions(permissions: string[], options: { requireAll?: boolean } = {}) {
+export function requirePermissions(
+  permissions: string[],
+  options: { requireAll?: boolean } = {},
+) {
   const { requireAll = false } = options;
 
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): void => {
     const userPerms = req.auth?.permissions || [];
     if (!Array.isArray(userPerms)) {
-      logger.warn('Permissions missing or malformed', {
+      logger.warn("Permissions missing or malformed", {
         user: req.auth?.sub,
         permissions: userPerms,
       });
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'Insufficient permissions',
+        error: "Forbidden",
+        message: "Insufficient permissions",
       });
       return;
     }
@@ -78,22 +89,22 @@ export function requirePermissions(permissions: string[], options: { requireAll?
       : permissions.some((p) => userPerms.includes(p));
 
     if (!ok) {
-      logger.warn('Permission check failed', {
+      logger.warn("Permission check failed", {
         user: req.auth?.sub,
         required: permissions,
         has: userPerms,
         requireAll,
       });
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'Insufficient permissions',
+        error: "Forbidden",
+        message: "Insufficient permissions",
         required: permissions,
         requireAll,
       });
       return;
     }
 
-    logger.debug('Permission check passed', {
+    logger.debug("Permission check passed", {
       user: req.auth?.sub,
       permissions: userPerms,
     });
@@ -102,20 +113,30 @@ export function requirePermissions(permissions: string[], options: { requireAll?
 }
 
 /** Role-based authorization */
-export function requireRoles(roles: string[], options: { requireAll?: boolean } = {}) {
+export function requireRoles(
+  roles: string[],
+  options: { requireAll?: boolean } = {},
+) {
   const { requireAll = false } = options;
 
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
-    const userRoles = req.auth?.roles || req.auth?.[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [];
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction,
+  ): void => {
+    const userRoles =
+      req.auth?.roles ||
+      req.auth?.[envConfig.AUTH0_ROLES_CLAIM || "roles"] ||
+      [];
 
     if (!Array.isArray(userRoles)) {
-      logger.warn('Roles missing or malformed', {
+      logger.warn("Roles missing or malformed", {
         user: req.auth?.sub,
         roles: userRoles,
       });
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'Insufficient roles',
+        error: "Forbidden",
+        message: "Insufficient roles",
       });
       return;
     }
@@ -125,22 +146,22 @@ export function requireRoles(roles: string[], options: { requireAll?: boolean } 
       : roles.some((r) => userRoles.includes(r));
 
     if (!ok) {
-      logger.warn('Role check failed', {
+      logger.warn("Role check failed", {
         user: req.auth?.sub,
         required: roles,
         has: userRoles,
         requireAll,
       });
       res.status(403).json({
-        error: 'Forbidden',
-        message: 'Insufficient roles',
+        error: "Forbidden",
+        message: "Insufficient roles",
         required: roles,
         requireAll,
       });
       return;
     }
 
-    logger.debug('Role check passed', {
+    logger.debug("Role check passed", {
       user: req.auth?.sub,
       roles: userRoles,
     });
@@ -149,13 +170,17 @@ export function requireRoles(roles: string[], options: { requireAll?: boolean } 
 }
 
 /** Optional JWT: if token present, validate, else continue */
-export const optionalJwtCheck = (req: Request, res: Response, next: NextFunction): void => {
+export const optionalJwtCheck = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   const h = req.headers.authorization;
-  if (!h || !h.startsWith('Bearer ')) return next();
+  if (!h || !h.startsWith("Bearer ")) return next();
 
   jwtAuth(req, res, (err) => {
     if (err) {
-      logger.debug('Optional JWT failed', { error: err.message });
+      logger.debug("Optional JWT failed", { error: err.message });
     }
     next();
   });
@@ -168,8 +193,8 @@ export const authErrorHandler = (
   res: Response,
   next: NextFunction,
 ): void => {
-  if (err.name === 'UnauthorizedError') {
-    logger.warn('JWT validation failed', {
+  if (err.name === "UnauthorizedError") {
+    logger.warn("JWT validation failed", {
       error: err.message,
       code: err.code,
       path: req.path,
@@ -177,11 +202,11 @@ export const authErrorHandler = (
     });
 
     const resp: Record<string, unknown> = {
-      error: 'Unauthorized',
-      message: 'Invalid or missing authentication token',
-      code: err.code || 'INVALID_TOKEN',
+      error: "Unauthorized",
+      message: "Invalid or missing authentication token",
+      code: err.code || "INVALID_TOKEN",
     };
-    if (envConfig.NODE_ENV !== 'production') {
+    if (envConfig.NODE_ENV !== "production") {
       resp.details = err.message;
     }
     res.status(401).json(resp);
@@ -203,8 +228,11 @@ export const attachUserInfo = (
       name: req.auth.name as string | undefined,
       picture: req.auth.picture as string | undefined,
       permissions: req.auth.permissions || [],
-      roles: req.auth.roles || req.auth[envConfig.AUTH0_ROLES_CLAIM || 'roles'] || [],
-      scope: req.auth.scope?.split(' ') || [],
+      roles:
+        req.auth.roles ||
+        req.auth[envConfig.AUTH0_ROLES_CLAIM || "roles"] ||
+        [],
+      scope: req.auth.scope?.split(" ") || [],
       sub: req.auth.sub,
       iss: req.auth.iss,
       aud: req.auth.aud,
@@ -213,16 +241,20 @@ export const attachUserInfo = (
     };
     // @ts-ignore attach dynamic user prop
     req.user = userInfo;
-    logger.debug('User info attached', { user: userInfo.id });
+    logger.debug("User info attached", { user: userInfo.id });
   }
   next();
 };
 
 /** Development-only debug middleware */
-export const debugAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const debugAuth = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
   // Only enable debug middleware in development environment
-  if (envConfig.NODE_ENV === 'development') {
-    logger.debug('Auth Debug', {
+  if (envConfig.NODE_ENV === "development") {
+    logger.debug("Auth Debug", {
       user: req.user,
       auth: req.auth,
       path: req.path,

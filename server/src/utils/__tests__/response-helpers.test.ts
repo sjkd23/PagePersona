@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Response } from 'express';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { Response } from "express";
 import {
   sendSuccess,
   sendError,
@@ -11,11 +11,11 @@ import {
   errorHandler,
   asyncHandler,
   sendResponse,
-} from '../response-helpers';
-import { HttpStatus } from '../../constants/http-status';
-import type { AuthenticatedRequest } from '../../types/common';
+} from "../response-helpers";
+import { HttpStatus } from "../../constants/http-status";
+import type { AuthenticatedRequest } from "../../types/common";
 
-describe('response-helpers', () => {
+describe("response-helpers", () => {
   let mockResponse: Partial<Response>;
   let statusSpy: any;
   let jsonSpy: any;
@@ -34,10 +34,10 @@ describe('response-helpers', () => {
     vi.restoreAllMocks();
   });
 
-  describe('sendSuccess', () => {
-    it('should send a success response with data and message', () => {
-      const data = { id: 1, name: 'test' };
-      const message = 'Operation successful';
+  describe("sendSuccess", () => {
+    it("should send a success response with data and message", () => {
+      const data = { id: 1, name: "test" };
+      const message = "Operation successful";
 
       sendSuccess(mockResponse as Response, data, message, HttpStatus.CREATED);
 
@@ -49,7 +49,7 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send a success response with only data', () => {
+    it("should send a success response with only data", () => {
       const data = { id: 1 };
 
       sendSuccess(mockResponse as Response, data);
@@ -61,8 +61,8 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send a success response with only message', () => {
-      const message = 'Success';
+    it("should send a success response with only message", () => {
+      const message = "Success";
 
       sendSuccess(mockResponse as Response, undefined, message);
 
@@ -73,7 +73,7 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send a minimal success response', () => {
+    it("should send a minimal success response", () => {
       sendSuccess(mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.OK);
@@ -82,21 +82,21 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should not include data when it is null', () => {
-      sendSuccess(mockResponse as Response, null, 'Success');
+    it("should not include data when it is null", () => {
+      sendSuccess(mockResponse as Response, null, "Success");
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.OK);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: true,
-        message: 'Success',
+        message: "Success",
       });
     });
   });
 
-  describe('sendError', () => {
-    it('should send an error response with data', () => {
-      const error = 'Something went wrong';
-      const data = { field: 'value' };
+  describe("sendError", () => {
+    it("should send an error response with data", () => {
+      const error = "Something went wrong";
+      const data = { field: "value" };
 
       sendError(mockResponse as Response, error, HttpStatus.BAD_REQUEST, data);
 
@@ -108,8 +108,8 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send an error response without data', () => {
-      const error = 'Internal error';
+    it("should send an error response without data", () => {
+      const error = "Internal error";
 
       sendError(mockResponse as Response, error);
 
@@ -121,10 +121,10 @@ describe('response-helpers', () => {
     });
   });
 
-  describe('sendValidationError', () => {
-    it('should send a validation error (400)', () => {
-      const error = 'Invalid input';
-      const data = { field: 'email', value: 'invalid' };
+  describe("sendValidationError", () => {
+    it("should send a validation error (400)", () => {
+      const error = "Invalid input";
+      const data = { field: "email", value: "invalid" };
 
       sendValidationError(mockResponse as Response, error, data);
 
@@ -137,9 +137,9 @@ describe('response-helpers', () => {
     });
   });
 
-  describe('sendNotFound', () => {
-    it('should send a not found error with custom message', () => {
-      const error = 'User not found';
+  describe("sendNotFound", () => {
+    it("should send a not found error with custom message", () => {
+      const error = "User not found";
 
       sendNotFound(mockResponse as Response, error);
 
@@ -150,20 +150,20 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send a not found error with default message', () => {
+    it("should send a not found error with default message", () => {
       sendNotFound(mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Resource not found',
+        error: "Resource not found",
       });
     });
   });
 
-  describe('sendUnauthorized', () => {
-    it('should send an unauthorized error with custom message', () => {
-      const error = 'Token expired';
+  describe("sendUnauthorized", () => {
+    it("should send an unauthorized error with custom message", () => {
+      const error = "Token expired";
 
       sendUnauthorized(mockResponse as Response, error);
 
@@ -174,132 +174,162 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send an unauthorized error with default message', () => {
+    it("should send an unauthorized error with default message", () => {
       sendUnauthorized(mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Unauthorized access',
+        error: "Unauthorized access",
       });
     });
   });
 
-  describe('sendForbidden', () => {
-    it('should send a forbidden error with default message', () => {
+  describe("sendForbidden", () => {
+    it("should send a forbidden error with default message", () => {
       sendForbidden(mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.FORBIDDEN);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Access forbidden',
+        error: "Access forbidden",
       });
     });
   });
 
-  describe('sendInternalError', () => {
-    it('should send an internal server error with default message', () => {
+  describe("sendInternalError", () => {
+    it("should send an internal server error with default message", () => {
       sendInternalError(mockResponse as Response);
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Internal server error',
+        error: "Internal server error",
       });
     });
   });
 
-  describe('errorHandler', () => {
+  describe("errorHandler", () => {
     let mockRequest: Partial<AuthenticatedRequest>;
     let mockNext: any;
 
     beforeEach(() => {
       mockRequest = {
-        method: 'GET',
-        originalUrl: '/api/test',
+        method: "GET",
+        originalUrl: "/api/test",
       };
       mockNext = vi.fn();
-      vi.stubEnv('NODE_ENV', 'test');
+      vi.stubEnv("NODE_ENV", "test");
     });
 
-    it('should handle ValidationError', () => {
-      const error = { name: 'ValidationError', message: 'Invalid data' };
+    it("should handle ValidationError", () => {
+      const error = { name: "ValidationError", message: "Invalid data" };
 
-      errorHandler(error, mockRequest as AuthenticatedRequest, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockRequest as AuthenticatedRequest,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Invalid data',
+        error: "Invalid data",
       });
     });
 
-    it('should handle UnauthorizedError', () => {
-      const error = { name: 'UnauthorizedError', message: 'Token invalid' };
+    it("should handle UnauthorizedError", () => {
+      const error = { name: "UnauthorizedError", message: "Token invalid" };
 
-      errorHandler(error, mockRequest as AuthenticatedRequest, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockRequest as AuthenticatedRequest,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Invalid or missing authentication token',
+        error: "Invalid or missing authentication token",
       });
     });
 
-    it('should handle 404 status errors', () => {
-      const error = { status: 404, message: 'Route not found' };
+    it("should handle 404 status errors", () => {
+      const error = { status: 404, message: "Route not found" };
 
-      errorHandler(error, mockRequest as AuthenticatedRequest, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockRequest as AuthenticatedRequest,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Route not found',
+        error: "Route not found",
       });
     });
 
-    it('should handle generic errors in development', () => {
-      vi.stubEnv('NODE_ENV', 'development');
-      const error = new Error('Test error');
+    it("should handle generic errors in development", () => {
+      vi.stubEnv("NODE_ENV", "development");
+      const error = new Error("Test error");
 
-      errorHandler(error, mockRequest as AuthenticatedRequest, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockRequest as AuthenticatedRequest,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Test error',
+        error: "Test error",
       });
     });
 
-    it('should handle generic errors in production', () => {
-      vi.stubEnv('NODE_ENV', 'production');
-      const error = new Error('Sensitive error details');
+    it("should handle generic errors in production", () => {
+      vi.stubEnv("NODE_ENV", "production");
+      const error = new Error("Sensitive error details");
 
-      errorHandler(error, mockRequest as AuthenticatedRequest, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockRequest as AuthenticatedRequest,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Something went wrong',
+        error: "Something went wrong",
       });
     });
 
-    it('should handle unknown error types', () => {
+    it("should handle unknown error types", () => {
       const error = null;
 
-      errorHandler(error, mockRequest as AuthenticatedRequest, mockResponse as Response, mockNext);
+      errorHandler(
+        error,
+        mockRequest as AuthenticatedRequest,
+        mockResponse as Response,
+        mockNext,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'Unknown error occurred',
+        error: "Unknown error occurred",
       });
     });
   });
 
-  describe('asyncHandler', () => {
-    it('should call the function and pass through result', async () => {
-      const mockFn = vi.fn().mockResolvedValue('success');
+  describe("asyncHandler", () => {
+    it("should call the function and pass through result", async () => {
+      const mockFn = vi.fn().mockResolvedValue("success");
       const mockReq = {} as AuthenticatedRequest;
       const mockRes = {} as Response;
       const mockNext = vi.fn();
@@ -311,8 +341,8 @@ describe('response-helpers', () => {
       expect(mockNext).not.toHaveBeenCalled();
     });
 
-    it('should catch and pass errors to next', async () => {
-      const error = new Error('Async error');
+    it("should catch and pass errors to next", async () => {
+      const error = new Error("Async error");
       const mockFn = vi.fn().mockRejectedValue(error);
       const mockReq = {} as AuthenticatedRequest;
       const mockRes = {} as Response;
@@ -326,12 +356,18 @@ describe('response-helpers', () => {
     });
   });
 
-  describe('sendResponse', () => {
-    it('should send success response for 2xx status codes', () => {
-      const data = { test: 'data' };
-      const message = 'Success';
+  describe("sendResponse", () => {
+    it("should send success response for 2xx status codes", () => {
+      const data = { test: "data" };
+      const message = "Success";
 
-      sendResponse(mockResponse as Response, HttpStatus.CREATED, data, undefined, message);
+      sendResponse(
+        mockResponse as Response,
+        HttpStatus.CREATED,
+        data,
+        undefined,
+        message,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.CREATED);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -341,11 +377,16 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send error response for 4xx status codes', () => {
-      const error = 'Bad request';
-      const data = { field: 'invalid' };
+    it("should send error response for 4xx status codes", () => {
+      const error = "Bad request";
+      const data = { field: "invalid" };
 
-      sendResponse(mockResponse as Response, HttpStatus.BAD_REQUEST, data, error);
+      sendResponse(
+        mockResponse as Response,
+        HttpStatus.BAD_REQUEST,
+        data,
+        error,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -355,10 +396,15 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should send error response for 5xx status codes', () => {
-      const error = 'Server error';
+    it("should send error response for 5xx status codes", () => {
+      const error = "Server error";
 
-      sendResponse(mockResponse as Response, HttpStatus.INTERNAL_SERVER_ERROR, undefined, error);
+      sendResponse(
+        mockResponse as Response,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        undefined,
+        error,
+      );
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(jsonSpy).toHaveBeenCalledWith({
@@ -367,13 +413,13 @@ describe('response-helpers', () => {
       });
     });
 
-    it('should use default error message when none provided', () => {
+    it("should use default error message when none provided", () => {
       sendResponse(mockResponse as Response, HttpStatus.BAD_REQUEST);
 
       expect(statusSpy).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(jsonSpy).toHaveBeenCalledWith({
         success: false,
-        error: 'An error occurred',
+        error: "An error occurred",
       });
     });
   });

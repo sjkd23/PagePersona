@@ -9,12 +9,12 @@
  * - GET /redis: Test Redis connectivity and rate limiting store status
  */
 
-import { Router, Request, Response } from 'express';
-import redisClient from '../utils/redis-client';
-import { HttpStatus } from '../constants/http-status';
-import { logger } from '../utils/logger';
-import { createRateLimiter } from '../config/rateLimiter';
-import { rateLimitConfigs } from '../config/rate-limit-configs';
+import { Router, Request, Response } from "express";
+import redisClient from "../utils/redis-client";
+import { HttpStatus } from "../constants/http-status";
+import { logger } from "../utils/logger";
+import { createRateLimiter } from "../config/rateLimiter";
+import { rateLimitConfigs } from "../config/rate-limit-configs";
 
 const router = Router();
 
@@ -38,10 +38,10 @@ const isUsingRedisStore = () => {
  * @throws {503} Service unavailable if Redis operations fail
  * @throws {500} Internal server error for unexpected failures
  */
-router.get('/redis', async (req: Request, res: Response) => {
+router.get("/redis", async (req: Request, res: Response) => {
   try {
-    const testKey = 'debug:test';
-    const testValue = 'pong';
+    const testKey = "debug:test";
+    const testValue = "pong";
     const ttlSeconds = 10; // 10 second TTL for debug test
 
     // Set test value with TTL
@@ -51,9 +51,11 @@ router.get('/redis', async (req: Request, res: Response) => {
     if (!setResult) {
       res.status(HttpStatus.SERVICE_UNAVAILABLE).json({
         success: false,
-        error: 'Redis SET operation failed',
+        error: "Redis SET operation failed",
         redisAvailable: false,
-        rateLimitingStore: isUsingRedisStore() ? 'Redis (but failing)' : 'In-Memory',
+        rateLimitingStore: isUsingRedisStore()
+          ? "Redis (but failing)"
+          : "In-Memory",
         timestamp: new Date().toISOString(),
       });
       return;
@@ -70,33 +72,37 @@ router.get('/redis', async (req: Request, res: Response) => {
         success: true,
         value: getValue,
         redisAvailable: true,
-        rateLimitingStore: isUsingRedisStore() ? 'Redis' : 'In-Memory',
-        message: 'Redis connectivity test successful',
+        rateLimitingStore: isUsingRedisStore() ? "Redis" : "In-Memory",
+        message: "Redis connectivity test successful",
         timestamp: new Date().toISOString(),
       });
     } else {
       res.status(HttpStatus.SERVICE_UNAVAILABLE).json({
         success: false,
-        error: 'Redis GET operation failed or returned unexpected value',
+        error: "Redis GET operation failed or returned unexpected value",
         expected: testValue,
         received: getValue,
         redisAvailable: false,
-        rateLimitingStore: isUsingRedisStore() ? 'Redis (but failing)' : 'In-Memory',
+        rateLimitingStore: isUsingRedisStore()
+          ? "Redis (but failing)"
+          : "In-Memory",
         timestamp: new Date().toISOString(),
       });
     }
   } catch (error) {
-    logger.error('Redis debug test failed', error, {
-      endpoint: '/api/debug/redis',
+    logger.error("Redis debug test failed", error, {
+      endpoint: "/api/debug/redis",
       redisStoreUsed: isUsingRedisStore(),
-      testType: 'connectivity_test',
+      testType: "connectivity_test",
     });
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      error: 'Redis debug test failed',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      error: "Redis debug test failed",
+      details: error instanceof Error ? error.message : "Unknown error",
       redisAvailable: false,
-      rateLimitingStore: isUsingRedisStore() ? 'Redis (but failing)' : 'In-Memory',
+      rateLimitingStore: isUsingRedisStore()
+        ? "Redis (but failing)"
+        : "In-Memory",
       timestamp: new Date().toISOString(),
     });
   }

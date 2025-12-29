@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
-import { trackUsage } from '../usage-middleware';
-import * as usageTracking from '../../utils/usage-tracking';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { Request, Response, NextFunction } from "express";
+import { trackUsage } from "../usage-middleware";
+import * as usageTracking from "../../utils/usage-tracking";
 
 // Mock incrementUserUsage from usage-tracking
-vi.mock('../../utils/usage-tracking', () => ({
+vi.mock("../../utils/usage-tracking", () => ({
   incrementUserUsage: vi.fn().mockResolvedValue(true),
 }));
 
@@ -12,7 +12,7 @@ vi.mock('../../utils/usage-tracking', () => ({
 const originalEnv = process.env.NODE_ENV;
 
 beforeEach(() => {
-  process.env.NODE_ENV = 'test';
+  process.env.NODE_ENV = "test";
 });
 
 afterEach(() => {
@@ -26,7 +26,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-describe('usageMiddleware', () => {
+describe("usageMiddleware", () => {
   let mockReq: Partial<AuthenticatedRequest>;
   let mockRes: Partial<Response>;
   let mockNext: NextFunction;
@@ -36,8 +36,8 @@ describe('usageMiddleware', () => {
     vi.clearAllMocks();
 
     // Mock the implementation of setImmediate to execute synchronously
-    vi.spyOn(global, 'setImmediate').mockImplementation((fn: any) => {
-      if (typeof fn === 'function') {
+    vi.spyOn(global, "setImmediate").mockImplementation((fn: any) => {
+      if (typeof fn === "function") {
         return fn();
       }
       return undefined as any;
@@ -47,10 +47,10 @@ describe('usageMiddleware', () => {
     mockNext = vi.fn();
 
     mockReq = {
-      originalUrl: '/api/test',
-      method: 'POST',
-      body: { model: 'gpt-4o-mini' },
-      get: vi.fn().mockReturnValue('100'),
+      originalUrl: "/api/test",
+      method: "POST",
+      body: { model: "gpt-4o-mini" },
+      get: vi.fn().mockReturnValue("100"),
       // @ts-expect-error: allow userContext for test
       userContext: undefined,
     };
@@ -64,23 +64,23 @@ describe('usageMiddleware', () => {
     vi.restoreAllMocks();
   });
 
-  describe('trackUsage middleware', () => {
-    it('should call next function', async () => {
+  describe("trackUsage middleware", () => {
+    it("should call next function", async () => {
       await trackUsage(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalled();
     });
 
-    it('should override res.send method', async () => {
+    it("should override res.send method", async () => {
       const originalSend = mockRes.send;
 
       await trackUsage(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.send).not.toBe(originalSend);
-      expect(typeof mockRes.send).toBe('function');
+      expect(typeof mockRes.send).toBe("function");
     });
 
-    it('should not track usage for unauthenticated users', async () => {
+    it("should not track usage for unauthenticated users", async () => {
       // Mock unauthenticated request
       // @ts-expect-error: allow userContext for test
       mockReq.userContext = undefined;
@@ -97,15 +97,15 @@ describe('usageMiddleware', () => {
       expect(usageTracking.incrementUserUsage).not.toHaveBeenCalled();
     });
 
-    it('should handle usage recording errors gracefully', async () => {
+    it("should handle usage recording errors gracefully", async () => {
       // Mock recording error
       vi.mocked(usageTracking.incrementUserUsage).mockRejectedValueOnce(
-        new Error('Database error'),
+        new Error("Database error"),
       );
 
       // Mock authenticated request
       // @ts-expect-error: allow userContext for test
-      mockReq.userContext = { mongoUser: { _id: 'user123' } } as any;
+      mockReq.userContext = { mongoUser: { _id: "user123" } } as any;
 
       await trackUsage(mockReq as Request, mockRes as Response, mockNext);
 

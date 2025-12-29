@@ -9,10 +9,10 @@
  * - POST /chat: Send messages to OpenAI GPT with validation
  */
 
-import express from 'express';
-import { validateRequest } from '../middleware/zod-validation';
-import { chatMessageSchema } from '../schemas/chat.schema';
-import promptCall from '../utils/gpt/prompt-call';
+import express from "express";
+import { validateRequest } from "../middleware/zod-validation";
+import { chatMessageSchema } from "../schemas/chat.schema";
+import promptCall from "../utils/gpt/prompt-call";
 
 const router = express.Router();
 
@@ -28,6 +28,6 @@ const router = express.Router();
  * @returns {object} GPT response or error message
  * @middleware validateBody - Validates message format using chat schema
  */
-router.post('/chat', validateRequest(chatMessageSchema, 'body'), promptCall);
+router.post("/chat", validateRequest(chatMessageSchema, "body"), promptCall);
 
 export default router;

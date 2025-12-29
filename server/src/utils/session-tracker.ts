@@ -1,6 +1,6 @@
 // Session tracking to reduce redundant database writes
 
-import { logger } from './logger';
+import { logger } from "./logger";
 
 // Simple in-memory session tracker (use Redis in production)
 const userSessions = new Map<
@@ -27,7 +27,10 @@ let cleanupInterval: NodeJS.Timeout | null = null;
 /**
  * Check if user needs full sync or just session update
  */
-export function shouldPerformFullSync(userId: string, config = defaultConfig): boolean {
+export function shouldPerformFullSync(
+  userId: string,
+  config = defaultConfig,
+): boolean {
   const now = new Date();
   const session = userSessions.get(userId);
 
@@ -76,7 +79,9 @@ export function updateSessionOnly(userId: string): void {
  * @param timeoutMs - Session timeout in milliseconds (defaults to config value)
  * @returns Number of sessions removed
  */
-export function pruneStaleSessions(timeoutMs: number = defaultConfig.sessionTimeoutMs): number {
+export function pruneStaleSessions(
+  timeoutMs: number = defaultConfig.sessionTimeoutMs,
+): number {
   const now = new Date();
   const expiredUsers: string[] = [];
 
@@ -92,11 +97,14 @@ export function pruneStaleSessions(timeoutMs: number = defaultConfig.sessionTime
   }
 
   if (expiredUsers.length > 0) {
-    logger.session.info(`Cleaned up ${expiredUsers.length} expired user sessions`, {
-      removedSessions: expiredUsers.length,
-      activeSessions: userSessions.size,
-      sessionTimeoutHours: timeoutMs / (60 * 60 * 1000),
-    });
+    logger.session.info(
+      `Cleaned up ${expiredUsers.length} expired user sessions`,
+      {
+        removedSessions: expiredUsers.length,
+        activeSessions: userSessions.size,
+        sessionTimeoutHours: timeoutMs / (60 * 60 * 1000),
+      },
+    );
   }
 
   return expiredUsers.length;
@@ -109,13 +117,15 @@ export function pruneStaleSessions(timeoutMs: number = defaultConfig.sessionTime
 export function startSessionCleanup(): void {
   // Prevent multiple cleanup intervals
   if (cleanupInterval) {
-    logger.session.warn('Session cleanup is already running, skipping initialization');
+    logger.session.warn(
+      "Session cleanup is already running, skipping initialization",
+    );
     return;
   }
 
   const cleanupIntervalMs = 10 * 60 * 1000; // 10 minutes
 
-  logger.session.info('Starting automatic session cleanup', {
+  logger.session.info("Starting automatic session cleanup", {
     cleanupIntervalMinutes: cleanupIntervalMs / (60 * 1000),
     sessionTimeoutHours: defaultConfig.sessionTimeoutMs / (60 * 60 * 1000),
   });
@@ -136,7 +146,7 @@ export function stopSessionCleanup(): void {
   if (cleanupInterval) {
     clearInterval(cleanupInterval);
     cleanupInterval = null;
-    logger.session.info('Stopped automatic session cleanup');
+    logger.session.info("Stopped automatic session cleanup");
   }
 }
 

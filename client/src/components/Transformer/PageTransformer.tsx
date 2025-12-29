@@ -1,27 +1,31 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
-import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
-import UrlInput from '../Transformer/UrlInput';
-import ContentDisplay from './ContentDisplay';
-import Footer from '../Footer';
-import TransformationHistory from '../Transformer/TransformationHistory';
-import { useAuth } from '../../hooks/useAuthContext';
-import { useTransformationHistory } from '../../hooks/useTransformationHistory';
-import ApiService, { setTokenGetter } from '../../lib/apiClient';
-import Spinner from '../common/Spinner';
-import './styles/PageTransformer.css';
+import { useState, useEffect, Suspense, lazy } from "react";
+import type {
+  ClientPersona as Persona,
+  WebpageContent,
+} from "@pagepersonai/shared";
+import UrlInput from "../Transformer/UrlInput";
+import ContentDisplay from "./ContentDisplay";
+import Footer from "../Footer";
+import TransformationHistory from "../Transformer/TransformationHistory";
+import { useAuth } from "../../hooks/useAuthContext";
+import { useTransformationHistory } from "../../hooks/useTransformationHistory";
+import ApiService, { setTokenGetter } from "../../lib/apiClient";
+import Spinner from "../common/Spinner";
+import "./styles/PageTransformer.css";
 
 // Lazy load PersonaSelector
-const PersonaSelector = lazy(() => import('../PersonaSelector'));
+const PersonaSelector = lazy(() => import("../PersonaSelector"));
 
 export default function PageTransformer() {
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [content, setContent] = useState<WebpageContent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const { getAccessToken } = useAuth();
-  const { history, addToHistory, removeFromHistory, clearHistory } = useTransformationHistory();
+  const { history, addToHistory, removeFromHistory, clearHistory } =
+    useTransformationHistory();
 
   // Set up Auth0 token getter for API calls
   useEffect(() => {
@@ -47,7 +51,7 @@ export default function PageTransformer() {
   };
 
   const formatUrl = (inputUrl: string) => {
-    if (!inputUrl.startsWith('http://') && !inputUrl.startsWith('https://')) {
+    if (!inputUrl.startsWith("http://") && !inputUrl.startsWith("https://")) {
       return `https://${inputUrl}`;
     }
     return inputUrl;
@@ -55,11 +59,11 @@ export default function PageTransformer() {
 
   const handleTransform = async () => {
     if (!selectedPersona) {
-      setError('Please choose a persona before transforming.');
+      setError("Please choose a persona before transforming.");
       return;
     }
     if (!url.trim()) {
-      setError('Please enter a URL or text to transform.');
+      setError("Please enter a URL or text to transform.");
       return;
     }
 
@@ -78,9 +82,9 @@ export default function PageTransformer() {
       if (response.success) {
         const transformedContent: WebpageContent = {
           originalUrl: formattedUrl,
-          originalTitle: response.originalContent?.title || 'Webpage Content',
-          originalContent: response.originalContent?.content || '',
-          transformedContent: response.transformedContent || '',
+          originalTitle: response.originalContent?.title || "Webpage Content",
+          originalContent: response.originalContent?.content || "",
+          transformedContent: response.transformedContent || "",
           persona: selectedPersona,
           timestamp: new Date(),
         };
@@ -101,12 +105,16 @@ export default function PageTransformer() {
 
         if (errorResponse.limitExceeded) {
           // User has hit their limit
-          const remaining = `${errorResponse.currentUsage || 0}/${errorResponse.usageLimit || 'unknown'}`;
-          setError(`Monthly limit reached (${remaining}). Please upgrade to continue.`);
+          const remaining = `${errorResponse.currentUsage || 0}/${errorResponse.usageLimit || "unknown"}`;
+          setError(
+            `Monthly limit reached (${remaining}). Please upgrade to continue.`,
+          );
         } else {
           // Show server-provided message or generic error
           const msg =
-            errorResponse.message || errorResponse.error || 'Failed to transform the webpage';
+            errorResponse.message ||
+            errorResponse.error ||
+            "Failed to transform the webpage";
           setError(msg);
         }
       }
@@ -114,10 +122,12 @@ export default function PageTransformer() {
       setIsLoading(false);
     } catch (err) {
       // Handle usage limit HTTP 429
-      if (err instanceof Error && err.message.includes('429')) {
+      if (err instanceof Error && err.message.includes("429")) {
         setError("You've hit your monthly limit. Upgrade to continue.");
       } else {
-        setError('Failed to transform the webpage. Please check your connection and try again.');
+        setError(
+          "Failed to transform the webpage. Please check your connection and try again.",
+        );
       }
       setIsLoading(false);
     }
@@ -137,20 +147,48 @@ export default function PageTransformer() {
                 <span className="text-blue-600 font-medium">1</span>
                 <span>Choose your persona</span>
                 <span className="text-gray-400">•</span>
-                <span className={selectedPersona ? 'text-blue-600 font-medium' : 'text-gray-400'}>
+                <span
+                  className={
+                    selectedPersona
+                      ? "text-blue-600 font-medium"
+                      : "text-gray-400"
+                  }
+                >
                   2
                 </span>
-                <span className={selectedPersona ? 'text-gray-800' : 'text-gray-400'}>
+                <span
+                  className={
+                    selectedPersona ? "text-gray-800" : "text-gray-400"
+                  }
+                >
                   Enter URL or text
                 </span>
                 <span className="text-gray-400">•</span>
-                <span className={canTransform ? 'text-orange-600 font-medium' : 'text-gray-400'}>
+                <span
+                  className={
+                    canTransform
+                      ? "text-orange-600 font-medium"
+                      : "text-gray-400"
+                  }
+                >
                   3
                 </span>
-                <span className={canTransform ? 'text-gray-800' : 'text-gray-400'}>Generate</span>
+                <span
+                  className={canTransform ? "text-gray-800" : "text-gray-400"}
+                >
+                  Generate
+                </span>
                 <span className="text-gray-400">•</span>
-                <span className={content ? 'text-green-600 font-medium' : 'text-gray-400'}>4</span>
-                <span className={content ? 'text-gray-800' : 'text-gray-400'}>View result</span>
+                <span
+                  className={
+                    content ? "text-green-600 font-medium" : "text-gray-400"
+                  }
+                >
+                  4
+                </span>
+                <span className={content ? "text-gray-800" : "text-gray-400"}>
+                  View result
+                </span>
               </div>
             </div>
             {/* History Button */}
@@ -159,7 +197,12 @@ export default function PageTransformer() {
               className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg px-3 py-2 text-sm font-medium flex items-center gap-2 transition-colors"
               title="View Transformation History"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -190,8 +233,16 @@ export default function PageTransformer() {
               />
             </svg>
             <p className="text-red-800 text-sm">{error}</p>
-            <button onClick={() => setError(null)} className="text-red-400 hover:text-red-600">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button
+              onClick={() => setError(null)}
+              className="text-red-400 hover:text-red-600"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -207,8 +258,12 @@ export default function PageTransformer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Persona */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Choose your persona</h2>
-            <Suspense fallback={<Spinner size="medium" message="Loading personas..." />}>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Choose your persona
+            </h2>
+            <Suspense
+              fallback={<Spinner size="medium" message="Loading personas..." />}
+            >
               <PersonaSelector
                 selectedPersona={selectedPersona?.id || null}
                 onPersonaSelect={handlePersonaSelect}
@@ -220,14 +275,22 @@ export default function PageTransformer() {
           <div className="space-y-6">
             {/* URL Input Card */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Enter URL or text</h2>
-              <UrlInput url={url} onUrlChange={handleUrlChange} isLoading={isLoading} />
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Enter URL or text
+              </h2>
+              <UrlInput
+                url={url}
+                onUrlChange={handleUrlChange}
+                isLoading={isLoading}
+              />
             </div>
 
             {/* Generate Button Card */}
             {canTransform && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Generate</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Generate
+                </h2>
                 <button
                   onClick={handleTransform}
                   disabled={isLoading || !canTransform}
@@ -267,7 +330,9 @@ export default function PageTransformer() {
             {/* Result Card */}
             {(content || isLoading) && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">View result</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  View result
+                </h2>
                 <ContentDisplay
                   content={content}
                   isLoading={isLoading}

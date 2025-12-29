@@ -14,14 +14,17 @@
  * - Error handling with appropriate HTTP status mapping
  */
 
-import { CachedContentTransformer } from './cached-content-transformer';
-import { WebScraper } from '../utils/web-scraper';
-import { cacheService } from './cache-service';
-import { incrementUserUsage, incrementUserFailedAttempt } from '../utils/usage-tracking';
-import { logger } from '../utils/logger';
-import { ErrorCode, ErrorMapper } from '@pagepersonai/shared';
-import type { ScrapedContent } from '../utils/web-scraper';
-import type { TransformationResult } from './content-transformer';
+import { CachedContentTransformer } from "./cached-content-transformer";
+import { WebScraper } from "../utils/web-scraper";
+import { cacheService } from "./cache-service";
+import {
+  incrementUserUsage,
+  incrementUserFailedAttempt,
+} from "../utils/usage-tracking";
+import { logger } from "../utils/logger";
+import { ErrorCode, ErrorMapper } from "@pagepersonai/shared";
+import type { ScrapedContent } from "../utils/web-scraper";
+import type { TransformationResult } from "./content-transformer";
 
 /**
  * Webpage transformation request parameters
@@ -78,10 +81,12 @@ export class TransformationService {
    * @param request - Webpage transformation parameters
    * @returns Promise resolving to transformation result or error
    */
-  async transformWebpage(request: TransformWebpageRequest): Promise<TransformationServiceResult> {
+  async transformWebpage(
+    request: TransformWebpageRequest,
+  ): Promise<TransformationServiceResult> {
     const { url, persona, userId } = request;
 
-    logger.transform.info('Starting webpage transformation', {
+    logger.transform.info("Starting webpage transformation", {
       url,
       persona,
       userId,
@@ -91,7 +96,7 @@ export class TransformationService {
       // Check cache for existing transformation
       const cachedResult = cacheService.getCachedTransformation(url, persona);
       if (cachedResult) {
-        logger.transform.info('Cache hit! Returning cached result');
+        logger.transform.info("Cache hit! Returning cached result");
 
         // Track usage even for cached results
         if (userId) {
@@ -109,7 +114,10 @@ export class TransformationService {
       const scrapedContent = await this.getScrapedContent(url);
 
       // Transform the content
-      const result = await this.transformer.transformContent(scrapedContent, persona);
+      const result = await this.transformer.transformContent(
+        scrapedContent,
+        persona,
+      );
 
       // Always return the transformation result, even if it failed
       // The ContentTransformer should handle its own errors and return a proper structure
@@ -135,15 +143,15 @@ export class TransformationService {
         error: result.error,
       };
     } catch (error) {
-      logger.transform.error('Error in webpage transformation service', error);
+      logger.transform.error("Error in webpage transformation service", error);
 
       // Re-throw scraping errors so route handler can return appropriate status code
       if (
         error instanceof Error &&
-        (error.message.includes('Scraping failed') ||
-          error.message.includes('Failed to fetch') ||
-          error.message.includes('Network') ||
-          error.message.includes('timeout'))
+        (error.message.includes("Scraping failed") ||
+          error.message.includes("Failed to fetch") ||
+          error.message.includes("Network") ||
+          error.message.includes("timeout"))
       ) {
         throw error;
       }
@@ -169,10 +177,12 @@ export class TransformationService {
    * @param request - Text transformation parameters
    * @returns Promise resolving to transformation result or error
    */
-  async transformText(request: TransformTextRequest): Promise<TransformationServiceResult> {
+  async transformText(
+    request: TransformTextRequest,
+  ): Promise<TransformationServiceResult> {
     const { text, persona, userId } = request;
 
-    logger.transform.info('Starting text transformation', {
+    logger.transform.info("Starting text transformation", {
       textLength: text.length,
       persona,
       userId,
@@ -196,7 +206,7 @@ export class TransformationService {
         error: result.error,
       };
     } catch (error) {
-      logger.transform.error('Error in text transformation service', error);
+      logger.transform.error("Error in text transformation service", error);
       const formattedError = this.formatError(error);
       return {
         success: false,
@@ -222,17 +232,17 @@ export class TransformationService {
     let scrapedContent = cacheService.getCachedContent(url);
 
     if (!scrapedContent) {
-      logger.transform.info('No cached content, scraping webpage', { url });
+      logger.transform.info("No cached content, scraping webpage", { url });
       try {
         scrapedContent = await WebScraper.scrapeWebpage(url);
         cacheService.setCachedContent(url, scrapedContent);
       } catch (error) {
-        logger.transform.error('Failed to scrape webpage', error);
+        logger.transform.error("Failed to scrape webpage", error);
         // Re-throw scraping errors so they can be handled at route level
         throw error;
       }
     } else {
-      logger.transform.info('Using cached scraped content');
+      logger.transform.info("Using cached scraped content");
     }
 
     return scrapedContent;
@@ -251,7 +261,7 @@ export class TransformationService {
     try {
       await incrementUserUsage(userId, { logSuccess: true });
     } catch (error) {
-      logger.transform.warn('Failed to track usage', { userId, error });
+      logger.transform.warn("Failed to track usage", { userId, error });
       // Don't throw - usage tracking failure shouldn't break the main flow
     }
   }
@@ -269,7 +279,7 @@ export class TransformationService {
     try {
       await incrementUserFailedAttempt(userId, { logSuccess: true });
     } catch (error) {
-      logger.transform.warn('Failed to track failed attempt', {
+      logger.transform.warn("Failed to track failed attempt", {
         userId,
         error,
       });
@@ -299,7 +309,10 @@ export class TransformationService {
       const message = error.message.toLowerCase();
 
       // Map specific transformation errors to appropriate codes
-      if (message.includes('invalid url') || message.includes('malformed url')) {
+      if (
+        message.includes("invalid url") ||
+        message.includes("malformed url")
+      ) {
         return {
           message: userFriendlyError.message,
           code: ErrorCode.INVALID_URL,
@@ -307,39 +320,52 @@ export class TransformationService {
         };
       }
 
-      if (message.includes('private or internal urls') || message.includes('not allowed')) {
+      if (
+        message.includes("private or internal urls") ||
+        message.includes("not allowed")
+      ) {
         return {
-          message: 'Private or internal URLs are not allowed for security reasons.',
+          message:
+            "Private or internal URLs are not allowed for security reasons.",
           code: ErrorCode.INVALID_URL,
           details: error.message,
         };
       }
 
-      if (message.includes('not found') || message.includes('404')) {
+      if (message.includes("not found") || message.includes("404")) {
         return {
-          message: 'The webpage could not be found. Please check the URL and try again.',
+          message:
+            "The webpage could not be found. Please check the URL and try again.",
           code: ErrorCode.SCRAPING_FAILED,
           details: error.message,
         };
       }
 
-      if (message.includes('forbidden') || message.includes('403')) {
+      if (message.includes("forbidden") || message.includes("403")) {
         return {
-          message: 'Access to this webpage is forbidden. The site may block automated requests.',
+          message:
+            "Access to this webpage is forbidden. The site may block automated requests.",
           code: ErrorCode.SCRAPING_FAILED,
           details: error.message,
         };
       }
 
-      if (message.includes('text too short') || message.includes('content too short')) {
+      if (
+        message.includes("text too short") ||
+        message.includes("content too short")
+      ) {
         return {
-          message: 'Text must be at least 50 characters long to generate meaningful content.',
+          message:
+            "Text must be at least 50 characters long to generate meaningful content.",
           code: ErrorCode.INVALID_TEXT,
           details: error.message,
         };
       }
 
-      if (message.includes('scraping failed') || message.includes('failed to fetch')) {
+      if (
+        message.includes("scraping failed") ||
+        message.includes("failed to fetch")
+      ) {
         return {
           message: userFriendlyError.message,
           code: ErrorCode.SCRAPING_FAILED,
@@ -347,7 +373,7 @@ export class TransformationService {
         };
       }
 
-      if (message.includes('network') || message.includes('connection')) {
+      if (message.includes("network") || message.includes("connection")) {
         return {
           message: userFriendlyError.message,
           code: ErrorCode.NETWORK_ERROR,
@@ -355,7 +381,10 @@ export class TransformationService {
         };
       }
 
-      if (message.includes('transformation failed') || message.includes('openai')) {
+      if (
+        message.includes("transformation failed") ||
+        message.includes("openai")
+      ) {
         return {
           message: userFriendlyError.message,
           code: ErrorCode.TRANSFORMATION_FAILED,
@@ -387,7 +416,7 @@ export function createTransformationService(): TransformationService {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('OpenAI API key is not configured');
+    throw new Error("OpenAI API key is not configured");
   }
 
   return new TransformationService(apiKey);

@@ -8,7 +8,7 @@
  * @module Footer
  */
 
-import './Footer.css';
+import "./Footer.css";
 
 /**
  * Props for the Footer component
@@ -30,7 +30,7 @@ interface FooterProps {
  * @param {FooterProps} props - Component props
  * @returns {JSX.Element} The rendered footer component
  */
-export default function Footer({ className = '' }: FooterProps) {
+export default function Footer({ className = "" }: FooterProps) {
   return (
     <footer className={`footer ${className}`}>
       <div className="footer__container">

@@ -8,8 +8,8 @@
  * @module useTransformationHistory
  */
 
-import { useState, useEffect } from 'react';
-import { logger } from '../utils/logger';
+import { useState, useEffect } from "react";
+import { logger } from "../utils/logger";
 
 /**
  * Custom hook for managing transformation history
@@ -21,12 +21,12 @@ import { logger } from '../utils/logger';
  * @module useTransformationHistory
  */
 
-import type { WebpageContent } from '@pagepersonai/shared';
+import type { WebpageContent } from "@pagepersonai/shared";
 
 /**
  * Local storage key for transformation history
  */
-const HISTORY_KEY = 'transformation-history';
+const HISTORY_KEY = "transformation-history";
 
 /**
  * Maximum number of history items to retain
@@ -74,7 +74,7 @@ export function useTransformationHistory() {
         setHistory(historyWithDates);
       }
     } catch (error) {
-      logger.error('Failed to load transformation history:', error);
+      logger.error("Failed to load transformation history:", error);
       // Clear corrupted data
       localStorage.removeItem(HISTORY_KEY);
     }
@@ -85,7 +85,7 @@ export function useTransformationHistory() {
     try {
       localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     } catch (error) {
-      logger.error('Failed to save transformation history:', error);
+      logger.error("Failed to save transformation history:", error);
     }
   }, [history]);
 
@@ -108,7 +108,10 @@ export function useTransformationHistory() {
       // Remove any existing item with the same URL and persona to avoid duplicates
       const filteredHistory = prevHistory.filter(
         (item) =>
-          !(item.originalUrl === content.originalUrl && item.persona.id === content.persona.id),
+          !(
+            item.originalUrl === content.originalUrl &&
+            item.persona.id === content.persona.id
+          ),
       );
 
       // Add new item to the beginning and keep only the last MAX_HISTORY_ITEMS

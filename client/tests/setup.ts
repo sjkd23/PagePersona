@@ -1,12 +1,12 @@
-import { vi } from 'vitest';
-import { expect } from 'vitest';
-import * as matchers from '@testing-library/jest-dom/matchers';
+import { vi } from "vitest";
+import { expect } from "vitest";
+import * as matchers from "@testing-library/jest-dom/matchers";
 
 // Extend Vitest's expect with DOM matchers
 expect.extend(matchers);
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -21,10 +21,10 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Mock navigator.clipboard
-Object.defineProperty(navigator, 'clipboard', {
+Object.defineProperty(navigator, "clipboard", {
   value: {
     writeText: vi.fn().mockResolvedValue(undefined),
-    readText: vi.fn().mockResolvedValue(''),
+    readText: vi.fn().mockResolvedValue(""),
   },
   writable: true,
 });

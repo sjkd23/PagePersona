@@ -5,11 +5,11 @@
  * when using ts-node-dev for development.
  */
 
-import { IMongoUser } from '../models/mongo-user';
-import { Auth0JwtPayload, ProcessedAuth0User } from './user-types';
+import { IMongoUser } from "../models/mongo-user";
+import { Auth0JwtPayload, ProcessedAuth0User } from "./user-types";
 
 // Force TypeScript to recognize the module augmentation
-declare module 'express-serve-static-core' {
+declare module "express-serve-static-core" {
   interface Request {
     userContext?: {
       jwtPayload: Auth0JwtPayload;

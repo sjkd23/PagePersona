@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const PersonaLoadingState: React.FC = () => (
   <div className="loading-state">

@@ -4,12 +4,12 @@
  * Main entry point for the PagePersonAI backend API server.
  */
 
-import dotenv from 'dotenv';
-import createServer from './app';
+import dotenv from "dotenv";
+import createServer from "./app";
 
 // Load environment variables once
 dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env',
+  path: process.env.NODE_ENV === "production" ? ".env.production" : ".env",
   debug: false,
   override: false,
 });

@@ -7,11 +7,11 @@ interface OutputDemoProps {
 }
 
 export default function OutputDemo({
-  avatarSrc = '/images/persona_avatars/Anime_Hacker_avatar.png',
-  avatarAlt = 'Anime Hacker',
-  summaryText = 'A brief summary of the page...',
+  avatarSrc = "/images/persona_avatars/Anime_Hacker_avatar.png",
+  avatarAlt = "Anime Hacker",
+  summaryText = "A brief summary of the page...",
   fullText = "The content rewritten to match the persona's style...",
-  className = '',
+  className = "",
 }: OutputDemoProps) {
   return (
     <div className={`output-card ${className}`}>

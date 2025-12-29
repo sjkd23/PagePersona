@@ -6,7 +6,7 @@
  * safe defaults with proper error handling.
  */
 
-import { logger } from '../utils/logger';
+import { logger } from "../utils/logger";
 
 export interface WebScraperConfig {
   /** Maximum content length in characters before truncation */
@@ -24,7 +24,7 @@ export const WebScraperDefaults = {
   MAX_CONTENT_LENGTH: 8000,
   REQUEST_TIMEOUT_MS: 10000,
   USER_AGENT:
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
 } as const;
 
 /**
@@ -53,7 +53,9 @@ function safeParseInt(
   }
 
   if (parsed <= 0) {
-    logger.warn(`${configName} must be positive. Got: ${parsed}. Using default: ${defaultValue}`);
+    logger.warn(
+      `${configName} must be positive. Got: ${parsed}. Using default: ${defaultValue}`,
+    );
     return defaultValue;
   }
 
@@ -76,14 +78,15 @@ export function loadWebScraperConfig(): WebScraperConfig {
     maxContentLength: safeParseInt(
       process.env.WEB_SCRAPER_MAX_CONTENT_LENGTH,
       WebScraperDefaults.MAX_CONTENT_LENGTH,
-      'WEB_SCRAPER_MAX_CONTENT_LENGTH',
+      "WEB_SCRAPER_MAX_CONTENT_LENGTH",
     ),
     requestTimeout: safeParseInt(
       process.env.WEB_SCRAPER_REQUEST_TIMEOUT_MS,
       WebScraperDefaults.REQUEST_TIMEOUT_MS,
-      'WEB_SCRAPER_REQUEST_TIMEOUT_MS',
+      "WEB_SCRAPER_REQUEST_TIMEOUT_MS",
     ),
-    userAgent: process.env.WEB_SCRAPER_USER_AGENT || WebScraperDefaults.USER_AGENT,
+    userAgent:
+      process.env.WEB_SCRAPER_USER_AGENT || WebScraperDefaults.USER_AGENT,
   };
 
   // Additional validation

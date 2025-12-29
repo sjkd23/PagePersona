@@ -12,10 +12,10 @@
  * - GET /full: Comprehensive system status (dev/staging only)
  */
 
-import { Router } from 'express';
-import { parsedEnv } from '../utils/env-validation';
-import { getJwtInfo } from '../middleware/jwtAuth';
-import { getSessionStats } from '../utils/session-tracker';
+import { Router } from "express";
+import { parsedEnv } from "../utils/env-validation";
+import { getJwtInfo } from "../middleware/jwtAuth";
+import { getSessionStats } from "../utils/session-tracker";
 
 const router = Router();
 
@@ -29,9 +29,9 @@ const router = Router();
  * @returns {object} Health status with uptime, memory usage, and system info
  * @access Public
  */
-router.get('/health', (_req, res) => {
+router.get("/health", (_req, res) => {
   res.json({
-    status: 'healthy',
+    status: "healthy",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
@@ -40,7 +40,7 @@ router.get('/health', (_req, res) => {
 });
 
 // Advanced monitoring endpoints (development and staging environments only)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   /**
    * Auth0 configuration and JWT verification status
    *
@@ -48,7 +48,7 @@ if (process.env.NODE_ENV !== 'production') {
    * @returns {object} Current Auth0 environment configuration and JWT settings
    * @access Development/staging environments only
    */
-  router.get('/auth0', (_req, res) => {
+  router.get("/auth0", (_req, res) => {
     const envInfo = {
       nodeEnv: parsedEnv.NODE_ENV,
       port: parsedEnv.PORT,
@@ -75,7 +75,7 @@ if (process.env.NODE_ENV !== 'production') {
    * @returns {object} Current session counts and user activity metrics
    * @access Development/staging environments only
    */
-  router.get('/sessions', (_req, res) => {
+  router.get("/sessions", (_req, res) => {
     const sessionStats = getSessionStats();
 
     res.json({
@@ -94,7 +94,7 @@ if (process.env.NODE_ENV !== 'production') {
    * @returns {object} Complete system status including all subsystems
    * @access Development/staging environments only
    */
-  router.get('/full', (_req, res) => {
+  router.get("/full", (_req, res) => {
     const envInfo = {
       nodeEnv: parsedEnv.NODE_ENV,
       port: parsedEnv.PORT,
@@ -109,7 +109,7 @@ if (process.env.NODE_ENV !== 'production') {
     const sessionStats = getSessionStats();
 
     res.json({
-      status: 'healthy',
+      status: "healthy",
       timestamp: new Date().toISOString(),
       system: {
         uptime: process.uptime(),
@@ -123,8 +123,8 @@ if (process.env.NODE_ENV !== 'production') {
       },
       sessions: sessionStats,
       migration: {
-        status: 'complete',
-        message: 'All authentication has been migrated to userContext pattern',
+        status: "complete",
+        message: "All authentication has been migrated to userContext pattern",
       },
     });
   });

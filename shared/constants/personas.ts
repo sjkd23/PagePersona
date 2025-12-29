@@ -12,8 +12,12 @@
  * @module PersonaConstants
  */
 
-import { BASE_SYSTEM_PROMPT } from './prompts.js';
-import type { FullPersona, ServerPersona, ClientPersona } from '../types/personas.js';
+import { BASE_SYSTEM_PROMPT } from "./prompts.js";
+import type {
+  FullPersona,
+  ServerPersona,
+  ClientPersona,
+} from "../types/personas.js";
 
 /**
  * Complete persona definitions containing both UI and AI transformation data.
@@ -26,22 +30,22 @@ import type { FullPersona, ServerPersona, ClientPersona } from '../types/persona
  */
 export const FULL_PERSONAS: Record<string, FullPersona> = {
   eli5: {
-    id: 'eli5',
+    id: "eli5",
     name: "Explain Like I'm 5",
-    description: 'Simple, fun explanations anyone can understand',
+    description: "Simple, fun explanations anyone can understand",
 
     // UI fields
     label: "Explain Like I'm Five",
     exampleTexts: [
-      'So imagine your brain is like a sponge...',
-      'If you drop a ball, gravity pulls it down, like when you slide down a slide!',
-      'A computer is like a really fast helper that follows instructions.',
+      "So imagine your brain is like a sponge...",
+      "If you drop a ball, gravity pulls it down, like when you slide down a slide!",
+      "A computer is like a really fast helper that follows instructions.",
     ],
-    avatarUrl: '/images/persona_avatars/Eli5_avatar.png',
+    avatarUrl: "/images/persona_avatars/Eli5_avatar.png",
     theme: {
-      primary: '#FFB347', // Crayon orange
-      secondary: '#FFDB58', // Yellow school bus
-      accent: '#87CEEB', // Soft sky blue
+      primary: "#FFB347", // Crayon orange
+      secondary: "#FFDB58", // Yellow school bus
+      accent: "#87CEEB", // Soft sky blue
     },
 
     // AI fields
@@ -64,23 +68,23 @@ Always start with "Hey there! Let me tell you about this in a super simple way!"
 End with something encouraging about learning.`,
   },
 
-  'medieval-knight': {
-    id: 'medieval-knight',
-    name: 'Medieval Knight',
-    description: 'Honorable, noble, and speaking in ye olde tongue',
+  "medieval-knight": {
+    id: "medieval-knight",
+    name: "Medieval Knight",
+    description: "Honorable, noble, and speaking in ye olde tongue",
 
     // UI fields
-    label: 'Medieval Knight',
+    label: "Medieval Knight",
     exampleTexts: [
-      'Hark! Let it be known across the land...',
+      "Hark! Let it be known across the land...",
       "Verily, knowledge is the sharpest sword in a knight's arsenal.",
-      'By my honor, I shall explain this quest in noble terms.',
+      "By my honor, I shall explain this quest in noble terms.",
     ],
-    avatarUrl: '/images/persona_avatars/Knight_avatar.png',
+    avatarUrl: "/images/persona_avatars/Knight_avatar.png",
     theme: {
-      primary: '#6B4C3B', // Brown leather
-      secondary: '#D3C49E', // Parchment beige
-      accent: '#A29C9B', // Steel grey
+      primary: "#6B4C3B", // Brown leather
+      secondary: "#D3C49E", // Parchment beige
+      accent: "#A29C9B", // Steel grey
     },
 
     // AI fields
@@ -101,23 +105,23 @@ Frame knowledge as a noble quest.
 End with a knightly blessing or vow.`,
   },
 
-  'anime-hacker': {
-    id: 'anime-hacker',
-    name: 'Anime Hacker',
-    description: 'Stylish, snarky, and fast as light',
+  "anime-hacker": {
+    id: "anime-hacker",
+    name: "Anime Hacker",
+    description: "Stylish, snarky, and fast as light",
 
     // UI fields
-    label: 'Anime Hacker',
+    label: "Anime Hacker",
     exampleTexts: [
       "System breach complete. Let's rewrite the truth.",
-      'Access granted! Time to hack reality itself.',
-      'Initiating final form: knowledge upload complete!',
+      "Access granted! Time to hack reality itself.",
+      "Initiating final form: knowledge upload complete!",
     ],
-    avatarUrl: '/images/persona_avatars/Anime_Hacker_avatar.png',
+    avatarUrl: "/images/persona_avatars/Anime_Hacker_avatar.png",
     theme: {
-      primary: '#0F0F0F', // Hacker black
-      secondary: '#33FF33', // Terminal green
-      accent: '#FF00AA', // Neon pink pop
+      primary: "#0F0F0F", // Hacker black
+      secondary: "#33FF33", // Terminal green
+      accent: "#FF00AA", // Neon pink pop
     },
 
     // AI fields
@@ -138,23 +142,23 @@ Add glitchy or dramatic breaks like "... SYSTEM REBOOT ...".
 End with a bold one-liner like "Knowledge upload complete."`,
   },
 
-  'plague-doctor': {
-    id: 'plague-doctor',
-    name: 'Plague Doctor',
-    description: 'Cryptic, poetic, and eerily insightful',
+  "plague-doctor": {
+    id: "plague-doctor",
+    name: "Plague Doctor",
+    description: "Cryptic, poetic, and eerily insightful",
 
     // UI fields
-    label: 'Plague Doctor',
+    label: "Plague Doctor",
     exampleTexts: [
-      'Ah yes... the affliction is spreading faster than expected.',
-      'Symptoms include confusion and curiosity—remedies are close at hand.',
-      'The fog of ignorance lifts as the cure is revealed.',
+      "Ah yes... the affliction is spreading faster than expected.",
+      "Symptoms include confusion and curiosity—remedies are close at hand.",
+      "The fog of ignorance lifts as the cure is revealed.",
     ],
-    avatarUrl: '/images/persona_avatars/Plague_Doctor_avatar.png',
+    avatarUrl: "/images/persona_avatars/Plague_Doctor_avatar.png",
     theme: {
-      primary: '#2E2E2E', // Dark cloak
-      secondary: '#A88F74', // Aged parchment
-      accent: '#4D5C57', // Mysterious fog green
+      primary: "#2E2E2E", // Dark cloak
+      secondary: "#A88F74", // Aged parchment
+      accent: "#4D5C57", // Mysterious fog green
     },
 
     // AI fields
@@ -176,22 +180,22 @@ End with a mysterious blessing.`,
   },
 
   robot: {
-    id: 'robot',
-    name: 'Robot',
-    description: 'Precise, emotionless, and perfectly logical',
+    id: "robot",
+    name: "Robot",
+    description: "Precise, emotionless, and perfectly logical",
 
     // UI fields
-    label: 'Robot',
+    label: "Robot",
     exampleTexts: [
-      'Processing complete. Your data has been assimilated.',
-      'Analyzing input... Output generated.',
-      'Compiling facts: solution found with 99.99% accuracy.',
+      "Processing complete. Your data has been assimilated.",
+      "Analyzing input... Output generated.",
+      "Compiling facts: solution found with 99.99% accuracy.",
     ],
-    avatarUrl: '/images/persona_avatars/Robot_avatar.png',
+    avatarUrl: "/images/persona_avatars/Robot_avatar.png",
     theme: {
-      primary: '#1E1E2F', // Deep circuit gray
-      secondary: '#6D83F2', // Cool logic blue
-      accent: '#00FFFF', // Electric cyan
+      primary: "#1E1E2F", // Deep circuit gray
+      secondary: "#6D83F2", // Cool logic blue
+      accent: "#00FFFF", // Electric cyan
     },
 
     // AI fields
@@ -234,20 +238,21 @@ export const PERSONAS: Record<string, ServerPersona> = Object.fromEntries(
  * Used by frontend components that need display data like themes, avatars,
  * and example texts without exposing AI prompts.
  */
-export const CLIENT_PERSONAS: Record<string, ClientPersona> = Object.fromEntries(
-  Object.entries(FULL_PERSONAS).map(([key, persona]) => [
-    key,
-    {
-      id: persona.id,
-      name: persona.name,
-      description: persona.description,
-      label: persona.label,
-      exampleTexts: persona.exampleTexts,
-      avatarUrl: persona.avatarUrl,
-      theme: persona.theme,
-    },
-  ]),
-);
+export const CLIENT_PERSONAS: Record<string, ClientPersona> =
+  Object.fromEntries(
+    Object.entries(FULL_PERSONAS).map(([key, persona]) => [
+      key,
+      {
+        id: persona.id,
+        name: persona.name,
+        description: persona.description,
+        label: persona.label,
+        exampleTexts: persona.exampleTexts,
+        avatarUrl: persona.avatarUrl,
+        theme: persona.theme,
+      },
+    ]),
+  );
 
 /**
  * Retrieves a server persona by ID for backend transformation operations.

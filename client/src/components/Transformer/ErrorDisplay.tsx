@@ -6,8 +6,8 @@
  * appropriate styling and provides clear next steps for users.
  */
 
-import { ErrorCode } from '@pagepersonai/shared';
-import './styles/ErrorDisplay.css';
+import { ErrorCode } from "@pagepersonai/shared";
+import "./styles/ErrorDisplay.css";
 
 /**
  * Props for the ErrorDisplay component
@@ -52,29 +52,29 @@ export default function ErrorDisplay({
   membership,
   upgradeUrl,
   retryAfter,
-  className = '',
+  className = "",
 }: ErrorDisplayProps) {
   // Get appropriate icon based on error type
   const getErrorIcon = () => {
     switch (errorCode) {
       case ErrorCode.USAGE_LIMIT_EXCEEDED:
-        return '📊';
+        return "📊";
       case ErrorCode.RATE_LIMIT_EXCEEDED:
-        return '⏱️';
+        return "⏱️";
       case ErrorCode.AUTH_REQUIRED:
       case ErrorCode.AUTH_INVALID:
       case ErrorCode.AUTH_EXPIRED:
-        return '🔐';
+        return "🔐";
       case ErrorCode.INVALID_URL:
       case ErrorCode.INVALID_TEXT:
-        return '⚠️';
+        return "⚠️";
       case ErrorCode.NETWORK_ERROR:
       case ErrorCode.SERVICE_UNAVAILABLE:
-        return '🌐';
+        return "🌐";
       case ErrorCode.SCRAPING_FAILED:
-        return '🚫';
+        return "🚫";
       default:
-        return '❌';
+        return "❌";
     }
   };
 
@@ -82,26 +82,26 @@ export default function ErrorDisplay({
   const getErrorStyle = () => {
     switch (errorCode) {
       case ErrorCode.USAGE_LIMIT_EXCEEDED:
-        return 'error-upgrade';
+        return "error-upgrade";
       case ErrorCode.RATE_LIMIT_EXCEEDED:
-        return 'error-warning';
+        return "error-warning";
       case ErrorCode.INVALID_URL:
       case ErrorCode.INVALID_TEXT:
       case ErrorCode.INVALID_PERSONA:
-        return 'error-validation';
+        return "error-validation";
       case ErrorCode.AUTH_REQUIRED:
       case ErrorCode.AUTH_INVALID:
       case ErrorCode.AUTH_EXPIRED:
-        return 'error-auth';
+        return "error-auth";
       default:
-        return 'error-general';
+        return "error-general";
     }
   };
 
   // Handle action button clicks
   const handleAction = () => {
     if (errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED && upgradeUrl) {
-      window.open(upgradeUrl, '_blank');
+      window.open(upgradeUrl, "_blank");
     } else if (onAction) {
       onAction();
     }
@@ -111,7 +111,7 @@ export default function ErrorDisplay({
   const formatRetryTime = (seconds: number) => {
     if (seconds < 60) return `${seconds} seconds`;
     const minutes = Math.ceil(seconds / 60);
-    return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    return `${minutes} minute${minutes > 1 ? "s" : ""}`;
   };
 
   if (compact) {
@@ -171,13 +171,14 @@ export default function ErrorDisplay({
                 />
               </div>
               <p className="usage-text">
-                {currentUsage.toLocaleString()} / {usageLimit.toLocaleString()} transformations used
-                this month
+                {currentUsage.toLocaleString()} / {usageLimit.toLocaleString()}{" "}
+                transformations used this month
               </p>
             </div>
             {membership && (
               <p className="membership-info">
-                Current plan: <span className="membership-badge">{membership}</span>
+                Current plan:{" "}
+                <span className="membership-badge">{membership}</span>
               </p>
             )}
           </div>
@@ -204,10 +205,12 @@ export default function ErrorDisplay({
         <div className="error-actions">
           <button
             onClick={handleAction}
-            className={`error-action-button ${errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED ? 'action-upgrade' : 'action-primary'}`}
+            className={`error-action-button ${errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED ? "action-upgrade" : "action-primary"}`}
           >
             {actionText ||
-              (errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED ? 'Upgrade Plan' : 'Try Again')}
+              (errorCode === ErrorCode.USAGE_LIMIT_EXCEEDED
+                ? "Upgrade Plan"
+                : "Try Again")}
           </button>
         </div>
       )}

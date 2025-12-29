@@ -13,16 +13,16 @@
  * - Type-safe response data handling
  */
 
-import { Response, NextFunction } from 'express';
-import { ZodError } from 'zod';
-import { logger } from './logger';
-import type { ApiResponse } from '@pagepersonai/shared';
+import { Response, NextFunction } from "express";
+import { ZodError } from "zod";
+import { logger } from "./logger";
+import type { ApiResponse } from "@pagepersonai/shared";
 import type {
   AuthenticatedRequest,
   ErrorHandlerFunction,
   AsyncRouteHandler,
-} from '../types/common';
-import { HttpStatus } from '../constants/http-status';
+} from "../types/common";
+import { HttpStatus } from "../constants/http-status";
 
 /**
  * Send successful API response with optional data and message
@@ -71,35 +71,51 @@ export function sendError(
 /**
  * Send a validation error (400 Bad Request)
  */
-export function sendValidationError(res: Response, error: string, data?: unknown): void {
+export function sendValidationError(
+  res: Response,
+  error: string,
+  data?: unknown,
+): void {
   sendError(res, error, HttpStatus.BAD_REQUEST, data);
 }
 
 /**
  * Send a not found error (404 Not Found)
  */
-export function sendNotFound(res: Response, error: string = 'Resource not found'): void {
+export function sendNotFound(
+  res: Response,
+  error: string = "Resource not found",
+): void {
   sendError(res, error, HttpStatus.NOT_FOUND);
 }
 
 /**
  * Send an unauthorized error (401 Unauthorized)
  */
-export function sendUnauthorized(res: Response, error: string = 'Unauthorized access'): void {
+export function sendUnauthorized(
+  res: Response,
+  error: string = "Unauthorized access",
+): void {
   sendError(res, error, HttpStatus.UNAUTHORIZED);
 }
 
 /**
  * Send a forbidden error (403 Forbidden)
  */
-export function sendForbidden(res: Response, error: string = 'Access forbidden'): void {
+export function sendForbidden(
+  res: Response,
+  error: string = "Access forbidden",
+): void {
   sendError(res, error, HttpStatus.FORBIDDEN);
 }
 
 /**
  * Send an internal server error (500 Internal Server Error)
  */
-export function sendInternalError(res: Response, error: string = 'Internal server error'): void {
+export function sendInternalError(
+  res: Response,
+  error: string = "Internal server error",
+): void {
   sendError(res, error, HttpStatus.INTERNAL_SERVER_ERROR);
 }
 
@@ -108,48 +124,51 @@ export function sendInternalError(res: Response, error: string = 'Internal serve
  * Conforms to Express's standard error handler signature: (err, req, res)
  */
 export const errorHandler: ErrorHandlerFunction = (err, req, res) => {
-  logger.error('Unhandled route error', err as Error, {
+  logger.error("Unhandled route error", err as Error, {
     route: `${req.method} ${req.originalUrl}`,
     timestamp: new Date().toISOString(),
   });
 
   // Handle specific error types
-  if (err && typeof err === 'object' && 'name' in err) {
+  if (err && typeof err === "object" && "name" in err) {
     if (err instanceof ZodError) {
       res.status(HttpStatus.BAD_REQUEST).json({
-        error: 'Validation failed',
+        error: "Validation failed",
         issues: err.issues,
       });
       return;
     }
 
-    if (err.name === 'ValidationError') {
+    if (err.name === "ValidationError") {
       sendValidationError(res, (err as Error).message);
       return;
     }
 
-    if (err.name === 'UnauthorizedError') {
-      sendUnauthorized(res, 'Invalid or missing authentication token');
+    if (err.name === "UnauthorizedError") {
+      sendUnauthorized(res, "Invalid or missing authentication token");
       return;
     }
   }
 
   // Handle errors with status codes
-  if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
-    const message = (err as { message?: string }).message || 'Resource not found';
+  if (err && typeof err === "object" && "status" in err && err.status === 404) {
+    const message =
+      (err as { message?: string }).message || "Resource not found";
     sendNotFound(res, message);
     return;
   }
 
   // Default to internal server error
   const errorMessage =
-    err && typeof err === 'object' && 'message' in err
+    err && typeof err === "object" && "message" in err
       ? (err as Error).message
-      : 'Unknown error occurred';
+      : "Unknown error occurred";
 
   sendInternalError(
     res,
-    process.env.NODE_ENV === 'production' ? 'Something went wrong' : errorMessage,
+    process.env.NODE_ENV === "production"
+      ? "Something went wrong"
+      : errorMessage,
   );
 };
 
@@ -181,6 +200,6 @@ export function sendResponse<T>(
   if (isSuccess) {
     sendSuccess(res, data, message, statusCode);
   } else {
-    sendError(res, error || 'An error occurred', statusCode, data);
+    sendError(res, error || "An error occurred", statusCode, data);
   }
 }

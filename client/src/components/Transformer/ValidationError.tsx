@@ -3,12 +3,20 @@ interface ValidationErrorProps {
   className?: string;
 }
 
-export default function ValidationError({ error, className = '' }: ValidationErrorProps) {
+export default function ValidationError({
+  error,
+  className = "",
+}: ValidationErrorProps) {
   if (!error) return null;
 
   return (
     <div className={`validation-error ${className}`}>
-      <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg
+        className="error-icon"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
         <path
           strokeLinecap="round"
           strokeLinejoin="round"

@@ -3,7 +3,10 @@ interface UnauthenticatedCTAProps {
   onShowLogin: () => void;
 }
 
-export default function UnauthenticatedCTA({ onShowSignup, onShowLogin }: UnauthenticatedCTAProps) {
+export default function UnauthenticatedCTA({
+  onShowSignup,
+  onShowLogin,
+}: UnauthenticatedCTAProps) {
   return (
     <div className="cta-unauthenticated">
       <div className="cta-buttons">

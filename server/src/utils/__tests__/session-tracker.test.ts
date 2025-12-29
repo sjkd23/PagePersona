@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   shouldPerformFullSync,
   updateSessionOnly,
@@ -7,11 +7,11 @@ import {
   stopSessionCleanup,
   clearAllSessions,
   getSessionStats,
-} from '../session-tracker';
-import { logger } from '../logger';
+} from "../session-tracker";
+import { logger } from "../logger";
 
 // Mock logger
-vi.mock('../logger', () => ({
+vi.mock("../logger", () => ({
   logger: {
     session: {
       info: vi.fn(),
@@ -20,7 +20,7 @@ vi.mock('../logger', () => ({
   },
 }));
 
-describe('session-tracker', () => {
+describe("session-tracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     clearAllSessions();
@@ -32,16 +32,16 @@ describe('session-tracker', () => {
     stopSessionCleanup();
   });
 
-  describe('shouldPerformFullSync', () => {
-    it('should return true for first-time user', () => {
-      const userId = 'user-123';
+  describe("shouldPerformFullSync", () => {
+    it("should return true for first-time user", () => {
+      const userId = "user-123";
       const result = shouldPerformFullSync(userId);
 
       expect(result).toBe(true);
     });
 
-    it('should return false for recent sync within cooldown', () => {
-      const userId = 'user-123';
+    it("should return false for recent sync within cooldown", () => {
+      const userId = "user-123";
       const config = {
         syncCooldownMs: 5 * 60 * 1000,
         sessionTimeoutMs: 60 * 60 * 1000,
@@ -54,8 +54,8 @@ describe('session-tracker', () => {
       expect(shouldPerformFullSync(userId, config)).toBe(false);
     });
 
-    it('should return true after cooldown period', () => {
-      const userId = 'user-123';
+    it("should return true after cooldown period", () => {
+      const userId = "user-123";
       const config = { syncCooldownMs: 100, sessionTimeoutMs: 60 * 60 * 1000 }; // 100ms cooldown
 
       // First sync
@@ -71,8 +71,8 @@ describe('session-tracker', () => {
       vi.useRealTimers();
     });
 
-    it('should always sync when cooldown is negative', () => {
-      const userId = 'user-123';
+    it("should always sync when cooldown is negative", () => {
+      const userId = "user-123";
       const config = { syncCooldownMs: -1, sessionTimeoutMs: 60 * 60 * 1000 };
 
       expect(shouldPerformFullSync(userId, config)).toBe(true);
@@ -80,8 +80,8 @@ describe('session-tracker', () => {
       expect(shouldPerformFullSync(userId, config)).toBe(true);
     });
 
-    it('should update lastSeen time on each call', () => {
-      const userId = 'user-123';
+    it("should update lastSeen time on each call", () => {
+      const userId = "user-123";
 
       // Make first call
       shouldPerformFullSync(userId);
@@ -98,15 +98,17 @@ describe('session-tracker', () => {
       const stats2 = getSessionStats();
       const updatedLastSeen = stats2.sessions[0].lastSeen;
 
-      expect(updatedLastSeen.getTime()).toBeGreaterThan(initialLastSeen.getTime());
+      expect(updatedLastSeen.getTime()).toBeGreaterThan(
+        initialLastSeen.getTime(),
+      );
 
       vi.useRealTimers();
     });
   });
 
-  describe('updateSessionOnly', () => {
-    it('should update lastSeen for existing session', () => {
-      const userId = 'user-123';
+  describe("updateSessionOnly", () => {
+    it("should update lastSeen for existing session", () => {
+      const userId = "user-123";
 
       // Create session first
       shouldPerformFullSync(userId);
@@ -121,23 +123,25 @@ describe('session-tracker', () => {
       const stats2 = getSessionStats();
       const updatedLastSeen = stats2.sessions[0].lastSeen;
 
-      expect(updatedLastSeen.getTime()).toBeGreaterThan(initialLastSeen.getTime());
+      expect(updatedLastSeen.getTime()).toBeGreaterThan(
+        initialLastSeen.getTime(),
+      );
 
       vi.useRealTimers();
     });
 
-    it('should do nothing for non-existent session', () => {
-      expect(() => updateSessionOnly('non-existent-user')).not.toThrow();
+    it("should do nothing for non-existent session", () => {
+      expect(() => updateSessionOnly("non-existent-user")).not.toThrow();
 
       const stats = getSessionStats();
       expect(stats.activeSessions).toBe(0);
     });
   });
 
-  describe('pruneStaleSessions', () => {
-    it('should remove expired sessions', () => {
-      const userId1 = 'user-1';
-      const userId2 = 'user-2';
+  describe("pruneStaleSessions", () => {
+    it("should remove expired sessions", () => {
+      const userId1 = "user-1";
+      const userId2 = "user-2";
 
       // Create sessions
       shouldPerformFullSync(userId1);
@@ -154,7 +158,7 @@ describe('session-tracker', () => {
       expect(removedCount).toBe(2);
       expect(getSessionStats().activeSessions).toBe(0);
       expect(logger.session.info).toHaveBeenCalledWith(
-        'Cleaned up 2 expired user sessions',
+        "Cleaned up 2 expired user sessions",
         expect.objectContaining({
           removedSessions: 2,
           activeSessions: 0,
@@ -164,8 +168,8 @@ describe('session-tracker', () => {
       vi.useRealTimers();
     });
 
-    it('should not remove active sessions', () => {
-      const userId = 'user-123';
+    it("should not remove active sessions", () => {
+      const userId = "user-123";
 
       shouldPerformFullSync(userId);
       expect(getSessionStats().activeSessions).toBe(1);
@@ -176,8 +180,8 @@ describe('session-tracker', () => {
       expect(getSessionStats().activeSessions).toBe(1);
     });
 
-    it('should use custom timeout', () => {
-      const userId = 'user-123';
+    it("should use custom timeout", () => {
+      const userId = "user-123";
 
       shouldPerformFullSync(userId);
 
@@ -193,14 +197,14 @@ describe('session-tracker', () => {
     });
   });
 
-  describe('session cleanup automation', () => {
-    it('should start automatic cleanup', () => {
+  describe("session cleanup automation", () => {
+    it("should start automatic cleanup", () => {
       vi.useFakeTimers();
 
       startSessionCleanup();
 
       expect(logger.session.info).toHaveBeenCalledWith(
-        'Starting automatic session cleanup',
+        "Starting automatic session cleanup",
         expect.objectContaining({
           cleanupIntervalMinutes: 10,
           sessionTimeoutHours: 1,
@@ -210,29 +214,31 @@ describe('session-tracker', () => {
       vi.useRealTimers();
     });
 
-    it('should prevent multiple cleanup intervals', () => {
+    it("should prevent multiple cleanup intervals", () => {
       startSessionCleanup();
       startSessionCleanup(); // Try to start again
 
       expect(logger.session.warn).toHaveBeenCalledWith(
-        'Session cleanup is already running, skipping initialization',
+        "Session cleanup is already running, skipping initialization",
       );
     });
 
-    it('should stop cleanup', () => {
+    it("should stop cleanup", () => {
       startSessionCleanup();
       stopSessionCleanup();
 
-      expect(logger.session.info).toHaveBeenCalledWith('Stopped automatic session cleanup');
+      expect(logger.session.info).toHaveBeenCalledWith(
+        "Stopped automatic session cleanup",
+      );
     });
 
-    it('should handle stopping when not running', () => {
+    it("should handle stopping when not running", () => {
       expect(() => stopSessionCleanup()).not.toThrow();
     });
   });
 
-  describe('getSessionStats', () => {
-    it('should return empty stats when no sessions', () => {
+  describe("getSessionStats", () => {
+    it("should return empty stats when no sessions", () => {
       const stats = getSessionStats();
 
       expect(stats).toEqual({
@@ -241,8 +247,8 @@ describe('session-tracker', () => {
       });
     });
 
-    it('should return session stats with privacy protection', () => {
-      const userId = 'user-very-long-id-123456789';
+    it("should return session stats with privacy protection", () => {
+      const userId = "user-very-long-id-123456789";
 
       shouldPerformFullSync(userId);
 
@@ -250,26 +256,26 @@ describe('session-tracker', () => {
 
       expect(stats.activeSessions).toBe(1);
       expect(stats.sessions).toHaveLength(1);
-      expect(stats.sessions[0].userId).toBe('456789'); // Last 6 chars for privacy
+      expect(stats.sessions[0].userId).toBe("456789"); // Last 6 chars for privacy
       expect(stats.sessions[0].lastSeen).toBeInstanceOf(Date);
       expect(stats.sessions[0].lastSynced).toBeInstanceOf(Date);
     });
 
-    it('should handle short user IDs', () => {
-      const userId = 'usr1';
+    it("should handle short user IDs", () => {
+      const userId = "usr1";
 
       shouldPerformFullSync(userId);
 
       const stats = getSessionStats();
 
-      expect(stats.sessions[0].userId).toBe('usr1'); // Entire ID when less than 6 chars
+      expect(stats.sessions[0].userId).toBe("usr1"); // Entire ID when less than 6 chars
     });
   });
 
-  describe('clearAllSessions', () => {
-    it('should clear all sessions', () => {
-      shouldPerformFullSync('user-1');
-      shouldPerformFullSync('user-2');
+  describe("clearAllSessions", () => {
+    it("should clear all sessions", () => {
+      shouldPerformFullSync("user-1");
+      shouldPerformFullSync("user-2");
 
       expect(getSessionStats().activeSessions).toBe(2);
 

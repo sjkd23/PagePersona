@@ -16,18 +16,18 @@
  * the userContext with MongoDB user data.
  */
 
-import '../types/loader';
-import { Response } from 'express';
-import { logger } from '../utils/logger';
-import { HttpStatus } from '../constants/http-status';
-import type { AuthenticatedRequest } from '../types/common';
+import "../types/loader";
+import { Response } from "express";
+import { logger } from "../utils/logger";
+import { HttpStatus } from "../constants/http-status";
+import type { AuthenticatedRequest } from "../types/common";
 import {
   serializeMongoUser,
   serializeUserUsage,
   serializeUserSummary,
   createSuccessResponse,
   createErrorResponse,
-} from '../utils/userSerializer';
+} from "../utils/userSerializer";
 
 /**
  * Get current authenticated user information
@@ -41,20 +41,27 @@ import {
  * @param req Authenticated request with user context
  * @param res Express response object
  */
-export const getUser = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUser = async (
+  req: AuthenticatedRequest,
+  res: Response,
+): Promise<void> => {
   try {
     const user = req.userContext?.mongoUser;
 
     if (!user) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found'));
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json(createErrorResponse("User not found"));
       return;
     }
 
     const serializedUser = serializeMongoUser(user);
     res.json(createSuccessResponse({ user: serializedUser }));
   } catch (error) {
-    logger.auth.error('Error fetching user', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Internal server error'));
+    logger.auth.error("Error fetching user", error);
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json(createErrorResponse("Internal server error"));
     return;
   }
 };
@@ -70,20 +77,27 @@ export const getUser = async (req: AuthenticatedRequest, res: Response): Promise
  * @param req Authenticated request with user context
  * @param res Express response object
  */
-export const getUserUsage = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUserUsage = async (
+  req: AuthenticatedRequest,
+  res: Response,
+): Promise<void> => {
   try {
     const user = req.userContext?.mongoUser;
 
     if (!user) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found'));
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json(createErrorResponse("User not found"));
       return;
     }
 
     const usage = serializeUserUsage(user);
     res.json(createSuccessResponse(usage));
   } catch (error) {
-    logger.auth.error('Error fetching user usage', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Internal server error'));
+    logger.auth.error("Error fetching user usage", error);
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json(createErrorResponse("Internal server error"));
     return;
   }
 };
@@ -100,20 +114,27 @@ export const getUserUsage = async (req: AuthenticatedRequest, res: Response): Pr
  * @param req Authenticated request with user context
  * @param res Express response object
  */
-export const getUserSummary = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUserSummary = async (
+  req: AuthenticatedRequest,
+  res: Response,
+): Promise<void> => {
   try {
     const user = req.userContext?.mongoUser;
 
     if (!user) {
-      res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found'));
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json(createErrorResponse("User not found"));
       return;
     }
 
     const summary = serializeUserSummary(user);
     res.json(createSuccessResponse(summary));
   } catch (error) {
-    logger.auth.error('Error fetching user summary', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(createErrorResponse('Internal server error'));
+    logger.auth.error("Error fetching user summary", error);
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json(createErrorResponse("Internal server error"));
     return;
   }
 };

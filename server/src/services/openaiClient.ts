@@ -14,8 +14,8 @@
  * - Request/response logging for debugging
  */
 
-import OpenAI from 'openai';
-import { logger } from '../utils/logger';
+import OpenAI from "openai";
+import { logger } from "../utils/logger";
 
 /**
  * OpenAI request configuration interface
@@ -60,7 +60,7 @@ export class OpenAIClientService {
 
   constructor(apiKey: string) {
     if (!apiKey) {
-      throw new Error('OpenAI API key is required');
+      throw new Error("OpenAI API key is required");
     }
     this.openai = new OpenAI({ apiKey });
   }
@@ -79,14 +79,14 @@ export class OpenAIClientService {
     const {
       systemPrompt,
       userPrompt,
-      model = 'gpt-4o',
+      model = "gpt-4o",
       maxTokens = 2500,
       temperature = 0.7,
       presencePenalty = 0.1,
       frequencyPenalty = 0.1,
     } = request;
 
-    logger.info('Starting OpenAI completion', {
+    logger.info("Starting OpenAI completion", {
       model,
       maxTokens,
       temperature,
@@ -96,8 +96,8 @@ export class OpenAIClientService {
 
     try {
       const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
       ];
 
       const completion = await this.openai.chat.completions.create({
@@ -111,7 +111,7 @@ export class OpenAIClientService {
 
       const content = completion.choices[0]?.message?.content;
       if (content === undefined || content === null) {
-        throw new Error('No content received from OpenAI');
+        throw new Error("No content received from OpenAI");
       }
 
       // Allow empty strings - we'll handle them in the application layer
@@ -128,7 +128,7 @@ export class OpenAIClientService {
         finishReason: completion.choices[0]?.finish_reason,
       };
 
-      logger.info('OpenAI completion successful', {
+      logger.info("OpenAI completion successful", {
         contentLength: content.length,
         finishReason: response.finishReason,
         usage: response.usage,
@@ -136,8 +136,8 @@ export class OpenAIClientService {
 
       return response;
     } catch (error) {
-      logger.error('OpenAI completion failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+      logger.error("OpenAI completion failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
         model,
         systemPromptLength: systemPrompt.length,
         userPromptLength: userPrompt.length,
@@ -147,20 +147,20 @@ export class OpenAIClientService {
       if (error instanceof Error) {
         throw new Error(`OpenAI API error: ${error.message}`);
       }
-      throw new Error('Unknown OpenAI API error');
+      throw new Error("Unknown OpenAI API error");
     }
   }
 
   async testConnection(): Promise<boolean> {
     try {
       await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: 'Hello' }],
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: "Hello" }],
         max_tokens: 5,
       });
       return true;
     } catch (error) {
-      logger.error('OpenAI connection test failed', { error });
+      logger.error("OpenAI connection test failed", { error });
       return false;
     }
   }
@@ -172,8 +172,8 @@ export class OpenAIClientService {
     temperature: number;
   } {
     return {
-      defaultModel: 'gpt-4o',
-      supportedModels: ['gpt-4o', 'gpt-4', 'gpt-3.5-turbo'],
+      defaultModel: "gpt-4o",
+      supportedModels: ["gpt-4o", "gpt-4", "gpt-3.5-turbo"],
       maxTokens: 2500,
       temperature: 0.7,
     };

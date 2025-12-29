@@ -1,5 +1,5 @@
-import { getClientPersona } from '@pagepersonai/shared';
-import type { ClientPersona } from '@pagepersonai/shared';
+import { getClientPersona } from "@pagepersonai/shared";
+import type { ClientPersona } from "@pagepersonai/shared";
 
 interface PersonaAvatar {
   id: string;
@@ -14,7 +14,7 @@ interface PersonaAvatarsDemoProps {
   className?: string;
 }
 
-const personaIds = ['plague-doctor', 'eli5', 'anime-hacker'] as const;
+const personaIds = ["plague-doctor", "eli5", "anime-hacker"] as const;
 
 const defaultPersonas: PersonaAvatar[] = personaIds
   .map((id) => getClientPersona(id))
@@ -25,18 +25,18 @@ const defaultPersonas: PersonaAvatar[] = personaIds
     imagePath: persona.avatarUrl,
     alt: persona.label,
     className:
-      persona.id === 'plague-doctor'
-        ? 'plague_doctor'
-        : persona.id === 'eli5'
-          ? 'eli5'
-          : persona.id === 'anime-hacker'
-            ? 'anime_hacker'
-            : persona.id.replace(/[^a-z0-9-]/gi, '_'), // e.g. 'plague-doctor', 'eli5', 'anime-hacker'
+      persona.id === "plague-doctor"
+        ? "plague_doctor"
+        : persona.id === "eli5"
+          ? "eli5"
+          : persona.id === "anime-hacker"
+            ? "anime_hacker"
+            : persona.id.replace(/[^a-z0-9-]/gi, "_"), // e.g. 'plague-doctor', 'eli5', 'anime-hacker'
   }));
 
 export default function PersonaAvatarsDemo({
   personas = defaultPersonas,
-  className = '',
+  className = "",
 }: PersonaAvatarsDemoProps) {
   return (
     <div className={`visual-item ${className}`}>

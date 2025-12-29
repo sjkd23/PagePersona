@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const transformSchema = z.object({
   url: z.string().url(),
@@ -11,7 +11,7 @@ export const transformSchema = z.object({
 });
 
 export const transformTextSchema = z.object({
-  text: z.string().min(1, 'Text is required'),
+  text: z.string().min(1, "Text is required"),
   persona: z.string().min(1),
   options: z
     .object({

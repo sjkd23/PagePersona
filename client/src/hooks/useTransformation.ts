@@ -15,13 +15,16 @@
  * - Loading states and user feedback
  */
 
-import { useState, useEffect, useRef } from 'react';
-import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
-import { useAuth } from './useAuthContext';
-import ApiService, { setTokenGetter } from '../lib/apiClient';
-import { logger } from '../utils/logger';
-import { useTransformationHistory } from './useTransformationHistory';
-import { ErrorCode } from '@pagepersonai/shared';
+import { useState, useEffect, useRef } from "react";
+import type {
+  ClientPersona as Persona,
+  WebpageContent,
+} from "@pagepersonai/shared";
+import { useAuth } from "./useAuthContext";
+import ApiService, { setTokenGetter } from "../lib/apiClient";
+import { logger } from "../utils/logger";
+import { useTransformationHistory } from "./useTransformationHistory";
+import { ErrorCode } from "@pagepersonai/shared";
 
 /**
  * Enhanced error information structure
@@ -50,7 +53,7 @@ export interface TransformationState {
   selectedPersona: Persona | null;
   personas: Persona[];
   url: string;
-  inputMode: 'url' | 'text';
+  inputMode: "url" | "text";
   isLoading: boolean;
   content: WebpageContent | null;
   error: string | null;
@@ -59,6 +62,8 @@ export interface TransformationState {
   urlError: string | null;
   textError: string | null;
   hasClickedGenerate: boolean;
+  jobProgress?: number;
+  jobStage?: string;
 }
 
 /**
@@ -68,11 +73,11 @@ export interface TransformationState {
 export interface TransformationActions {
   setSelectedPersona: (persona: Persona | null) => void;
   setUrl: (url: string) => void;
-  setInputMode: (mode: 'url' | 'text') => void;
+  setInputMode: (mode: "url" | "text") => void;
   setError: (error: string | null) => void;
   setEnhancedError: (error: EnhancedError | null) => void;
   handleInputChange: (value: string) => void;
-  handleModeChange: (mode: 'url' | 'text') => void;
+  handleModeChange: (mode: "url" | "text") => void;
   handleTransform: () => Promise<void>;
   handleRestoreTransformation: (item: WebpageContent) => void;
   isValidInput: () => boolean;
@@ -92,20 +97,22 @@ const validateUrl = (inputUrl: string): string | null => {
   }
 
   try {
-    const url = new URL(inputUrl.startsWith('http') ? inputUrl : `https://${inputUrl}`);
+    const url = new URL(
+      inputUrl.startsWith("http") ? inputUrl : `https://${inputUrl}`,
+    );
 
     const hostname = url.hostname;
-    if (!hostname || hostname === 'localhost') {
-      if (hostname === 'localhost') {
+    if (!hostname || hostname === "localhost") {
+      if (hostname === "localhost") {
         return null;
       }
-      return 'Please enter a valid URL';
+      return "Please enter a valid URL";
     }
 
     const isValidDomain =
-      hostname.includes('.') &&
-      hostname.split('.').length >= 2 &&
-      hostname.split('.').every((part) => part.length > 0);
+      hostname.includes(".") &&
+      hostname.split(".").length >= 2 &&
+      hostname.split(".").every((part) => part.length > 0);
 
     const isValidIP =
       /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
@@ -113,12 +120,12 @@ const validateUrl = (inputUrl: string): string | null => {
       );
 
     if (!isValidDomain && !isValidIP) {
-      return 'Please enter a valid URL';
+      return "Please enter a valid URL";
     }
 
     return null;
   } catch {
-    return 'Please enter a valid URL';
+    return "Please enter a valid URL";
   }
 };
 
@@ -140,8 +147,8 @@ export function useTransformation() {
   const [state, setState] = useState<TransformationState>({
     selectedPersona: null,
     personas: [],
-    url: '',
-    inputMode: 'url',
+    url: "",
+    inputMode: "url",
     isLoading: false,
     content: null,
     error: null,
@@ -150,10 +157,13 @@ export function useTransformation() {
     urlError: null,
     textError: null,
     hasClickedGenerate: false,
+    jobProgress: undefined,
+    jobStage: undefined,
   });
 
   const { getAccessToken } = useAuth();
-  const { history, addToHistory, removeFromHistory, clearHistory } = useTransformationHistory();
+  const { history, addToHistory, removeFromHistory, clearHistory } =
+    useTransformationHistory();
 
   // Set up Auth0 token getter for API calls
   useEffect(() => {
@@ -180,7 +190,7 @@ export function useTransformation() {
         } else {
           // Create enhanced error for persona loading failure
           const enhancedError: EnhancedError = {
-            message: response.error || 'Failed to load personas',
+            message: response.error || "Failed to load personas",
             code: response.errorCode,
             title: response.title,
             helpText: response.helpText,
@@ -196,10 +206,14 @@ export function useTransformation() {
       } catch (err) {
         if (!isMountedRef.current) return; // Early exit if unmounted
 
-        logger.component.error('useTransformation', 'Error loading personas', err);
+        logger.component.error(
+          "useTransformation",
+          "Error loading personas",
+          err,
+        );
         safeSetState((prev) => ({
           ...prev,
-          error: 'Failed to connect to server',
+          error: "Failed to connect to server",
         }));
       } finally {
         safeSetState((prev) => ({ ...prev, loadingPersonas: false }));
@@ -221,7 +235,9 @@ export function useTransformation() {
   }, []);
 
   // Safe state setter that checks if component is still mounted
-  const safeSetState = (updater: (prev: TransformationState) => TransformationState) => {
+  const safeSetState = (
+    updater: (prev: TransformationState) => TransformationState,
+  ) => {
     if (isMountedRef.current) {
       setState(updater);
     }
@@ -255,7 +271,7 @@ export function useTransformation() {
     handleInputChange: (value) => {
       setState((prev) => ({ ...prev, url: value }));
 
-      if (state.inputMode === 'url') {
+      if (state.inputMode === "url") {
         const urlError = validateUrl(value);
         setState((prev) => ({ ...prev, urlError }));
       } else {
@@ -274,7 +290,7 @@ export function useTransformation() {
 
       // Re-validate based on new mode if there's content
       if (state.url.trim()) {
-        if (mode === 'url') {
+        if (mode === "url") {
           const urlError = validateUrl(state.url);
           setState((prev) => ({ ...prev, urlError }));
         } else {
@@ -285,10 +301,10 @@ export function useTransformation() {
     },
 
     isValidInput: () => {
-      if (state.inputMode === 'url') {
-        return !state.urlError && state.url.trim() !== '';
+      if (state.inputMode === "url") {
+        return !state.urlError && state.url.trim() !== "";
       } else {
-        return !state.textError && state.url.trim() !== '';
+        return !state.textError && state.url.trim() !== "";
       }
     },
 
@@ -296,17 +312,17 @@ export function useTransformation() {
       if (!state.selectedPersona || !state.url.trim()) {
         safeSetState((prev) => ({
           ...prev,
-          error: 'Please select a persona and provide valid input',
+          error: "Please select a persona and provide valid input",
         }));
         return;
       }
 
       // Validate input before transforming
-      if (state.inputMode === 'url' && validateUrl(state.url)) {
+      if (state.inputMode === "url" && validateUrl(state.url)) {
         return;
       }
 
-      if (state.inputMode === 'text' && validateText(state.url)) {
+      if (state.inputMode === "text" && validateText(state.url)) {
         return;
       }
 
@@ -324,22 +340,46 @@ export function useTransformation() {
         isLoading: true,
         error: null,
         hasClickedGenerate: true,
+        jobProgress: 0,
+        jobStage: undefined,
       }));
 
       try {
         let response;
 
-        if (state.inputMode === 'text') {
-          response = await ApiService.transformText({
-            text: state.url.trim(),
-            persona: state.selectedPersona.id,
-          });
+        // Progress callback for job polling
+        const onProgress = (jobStatus: {
+          stage?: string;
+          progress?: number;
+        }) => {
+          if (!abortSignal.aborted) {
+            safeSetState((prev) => ({
+              ...prev,
+              jobProgress: jobStatus.progress,
+              jobStage: jobStatus.stage,
+            }));
+          }
+        };
+
+        if (state.inputMode === "text") {
+          response = await ApiService.transform.text(
+            {
+              text: state.url.trim(),
+              persona: state.selectedPersona.id,
+            },
+            { onProgress },
+          );
         } else {
-          const formattedUrl = state.url.startsWith('http') ? state.url : `https://${state.url}`;
-          response = await ApiService.transformWebpage({
-            url: formattedUrl,
-            persona: state.selectedPersona.id,
-          });
+          const formattedUrl = state.url.startsWith("http")
+            ? state.url
+            : `https://${state.url}`;
+          response = await ApiService.transform.webpage(
+            {
+              url: formattedUrl,
+              persona: state.selectedPersona.id,
+            },
+            { onProgress },
+          );
         }
 
         // Check if request was aborted
@@ -350,20 +390,20 @@ export function useTransformation() {
         if (response.success) {
           const transformedContent: WebpageContent = {
             originalUrl:
-              state.inputMode === 'url'
-                ? state.url.startsWith('http')
+              state.inputMode === "url"
+                ? state.url.startsWith("http")
                   ? state.url
                   : `https://${state.url}`
-                : 'Direct Text Input',
+                : "Direct Text Input",
             originalTitle:
-              state.inputMode === 'url'
-                ? response.originalContent?.title || 'Webpage Content'
-                : 'Text Input',
+              state.inputMode === "url"
+                ? response.originalContent?.title || "Webpage Content"
+                : "Text Input",
             originalContent:
-              state.inputMode === 'url'
-                ? response.originalContent?.content || ''
+              state.inputMode === "url"
+                ? response.originalContent?.content || ""
                 : state.url.trim(),
-            transformedContent: response.transformedContent || '',
+            transformedContent: response.transformedContent || "",
             persona: state.selectedPersona,
             timestamp: new Date(),
           };
@@ -374,7 +414,7 @@ export function useTransformation() {
           const enhancedError: EnhancedError = {
             message:
               response.error ||
-              `Failed to transform the ${state.inputMode === 'url' ? 'webpage' : 'text'}`,
+              `Failed to transform the ${state.inputMode === "url" ? "webpage" : "text"}`,
             code: response.errorCode,
             title: response.title,
             helpText: response.helpText,
@@ -397,21 +437,26 @@ export function useTransformation() {
         // Don't set error state if the request was aborted
         if (
           (err &&
-            typeof err === 'object' &&
-            'name' in err &&
-            (err as Error).name === 'AbortError') ||
+            typeof err === "object" &&
+            "name" in err &&
+            (err as Error).name === "AbortError") ||
           abortSignal.aborted
         ) {
           return;
         }
-        logger.component.error('useTransformation', 'Transform error', err);
+        logger.component.error("useTransformation", "Transform error", err);
         safeSetState((prev) => ({
           ...prev,
-          error: `Failed to transform the ${state.inputMode === 'url' ? 'webpage' : 'text'}. Please check your connection and try again.`,
+          error: `Failed to transform the ${state.inputMode === "url" ? "webpage" : "text"}. Please check your connection and try again.`,
         }));
       } finally {
         if (!abortSignal.aborted) {
-          safeSetState((prev) => ({ ...prev, isLoading: false }));
+          safeSetState((prev) => ({
+            ...prev,
+            isLoading: false,
+            jobProgress: undefined,
+            jobStage: undefined,
+          }));
         }
       }
     },
@@ -426,11 +471,11 @@ export function useTransformation() {
         hasClickedGenerate: true,
       }));
 
-      if (item.originalUrl === 'Direct Text Input') {
+      if (item.originalUrl === "Direct Text Input") {
         setState((prev) => ({
           ...prev,
           url: item.originalContent,
-          inputMode: 'text',
+          inputMode: "text",
         }));
         const textError = validateText(item.originalContent);
         setState((prev) => ({ ...prev, textError }));
@@ -438,7 +483,7 @@ export function useTransformation() {
         setState((prev) => ({
           ...prev,
           url: item.originalUrl,
-          inputMode: 'url',
+          inputMode: "url",
         }));
         const urlError = validateUrl(item.originalUrl);
         setState((prev) => ({ ...prev, urlError }));

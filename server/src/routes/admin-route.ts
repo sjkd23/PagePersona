@@ -11,26 +11,26 @@
  * - GET /stats: Retrieve system statistics and metrics
  */
 
-import '../types/loader';
-import express, { Response } from 'express';
-import type { AuthenticatedRequest } from '../types/common';
-import { MongoUser } from '../models/mongo-user';
-import jwtAuth from '../middleware/jwtAuth';
-import { requireRoles, authErrorHandler } from '../middleware/auth-middleware';
+import "../types/loader";
+import express, { Response } from "express";
+import type { AuthenticatedRequest } from "../types/common";
+import { MongoUser } from "../models/mongo-user";
+import jwtAuth from "../middleware/jwtAuth";
+import { requireRoles, authErrorHandler } from "../middleware/auth-middleware";
 import {
   createSuccessResponse,
   createErrorResponse,
   serializeMongoUser,
-} from '../utils/userSerializer';
-import { HttpStatus } from '../constants/http-status';
-import { logger } from '../utils/logger';
-import redisClient from '../utils/redis-client';
-import { validateRequest } from '../middleware/zod-validation';
+} from "../utils/userSerializer";
+import { HttpStatus } from "../constants/http-status";
+import { logger } from "../utils/logger";
+import redisClient from "../utils/redis-client";
+import { validateRequest } from "../middleware/zod-validation";
 import {
   updateMembershipSchema,
   userIdParamSchema,
   adminStatsQuerySchema,
-} from '../schemas/admin.schema';
+} from "../schemas/admin.schema";
 
 const router = express.Router();
 
@@ -128,16 +128,19 @@ router.use(authErrorHandler);
  *               $ref: '#/components/schemas/Error'
  */
 router.get(
-  '/users',
+  "/users",
   jwtAuth,
-  requireRoles(['admin']),
+  requireRoles(["admin"]),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
       const skip = (page - 1) * limit;
 
-      const users = await MongoUser.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit);
+      const users = await MongoUser.find({})
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
 
       const totalUsers = await MongoUser.countDocuments();
       const totalPages = Math.ceil(totalUsers / limit);
@@ -158,10 +161,10 @@ router.get(
         }),
       );
     } catch (error) {
-      logger.auth.error('Error fetching users', error);
+      logger.auth.error("Error fetching users", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to fetch users'));
+        .json(createErrorResponse("Failed to fetch users"));
     }
   },
 );
@@ -183,11 +186,11 @@ router.get(
  * @throws {500} Internal server error if update fails
  */
 router.patch(
-  '/users/:userId/membership',
+  "/users/:userId/membership",
   jwtAuth,
-  requireRoles(['admin']),
-  validateRequest(userIdParamSchema, 'params'),
-  validateRequest(updateMembershipSchema, 'body'),
+  requireRoles(["admin"]),
+  validateRequest(userIdParamSchema, "params"),
+  validateRequest(updateMembershipSchema, "body"),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
@@ -195,7 +198,9 @@ router.patch(
 
       const user = await MongoUser.findById(userId);
       if (!user) {
-        res.status(HttpStatus.NOT_FOUND).json(createErrorResponse('User not found'));
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json(createErrorResponse("User not found"));
         return;
       }
 
@@ -207,7 +212,7 @@ router.patch(
       const cacheKey = `user:${userId}:tier`;
       await redisClient.del(cacheKey);
 
-      logger.auth.info('User membership updated', {
+      logger.auth.info("User membership updated", {
         adminUserId: req.userContext?.mongoUser?._id,
         targetUserId: userId,
         previousMembership,
@@ -222,10 +227,10 @@ router.patch(
         ),
       );
     } catch (error) {
-      logger.auth.error('Error updating user membership', error);
+      logger.auth.error("Error updating user membership", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to update user membership'));
+        .json(createErrorResponse("Failed to update user membership"));
     }
   },
 );
@@ -243,32 +248,34 @@ router.patch(
  * @throws {500} Internal server error if aggregation queries fail
  */
 router.get(
-  '/stats',
+  "/stats",
   jwtAuth,
-  requireRoles(['admin']),
+  requireRoles(["admin"]),
   validateRequest(adminStatsQuerySchema),
   async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
       const totalUsers = await MongoUser.countDocuments();
-      const freeUsers = await MongoUser.countDocuments({ membership: 'free' });
+      const freeUsers = await MongoUser.countDocuments({ membership: "free" });
       const premiumUsers = await MongoUser.countDocuments({
-        membership: 'premium',
+        membership: "premium",
       });
       const adminUsers = await MongoUser.countDocuments({
-        membership: 'admin',
+        membership: "admin",
       });
 
       const now = new Date();
-      const thisMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const thisMonthUTC = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+      );
       const activeUsersThisMonth = await MongoUser.countDocuments({
-        'usage.lastTransformation': { $gte: thisMonthUTC },
+        "usage.lastTransformation": { $gte: thisMonthUTC },
       });
 
       const totalTransformations = await MongoUser.aggregate([
         {
           $group: {
             _id: null,
-            total: { $sum: '$usage.totalTransformations' },
+            total: { $sum: "$usage.totalTransformations" },
           },
         },
       ]);
@@ -294,10 +301,10 @@ router.get(
         }),
       );
     } catch (error) {
-      logger.auth.error('Error fetching admin stats', error);
+      logger.auth.error("Error fetching admin stats", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json(createErrorResponse('Failed to fetch system statistics'));
+        .json(createErrorResponse("Failed to fetch system statistics"));
     }
   },
 );

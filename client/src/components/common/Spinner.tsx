@@ -22,21 +22,21 @@
  * @since 1.0.0
  */
 
-import React from 'react';
-import './Spinner.css';
+import React from "react";
+import "./Spinner.css";
 
 /**
  * Props interface for the Spinner component
  */
 interface SpinnerProps {
   /** Size variant of the spinner */
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
   /** Loading message to display below the spinner */
   message?: string;
   /** Additional CSS classes to apply */
   className?: string;
   /** Accessibility label for screen readers */
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 /**
@@ -46,19 +46,23 @@ interface SpinnerProps {
  * Includes proper accessibility attributes for screen readers.
  */
 const Spinner: React.FC<SpinnerProps> = ({
-  size = 'medium',
-  message = 'Loading...',
-  className = '',
-  'aria-label': ariaLabel = 'Loading content',
+  size = "medium",
+  message = "Loading...",
+  className = "",
+  "aria-label": ariaLabel = "Loading content",
 }) => {
   const sizeClass = {
-    small: 'spinner-small',
-    medium: 'spinner-medium',
-    large: 'spinner-large',
+    small: "spinner-small",
+    medium: "spinner-medium",
+    large: "spinner-large",
   };
 
   return (
-    <div className={`spinner-container ${className}`} role="status" aria-label={ariaLabel}>
+    <div
+      className={`spinner-container ${className}`}
+      role="status"
+      aria-label={ariaLabel}
+    >
       <div className={`spinner ${sizeClass[size]}`} />
       {message && (
         <p className="spinner-message" aria-live="polite">

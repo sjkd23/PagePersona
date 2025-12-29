@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface AuthenticatedNavProps {
   onHome?: () => void;
@@ -45,14 +45,21 @@ export default function AuthenticatedNav({
 
       {/* Mobile Hamburger Menu */}
       <div className="mobile-nav">
-        <button className="hamburger-btn" onClick={toggleMenu} aria-label="Toggle navigation menu">
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
-          <span className={`hamburger-line ${isMenuOpen ? 'open' : ''}`}></span>
+        <button
+          className="hamburger-btn"
+          onClick={toggleMenu}
+          aria-label="Toggle navigation menu"
+        >
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
+          <span className={`hamburger-line ${isMenuOpen ? "open" : ""}`}></span>
         </button>
 
         {isMenuOpen && (
-          <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
+          <div
+            className="mobile-menu-overlay"
+            onClick={() => setIsMenuOpen(false)}
+          >
             <nav className="mobile-menu" onClick={(e) => e.stopPropagation()}>
               <button
                 className="mobile-nav-btn transform"
@@ -61,10 +68,16 @@ export default function AuthenticatedNav({
                 Transform
               </button>
               <div className="mobile-welcome">Welcome, {userName}!</div>
-              <button className="mobile-nav-btn" onClick={() => handleMenuItemClick(onHome)}>
+              <button
+                className="mobile-nav-btn"
+                onClick={() => handleMenuItemClick(onHome)}
+              >
                 Home
               </button>
-              <button className="mobile-nav-btn" onClick={() => handleMenuItemClick(onProfile)}>
+              <button
+                className="mobile-nav-btn"
+                onClick={() => handleMenuItemClick(onProfile)}
+              >
                 Profile
               </button>
               <button

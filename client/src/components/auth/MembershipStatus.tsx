@@ -8,14 +8,14 @@
  * @module MembershipStatus
  */
 
-import React from 'react';
-import type { UserProfile } from '../../lib/apiClient';
-import type { MembershipTier } from './types';
+import React from "react";
+import type { UserProfile } from "../../lib/apiClient";
+import type { MembershipTier } from "./types";
 import {
   getMembershipInfo,
   calculateUsageStats,
   getUsageMeterStyle,
-} from './utils/membershipUtils';
+} from "./utils/membershipUtils";
 
 /**
  * Props for the MembershipStatus component
@@ -35,15 +35,20 @@ interface MembershipStatusProps {
  * @param props - Component props containing user profile data
  * @returns JSX element displaying membership status information
  */
-export const MembershipStatus: React.FC<MembershipStatusProps> = ({ profile }) => {
+export const MembershipStatus: React.FC<MembershipStatusProps> = ({
+  profile,
+}) => {
   // Extract membership tier with fallback
-  const membershipTier = (profile?.membership || 'free') as MembershipTier;
+  const membershipTier = (profile?.membership || "free") as MembershipTier;
 
   // Get membership display information
   const membershipInfo = getMembershipInfo(membershipTier);
 
   // Calculate usage statistics
-  const usageStats = calculateUsageStats(profile?.usage?.monthlyUsage || 0, membershipTier);
+  const usageStats = calculateUsageStats(
+    profile?.usage?.monthlyUsage || 0,
+    membershipTier,
+  );
 
   // Get usage meter styling
   const usageMeterStyle = getUsageMeterStyle(usageStats.percentage);
@@ -54,7 +59,9 @@ export const MembershipStatus: React.FC<MembershipStatusProps> = ({ profile }) =
         <div className="membership-info">
           <div className="membership-tier">
             <span className="membership-icon">{membershipInfo.icon}</span>
-            <span className="membership-name">{membershipInfo.label} Member</span>
+            <span className="membership-name">
+              {membershipInfo.label} Member
+            </span>
           </div>
           <div className="membership-benefits">{membershipInfo.benefits}</div>
         </div>
@@ -62,23 +69,32 @@ export const MembershipStatus: React.FC<MembershipStatusProps> = ({ profile }) =
         <div className="usage-meter">
           <div className="usage-meter-bar">
             <div
-              className={`usage-meter-fill ${usageStats.isOverLimit ? 'over-limit' : ''} ${usageStats.isNearLimit ? 'near-limit' : ''}`}
+              className={`usage-meter-fill ${usageStats.isOverLimit ? "over-limit" : ""} ${usageStats.isNearLimit ? "near-limit" : ""}`}
               style={usageMeterStyle}
             />
           </div>
           <div className="usage-meter-text">
             <span
               className={
-                usageStats.isOverLimit ? 'text-error' : usageStats.isNearLimit ? 'text-warning' : ''
+                usageStats.isOverLimit
+                  ? "text-error"
+                  : usageStats.isNearLimit
+                    ? "text-warning"
+                    : ""
               }
             >
-              {usageStats.currentUsage} / {usageStats.monthlyLimit} transformations used
+              {usageStats.currentUsage} / {usageStats.monthlyLimit}{" "}
+              transformations used
             </span>
             {usageStats.isOverLimit && (
-              <span className="usage-limit-warning">⚠️ Usage limit exceeded</span>
+              <span className="usage-limit-warning">
+                ⚠️ Usage limit exceeded
+              </span>
             )}
             {usageStats.isNearLimit && !usageStats.isOverLimit && (
-              <span className="usage-limit-warning">⚠️ Approaching usage limit</span>
+              <span className="usage-limit-warning">
+                ⚠️ Approaching usage limit
+              </span>
             )}
           </div>
         </div>

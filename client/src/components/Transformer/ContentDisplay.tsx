@@ -9,9 +9,12 @@
  * @module ContentDisplay
  */
 
-import { useState } from 'react';
-import type { ClientPersona as Persona, WebpageContent } from '@pagepersonai/shared';
-import './styles/ContentDisplay.css';
+import { useState } from "react";
+import type {
+  ClientPersona as Persona,
+  WebpageContent,
+} from "@pagepersonai/shared";
+import "./styles/ContentDisplay.css";
 
 /**
  * Props for the ContentDisplay component
@@ -59,19 +62,19 @@ export default function ContentDisplay({
       // Hide the tooltip after 2 seconds
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      console.error("Failed to copy text: ", err);
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
+      const textArea = document.createElement("textarea");
       textArea.value = content.transformedContent;
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
       try {
-        document.execCommand('copy');
+        document.execCommand("copy");
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
       } catch (fallbackErr) {
-        console.error('Fallback copy failed: ', fallbackErr);
+        console.error("Fallback copy failed: ", fallbackErr);
       }
       document.body.removeChild(textArea);
     }
@@ -93,7 +96,9 @@ export default function ContentDisplay({
     return (
       <div className="text-center py-6">
         <div className="text-3xl mb-2">📄</div>
-        <p className="text-gray-500 text-sm">Your transformed content will appear here</p>
+        <p className="text-gray-500 text-sm">
+          Your transformed content will appear here
+        </p>
       </div>
     );
   }
@@ -111,7 +116,9 @@ export default function ContentDisplay({
           />
         </div>
         <div>
-          <div className="font-medium text-gray-900 text-sm">{content.persona.label}</div>
+          <div className="font-medium text-gray-900 text-sm">
+            {content.persona.label}
+          </div>
           <div className="text-xs text-gray-500">Transformed content</div>
         </div>
       </div>
@@ -141,7 +148,9 @@ export default function ContentDisplay({
             </span>
           )}
         </button>
-        <button className="text-blue-600 hover:text-blue-800 font-medium">Save</button>
+        <button className="text-blue-600 hover:text-blue-800 font-medium">
+          Save
+        </button>
       </div>
     </div>
   );

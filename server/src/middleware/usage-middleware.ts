@@ -16,10 +16,10 @@
  * without impacting the user experience.
  */
 
-import { Response, NextFunction } from 'express';
-import { incrementUserUsage } from '../utils/usage-tracking';
-import type { AuthenticatedRequest } from '../types/common';
-import { logger } from '../utils/logger';
+import { Response, NextFunction } from "express";
+import { incrementUserUsage } from "../utils/usage-tracking";
+import type { AuthenticatedRequest } from "../types/common";
+import { logger } from "../utils/logger";
 
 /**
  * Express middleware to track API usage metrics
@@ -36,7 +36,11 @@ import { logger } from '../utils/logger';
  * @param res Express response object
  * @param next Next middleware function
  */
-export const trackUsage = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const trackUsage = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction,
+): void => {
   const startTime = Date.now();
   const originalSend = res.send;
 
@@ -52,17 +56,17 @@ export const trackUsage = (req: AuthenticatedRequest, res: Response, next: NextF
       // Initialize metric variables
       let responseSize = 0;
       let tokensUsed = 0;
-      let model = '';
+      let model = "";
 
       try {
-        if (typeof data === 'string') {
-          responseSize = Buffer.byteLength(data, 'utf8');
+        if (typeof data === "string") {
+          responseSize = Buffer.byteLength(data, "utf8");
 
           // Parse response to extract AI API usage data
           const parsed = JSON.parse(data);
           if (parsed.usage) {
             tokensUsed = parsed.usage.total_tokens || 0;
-            model = (req.body as { model?: string })?.model || 'gpt-4o-mini';
+            model = (req.body as { model?: string })?.model || "gpt-4o-mini";
           }
         }
       } catch (error) {
@@ -79,7 +83,7 @@ export const trackUsage = (req: AuthenticatedRequest, res: Response, next: NextF
           });
 
           // Log detailed usage metrics for monitoring and analytics
-          logger.usage.info('API usage tracked', {
+          logger.usage.info("API usage tracked", {
             userId,
             endpoint: req.originalUrl,
             method: req.method,
@@ -90,14 +94,14 @@ export const trackUsage = (req: AuthenticatedRequest, res: Response, next: NextF
             model: model || undefined,
           });
         } catch (error) {
-          logger.usage.error('Error recording usage:', error);
+          logger.usage.error("Error recording usage:", error);
         }
       };
 
       // Execute usage recording based on environment
       // In test environment, run synchronously for deterministic testing
       // In production, use setImmediate for non-blocking execution
-      if (process.env.NODE_ENV === 'test') {
+      if (process.env.NODE_ENV === "test") {
         recordUsage();
       } else {
         setImmediate(recordUsage);

@@ -9,13 +9,13 @@
  * @module TransformerForm
  */
 
-import type { ClientPersona as Persona } from '@pagepersonai/shared';
-import InputModeToggle from './InputModeToggle';
-import ValidationError from './ValidationError';
-import TextInput from './TextInput';
-import TextArea from './TextArea';
-import CharacterCount from './CharacterCount';
-import './styles/TransformerForm.css';
+import type { ClientPersona as Persona } from "@pagepersonai/shared";
+import InputModeToggle from "./InputModeToggle";
+import ValidationError from "./ValidationError";
+import TextInput from "./TextInput";
+import TextArea from "./TextArea";
+import CharacterCount from "./CharacterCount";
+import "./styles/TransformerForm.css";
 
 /**
  * Props for the TransformerForm component
@@ -40,7 +40,7 @@ interface TransformerFormProps {
   selectedPersona: Persona | null;
   personas: Persona[];
   url: string;
-  inputMode: 'url' | 'text';
+  inputMode: "url" | "text";
   isLoading: boolean;
   loadingPersonas: boolean;
   urlError: string | null;
@@ -48,7 +48,7 @@ interface TransformerFormProps {
   maxTextLength: number;
   onPersonaSelect: (persona: Persona | null) => void;
   onInputChange: (value: string) => void;
-  onModeChange: (mode: 'url' | 'text') => void;
+  onModeChange: (mode: "url" | "text") => void;
   onTransform: () => Promise<void>;
   isValidInput: () => boolean;
 }
@@ -79,7 +79,7 @@ export default function TransformerForm({
   onTransform,
   isValidInput,
 }: TransformerFormProps) {
-  const currentError = inputMode === 'url' ? urlError : textError;
+  const currentError = inputMode === "url" ? urlError : textError;
   const hasError = Boolean(currentError);
 
   return (
@@ -98,9 +98,11 @@ export default function TransformerForm({
           ) : (
             <div>
               <select
-                value={selectedPersona?.id || ''}
+                value={selectedPersona?.id || ""}
                 onChange={(e) => {
-                  const selected = personas.find((p) => p.id === e.target.value);
+                  const selected = personas.find(
+                    (p) => p.id === e.target.value,
+                  );
                   onPersonaSelect(selected || null);
                 }}
                 className="persona-select"
@@ -126,7 +128,9 @@ export default function TransformerForm({
                     </div>
                     <div className="persona-details">
                       <h3 className="persona-name">{selectedPersona.label}</h3>
-                      <p className="persona-description">{selectedPersona.description}</p>
+                      <p className="persona-description">
+                        {selectedPersona.description}
+                      </p>
                     </div>
                   </div>
 
@@ -136,7 +140,8 @@ export default function TransformerForm({
                       <div className="metadata-section">
                         <p className="metadata-content">Best for:</p>
                         <p className="metadata-text">
-                          Content that fits with this persona&apos;s style and tone
+                          Content that fits with this persona&apos;s style and
+                          tone
                         </p>
                       </div>
                     </div>
@@ -145,7 +150,8 @@ export default function TransformerForm({
                       <h4 className="metadata-title">Example Texts</h4>
                       <div className="metadata-section">
                         <p className="metadata-example">
-                          Examples of different personas/writing style used by this persona
+                          Examples of different personas/writing style used by
+                          this persona
                         </p>
                       </div>
                     </div>
@@ -163,9 +169,13 @@ export default function TransformerForm({
           <h2 className="card-title">Enter URL or text</h2>
         </div>
         <div className="card-content">
-          <InputModeToggle mode={inputMode} onModeChange={onModeChange} disabled={isLoading} />
+          <InputModeToggle
+            mode={inputMode}
+            onModeChange={onModeChange}
+            disabled={isLoading}
+          />
 
-          {inputMode === 'url' ? (
+          {inputMode === "url" ? (
             <div>
               <TextInput
                 value={url}
@@ -190,7 +200,11 @@ export default function TransformerForm({
                 className="text-input"
               />
               <div className="character-count-container">
-                <CharacterCount current={url.length} max={maxTextLength} hasError={hasError} />
+                <CharacterCount
+                  current={url.length}
+                  max={maxTextLength}
+                  hasError={hasError}
+                />
               </div>
               <ValidationError error={textError} />
             </div>
@@ -206,8 +220,10 @@ export default function TransformerForm({
         <div className="card-content">
           <button
             onClick={onTransform}
-            disabled={isLoading || !selectedPersona || !url.trim() || !isValidInput()}
-            className={`generate-button ${isLoading || !selectedPersona || !url.trim() || !isValidInput() ? 'generate-button-disabled' : 'generate-button-active'}`}
+            disabled={
+              isLoading || !selectedPersona || !url.trim() || !isValidInput()
+            }
+            className={`generate-button ${isLoading || !selectedPersona || !url.trim() || !isValidInput() ? "generate-button-disabled" : "generate-button-active"}`}
           >
             {isLoading ? (
               <>
@@ -216,12 +232,16 @@ export default function TransformerForm({
               </>
             ) : (
               (() => {
-                if (!selectedPersona) return 'Select a persona first';
+                if (!selectedPersona) return "Select a persona first";
                 if (!url.trim())
-                  return inputMode === 'url' ? 'Enter a URL first' : 'Enter text first';
-                if (inputMode === 'text' && textError) return '50 character minimum required';
-                if (inputMode === 'url' && urlError) return 'Valid URL required';
-                return 'Generate';
+                  return inputMode === "url"
+                    ? "Enter a URL first"
+                    : "Enter text first";
+                if (inputMode === "text" && textError)
+                  return "50 character minimum required";
+                if (inputMode === "url" && urlError)
+                  return "Valid URL required";
+                return "Generate";
               })()
             )}
           </button>

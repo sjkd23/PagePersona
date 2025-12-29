@@ -9,7 +9,7 @@ export default function HowItWorksStep({
   stepNumber,
   title,
   subtitle,
-  className = '',
+  className = "",
 }: HowItWorksStepProps) {
   return (
     <div className={`step-item ${className}`}>

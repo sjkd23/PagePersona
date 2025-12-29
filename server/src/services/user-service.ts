@@ -13,10 +13,13 @@
  * - Secure field filtering for updates
  */
 
-import { MongoUser, type IMongoUser } from '../models/mongo-user';
-import { serializeMongoUser, serializeUserUsage } from '../utils/userSerializer';
-import { logger } from '../utils/logger';
-import type { Document } from 'mongoose';
+import { MongoUser, type IMongoUser } from "../models/mongo-user";
+import {
+  serializeMongoUser,
+  serializeUserUsage,
+} from "../utils/userSerializer";
+import { logger } from "../utils/logger";
+import type { Document } from "mongoose";
 
 /**
  * User profile update request structure
@@ -67,7 +70,7 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'User profile not found',
+          error: "User profile not found",
         };
       }
 
@@ -76,10 +79,10 @@ export class UserService {
         data: serializeMongoUser(user),
       };
     } catch (error) {
-      logger.transform.error('Error fetching user profile', error);
+      logger.transform.error("Error fetching user profile", error);
       return {
         success: false,
-        error: 'Failed to fetch user profile',
+        error: "Failed to fetch user profile",
       };
     }
   }
@@ -101,7 +104,7 @@ export class UserService {
   ): Promise<UserServiceResult> {
     try {
       // Only allow updating certain fields
-      const allowedUpdates = ['firstName', 'lastName', 'preferences'];
+      const allowedUpdates = ["firstName", "lastName", "preferences"];
       const filteredUpdates: Record<string, unknown> = {};
 
       for (const key of allowedUpdates) {
@@ -118,19 +121,23 @@ export class UserService {
         };
       }
 
-      const updatedUser = await MongoUser.findByIdAndUpdate(user._id, filteredUpdates, {
-        new: true,
-        runValidators: true,
-      });
+      const updatedUser = await MongoUser.findByIdAndUpdate(
+        user._id,
+        filteredUpdates,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
 
       if (!updatedUser) {
         return {
           success: false,
-          error: 'User not found',
+          error: "User not found",
         };
       }
 
-      logger.transform.info('Profile updated successfully', {
+      logger.transform.info("Profile updated successfully", {
         userId: updatedUser._id,
         username: updatedUser.username,
       });
@@ -138,13 +145,13 @@ export class UserService {
       return {
         success: true,
         data: serializeMongoUser(updatedUser),
-        message: 'Profile updated successfully',
+        message: "Profile updated successfully",
       };
     } catch (error) {
-      logger.transform.error('Error updating user profile', error);
+      logger.transform.error("Error updating user profile", error);
       return {
         success: false,
-        error: 'Failed to update user profile',
+        error: "Failed to update user profile",
       };
     }
   }
@@ -159,12 +166,14 @@ export class UserService {
    * @param user - User document with usage information
    * @returns Promise resolving to usage statistics or error
    */
-  async getUserUsage(user: Document & Record<string, unknown>): Promise<UserServiceResult> {
+  async getUserUsage(
+    user: Document & Record<string, unknown>,
+  ): Promise<UserServiceResult> {
     try {
       if (!user) {
         return {
           success: false,
-          error: 'User not found',
+          error: "User not found",
         };
       }
 
@@ -173,10 +182,10 @@ export class UserService {
         data: serializeUserUsage(user as unknown as IMongoUser),
       };
     } catch (error) {
-      logger.transform.error('Error fetching user usage', error);
+      logger.transform.error("Error fetching user usage", error);
       return {
         success: false,
-        error: 'Failed to fetch user usage',
+        error: "Failed to fetch user usage",
       };
     }
   }
@@ -191,16 +200,18 @@ export class UserService {
    * @param user - User document to synchronize
    * @returns Promise resolving to synchronized user data or error
    */
-  async syncUser(user: Document & Record<string, unknown>): Promise<UserServiceResult> {
+  async syncUser(
+    user: Document & Record<string, unknown>,
+  ): Promise<UserServiceResult> {
     try {
       if (!user) {
         return {
           success: false,
-          error: 'User sync failed - user not found',
+          error: "User sync failed - user not found",
         };
       }
 
-      logger.transform.info('User synced successfully', {
+      logger.transform.info("User synced successfully", {
         userId: user._id,
         auth0Id: user.auth0Id,
         email: user.email,
@@ -209,13 +220,13 @@ export class UserService {
       return {
         success: true,
         data: serializeMongoUser(user as unknown as IMongoUser),
-        message: 'User successfully synced with MongoDB',
+        message: "User successfully synced with MongoDB",
       };
     } catch (error) {
-      logger.transform.error('Error syncing user', error);
+      logger.transform.error("Error syncing user", error);
       return {
         success: false,
-        error: 'Failed to sync user',
+        error: "Failed to sync user",
       };
     }
   }

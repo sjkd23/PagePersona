@@ -7,7 +7,7 @@
  * @module AnalyticsUtils
  */
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export interface AnalyticsEvent {
   action: string;
@@ -73,12 +73,12 @@ export class AnalyticsUtils {
     };
 
     // Google Analytics 4
-    if (typeof gtag !== 'undefined') {
-      gtag('config', import.meta.env.VITE_GA_TRACKING_ID, pageData);
+    if (typeof gtag !== "undefined") {
+      gtag("config", import.meta.env.VITE_GA_TRACKING_ID, pageData);
     }
 
     // Custom analytics endpoint (if available)
-    this.sendToCustomAnalytics('page_view', pageData);
+    this.sendToCustomAnalytics("page_view", pageData);
   }
 
   /**
@@ -98,8 +98,8 @@ export class AnalyticsUtils {
     };
 
     // Google Analytics 4
-    if (typeof gtag !== 'undefined') {
-      gtag('event', event.action, {
+    if (typeof gtag !== "undefined") {
+      gtag("event", event.action, {
         event_category: event.category,
         event_label: event.label,
         value: event.value,
@@ -108,7 +108,7 @@ export class AnalyticsUtils {
     }
 
     // Custom analytics endpoint
-    this.sendToCustomAnalytics('event', eventData);
+    this.sendToCustomAnalytics("event", eventData);
   }
 
   /**
@@ -120,12 +120,12 @@ export class AnalyticsUtils {
    */
   static trackTransformation(
     personaName: string,
-    contentType: 'url' | 'text',
+    contentType: "url" | "text",
     success: boolean,
   ): void {
     this.trackEvent({
-      action: 'transform_content',
-      category: 'content_transformation',
+      action: "transform_content",
+      category: "content_transformation",
       label: `${personaName}_${contentType}`,
       value: success ? 1 : 0,
       custom_parameters: {
@@ -142,10 +142,13 @@ export class AnalyticsUtils {
    * @param action - Auth action (login, signup, logout)
    * @param method - Auth method used
    */
-  static trackAuth(action: 'login' | 'signup' | 'logout', method?: string): void {
+  static trackAuth(
+    action: "login" | "signup" | "logout",
+    method?: string,
+  ): void {
     this.trackEvent({
       action: `user_${action}`,
-      category: 'authentication',
+      category: "authentication",
       label: method,
       custom_parameters: {
         auth_method: method,
@@ -165,7 +168,7 @@ export class AnalyticsUtils {
   ): void {
     this.trackEvent({
       action,
-      category: 'user_engagement',
+      category: "user_engagement",
       custom_parameters: details,
     });
   }
@@ -181,8 +184,8 @@ export class AnalyticsUtils {
     const errorStack = error instanceof Error ? error.stack : undefined;
 
     this.trackEvent({
-      action: 'error_occurred',
-      category: 'errors',
+      action: "error_occurred",
+      category: "errors",
       label: context,
       custom_parameters: {
         error_message: errorMessage,
@@ -203,8 +206,8 @@ export class AnalyticsUtils {
    */
   static trackPerformance(metric: string, value: number, unit?: string): void {
     this.trackEvent({
-      action: 'performance_metric',
-      category: 'performance',
+      action: "performance_metric",
+      category: "performance",
       label: metric,
       value,
       custom_parameters: {
@@ -240,8 +243,8 @@ export class AnalyticsUtils {
   static setUserId(userId: string): void {
     this.userId = userId;
 
-    if (this.isEnabled && typeof gtag !== 'undefined') {
-      gtag('config', import.meta.env.VITE_GA_TRACKING_ID, {
+    if (this.isEnabled && typeof gtag !== "undefined") {
+      gtag("config", import.meta.env.VITE_GA_TRACKING_ID, {
         user_id: userId,
       });
     }
@@ -254,13 +257,13 @@ export class AnalyticsUtils {
     if (!trackingId) return;
 
     // Load Google Analytics script
-    const script1 = document.createElement('script');
+    const script1 = document.createElement("script");
     script1.async = true;
     script1.src = `https://www.googletagmanager.com/gtag/js?id=${trackingId}`;
     document.head.appendChild(script1);
 
     // Initialize gtag
-    const script2 = document.createElement('script');
+    const script2 = document.createElement("script");
     script2.innerHTML = `
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -285,9 +288,9 @@ export class AnalyticsUtils {
 
     try {
       await fetch(analyticsEndpoint, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           event_type: eventType,
@@ -296,7 +299,7 @@ export class AnalyticsUtils {
         }),
       });
     } catch (error) {
-      console.warn('Failed to send analytics data:', error);
+      console.warn("Failed to send analytics data:", error);
     }
   }
 
@@ -307,10 +310,10 @@ export class AnalyticsUtils {
   private static clearAnalyticsData(): void {
     // Clear any local storage or cookies related to analytics
     try {
-      localStorage.removeItem('analytics_session');
-      localStorage.removeItem('analytics_user');
+      localStorage.removeItem("analytics_session");
+      localStorage.removeItem("analytics_user");
     } catch (error) {
-      console.warn('Failed to clear analytics data:', error);
+      console.warn("Failed to clear analytics data:", error);
     }
   }
 }
@@ -321,7 +324,10 @@ export class AnalyticsUtils {
  * @param userId - Optional user ID for tracking
  * @param hasConsent - Whether user has consented to analytics
  */
-export function useAnalytics(userId?: string, hasConsent: boolean = true): void {
+export function useAnalytics(
+  userId?: string,
+  hasConsent: boolean = true,
+): void {
   // Initialize analytics when hook is used
   useEffect(() => {
     AnalyticsUtils.initialize(hasConsent, userId);

@@ -17,12 +17,12 @@
  * seamless usage tracking and limit enforcement across the application.
  */
 
-import { Request, Response, NextFunction } from 'express';
-import { getUserUsageLimit } from '../utils/usage-tracking';
-import { createErrorResponse } from '../utils/userSerializer';
-import { HttpStatus } from '../constants/http-status';
-import { logger } from '../utils/logger';
-import { ErrorMapper } from '@pagepersonai/shared';
+import { Request, Response, NextFunction } from "express";
+import { getUserUsageLimit } from "../utils/usage-tracking";
+import { createErrorResponse } from "../utils/userSerializer";
+import { HttpStatus } from "../constants/http-status";
+import { logger } from "../utils/logger";
+import { ErrorMapper } from "@pagepersonai/shared";
 
 /**
  * Configuration options for usage limit checking
@@ -50,7 +50,11 @@ export interface UsageLimitOptions {
  * @returns Express middleware function
  */
 export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     const { skipCheck = false, allowOverage = false, customLimit } = options;
 
     // Skip limit enforcement if explicitly requested (for admin operations, etc.)
@@ -64,10 +68,13 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
 
       // Allow unauthenticated users to proceed but log the attempt for monitoring
       if (!mongoUser) {
-        logger.usage.warn('Usage limit check requested for unauthenticated user', {
-          ip: req.ip,
-          userAgent: req.get('User-Agent'),
-        });
+        logger.usage.warn(
+          "Usage limit check requested for unauthenticated user",
+          {
+            ip: req.ip,
+            userAgent: req.get("User-Agent"),
+          },
+        );
         next();
         return;
       }
@@ -76,7 +83,7 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
       const usageLimit = customLimit || getUserUsageLimit(mongoUser);
       const currentUsage = mongoUser.usage?.monthlyUsage || 0;
 
-      logger.usage.debug('Checking usage limit', {
+      logger.usage.debug("Checking usage limit", {
         userId: mongoUser._id,
         membership: mongoUser.membership,
         currentUsage,
@@ -86,7 +93,7 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
 
       // Enforce usage limit unless overage is explicitly allowed
       if (currentUsage >= usageLimit && !allowOverage) {
-        logger.usage.warn('User exceeded usage limit', {
+        logger.usage.warn("User exceeded usage limit", {
           userId: mongoUser._id,
           membership: mongoUser.membership,
           currentUsage,
@@ -127,11 +134,13 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
 
       next();
     } catch (error) {
-      logger.usage.error('Error checking usage limit', error);
+      logger.usage.error("Error checking usage limit", error);
 
       // Fail open - allow the request to continue if limit checking fails
       // This ensures system availability even when usage tracking has issues
-      logger.usage.warn('Usage limit check failed, allowing request to continue');
+      logger.usage.warn(
+        "Usage limit check failed, allowing request to continue",
+      );
       next();
     }
   };
@@ -148,14 +157,20 @@ export const checkUsageLimit = (options: UsageLimitOptions = {}) => {
  * @returns Express middleware function that requires authentication
  */
 export const checkUsageLimitStrict = (options: UsageLimitOptions = {}) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     const mongoUser = req.userContext?.mongoUser;
 
     // Reject unauthenticated requests immediately
     if (!mongoUser) {
       res
         .status(HttpStatus.UNAUTHORIZED)
-        .json(createErrorResponse('Authentication required for this operation'));
+        .json(
+          createErrorResponse("Authentication required for this operation"),
+        );
       return;
     }
 

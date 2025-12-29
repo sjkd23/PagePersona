@@ -8,7 +8,7 @@
  * @module userSync
  */
 
-import { logger } from './logger';
+import { logger } from "./logger";
 
 /**
  * User profile interface representing complete user data
@@ -71,7 +71,7 @@ export interface UserSyncResponse {
 /**
  * API base URL for backend requests
  */
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 /**
  * Request timeout for user sync operations (15 seconds)
@@ -88,43 +88,48 @@ const SYNC_TIMEOUT_MS = 15000;
  * @param {string} accessToken - JWT access token for authentication
  * @returns {Promise<UserProfile | null>} User profile data or null if failed
  */
-export async function syncUserWithBackend(accessToken: string): Promise<UserProfile | null> {
-  if (!accessToken || accessToken.split('.').length !== 3) {
-    logger.sync.error('Invalid JWT token format');
+export async function syncUserWithBackend(
+  accessToken: string,
+): Promise<UserProfile | null> {
+  if (!accessToken || accessToken.split(".").length !== 3) {
+    logger.sync.error("Invalid JWT token format");
     return null;
   }
 
   try {
     // Validate JWT payload and check expiration
-    const parts = accessToken.split('.');
+    const parts = accessToken.split(".");
     let payload;
     try {
       payload = JSON.parse(atob(parts[1]));
     } catch {
-      logger.sync.error('Cannot decode JWT payload');
+      logger.sync.error("Cannot decode JWT payload");
       return null;
     }
 
     // Check token expiration
     const currentTime = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp < currentTime) {
-      logger.sync.error('Token is expired');
+      logger.sync.error("Token is expired");
       return null;
     }
 
-    logger.sync.info('Starting user sync with backend', { apiUrl: API_URL });
+    logger.sync.info("Starting user sync with backend", { apiUrl: API_URL });
 
     // Create abort controller for request timeout
     const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), SYNC_TIMEOUT_MS);
+    const timeoutId = setTimeout(
+      () => abortController.abort(),
+      SYNC_TIMEOUT_MS,
+    );
 
     try {
       // 1️⃣ Try GET /user/profile for existing users
       const profileRes = await fetch(`${API_URL}/user/profile`, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         signal: abortController.signal,
       });
@@ -132,14 +137,14 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
 
       if (profileRes.ok) {
         const result: UserSyncResponse = await profileRes.json();
-        logger.sync.info('Profile retrieved', { success: result.success });
+        logger.sync.info("Profile retrieved", { success: result.success });
         return result.success ? (result.data ?? null) : null;
       }
 
       // If not found, but not another error
       if (profileRes.status !== 404) {
         const errorText = await profileRes.text();
-        logger.sync.error('Profile request failed', undefined, {
+        logger.sync.error("Profile request failed", undefined, {
           status: profileRes.status,
           errorText,
         });
@@ -148,20 +153,23 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
 
       // 2️⃣ POST /user/sync for new users
       const syncAbortController = new AbortController();
-      const syncTimeoutId = setTimeout(() => syncAbortController.abort(), SYNC_TIMEOUT_MS);
+      const syncTimeoutId = setTimeout(
+        () => syncAbortController.abort(),
+        SYNC_TIMEOUT_MS,
+      );
 
       const syncRes = await fetch(`${API_URL}/user/sync`, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         signal: syncAbortController.signal,
       });
       clearTimeout(syncTimeoutId);
       if (!syncRes.ok) {
         const errorText = await syncRes.text();
-        logger.sync.error('Sync request failed', undefined, {
+        logger.sync.error("Sync request failed", undefined, {
           status: syncRes.status,
           errorText,
         });
@@ -172,24 +180,24 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
       return syncResult.success ? (syncResult.data ?? null) : null;
     } catch (fetchErr) {
       clearTimeout(timeoutId);
-      
+
       // Handle timeout specifically
-      if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
-        logger.sync.error('User sync request timed out', undefined, {
+      if (fetchErr instanceof Error && fetchErr.name === "AbortError") {
+        logger.sync.error("User sync request timed out", undefined, {
           timeout: SYNC_TIMEOUT_MS,
           apiUrl: API_URL,
         });
         return null;
       }
-      
+
       // Handle other fetch errors
-      logger.sync.error('Network error during user sync', fetchErr, {
+      logger.sync.error("Network error during user sync", fetchErr, {
         apiUrl: API_URL,
       });
       return null;
     }
   } catch (err) {
-    logger.sync.error('Error during user sync', err);
+    logger.sync.error("Error during user sync", err);
     return null;
   }
 }

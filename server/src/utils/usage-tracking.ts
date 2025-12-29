@@ -1,5 +1,5 @@
-import { MongoUser, IMongoUser } from '../models/mongo-user';
-import { logger } from './logger';
+import { MongoUser, IMongoUser } from "../models/mongo-user";
+import { logger } from "./logger";
 
 export interface UsageTrackingOptions {
   suppressErrors?: boolean;
@@ -14,14 +14,20 @@ export async function incrementUserUsage(
   userId: string,
   options: UsageTrackingOptions = {},
 ): Promise<boolean> {
-  const { suppressErrors = true, logSuccess = false, logErrors = true } = options;
+  const {
+    suppressErrors = true,
+    logSuccess = false,
+    logErrors = true,
+  } = options;
 
   try {
     const success = await MongoUser.incrementUsageById(userId);
 
     if (!success) {
       if (logErrors) {
-        logger.usage.warn(`User not found or update failed for usage tracking: ${userId}`);
+        logger.usage.warn(
+          `User not found or update failed for usage tracking: ${userId}`,
+        );
       }
       return false;
     }
@@ -36,7 +42,7 @@ export async function incrementUserUsage(
     return true;
   } catch (error) {
     if (logErrors) {
-      logger.usage.error('Failed to track usage', error);
+      logger.usage.error("Failed to track usage", error);
     }
 
     if (!suppressErrors) {
@@ -54,7 +60,11 @@ export async function incrementUserUsageByAuth0Id(
   auth0Id: string,
   options: UsageTrackingOptions = {},
 ): Promise<boolean> {
-  const { suppressErrors = true, logSuccess = false, logErrors = true } = options;
+  const {
+    suppressErrors = true,
+    logSuccess = false,
+    logErrors = true,
+  } = options;
 
   try {
     const mongoUser = await MongoUser.findByAuth0Id(auth0Id);
@@ -76,7 +86,7 @@ export async function incrementUserUsageByAuth0Id(
     return true;
   } catch (error) {
     if (logErrors) {
-      logger.usage.error('Failed to track usage', error);
+      logger.usage.error("Failed to track usage", error);
     }
 
     if (!suppressErrors) {
@@ -107,7 +117,7 @@ export async function checkUserUsageLimit(
       limit,
     };
   } catch (error) {
-    logger.usage.error('Failed to check usage limit', error);
+    logger.usage.error("Failed to check usage limit", error);
     // Fail open - allow usage if check fails
     return { allowed: true, currentUsage: 0, limit };
   }
@@ -135,7 +145,7 @@ export async function getUserUsageStats(userId: string): Promise<{
       usageResetDate: mongoUser.usage.usageResetDate,
     };
   } catch (error) {
-    logger.usage.error('Failed to get user usage stats', error);
+    logger.usage.error("Failed to get user usage stats", error);
     return null;
   }
 }
@@ -151,7 +161,7 @@ export async function getSystemUsageStats(): Promise<{
   try {
     return await MongoUser.getUsageStats();
   } catch (error) {
-    logger.usage.error('Failed to get system usage stats', error);
+    logger.usage.error("Failed to get system usage stats", error);
     return {
       totalUsers: 0,
       activeUsersThisMonth: 0,
@@ -174,9 +184,9 @@ export const USAGE_LIMITS = {
  */
 export function getUserUsageLimit(user: IMongoUser): number {
   switch (user.membership) {
-    case 'admin':
+    case "admin":
       return USAGE_LIMITS.admin;
-    case 'premium':
+    case "premium":
       return USAGE_LIMITS.premium;
     default:
       return USAGE_LIMITS.free;
@@ -190,19 +200,25 @@ export async function bulkIncrementUsage(
   userIds: string[],
   options: UsageTrackingOptions = {},
 ): Promise<{ success: boolean; updated: number; total: number }> {
-  const { suppressErrors = true, logSuccess = false, logErrors = true } = options;
+  const {
+    suppressErrors = true,
+    logSuccess = false,
+    logErrors = true,
+  } = options;
 
   try {
     const updated = await MongoUser.bulkIncrementUsage(userIds);
 
     if (logSuccess) {
-      logger.usage.info(`Bulk usage tracked: ${updated}/${userIds.length} users updated`);
+      logger.usage.info(
+        `Bulk usage tracked: ${updated}/${userIds.length} users updated`,
+      );
     }
 
     return { success: true, updated, total: userIds.length };
   } catch (error) {
     if (logErrors) {
-      logger.usage.error('Failed bulk usage tracking', error);
+      logger.usage.error("Failed bulk usage tracking", error);
     }
 
     if (!suppressErrors) {
@@ -235,12 +251,17 @@ export async function incrementUserUsageWithRetry(
 
       // Wait with exponential backoff before retry
       if (attempt < maxRetries) {
-        await new Promise((resolve) => setTimeout(resolve, Math.pow(2, attempt) * 100));
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.pow(2, attempt) * 100),
+        );
       }
     } catch (error) {
       if (attempt === maxRetries) {
         if (logErrors) {
-          logger.usage.error(`Failed to track usage after ${maxRetries} attempts`, error);
+          logger.usage.error(
+            `Failed to track usage after ${maxRetries} attempts`,
+            error,
+          );
         }
 
         if (!suppressErrors) {
@@ -260,14 +281,20 @@ export async function incrementUserFailedAttempt(
   userId: string,
   options: UsageTrackingOptions = {},
 ): Promise<boolean> {
-  const { suppressErrors = true, logSuccess = false, logErrors = true } = options;
+  const {
+    suppressErrors = true,
+    logSuccess = false,
+    logErrors = true,
+  } = options;
 
   try {
     const success = await MongoUser.incrementFailedAttemptById(userId);
 
     if (!success) {
       if (logErrors) {
-        logger.usage.warn(`User not found or update failed for failed attempt tracking: ${userId}`);
+        logger.usage.warn(
+          `User not found or update failed for failed attempt tracking: ${userId}`,
+        );
       }
       return false;
     }
@@ -279,7 +306,7 @@ export async function incrementUserFailedAttempt(
     return true;
   } catch (error) {
     if (logErrors) {
-      logger.usage.error('Failed to track failed attempt', error);
+      logger.usage.error("Failed to track failed attempt", error);
     }
 
     if (!suppressErrors) {

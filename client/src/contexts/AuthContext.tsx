@@ -5,15 +5,15 @@
  * requirements that separate contexts from components.
  */
 
-import { createContext } from 'react';
-import type { User } from '@auth0/auth0-react';
-import type { UserProfile } from '../utils/userSync';
+import { createContext } from "react";
+import type { User } from "@auth0/auth0-react";
+import type { UserProfile } from "../utils/userSync";
 
 interface CustomClaims {
-  'https://pagepersona.com/is_new_user'?: boolean;
-  'https://pagepersona.com/first_login'?: boolean;
-  'https://pagepersona.com/profile_created_at'?: string;
-  'https://pagepersona.com/profile_sync_error'?: boolean;
+  "https://pagepersona.com/is_new_user"?: boolean;
+  "https://pagepersona.com/first_login"?: boolean;
+  "https://pagepersona.com/profile_created_at"?: string;
+  "https://pagepersona.com/profile_sync_error"?: boolean;
 }
 
 export interface AuthContextType {
@@ -34,6 +34,8 @@ export interface AuthContextType {
   getCustomClaims: () => Promise<CustomClaims | null>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 export type { CustomClaims };

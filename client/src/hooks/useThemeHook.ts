@@ -5,9 +5,9 @@
  * where hooks and components shouldn't be in the same file.
  */
 
-import { useContext } from 'react';
-import { ThemeContext } from '../contexts/ThemeContext';
-import type { ThemeContextType } from '../contexts/ThemeContext';
+import { useContext } from "react";
+import { ThemeContext } from "../contexts/ThemeContext";
+import type { ThemeContextType } from "../contexts/ThemeContext";
 
 /**
  * Theme context hook with validation
@@ -21,7 +21,7 @@ import type { ThemeContextType } from '../contexts/ThemeContext';
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 };

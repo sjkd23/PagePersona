@@ -1,5 +1,5 @@
-import AuthenticatedCTA from './AuthenticatedCTA';
-import UnauthenticatedCTA from './UnauthenticatedCTA';
+import AuthenticatedCTA from "./AuthenticatedCTA";
+import UnauthenticatedCTA from "./UnauthenticatedCTA";
 
 interface CTASectionProps {
   isAuthenticated?: boolean;
@@ -17,9 +17,15 @@ export default function CTASection({
   return (
     <div className="landing-cta">
       {isAuthenticated ? (
-        <AuthenticatedCTA userName={userName} onStartTransforming={onShowLogin} />
+        <AuthenticatedCTA
+          userName={userName}
+          onStartTransforming={onShowLogin}
+        />
       ) : (
-        <UnauthenticatedCTA onShowSignup={onShowSignup} onShowLogin={onShowLogin} />
+        <UnauthenticatedCTA
+          onShowSignup={onShowSignup}
+          onShowLogin={onShowLogin}
+        />
       )}
     </div>
   );

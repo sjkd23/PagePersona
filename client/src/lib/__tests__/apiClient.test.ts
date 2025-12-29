@@ -1,35 +1,35 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import ApiService, { setTokenGetter } from '../apiClient';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import ApiService, { setTokenGetter } from "../apiClient";
 
 // Mock fetch
 global.fetch = vi.fn();
 
-describe('ApiService', () => {
+describe("ApiService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Set up default token getter
-    setTokenGetter(() => Promise.resolve('test-token'));
+    setTokenGetter(() => Promise.resolve("test-token"));
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  describe('transformWebpage', () => {
-    it('should successfully transform a webpage', async () => {
+  describe("transformWebpage", () => {
+    it("should successfully transform a webpage", async () => {
       // Arrange
       const mockResponse = {
         success: true,
         originalContent: {
-          title: 'Test Article',
-          content: 'Original content',
-          url: 'https://example.com/article',
+          title: "Test Article",
+          content: "Original content",
+          url: "https://example.com/article",
         },
-        transformedContent: 'Transformed content in professional style.',
+        transformedContent: "Transformed content in professional style.",
         persona: {
-          id: 'professional',
-          name: 'Professional',
-          description: 'Professional writing style',
+          id: "professional",
+          name: "Professional",
+          description: "Professional writing style",
         },
       };
 
@@ -40,8 +40,8 @@ describe('ApiService', () => {
       } as Response);
 
       const request = {
-        url: 'https://example.com/article',
-        persona: 'professional',
+        url: "https://example.com/article",
+        persona: "professional",
       };
 
       // Act
@@ -50,29 +50,29 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/transform'),
+        expect.stringContaining("/transform"),
         expect.objectContaining({
-          method: 'POST',
+          method: "POST",
           headers: expect.objectContaining({
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer test-token',
+            "Content-Type": "application/json",
+            Authorization: "Bearer test-token",
           }),
           body: JSON.stringify(request),
         }),
       );
     });
 
-    it('should handle API errors', async () => {
+    it("should handle API errors", async () => {
       // Arrange
       vi.mocked(fetch).mockResolvedValue({
         ok: false,
         status: 500,
-        json: () => Promise.resolve({ error: 'Internal server error' }),
+        json: () => Promise.resolve({ error: "Internal server error" }),
       } as Response);
 
       const request = {
-        url: 'https://example.com/article',
-        persona: 'professional',
+        url: "https://example.com/article",
+        persona: "professional",
       };
 
       // Act
@@ -80,16 +80,16 @@ describe('ApiService', () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Internal server error');
+      expect(result.error).toBe("Internal server error");
     });
 
-    it('should handle network errors', async () => {
+    it("should handle network errors", async () => {
       // Arrange
-      vi.mocked(fetch).mockRejectedValue(new Error('Network error'));
+      vi.mocked(fetch).mockRejectedValue(new Error("Network error"));
 
       const request = {
-        url: 'https://example.com/article',
-        persona: 'professional',
+        url: "https://example.com/article",
+        persona: "professional",
       };
 
       // Act
@@ -97,26 +97,26 @@ describe('ApiService', () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Network error');
-      expect(result.errorCode).toBe('NETWORK_ERROR');
+      expect(result.error).toBe("Network error");
+      expect(result.errorCode).toBe("NETWORK_ERROR");
     });
   });
 
-  describe('transformText', () => {
-    it('should successfully transform text content', async () => {
+  describe("transformText", () => {
+    it("should successfully transform text content", async () => {
       // Arrange
       const mockResponse = {
         success: true,
         originalContent: {
-          title: '',
-          content: 'Original text content',
-          url: '',
+          title: "",
+          content: "Original text content",
+          url: "",
         },
-        transformedContent: 'Transformed text in casual style.',
+        transformedContent: "Transformed text in casual style.",
         persona: {
-          id: 'casual',
-          name: 'Casual',
-          description: 'Casual writing style',
+          id: "casual",
+          name: "Casual",
+          description: "Casual writing style",
         },
       };
 
@@ -127,8 +127,8 @@ describe('ApiService', () => {
       } as Response);
 
       const request = {
-        text: 'Original text content',
-        persona: 'casual',
+        text: "Original text content",
+        persona: "casual",
       };
 
       // Act
@@ -137,31 +137,31 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/transform/text'),
+        expect.stringContaining("/transform/text"),
         expect.objectContaining({
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify(request),
         }),
       );
     });
   });
 
-  describe('getPersonas', () => {
-    it('should fetch available personas', async () => {
+  describe("getPersonas", () => {
+    it("should fetch available personas", async () => {
       // Arrange
       const mockResponse = {
         success: true,
         data: {
           personas: [
             {
-              id: 'professional',
-              name: 'Professional',
-              description: 'Professional writing style',
+              id: "professional",
+              name: "Professional",
+              description: "Professional writing style",
             },
             {
-              id: 'casual',
-              name: 'Casual',
-              description: 'Casual writing style',
+              id: "casual",
+              name: "Casual",
+              description: "Casual writing style",
             },
           ],
         },
@@ -179,27 +179,27 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/transform/personas',
+        "http://localhost:5000/api/transform/personas",
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: 'Bearer test-token',
+            Authorization: "Bearer test-token",
           }),
         }),
       );
     });
   });
 
-  describe('getUserProfile', () => {
-    it('should fetch user profile', async () => {
+  describe("getUserProfile", () => {
+    it("should fetch user profile", async () => {
       // Arrange
       const mockResponse = {
         success: true,
         data: {
-          id: 'user123',
-          email: 'test@example.com',
-          username: 'testuser',
-          firstName: 'Test',
-          lastName: 'User',
+          id: "user123",
+          email: "test@example.com",
+          username: "testuser",
+          firstName: "Test",
+          lastName: "User",
         },
       };
 
@@ -215,16 +215,16 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/user/profile',
+        "http://localhost:5000/api/user/profile",
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: 'Bearer test-token',
+            Authorization: "Bearer test-token",
           }),
         }),
       );
     });
 
-    it('should handle unauthorized access', async () => {
+    it("should handle unauthorized access", async () => {
       // Arrange
       vi.mocked(fetch).mockResolvedValue({
         ok: false,
@@ -232,8 +232,8 @@ describe('ApiService', () => {
         json: () =>
           Promise.resolve({
             success: false,
-            error: 'Please log in to access your profile',
-            errorCode: 'UNAUTHORIZED',
+            error: "Please log in to access your profile",
+            errorCode: "UNAUTHORIZED",
           }),
       } as Response);
 
@@ -242,26 +242,26 @@ describe('ApiService', () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Please log in to access your profile');
-      expect(result.errorCode).toBe('UNAUTHORIZED');
+      expect(result.error).toBe("Please log in to access your profile");
+      expect(result.errorCode).toBe("UNAUTHORIZED");
     });
   });
 
-  describe('updateUserProfile', () => {
-    it('should update user profile', async () => {
+  describe("updateUserProfile", () => {
+    it("should update user profile", async () => {
       // Arrange
       const updates = {
-        firstName: 'Updated',
-        lastName: 'Name',
+        firstName: "Updated",
+        lastName: "Name",
       };
 
       const mockResponse = {
         success: true,
         data: {
-          id: 'user123',
-          email: 'test@example.com',
-          firstName: 'Updated',
-          lastName: 'Name',
+          id: "user123",
+          email: "test@example.com",
+          firstName: "Updated",
+          lastName: "Name",
         },
       };
 
@@ -277,25 +277,25 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/user/profile'),
+        expect.stringContaining("/user/profile"),
         expect.objectContaining({
-          method: 'PUT',
+          method: "PUT",
           body: JSON.stringify(updates),
         }),
       );
     });
   });
 
-  describe('getUserUsageStats', () => {
-    it('should fetch user usage statistics', async () => {
+  describe("getUserUsageStats", () => {
+    it("should fetch user usage statistics", async () => {
       // Arrange
       const mockResponse = {
         success: true,
         data: {
           totalTransformations: 25,
           monthlyUsage: 10,
-          lastTransformation: '2024-01-01T00:00:00.000Z',
-          usageResetDate: '2024-01-01T00:00:00.000Z',
+          lastTransformation: "2024-01-01T00:00:00.000Z",
+          usageResetDate: "2024-01-01T00:00:00.000Z",
         },
       };
 
@@ -311,23 +311,23 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/user/usage',
+        "http://localhost:5000/api/user/usage",
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: 'Bearer test-token',
+            Authorization: "Bearer test-token",
           }),
         }),
       );
     });
   });
 
-  describe('healthCheck', () => {
-    it('should perform health check', async () => {
+  describe("healthCheck", () => {
+    it("should perform health check", async () => {
       // Arrange
       const mockResponse = {
         success: true,
-        status: 'healthy',
-        timestamp: '2024-01-01T00:00:00.000Z',
+        status: "healthy",
+        timestamp: "2024-01-01T00:00:00.000Z",
       };
 
       vi.mocked(fetch).mockResolvedValue({
@@ -342,20 +342,20 @@ describe('ApiService', () => {
       // Assert
       expect(result).toEqual(mockResponse);
       expect(fetch).toHaveBeenCalledWith(
-        'http://localhost:5000/api/health',
+        "http://localhost:5000/api/health",
         expect.objectContaining({
           headers: expect.objectContaining({
-            Authorization: 'Bearer test-token',
+            Authorization: "Bearer test-token",
           }),
         }),
       );
     });
   });
 
-  describe('Authentication Token Handling', () => {
-    it('should include token in authenticated requests', async () => {
+  describe("Authentication Token Handling", () => {
+    it("should include token in authenticated requests", async () => {
       // Arrange
-      const testToken = 'test-auth-token';
+      const testToken = "test-auth-token";
       setTokenGetter(() => Promise.resolve(testToken));
 
       vi.mocked(fetch).mockResolvedValue({
@@ -378,7 +378,7 @@ describe('ApiService', () => {
       );
     });
 
-    it('should handle missing token gracefully', async () => {
+    it("should handle missing token gracefully", async () => {
       // Arrange
       setTokenGetter(() => Promise.resolve(undefined));
 
@@ -395,9 +395,9 @@ describe('ApiService', () => {
       expect(fetch).toHaveBeenCalled();
     });
 
-    it('should handle token getter errors', async () => {
+    it("should handle token getter errors", async () => {
       // Arrange
-      setTokenGetter(() => Promise.reject(new Error('Token error')));
+      setTokenGetter(() => Promise.reject(new Error("Token error")));
 
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
@@ -411,13 +411,13 @@ describe('ApiService', () => {
     });
   });
 
-  describe('Error Handling', () => {
-    it('should handle JSON parsing errors', async () => {
+  describe("Error Handling", () => {
+    it("should handle JSON parsing errors", async () => {
       // Arrange
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
         status: 200,
-        json: () => Promise.reject(new Error('Invalid JSON')),
+        json: () => Promise.reject(new Error("Invalid JSON")),
       } as Response);
 
       // Act
@@ -425,11 +425,11 @@ describe('ApiService', () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Invalid JSON');
-      expect(result.errorCode).toBe('NETWORK_ERROR');
+      expect(result.error).toBe("Invalid JSON");
+      expect(result.errorCode).toBe("NETWORK_ERROR");
     });
 
-    it('should handle malformed responses', async () => {
+    it("should handle malformed responses", async () => {
       // Arrange
       vi.mocked(fetch).mockResolvedValue({
         ok: false,
@@ -442,14 +442,17 @@ describe('ApiService', () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Cannot read properties of null');
-      expect(result.errorCode).toBe('NETWORK_ERROR');
+      expect(result.error).toContain("Cannot read properties of null");
+      expect(result.errorCode).toBe("NETWORK_ERROR");
     });
 
-    it('should handle timeout errors', async () => {
+    it("should handle timeout errors", async () => {
       // Arrange
       vi.mocked(fetch).mockImplementation(
-        () => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100)),
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 100),
+          ),
       );
 
       // Act
@@ -457,17 +460,17 @@ describe('ApiService', () => {
 
       // Assert
       expect(result.success).toBe(false);
-      expect(result.error).toBe('Timeout');
-      expect(result.errorCode).toBe('NETWORK_ERROR');
+      expect(result.error).toBe("Timeout");
+      expect(result.errorCode).toBe("NETWORK_ERROR");
     });
   });
 
-  describe('Request Validation', () => {
-    it('should validate required fields for transformWebpage', async () => {
+  describe("Request Validation", () => {
+    it("should validate required fields for transformWebpage", async () => {
       // This test assumes client-side validation exists
       const invalidRequest = {
-        url: '', // Empty URL
-        persona: 'professional',
+        url: "", // Empty URL
+        persona: "professional",
       };
 
       // Act & Assert
@@ -481,7 +484,7 @@ describe('ApiService', () => {
       }
     });
 
-    it('should handle special characters in URLs', async () => {
+    it("should handle special characters in URLs", async () => {
       // Arrange
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
@@ -490,15 +493,15 @@ describe('ApiService', () => {
       } as Response);
 
       const request = {
-        url: 'https://example.com/article?query=test&param=特殊文字',
-        persona: 'professional',
+        url: "https://example.com/article?query=test&param=特殊文字",
+        persona: "professional",
       };
 
       // Act & Assert
       await expect(ApiService.transformWebpage(request)).resolves.toBeDefined();
     });
 
-    it('should handle very long text content', async () => {
+    it("should handle very long text content", async () => {
       // Arrange
       vi.mocked(fetch).mockResolvedValue({
         ok: true,
@@ -506,10 +509,10 @@ describe('ApiService', () => {
         json: () => Promise.resolve({ success: true }),
       } as Response);
 
-      const longText = 'Lorem ipsum '.repeat(10000); // Very long text
+      const longText = "Lorem ipsum ".repeat(10000); // Very long text
       const request = {
         text: longText,
-        persona: 'professional',
+        persona: "professional",
       };
 
       // Act & Assert

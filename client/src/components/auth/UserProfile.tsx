@@ -9,22 +9,26 @@
  * @module UserProfile
  */
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuthContext';
-import { useNameSync } from '../../hooks/useNameSync';
-import { useProfileTheme } from '../../hooks/useProfileTheme';
-import ApiService, { setTokenGetter } from '../../lib/apiClient';
-import type { UserProfile as UserProfileType } from '../../lib/apiClient';
-import { formatProfileField, hasValidName, formatFullName } from '../../utils/profileUtils';
-import ErrorDisplay from '../Transformer/ErrorDisplay';
-import { ErrorMapper, type UserFriendlyError } from '@pagepersonai/shared';
-import type { ProfileEditForm } from './types';
+import { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/useAuthContext";
+import { useNameSync } from "../../hooks/useNameSync";
+import { useProfileTheme } from "../../hooks/useProfileTheme";
+import ApiService, { setTokenGetter } from "../../lib/apiClient";
+import type { UserProfile as UserProfileType } from "../../lib/apiClient";
+import {
+  formatProfileField,
+  hasValidName,
+  formatFullName,
+} from "../../utils/profileUtils";
+import ErrorDisplay from "../Transformer/ErrorDisplay";
+import { ErrorMapper, type UserFriendlyError } from "@pagepersonai/shared";
+import type { ProfileEditForm } from "./types";
 
 // Import utilities for the legacy component
-import { getMembershipInfo, getUsageLimit } from './utils/membershipUtils';
+import { getMembershipInfo, getUsageLimit } from "./utils/membershipUtils";
 
 // Import styles
-import './UserProfile.css';
+import "./UserProfile.css";
 
 /**
  * Main UserProfile component that provides comprehensive user profile management
@@ -42,14 +46,16 @@ export default function UserProfile() {
   const [profile, setProfile] = useState<UserProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [enhancedError, setEnhancedError] = useState<UserFriendlyError | null>(null);
+  const [enhancedError, setEnhancedError] = useState<UserFriendlyError | null>(
+    null,
+  );
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState<ProfileEditForm>({
-    firstName: '',
-    lastName: '',
+    firstName: "",
+    lastName: "",
     preferences: {
-      theme: 'light',
-      language: 'en',
+      theme: "light",
+      language: "en",
       notifications: true,
     },
   });
@@ -74,8 +80,8 @@ export default function UserProfile() {
           setProfile(response.data);
 
           setEditForm({
-            firstName: response.data.firstName || '',
-            lastName: response.data.lastName || '',
+            firstName: response.data.firstName || "",
+            lastName: response.data.lastName || "",
             preferences: response.data.preferences,
           });
 
@@ -92,8 +98,8 @@ export default function UserProfile() {
               if (updatedResponse.data) {
                 setProfile(updatedResponse.data);
                 setEditForm({
-                  firstName: updatedResponse.data.firstName || '',
-                  lastName: updatedResponse.data.lastName || '',
+                  firstName: updatedResponse.data.firstName || "",
+                  lastName: updatedResponse.data.lastName || "",
                   preferences: updatedResponse.data.preferences,
                 });
                 // Re-sync theme after profile update
@@ -111,8 +117,8 @@ export default function UserProfile() {
                   if (updateResult.success && updateResult.data) {
                     setProfile(updateResult.data);
                     setEditForm({
-                      firstName: updateResult.data.firstName || '',
-                      lastName: updateResult.data.lastName || '',
+                      firstName: updateResult.data.firstName || "",
+                      lastName: updateResult.data.lastName || "",
                       preferences: updateResult.data.preferences,
                     });
                   }
@@ -126,7 +132,7 @@ export default function UserProfile() {
       } catch (err) {
         const mappedError = ErrorMapper.mapError(err);
         setEnhancedError(mappedError);
-        setError('Failed to load profile data');
+        setError("Failed to load profile data");
       } finally {
         setLoading(false);
       }
@@ -139,7 +145,7 @@ export default function UserProfile() {
   useEffect(() => {
     const handleHeaderThemeToggle = (event: globalThis.Event) => {
       const customEvent = event as globalThis.CustomEvent<{
-        theme: 'light' | 'dark';
+        theme: "light" | "dark";
       }>;
       const newTheme = customEvent.detail.theme;
 
@@ -155,10 +161,10 @@ export default function UserProfile() {
       }
     };
 
-    window.addEventListener('headerThemeToggle', handleHeaderThemeToggle);
+    window.addEventListener("headerThemeToggle", handleHeaderThemeToggle);
 
     return () => {
-      window.removeEventListener('headerThemeToggle', handleHeaderThemeToggle);
+      window.removeEventListener("headerThemeToggle", handleHeaderThemeToggle);
     };
   }, [editing]);
 
@@ -182,7 +188,7 @@ export default function UserProfile() {
     } catch (err) {
       const mappedError = ErrorMapper.mapError(err);
       setEnhancedError(mappedError);
-      setError('Failed to update profile');
+      setError("Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -246,33 +252,36 @@ export default function UserProfile() {
               {user.picture ? (
                 <img
                   src={user.picture}
-                  alt={user.name || 'User'}
+                  alt={user.name || "User"}
                   className="profile-avatar"
                   loading="lazy"
                 />
               ) : (
                 <div className="profile-avatar-placeholder">
-                  {(user.name || user.nickname || 'U')[0].toUpperCase()}
+                  {(user.name || user.nickname || "U")[0].toUpperCase()}
                 </div>
               )}
               <div className="profile-details">
                 <h1>
                   {hasValidName(profile?.firstName, profile?.lastName)
                     ? formatFullName(profile?.firstName, profile?.lastName)
-                    : user.name || user.nickname || 'User'}
+                    : user.name || user.nickname || "User"}
                 </h1>
                 <p className="email">{profile?.email || user.email}</p>
                 <p className="member-since">
-                  Member since{' '}
+                  Member since{" "}
                   {profile?.createdAt
                     ? new Date(profile.createdAt).toLocaleDateString()
-                    : 'Unknown'}
+                    : "Unknown"}
                 </p>
               </div>
             </div>
             <div className="profile-actions">
               {!editing ? (
-                <button onClick={() => setEditing(true)} className="btn btn-secondary">
+                <button
+                  onClick={() => setEditing(true)}
+                  className="btn btn-secondary"
+                >
                   Edit Profile
                 </button>
               ) : (
@@ -284,7 +293,10 @@ export default function UserProfile() {
                   >
                     Save Changes
                   </button>
-                  <button onClick={() => setEditing(false)} className="btn btn-secondary">
+                  <button
+                    onClick={() => setEditing(false)}
+                    className="btn btn-secondary"
+                  >
                     Cancel
                   </button>
                 </>
@@ -299,17 +311,23 @@ export default function UserProfile() {
             <div className="membership-info">
               <div className="membership-tier">
                 {(() => {
-                  const membershipInfo = getMembershipInfo(profile?.membership || 'free');
+                  const membershipInfo = getMembershipInfo(
+                    profile?.membership || "free",
+                  );
                   return (
                     <>
-                      <span className="membership-icon">{membershipInfo.icon}</span>
-                      <span className="membership-name">{membershipInfo.label} Member</span>
+                      <span className="membership-icon">
+                        {membershipInfo.icon}
+                      </span>
+                      <span className="membership-name">
+                        {membershipInfo.label} Member
+                      </span>
                     </>
                   );
                 })()}
               </div>
               <div className="membership-benefits">
-                {getMembershipInfo(profile?.membership || 'free').benefits}
+                {getMembershipInfo(profile?.membership || "free").benefits}
               </div>
             </div>
             <div className="usage-meter">
@@ -318,14 +336,15 @@ export default function UserProfile() {
                   className="usage-meter-fill"
                   style={
                     {
-                      '--usage-width': `${Math.min(100, ((profile?.usage.monthlyUsage || 0) / getUsageLimit(profile?.membership || 'free')) * 100)}%`,
+                      "--usage-width": `${Math.min(100, ((profile?.usage.monthlyUsage || 0) / getUsageLimit(profile?.membership || "free")) * 100)}%`,
                     } as React.CSSProperties
                   }
                 ></div>
               </div>
               <div className="usage-meter-text">
-                {profile?.usage.monthlyUsage || 0} / {getUsageLimit(profile?.membership || 'free')}{' '}
-                transformations used
+                {profile?.usage.monthlyUsage || 0} /{" "}
+                {getUsageLimit(profile?.membership || "free")} transformations
+                used
               </div>
             </div>
           </div>
@@ -355,7 +374,9 @@ export default function UserProfile() {
                       placeholder="Enter first name"
                     />
                   ) : (
-                    <div className="form-value">{formatProfileField(profile?.firstName)}</div>
+                    <div className="form-value">
+                      {formatProfileField(profile?.firstName)}
+                    </div>
                   )}
                 </div>
 
@@ -375,18 +396,24 @@ export default function UserProfile() {
                       placeholder="Enter last name"
                     />
                   ) : (
-                    <div className="form-value">{formatProfileField(profile?.lastName)}</div>
+                    <div className="form-value">
+                      {formatProfileField(profile?.lastName)}
+                    </div>
                   )}
                 </div>
 
                 <div className="form-field">
                   <label className="form-label">Email Address</label>
-                  <div className="form-value">{profile?.email || 'Not provided'}</div>
+                  <div className="form-value">
+                    {profile?.email || "Not provided"}
+                  </div>
                 </div>
 
                 <div className="form-field">
                   <label className="form-label">Username</label>
-                  <div className="form-value">{profile?.username || 'Not set'}</div>
+                  <div className="form-value">
+                    {profile?.username || "Not set"}
+                  </div>
                 </div>
 
                 <div className="form-field">
@@ -394,10 +421,14 @@ export default function UserProfile() {
                   <div className="form-value">
                     <span
                       className={`status-badge ${
-                        profile?.isEmailVerified ? 'status-verified' : 'status-warning'
+                        profile?.isEmailVerified
+                          ? "status-verified"
+                          : "status-warning"
                       }`}
                     >
-                      {profile?.isEmailVerified ? '✓ Verified Account' : '⚠ Pending Verification'}
+                      {profile?.isEmailVerified
+                        ? "✓ Verified Account"
+                        : "⚠ Pending Verification"}
                     </span>
                   </div>
                 </div>
@@ -412,7 +443,7 @@ export default function UserProfile() {
                     <select
                       value={editForm.preferences.theme}
                       onChange={(e) => {
-                        const newTheme = e.target.value as 'light' | 'dark';
+                        const newTheme = e.target.value as "light" | "dark";
                         setEditForm((prev) => ({
                           ...prev,
                           preferences: {
@@ -431,7 +462,7 @@ export default function UserProfile() {
                     </select>
                   ) : (
                     <div className="form-value">
-                      {currentTheme === 'dark' ? 'Dark Theme' : 'Light Theme'}
+                      {currentTheme === "dark" ? "Dark Theme" : "Light Theme"}
                     </div>
                   )}
                 </div>
@@ -459,15 +490,15 @@ export default function UserProfile() {
                     </select>
                   ) : (
                     <div className="form-value">
-                      {profile?.preferences.language === 'en'
-                        ? 'English'
-                        : profile?.preferences.language === 'es'
-                          ? 'Spanish'
-                          : profile?.preferences.language === 'fr'
-                            ? 'French'
-                            : profile?.preferences.language === 'de'
-                              ? 'German'
-                              : 'English'}
+                      {profile?.preferences.language === "en"
+                        ? "English"
+                        : profile?.preferences.language === "es"
+                          ? "Spanish"
+                          : profile?.preferences.language === "fr"
+                            ? "French"
+                            : profile?.preferences.language === "de"
+                              ? "German"
+                              : "English"}
                     </div>
                   )}
                 </div>
@@ -495,7 +526,9 @@ export default function UserProfile() {
                     </label>
                   ) : (
                     <div className="form-value">
-                      {profile?.preferences.notifications ? 'Enabled' : 'Disabled'}
+                      {profile?.preferences.notifications
+                        ? "Enabled"
+                        : "Disabled"}
                     </div>
                   )}
                 </div>
@@ -511,14 +544,16 @@ export default function UserProfile() {
                   <div className="stat-number">
                     {Math.max(
                       0,
-                      getUsageLimit(profile?.membership || 'free') -
+                      getUsageLimit(profile?.membership || "free") -
                         (profile?.usage.monthlyUsage || 0),
                     )}
                   </div>
-                  <div className="stat-label">Transformations Remaining This Month</div>
+                  <div className="stat-label">
+                    Transformations Remaining This Month
+                  </div>
                   <div className="stat-sublabel">
-                    {profile?.usage.monthlyUsage || 0} /{' '}
-                    {getUsageLimit(profile?.membership || 'free')} used
+                    {profile?.usage.monthlyUsage || 0} /{" "}
+                    {getUsageLimit(profile?.membership || "free")} used
                   </div>
                 </div>
               </div>

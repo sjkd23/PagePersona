@@ -1,16 +1,18 @@
-import React from 'react';
-import { useProfileTheme } from '../../hooks/useProfileTheme';
+import React from "react";
+import { useProfileTheme } from "../../hooks/useProfileTheme";
 
 interface ThemeToggleProps {
   isOnProfilePage?: boolean;
 }
 
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ isOnProfilePage = false }) => {
+const ThemeToggle: React.FC<ThemeToggleProps> = ({
+  isOnProfilePage = false,
+}) => {
   const { currentTheme, updateTheme, toggleThemeOnly } = useProfileTheme();
-  const isDarkMode = currentTheme === 'dark';
+  const isDarkMode = currentTheme === "dark";
 
   const handleToggle = async () => {
-    const newTheme = isDarkMode ? 'light' : 'dark';
+    const newTheme = isDarkMode ? "light" : "dark";
 
     if (isOnProfilePage) {
       // On profile page: just toggle the UI theme, don't persist immediately
@@ -19,7 +21,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ isOnProfilePage = false }) =>
 
       // Dispatch a custom event to notify the profile page about theme change
       window.dispatchEvent(
-        new window.CustomEvent('headerThemeToggle', {
+        new window.CustomEvent("headerThemeToggle", {
           detail: { theme: newTheme },
         }),
       );
@@ -34,11 +36,16 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ isOnProfilePage = false }) =>
       onClick={handleToggle}
       className="theme-toggle-btn"
       aria-label="Toggle theme"
-      title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
     >
       {isDarkMode ? (
         // Sun icon for light mode
-        <svg className="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="theme-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -48,7 +55,12 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ isOnProfilePage = false }) =>
         </svg>
       ) : (
         // Moon icon for dark mode
-        <svg className="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="theme-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

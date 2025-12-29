@@ -1,4 +1,4 @@
-import { createClient, type RedisClientType } from 'redis';
+import { createClient, type RedisClientType } from "redis";
 
 const baseRedisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL,
@@ -7,8 +7,8 @@ const baseRedisClient: RedisClientType = createClient({
 // Connect immediately and log success or failure
 baseRedisClient
   .connect()
-  .then(() => console.log('✅ Redis client connected'))
-  .catch((err) => console.error('❌ Redis connection error:', err));
+  .then(() => console.log("✅ Redis client connected"))
+  .catch((err) => console.error("❌ Redis connection error:", err));
 
 // Create a wrapper that maintains backward compatibility and proper typing
 const redisClient = {

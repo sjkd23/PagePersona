@@ -1,46 +1,46 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from "vitest";
 import {
   serializeMongoUser,
   serializeUserUsage,
   serializeUserSummary,
   createSuccessResponse,
   createErrorResponse,
-} from '../userSerializer';
-import type { IMongoUser } from '../../models/mongo-user';
+} from "../userSerializer";
+import type { IMongoUser } from "../../models/mongo-user";
 
 // Mock auth0-claims
-vi.mock('../auth0-claims', () => ({
+vi.mock("../auth0-claims", () => ({
   safeGetAuth0Claims: vi.fn(() => ({})),
-  safeGetEmail: vi.fn((user) => user?.email || 'test@example.com'),
-  safeGetDisplayName: vi.fn((user) => user?.name || 'Test User'),
+  safeGetEmail: vi.fn((user) => user?.email || "test@example.com"),
+  safeGetDisplayName: vi.fn((user) => user?.name || "Test User"),
 }));
 
 const createMockUser = (overrides: Partial<IMongoUser> = {}): IMongoUser =>
   ({
-    _id: 'user123',
-    auth0Id: 'auth0|123',
-    email: 'test@example.com',
-    username: 'testuser',
-    firstName: 'John',
-    lastName: 'Doe',
-    avatar: 'https://example.com/avatar.jpg',
+    _id: "user123",
+    auth0Id: "auth0|123",
+    email: "test@example.com",
+    username: "testuser",
+    firstName: "John",
+    lastName: "Doe",
+    avatar: "https://example.com/avatar.jpg",
     isEmailVerified: true,
-    role: 'user',
-    membership: 'free',
+    role: "user",
+    membership: "free",
     preferences: {
-      theme: 'light',
-      language: 'en',
+      theme: "light",
+      language: "en",
       notifications: true,
     },
     usage: {
       totalTransformations: 10,
       monthlyUsage: 5,
-      usageResetDate: new Date('2024-01-01'),
-      lastTransformation: new Date('2024-01-15'),
+      usageResetDate: new Date("2024-01-01"),
+      lastTransformation: new Date("2024-01-15"),
     },
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2024-01-01'),
-    lastLoginAt: new Date('2024-01-15'),
+    createdAt: new Date("2023-01-01"),
+    updatedAt: new Date("2024-01-01"),
+    lastLoginAt: new Date("2024-01-15"),
     incrementUsage: vi.fn(),
     incrementFailedAttempt: vi.fn(),
     resetMonthlyUsage: vi.fn(),
@@ -48,41 +48,41 @@ const createMockUser = (overrides: Partial<IMongoUser> = {}): IMongoUser =>
     ...overrides,
   }) as IMongoUser;
 
-describe('utils/userSerializer', () => {
-  describe('serializeMongoUser', () => {
-    it('should serialize a complete user', () => {
+describe("utils/userSerializer", () => {
+  describe("serializeMongoUser", () => {
+    it("should serialize a complete user", () => {
       const mockUser = createMockUser();
       const result = serializeMongoUser(mockUser);
 
       expect(result).toEqual({
-        id: 'user123',
-        auth0Id: 'auth0|123',
-        email: 'test@example.com',
-        username: 'testuser',
-        firstName: 'John',
-        lastName: 'Doe',
-        avatar: 'https://example.com/avatar.jpg',
+        id: "user123",
+        auth0Id: "auth0|123",
+        email: "test@example.com",
+        username: "testuser",
+        firstName: "John",
+        lastName: "Doe",
+        avatar: "https://example.com/avatar.jpg",
         isEmailVerified: true,
-        role: 'user',
-        membership: 'free',
+        role: "user",
+        membership: "free",
         preferences: {
-          theme: 'light',
-          language: 'en',
+          theme: "light",
+          language: "en",
           notifications: true,
         },
         usage: {
           totalTransformations: 10,
           monthlyUsage: 5,
-          lastTransformation: '2024-01-15T00:00:00.000Z',
-          usageResetDate: '2024-01-01T00:00:00.000Z',
+          lastTransformation: "2024-01-15T00:00:00.000Z",
+          usageResetDate: "2024-01-01T00:00:00.000Z",
         },
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z',
-        lastLoginAt: '2024-01-15T00:00:00.000Z',
+        createdAt: "2023-01-01T00:00:00.000Z",
+        updatedAt: "2024-01-01T00:00:00.000Z",
+        lastLoginAt: "2024-01-15T00:00:00.000Z",
       });
     });
 
-    it('should handle user with missing optional fields', () => {
+    it("should handle user with missing optional fields", () => {
       const mockUser = createMockUser({
         firstName: undefined,
         lastName: undefined,
@@ -91,7 +91,7 @@ describe('utils/userSerializer', () => {
         usage: {
           totalTransformations: 0,
           monthlyUsage: 0,
-          usageResetDate: new Date('2024-01-01'),
+          usageResetDate: new Date("2024-01-01"),
         },
       });
 
@@ -105,25 +105,25 @@ describe('utils/userSerializer', () => {
     });
   });
 
-  describe('serializeUserUsage', () => {
-    it('should extract only usage statistics', () => {
+  describe("serializeUserUsage", () => {
+    it("should extract only usage statistics", () => {
       const mockUser = createMockUser();
       const result = serializeUserUsage(mockUser);
 
       expect(result).toEqual({
         totalTransformations: 10,
         monthlyUsage: 5,
-        lastTransformation: '2024-01-15T00:00:00.000Z',
-        usageResetDate: '2024-01-01T00:00:00.000Z',
+        lastTransformation: "2024-01-15T00:00:00.000Z",
+        usageResetDate: "2024-01-01T00:00:00.000Z",
       });
     });
 
-    it('should handle user with no last transformation', () => {
+    it("should handle user with no last transformation", () => {
       const mockUser = createMockUser({
         usage: {
           totalTransformations: 0,
           monthlyUsage: 0,
-          usageResetDate: new Date('2024-01-01'),
+          usageResetDate: new Date("2024-01-01"),
         },
       });
 
@@ -135,106 +135,106 @@ describe('utils/userSerializer', () => {
     });
   });
 
-  describe('serializeUserSummary', () => {
-    it('should create a user summary', () => {
+  describe("serializeUserSummary", () => {
+    it("should create a user summary", () => {
       const mockUser = createMockUser();
       const result = serializeUserSummary(mockUser);
 
       expect(result).toEqual({
-        id: 'user123',
-        email: 'test@example.com',
-        username: 'testuser',
-        displayName: 'John Doe',
-        avatar: 'https://example.com/avatar.jpg',
-        role: 'user',
-        membership: 'free',
-        memberSince: '2023-01-01T00:00:00.000Z',
-        lastActive: '2024-01-15T00:00:00.000Z',
+        id: "user123",
+        email: "test@example.com",
+        username: "testuser",
+        displayName: "John Doe",
+        avatar: "https://example.com/avatar.jpg",
+        role: "user",
+        membership: "free",
+        memberSince: "2023-01-01T00:00:00.000Z",
+        lastActive: "2024-01-15T00:00:00.000Z",
         totalTransformations: 10,
         monthlyUsage: 5,
         isEmailVerified: true,
       });
     });
 
-    it('should handle user with missing name fields', () => {
+    it("should handle user with missing name fields", () => {
       const mockUser = createMockUser({
         firstName: undefined,
         lastName: undefined,
-        username: 'fallbackuser',
+        username: "fallbackuser",
       });
 
       const result = serializeUserSummary(mockUser);
 
-      expect(result.displayName).toBe('fallbackuser');
+      expect(result.displayName).toBe("fallbackuser");
     });
 
-    it('should handle user with partial name', () => {
+    it("should handle user with partial name", () => {
       const mockUser = createMockUser({
-        firstName: 'John',
+        firstName: "John",
         lastName: undefined,
-        username: 'john123',
+        username: "john123",
       });
 
       const result = serializeUserSummary(mockUser);
 
-      expect(result.displayName).toBe('john123');
+      expect(result.displayName).toBe("john123");
     });
 
-    it('should fallback to email when no username', () => {
+    it("should fallback to email when no username", () => {
       const mockUser = createMockUser({
         firstName: undefined,
         lastName: undefined,
         username: undefined,
-        email: 'test@example.com',
+        email: "test@example.com",
       });
 
       const result = serializeUserSummary(mockUser);
 
-      expect(result.displayName).toBe('test');
+      expect(result.displayName).toBe("test");
     });
   });
 
-  describe('response helpers', () => {
-    it('should create success response', () => {
-      const data = { test: 'value' };
+  describe("response helpers", () => {
+    it("should create success response", () => {
+      const data = { test: "value" };
       const result = createSuccessResponse(data);
 
       expect(result).toEqual({
         success: true,
-        data: { test: 'value' },
+        data: { test: "value" },
       });
     });
 
-    it('should create success response with message', () => {
-      const data = { test: 'value' };
-      const message = 'Operation successful';
+    it("should create success response with message", () => {
+      const data = { test: "value" };
+      const message = "Operation successful";
       const result = createSuccessResponse(data, message);
 
       expect(result).toEqual({
         success: true,
-        message: 'Operation successful',
-        data: { test: 'value' },
+        message: "Operation successful",
+        data: { test: "value" },
       });
     });
 
-    it('should create error response', () => {
-      const error = 'Something went wrong';
+    it("should create error response", () => {
+      const error = "Something went wrong";
       const result = createErrorResponse(error);
 
       expect(result).toEqual({
         success: false,
-        error: 'Something went wrong',
+        error: "Something went wrong",
       });
     });
 
-    it('should create error response with status code', () => {
-      const error = 'Validation failed';
+    it("should create error response with status code", () => {
+      const error = "Validation failed";
       const statusCode = 400;
       const result = createErrorResponse(error, statusCode);
 
       expect(result).toEqual({
         success: false,
-        error: 'Validation failed',
+        error: "Validation failed",
         statusCode: 400,
       });
     });

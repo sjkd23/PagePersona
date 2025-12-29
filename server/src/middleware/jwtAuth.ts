@@ -12,9 +12,9 @@
  * - Optimized JWKS caching and rate limiting
  */
 
-import { expressjwt } from 'express-jwt';
-import jwksRsa from 'jwks-rsa';
-import { parsedEnv } from '../utils/env-validation';
+import { expressjwt } from "express-jwt";
+import jwksRsa from "jwks-rsa";
+import { parsedEnv } from "../utils/env-validation";
 
 // ─── JWKS URI Construction ──────────────────────────────────────────────────────
 const jwksUri = `https://${parsedEnv.AUTH0_DOMAIN}/.well-known/jwks.json`;
@@ -34,8 +34,8 @@ export default expressjwt({
   }),
   audience: parsedEnv.AUTH0_AUDIENCE,
   issuer: `https://${parsedEnv.AUTH0_DOMAIN}/`,
-  algorithms: ['RS256'],
-  requestProperty: 'user',
+  algorithms: ["RS256"],
+  requestProperty: "user",
   credentialsRequired: true,
 });
 

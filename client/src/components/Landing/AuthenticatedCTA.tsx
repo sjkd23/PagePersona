@@ -3,7 +3,9 @@ interface AuthenticatedCTAProps {
   onStartTransforming: () => void;
 }
 
-export default function AuthenticatedCTA({ onStartTransforming }: AuthenticatedCTAProps) {
+export default function AuthenticatedCTA({
+  onStartTransforming,
+}: AuthenticatedCTAProps) {
   return (
     <div className="cta-authenticated">
       <div className="cta-buttons">

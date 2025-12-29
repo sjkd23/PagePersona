@@ -1,10 +1,10 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { createRateLimiter } from '../rateLimiter';
-import { logger } from '../../utils/logger';
-import { createClient } from 'redis';
+import { vi, describe, it, expect, beforeEach } from "vitest";
+import { createRateLimiter } from "../rateLimiter";
+import { logger } from "../../utils/logger";
+import { createClient } from "redis";
 
 // Mock dependencies
-vi.mock('express-rate-limit', () => ({
+vi.mock("express-rate-limit", () => ({
   default: vi.fn((options) => {
     // Return a mock function that represents the middleware
     const middleware = vi.fn();
@@ -14,7 +14,7 @@ vi.mock('express-rate-limit', () => ({
   }),
 }));
 
-vi.mock('rate-limit-redis', () => ({
+vi.mock("rate-limit-redis", () => ({
   default: vi.fn().mockImplementation((options) => ({
     ...options,
     _mockRedisStore: true,
@@ -22,7 +22,7 @@ vi.mock('rate-limit-redis', () => ({
 }));
 
 // Mock redis module
-vi.mock('redis', () => ({
+vi.mock("redis", () => ({
   createClient: vi.fn().mockImplementation(() => ({
     connect: vi.fn().mockResolvedValue(undefined),
     get: vi.fn(),
@@ -39,16 +39,16 @@ vi.mock('redis', () => ({
 
 // Mock env-validation with a writable parsedEnv
 let mockParsedEnv: { REDIS_URL?: string } = {
-  REDIS_URL: 'redis://localhost:6379',
+  REDIS_URL: "redis://localhost:6379",
 };
 
-vi.mock('../../utils/env-validation', () => ({
+vi.mock("../../utils/env-validation", () => ({
   get parsedEnv() {
     return mockParsedEnv;
   },
 }));
 
-vi.mock('../../utils/logger', () => ({
+vi.mock("../../utils/logger", () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -57,12 +57,12 @@ vi.mock('../../utils/logger', () => ({
   },
 }));
 
-describe('Rate Limiter Configuration', () => {
+describe("Rate Limiter Configuration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset mockParsedEnv to default state
     mockParsedEnv = {
-      REDIS_URL: 'redis://localhost:6379',
+      REDIS_URL: "redis://localhost:6379",
     };
     // Reset the Redis client mock
     vi.mocked(createClient).mockImplementation(
@@ -73,8 +73,8 @@ describe('Rate Limiter Configuration', () => {
     );
   });
 
-  describe('createRateLimiter', () => {
-    it('should create rate limiter with Redis store when REDIS_URL is available', () => {
+  describe("createRateLimiter", () => {
+    it("should create rate limiter with Redis store when REDIS_URL is available", () => {
       const options = {
         windowMs: 15 * 60 * 1000,
         max: 100,
@@ -83,10 +83,12 @@ describe('Rate Limiter Configuration', () => {
       const rateLimiter = createRateLimiter(options);
 
       expect(rateLimiter).toBeDefined();
-      expect(logger.info).toHaveBeenCalledWith('Using Redis store for rate limiting');
+      expect(logger.info).toHaveBeenCalledWith(
+        "Using Redis store for rate limiting",
+      );
     });
 
-    it('should create rate limiter with memory store when REDIS_URL is not available', () => {
+    it("should create rate limiter with memory store when REDIS_URL is not available", () => {
       // Mock parsedEnv to not have REDIS_URL
       mockParsedEnv.REDIS_URL = undefined;
 
@@ -99,11 +101,11 @@ describe('Rate Limiter Configuration', () => {
 
       expect(rateLimiter).toBeDefined();
       expect(logger.warn).toHaveBeenCalledWith(
-        'REDIS_URL not configured, using memory store for rate limiting',
+        "REDIS_URL not configured, using memory store for rate limiting",
       );
     });
 
-    it('should use provided windowMs and max values', () => {
+    it("should use provided windowMs and max values", () => {
       const options = {
         windowMs: 30 * 60 * 1000,
         max: 50,
@@ -115,7 +117,7 @@ describe('Rate Limiter Configuration', () => {
       expect((rateLimiter as any).max).toBe(50);
     });
 
-    it('should set correct configuration properties', () => {
+    it("should set correct configuration properties", () => {
       const options = {
         windowMs: 15 * 60 * 1000,
         max: 100,
@@ -126,18 +128,18 @@ describe('Rate Limiter Configuration', () => {
       expect((rateLimiter as any).standardHeaders).toBe(true);
       expect((rateLimiter as any).legacyHeaders).toBe(false);
       expect((rateLimiter as any).message).toEqual({
-        error: 'Too many requests, please try again later.',
+        error: "Too many requests, please try again later.",
       });
     });
 
-    it('should fallback to memory store on Redis error', async () => {
+    it("should fallback to memory store on Redis error", async () => {
       // Get the mocked RedisStore and make it throw an error temporarily
-      const { default: RedisStore } = await import('rate-limit-redis');
+      const { default: RedisStore } = await import("rate-limit-redis");
       const mockRedisStore = vi.mocked(RedisStore);
 
       // Temporarily make it throw an error
       mockRedisStore.mockImplementationOnce(() => {
-        throw new Error('Redis store initialization failed');
+        throw new Error("Redis store initialization failed");
       });
 
       const options = {
@@ -149,14 +151,14 @@ describe('Rate Limiter Configuration', () => {
 
       expect(rateLimiter).toBeDefined();
       expect(logger.error).toHaveBeenCalledWith(
-        'Failed to initialize Redis store for rate limiting, falling back to memory store:',
+        "Failed to initialize Redis store for rate limiting, falling back to memory store:",
         expect.any(Error),
       );
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle zero max requests', () => {
+  describe("Edge Cases", () => {
+    it("should handle zero max requests", () => {
       mockParsedEnv.REDIS_URL = undefined;
 
       const options = {
@@ -169,7 +171,7 @@ describe('Rate Limiter Configuration', () => {
       expect((rateLimiter as any).max).toBe(0);
     });
 
-    it('should handle short window durations', () => {
+    it("should handle short window durations", () => {
       mockParsedEnv.REDIS_URL = undefined;
 
       const options = {
@@ -182,7 +184,7 @@ describe('Rate Limiter Configuration', () => {
       expect((rateLimiter as any).windowMs).toBe(1000);
     });
 
-    it('should handle long window durations', () => {
+    it("should handle long window durations", () => {
       mockParsedEnv.REDIS_URL = undefined;
 
       const options = {
@@ -195,7 +197,7 @@ describe('Rate Limiter Configuration', () => {
       expect((rateLimiter as any).windowMs).toBe(24 * 60 * 60 * 1000);
     });
 
-    it('should handle function creation consistently', () => {
+    it("should handle function creation consistently", () => {
       mockParsedEnv.REDIS_URL = undefined;
 
       const options = {
@@ -206,8 +208,8 @@ describe('Rate Limiter Configuration', () => {
       const rateLimiter1 = createRateLimiter(options);
       const rateLimiter2 = createRateLimiter(options);
 
-      expect(typeof rateLimiter1).toBe('function');
-      expect(typeof rateLimiter2).toBe('function');
+      expect(typeof rateLimiter1).toBe("function");
+      expect(typeof rateLimiter2).toBe("function");
       expect(rateLimiter1).not.toBe(rateLimiter2); // Different instances
     });
   });

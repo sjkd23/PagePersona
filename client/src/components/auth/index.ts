@@ -9,17 +9,17 @@
  */
 
 // Main profile components
-export { default as UserProfile } from './UserProfile';
+export { default as UserProfile } from "./UserProfile";
 
 // Modular profile components
-export { default as ProfileHeader } from './ProfileHeader';
-export { default as MembershipStatus } from './MembershipStatus';
-export { default as ProfileForm } from './ProfileForm';
-export { default as ProfileStats } from './ProfileStats';
+export { default as ProfileHeader } from "./ProfileHeader";
+export { default as MembershipStatus } from "./MembershipStatus";
+export { default as ProfileForm } from "./ProfileForm";
+export { default as ProfileStats } from "./ProfileStats";
 
 // Types and utilities
-export type * from './types';
-export * from './utils/membershipUtils';
+export type * from "./types";
+export * from "./utils/membershipUtils";
 
 /**
  * Component usage guide:

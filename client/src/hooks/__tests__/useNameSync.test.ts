@@ -1,17 +1,19 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useNameSync } from '../useNameSync';
-import { useAuth } from '../useAuthContext';
-import type { AuthContextType } from '../../contexts/AuthContext';
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { renderHook, act } from "@testing-library/react";
+import { useNameSync } from "../useNameSync";
+import { useAuth } from "../useAuthContext";
+import type { AuthContextType } from "../../contexts/AuthContext";
 
 // Mock useAuth hook
-vi.mock('../useAuthContext', () => ({
+vi.mock("../useAuthContext", () => ({
   useAuth: vi.fn(),
 }));
 
 const mockUseAuth = vi.mocked(useAuth);
 
-const createMockAuthContext = (overrides: Partial<AuthContextType> = {}): AuthContextType => ({
+const createMockAuthContext = (
+  overrides: Partial<AuthContextType> = {},
+): AuthContextType => ({
   getAccessToken: vi.fn(),
   user: null,
   isAuthenticated: false,
@@ -30,14 +32,14 @@ const createMockAuthContext = (overrides: Partial<AuthContextType> = {}): AuthCo
   ...overrides,
 });
 
-describe('useNameSync', () => {
+describe("useNameSync", () => {
   const mockGetAccessToken = vi.fn();
   const mockUser = {
-    sub: 'auth0|123',
-    given_name: 'John',
-    family_name: 'Doe',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    sub: "auth0|123",
+    given_name: "John",
+    family_name: "Doe",
+    name: "John Doe",
+    email: "john.doe@example.com",
   };
 
   beforeEach(() => {
@@ -51,19 +53,19 @@ describe('useNameSync', () => {
     );
   });
 
-  describe('initialization', () => {
-    it('should initialize with isLoading false', () => {
+  describe("initialization", () => {
+    it("should initialize with isLoading false", () => {
       const { result } = renderHook(() => useNameSync());
 
       expect(result.current.isLoading).toBe(false);
-      expect(typeof result.current.forceNameSync).toBe('function');
-      expect(typeof result.current.extractNamesFromAuth0).toBe('function');
+      expect(typeof result.current.forceNameSync).toBe("function");
+      expect(typeof result.current.extractNamesFromAuth0).toBe("function");
     });
   });
 
-  describe('forceNameSync', () => {
-    it('should successfully sync names when token is available', async () => {
-      mockGetAccessToken.mockResolvedValue('mock-token');
+  describe("forceNameSync", () => {
+    it("should successfully sync names when token is available", async () => {
+      mockGetAccessToken.mockResolvedValue("mock-token");
 
       const { result } = renderHook(() => useNameSync());
 
@@ -82,14 +84,14 @@ describe('useNameSync', () => {
 
       expect(syncResult).toEqual({
         success: true,
-        message: 'Name sync successful',
-        firstName: 'John',
-        lastName: 'Doe',
+        message: "Name sync successful",
+        firstName: "John",
+        lastName: "Doe",
       });
       expect(result.current.isLoading).toBe(false);
     });
 
-    it('should handle missing authentication token', async () => {
+    it("should handle missing authentication token", async () => {
       mockGetAccessToken.mockResolvedValue(null);
 
       const { result } = renderHook(() => useNameSync());
@@ -109,13 +111,13 @@ describe('useNameSync', () => {
 
       expect(syncResult).toEqual({
         success: false,
-        error: 'No authentication token available',
+        error: "No authentication token available",
       });
       expect(result.current.isLoading).toBe(false);
     });
 
-    it('should handle token retrieval errors', async () => {
-      mockGetAccessToken.mockRejectedValue(new Error('Token fetch failed'));
+    it("should handle token retrieval errors", async () => {
+      mockGetAccessToken.mockRejectedValue(new Error("Token fetch failed"));
 
       const { result } = renderHook(() => useNameSync());
 
@@ -134,13 +136,13 @@ describe('useNameSync', () => {
 
       expect(syncResult).toEqual({
         success: false,
-        error: 'Token fetch failed',
+        error: "Token fetch failed",
       });
       expect(result.current.isLoading).toBe(false);
     });
 
-    it('should handle unknown errors', async () => {
-      mockGetAccessToken.mockRejectedValue('Unknown error');
+    it("should handle unknown errors", async () => {
+      mockGetAccessToken.mockRejectedValue("Unknown error");
 
       const { result } = renderHook(() => useNameSync());
 
@@ -159,13 +161,13 @@ describe('useNameSync', () => {
 
       expect(syncResult).toEqual({
         success: false,
-        error: 'Unknown error',
+        error: "Unknown error",
       });
     });
 
-    it('should set loading state correctly during sync', async () => {
+    it("should set loading state correctly during sync", async () => {
       mockGetAccessToken.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve('token'), 100)),
+        () => new Promise((resolve) => setTimeout(() => resolve("token"), 100)),
       );
 
       const { result } = renderHook(() => useNameSync());
@@ -184,26 +186,26 @@ describe('useNameSync', () => {
     });
   });
 
-  describe('extractNamesFromAuth0', () => {
-    it('should extract names from given_name and family_name', () => {
+  describe("extractNamesFromAuth0", () => {
+    it("should extract names from given_name and family_name", () => {
       const { result } = renderHook(() => useNameSync());
 
       const names = result.current.extractNamesFromAuth0();
 
       expect(names).toEqual({
-        firstName: 'John',
-        lastName: 'Doe',
+        firstName: "John",
+        lastName: "Doe",
       });
     });
 
-    it('should handle missing given_name and family_name by parsing full name', () => {
+    it("should handle missing given_name and family_name by parsing full name", () => {
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           getAccessToken: mockGetAccessToken,
           user: {
-            sub: 'auth0|123',
-            name: 'Jane Smith Wilson',
-            email: 'jane@example.com',
+            sub: "auth0|123",
+            name: "Jane Smith Wilson",
+            email: "jane@example.com",
           },
           isAuthenticated: true,
         }),
@@ -214,19 +216,19 @@ describe('useNameSync', () => {
       const names = result.current.extractNamesFromAuth0();
 
       expect(names).toEqual({
-        firstName: 'Jane',
-        lastName: 'Smith Wilson',
+        firstName: "Jane",
+        lastName: "Smith Wilson",
       });
     });
 
-    it('should handle single name', () => {
+    it("should handle single name", () => {
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           getAccessToken: mockGetAccessToken,
           user: {
-            sub: 'auth0|123',
-            name: 'Madonna',
-            email: 'madonna@example.com',
+            sub: "auth0|123",
+            name: "Madonna",
+            email: "madonna@example.com",
           },
           isAuthenticated: true,
         }),
@@ -237,12 +239,12 @@ describe('useNameSync', () => {
       const names = result.current.extractNamesFromAuth0();
 
       expect(names).toEqual({
-        firstName: 'Madonna',
-        lastName: '',
+        firstName: "Madonna",
+        lastName: "",
       });
     });
 
-    it('should return empty strings when user is null', () => {
+    it("should return empty strings when user is null", () => {
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           getAccessToken: mockGetAccessToken,
@@ -256,18 +258,18 @@ describe('useNameSync', () => {
       const names = result.current.extractNamesFromAuth0();
 
       expect(names).toEqual({
-        firstName: '',
-        lastName: '',
+        firstName: "",
+        lastName: "",
       });
     });
 
-    it('should handle empty name fields', () => {
+    it("should handle empty name fields", () => {
       mockUseAuth.mockReturnValue(
         createMockAuthContext({
           getAccessToken: mockGetAccessToken,
           user: {
-            sub: 'auth0|123',
-            email: 'user@example.com',
+            sub: "auth0|123",
+            email: "user@example.com",
           },
           isAuthenticated: true,
         }),
@@ -278,8 +280,8 @@ describe('useNameSync', () => {
       const names = result.current.extractNamesFromAuth0();
 
       expect(names).toEqual({
-        firstName: '',
-        lastName: '',
+        firstName: "",
+        lastName: "",
       });
     });
   });

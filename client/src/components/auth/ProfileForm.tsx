@@ -8,11 +8,11 @@
  * @module ProfileForm
  */
 
-import React from 'react';
-import type { UserProfile } from '../../lib/apiClient';
-import type { ProfileEditForm, ThemeOption, LanguageOption } from './types';
-import { formatProfileField } from '../../utils/profileUtils';
-import { useProfileTheme } from '../../hooks/useProfileTheme';
+import React from "react";
+import type { UserProfile } from "../../lib/apiClient";
+import type { ProfileEditForm, ThemeOption, LanguageOption } from "./types";
+import { formatProfileField } from "../../utils/profileUtils";
+import { useProfileTheme } from "../../hooks/useProfileTheme";
 
 /**
  * Props for the ProfileForm component
@@ -27,7 +27,7 @@ interface ProfileFormProps {
   /** Handler for form field changes */
   onFormChange: (
     field: keyof ProfileEditForm,
-    value: string | ProfileEditForm['preferences'],
+    value: string | ProfileEditForm["preferences"],
   ) => void;
   /** Whether the form is in loading state */
   isLoading?: boolean;
@@ -56,16 +56,16 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
    * Handle preference changes
    */
   const handlePreferenceChange = (
-    key: keyof ProfileEditForm['preferences'],
+    key: keyof ProfileEditForm["preferences"],
     value: boolean | string,
   ) => {
-    onFormChange('preferences', {
+    onFormChange("preferences", {
       ...editForm.preferences,
       [key]: value,
     });
 
     // If theme is being changed, sync immediately for live preview
-    if (key === 'theme' && typeof value === 'string') {
+    if (key === "theme" && typeof value === "string") {
       syncThemeFromProfile(value as ThemeOption);
     }
   };
@@ -77,10 +77,14 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
     const isVerified = profile?.isEmailVerified;
     return (
       <span
-        className={`status-badge ${isVerified ? 'status-verified' : 'status-warning'}`}
-        title={isVerified ? 'Email address is verified' : 'Email address not verified'}
+        className={`status-badge ${isVerified ? "status-verified" : "status-warning"}`}
+        title={
+          isVerified
+            ? "Email address is verified"
+            : "Email address not verified"
+        }
       >
-        {isVerified ? '✅ Verified' : '⚠️ Not verified'}
+        {isVerified ? "✅ Verified" : "⚠️ Not verified"}
       </span>
     );
   };
@@ -101,7 +105,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               id="firstName"
               type="text"
               value={editForm.firstName}
-              onChange={(e) => onFormChange('firstName', e.target.value)}
+              onChange={(e) => onFormChange("firstName", e.target.value)}
               className="form-input"
               placeholder="Enter first name"
               disabled={isLoading}
@@ -130,7 +134,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
               id="lastName"
               type="text"
               value={editForm.lastName}
-              onChange={(e) => onFormChange('lastName', e.target.value)}
+              onChange={(e) => onFormChange("lastName", e.target.value)}
               className="form-input"
               placeholder="Enter last name"
               disabled={isLoading}
@@ -155,7 +159,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             Email Address
           </label>
           <div className="form-value" id="email-value">
-            {profile?.email || 'Not provided'}
+            {profile?.email || "Not provided"}
           </div>
           <small className="form-help">
             Email cannot be changed here. Contact support if needed.
@@ -168,7 +172,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             Username
           </label>
           <div className="form-value" id="username-value">
-            {profile?.username || 'Not set'}
+            {profile?.username || "Not set"}
           </div>
         </div>
 
@@ -191,7 +195,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             <select
               id="theme"
               value={editForm.preferences.theme}
-              onChange={(e) => handlePreferenceChange('theme', e.target.value as ThemeOption)}
+              onChange={(e) =>
+                handlePreferenceChange("theme", e.target.value as ThemeOption)
+              }
               className="form-input"
               disabled={isLoading}
               aria-describedby="theme-help"
@@ -201,7 +207,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </select>
           ) : (
             <div className="form-value">
-              {editForm.preferences.theme === 'dark' ? '🌙 Dark Theme' : '🌞 Light Theme'}
+              {editForm.preferences.theme === "dark"
+                ? "🌙 Dark Theme"
+                : "🌞 Light Theme"}
             </div>
           )}
           {editing && (
@@ -220,7 +228,12 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             <select
               id="language"
               value={editForm.preferences.language}
-              onChange={(e) => handlePreferenceChange('language', e.target.value as LanguageOption)}
+              onChange={(e) =>
+                handlePreferenceChange(
+                  "language",
+                  e.target.value as LanguageOption,
+                )
+              }
               className="form-input"
               disabled={isLoading}
               aria-describedby="language-help"
@@ -231,11 +244,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
             </select>
           ) : (
             <div className="form-value">
-              {editForm.preferences.language === 'fr'
-                ? '🇫🇷 Français'
-                : editForm.preferences.language === 'es'
-                  ? '🇪🇸 Español'
-                  : '🇺🇸 English'}
+              {editForm.preferences.language === "fr"
+                ? "🇫🇷 Français"
+                : editForm.preferences.language === "es"
+                  ? "🇪🇸 Español"
+                  : "🇺🇸 English"}
             </div>
           )}
           {editing && (
@@ -256,7 +269,9 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
                 id="notifications"
                 type="checkbox"
                 checked={editForm.preferences.notifications}
-                onChange={(e) => handlePreferenceChange('notifications', e.target.checked)}
+                onChange={(e) =>
+                  handlePreferenceChange("notifications", e.target.checked)
+                }
                 className="checkbox"
                 disabled={isLoading}
                 aria-describedby="notifications-help"
@@ -268,9 +283,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
           ) : (
             <div className="form-value">
               <span
-                className={`status-badge ${editForm.preferences.notifications ? 'status-enabled' : 'status-disabled'}`}
+                className={`status-badge ${editForm.preferences.notifications ? "status-enabled" : "status-disabled"}`}
               >
-                {editForm.preferences.notifications ? '🔔 Enabled' : '🔕 Disabled'}
+                {editForm.preferences.notifications
+                  ? "🔔 Enabled"
+                  : "🔕 Disabled"}
               </span>
             </div>
           )}

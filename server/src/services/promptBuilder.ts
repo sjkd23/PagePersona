@@ -14,10 +14,10 @@
  * - Consistent formatting across all prompts
  */
 
-import { getPersona } from '@pagepersonai/shared';
-import { BASE_SYSTEM_PROMPT } from '@pagepersonai/shared';
-import type { ParsedContent } from './parser';
-import { logger } from '../utils/logger';
+import { getPersona } from "@pagepersonai/shared";
+import { BASE_SYSTEM_PROMPT } from "@pagepersonai/shared";
+import type { ParsedContent } from "./parser";
+import { logger } from "../utils/logger";
 
 /**
  * Prompt components structure interface
@@ -49,14 +49,17 @@ export class PromptBuilderService {
    * @returns Complete prompt components ready for AI API
    * @throws Error if persona is not found
    */
-  static buildTransformationPrompt(content: ParsedContent, personaId: string): PromptComponents {
+  static buildTransformationPrompt(
+    content: ParsedContent,
+    personaId: string,
+  ): PromptComponents {
     const persona = getPersona(personaId);
     if (!persona) {
       throw new Error(`Unknown persona: ${personaId}`);
     }
 
     const systemPrompt = this.buildSystemPrompt(persona);
-    const userPrompt = this.buildUserPrompt(content, 'webpage content');
+    const userPrompt = this.buildUserPrompt(content, "webpage content");
 
     return {
       systemPrompt,
@@ -86,7 +89,7 @@ export class PromptBuilderService {
     }
 
     const systemPrompt = this.buildSystemPrompt(persona);
-    const userPrompt = this.buildUserPrompt(content, 'text content');
+    const userPrompt = this.buildUserPrompt(content, "text content");
 
     return {
       systemPrompt,
@@ -101,10 +104,14 @@ export class PromptBuilderService {
    * @param persona - Persona configuration object
    * @returns Complete system prompt string
    */
-  private static buildSystemPrompt(persona: { id: string; systemPrompt: string }): string {
+  private static buildSystemPrompt(persona: {
+    id: string;
+    systemPrompt: string;
+  }): string {
     // Combine base prompt with persona-specific instructions
     const baseInstructions =
-      BASE_SYSTEM_PROMPT || 'You are a helpful assistant that transforms content.';
+      BASE_SYSTEM_PROMPT ||
+      "You are a helpful assistant that transforms content.";
 
     return `${baseInstructions}
 
@@ -127,12 +134,15 @@ Content Guidelines:
 - **Most importantly: Break up wall-of-text into digestible, well-organized sections**`;
   }
 
-  private static buildUserPrompt(content: ParsedContent, contentType: string): string {
+  private static buildUserPrompt(
+    content: ParsedContent,
+    contentType: string,
+  ): string {
     const inputSection =
-      contentType === 'webpage content'
+      contentType === "webpage content"
         ? `WEBPAGE TITLE: ${content.title}
 WORD COUNT: ${content.wordCount}
-${content.summary ? `SUMMARY: ${content.summary}` : ''}
+${content.summary ? `SUMMARY: ${content.summary}` : ""}
 
 CONTENT TO TRANSFORM:
 ${content.cleanedText}`
@@ -148,16 +158,18 @@ Transform this content now with your unique style AND proper formatting!`;
 
   static validatePrompt(prompt: PromptComponents): void {
     if (!prompt.systemPrompt || prompt.systemPrompt.trim().length === 0) {
-      throw new Error('System prompt is required');
+      throw new Error("System prompt is required");
     }
 
     if (!prompt.userPrompt || prompt.userPrompt.trim().length === 0) {
-      throw new Error('User prompt is required');
+      throw new Error("User prompt is required");
     }
 
     // Warn if prompts are too long (rough estimate for token limits)
     if (prompt.totalLength > 12000) {
-      logger.warn('Combined prompt length is quite long, may exceed token limits');
+      logger.warn(
+        "Combined prompt length is quite long, may exceed token limits",
+      );
     }
   }
 

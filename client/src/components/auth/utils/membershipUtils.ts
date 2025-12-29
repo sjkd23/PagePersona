@@ -8,7 +8,7 @@
  * @module MembershipUtils
  */
 
-import type { MembershipTier, MembershipInfo, UsageLimits } from '../types';
+import type { MembershipTier, MembershipInfo, UsageLimits } from "../types";
 
 /**
  * Get usage limits based on membership tier
@@ -32,25 +32,27 @@ export const getUsageLimit = (membership: MembershipTier): number => {
  * @param membership - The user's membership tier
  * @returns Display information for the membership tier
  */
-export const getMembershipInfo = (membership: MembershipTier): MembershipInfo => {
+export const getMembershipInfo = (
+  membership: MembershipTier,
+): MembershipInfo => {
   const membershipData: Record<MembershipTier, MembershipInfo> = {
     free: {
-      icon: '🆓',
-      label: 'Free',
-      class: 'free',
-      benefits: 'Basic personas • Community support',
+      icon: "🆓",
+      label: "Free",
+      class: "free",
+      benefits: "Basic personas • Community support",
     },
     premium: {
-      icon: '⭐',
-      label: 'Premium',
-      class: 'premium',
-      benefits: 'All personas • Priority support • Custom personas',
+      icon: "⭐",
+      label: "Premium",
+      class: "premium",
+      benefits: "All personas • Priority support • Custom personas",
     },
     admin: {
-      icon: '👑',
-      label: 'Admin',
-      class: 'admin',
-      benefits: 'Custom integrations • Dedicated support • White-label options',
+      icon: "👑",
+      label: "Admin",
+      class: "admin",
+      benefits: "Custom integrations • Dedicated support • White-label options",
     },
   };
 
@@ -94,7 +96,7 @@ export const calculateUsageStats = (
  */
 export const getUsageMeterStyle = (percentage: number): React.CSSProperties => {
   return {
-    '--usage-width': `${Math.min(100, percentage)}%`,
+    "--usage-width": `${Math.min(100, percentage)}%`,
   } as React.CSSProperties;
 };
 
@@ -116,7 +118,7 @@ export const formatMembershipTier = (membership: MembershipTier): string => {
  * @returns True if user has premium or admin access
  */
 export const hasPremiumAccess = (membership: MembershipTier): boolean => {
-  return membership === 'premium' || membership === 'admin';
+  return membership === "premium" || membership === "admin";
 };
 
 /**
@@ -126,5 +128,5 @@ export const hasPremiumAccess = (membership: MembershipTier): boolean => {
  * @returns True if user has admin access
  */
 export const hasAdminAccess = (membership: MembershipTier): boolean => {
-  return membership === 'admin';
+  return membership === "admin";
 };

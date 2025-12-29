@@ -15,11 +15,11 @@
  * - Responsive mobile menu implementation
  */
 
-import { useState } from 'react';
-import './Header.css';
-import Logo from './Logo';
-import ThemeToggle from './ThemeToggle';
-import UserMenu from './UserMenu';
+import { useState } from "react";
+import "./Header.css";
+import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
+import UserMenu from "./UserMenu";
 
 /**
  * Header component props interface
@@ -77,7 +77,11 @@ export default function Header({
           {isAuthenticated ? (
             <>
               {/* User Menu - Always visible */}
-              <UserMenu userName={userName} onProfile={onProfile} onTransform={onTransform} />
+              <UserMenu
+                userName={userName}
+                onProfile={onProfile}
+                onTransform={onTransform}
+              />
             </>
           ) : (
             <>
@@ -98,14 +102,26 @@ export default function Header({
                   className="hamburger-btn"
                   aria-label="Toggle mobile menu"
                 >
-                  <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`}></span>
-                  <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`}></span>
-                  <span className={`hamburger-line ${isMobileMenuOpen ? 'open' : ''}`}></span>
+                  <span
+                    className={`hamburger-line ${isMobileMenuOpen ? "open" : ""}`}
+                  ></span>
+                  <span
+                    className={`hamburger-line ${isMobileMenuOpen ? "open" : ""}`}
+                  ></span>
+                  <span
+                    className={`hamburger-line ${isMobileMenuOpen ? "open" : ""}`}
+                  ></span>
                 </button>
 
                 {isMobileMenuOpen && (
-                  <div className="mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-                    <nav className="mobile-menu" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="mobile-menu-overlay"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <nav
+                      className="mobile-menu"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         onClick={() => {
                           onLogin?.();

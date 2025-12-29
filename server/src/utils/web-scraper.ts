@@ -1,7 +1,7 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
-import { URL } from 'url';
-import { webScraperConfig } from '../config/web-scraper-config';
+import axios from "axios";
+import * as cheerio from "cheerio";
+import { URL } from "url";
+import { webScraperConfig } from "../config/web-scraper-config";
 
 export interface ScrapedContent {
   title: string;
@@ -28,11 +28,12 @@ export class WebScraper {
       const response = await axios.get(normalizedUrl, {
         timeout: this.config.requestTimeout,
         headers: {
-          'User-Agent': this.config.userAgent,
-          Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate',
-          Connection: 'keep-alive',
+          "User-Agent": this.config.userAgent,
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.5",
+          "Accept-Encoding": "gzip, deflate",
+          Connection: "keep-alive",
         },
       });
 
@@ -60,22 +61,26 @@ export class WebScraper {
       };
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.code === 'ENOTFOUND') {
-          throw new Error('Website not found. Please check the URL and try again.');
+        if (error.code === "ENOTFOUND") {
+          throw new Error(
+            "Website not found. Please check the URL and try again.",
+          );
         }
-        if (error.code === 'ECONNREFUSED') {
-          throw new Error('Connection refused. The website may be down.');
+        if (error.code === "ECONNREFUSED") {
+          throw new Error("Connection refused. The website may be down.");
         }
         if (error.response?.status === 403) {
-          throw new Error('Access forbidden. This website blocks automated requests.');
+          throw new Error(
+            "Access forbidden. This website blocks automated requests.",
+          );
         }
         if (error.response?.status === 404) {
-          throw new Error('Page not found. Please check the URL.');
+          throw new Error("Page not found. Please check the URL.");
         }
       }
 
       throw new Error(
-        `Failed to scrape webpage: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to scrape webpage: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   }
@@ -83,7 +88,7 @@ export class WebScraper {
   private static normalizeUrl(url: string): string {
     try {
       // Add protocol if missing
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      if (!url.startsWith("http://") && !url.startsWith("https://")) {
         url = `https://${url}`;
       }
 
@@ -92,12 +97,12 @@ export class WebScraper {
 
       // Block private/internal URLs for security
       if (this.isPrivateUrl(parsedUrl)) {
-        throw new Error('Private or internal URLs are not allowed');
+        throw new Error("Private or internal URLs are not allowed");
       }
 
       return parsedUrl.toString();
     } catch (error) {
-      throw new Error('Invalid URL format');
+      throw new Error("Invalid URL format");
     }
   }
 
@@ -121,40 +126,42 @@ export class WebScraper {
 
   private static extractTitle($: cheerio.CheerioAPI): string {
     // Try different title sources in order of preference
-    let title = $('title').first().text().trim();
+    let title = $("title").first().text().trim();
 
     if (!title) {
-      title = $('h1').first().text().trim();
+      title = $("h1").first().text().trim();
     }
 
     if (!title) {
-      title = $('meta[property="og:title"]').attr('content')?.trim() || '';
+      title = $('meta[property="og:title"]').attr("content")?.trim() || "";
     }
 
     if (!title) {
-      title = $('meta[name="title"]').attr('content')?.trim() || '';
+      title = $('meta[name="title"]').attr("content")?.trim() || "";
     }
 
-    return title || 'Untitled Page';
+    return title || "Untitled Page";
   }
 
   private static extractContent($: cheerio.CheerioAPI): string {
     // Remove unwanted elements
-    $('script, style, nav, header, footer, aside, .advertisement, .ads, .sidebar').remove();
+    $(
+      "script, style, nav, header, footer, aside, .advertisement, .ads, .sidebar",
+    ).remove();
 
     // Try to find main content area
-    let content = '';
+    let content = "";
 
     // Look for common content containers
     const contentSelectors = [
-      'main',
-      'article',
-      '.content',
-      '.main-content',
-      '.post-content',
-      '.entry-content',
-      '#content',
-      '#main',
+      "main",
+      "article",
+      ".content",
+      ".main-content",
+      ".post-content",
+      ".entry-content",
+      "#content",
+      "#main",
     ];
 
     for (const selector of contentSelectors) {
@@ -166,13 +173,13 @@ export class WebScraper {
 
     // If no specific content area found, extract from body
     if (!content || content.length < 100) {
-      content = $('body').text().trim();
+      content = $("body").text().trim();
     }
 
     // Clean up whitespace
     content = content
-      .replace(/\s+/g, ' ')
-      .replace(/\n\s*\n/g, '\n\n')
+      .replace(/\s+/g, " ")
+      .replace(/\n\s*\n/g, "\n\n")
       .trim();
 
     return content;
@@ -180,19 +187,19 @@ export class WebScraper {
 
   private static extractMetadata($: cheerio.CheerioAPI, content: string) {
     const description =
-      $('meta[name="description"]').attr('content') ||
-      $('meta[property="og:description"]').attr('content') ||
-      content.substring(0, 200) + '...';
+      $('meta[name="description"]').attr("content") ||
+      $('meta[property="og:description"]').attr("content") ||
+      content.substring(0, 200) + "...";
 
     const author =
-      $('meta[name="author"]').attr('content') ||
-      $('meta[property="article:author"]').attr('content') ||
+      $('meta[name="author"]').attr("content") ||
+      $('meta[property="article:author"]').attr("content") ||
       $('[rel="author"]').text().trim();
 
     const publishDate =
-      $('meta[property="article:published_time"]').attr('content') ||
-      $('meta[name="date"]').attr('content') ||
-      $('time[datetime]').attr('datetime');
+      $('meta[property="article:published_time"]').attr("content") ||
+      $('meta[name="date"]').attr("content") ||
+      $("time[datetime]").attr("datetime");
 
     const wordCount = content.split(/\s+/).length;
 
@@ -211,10 +218,10 @@ export class WebScraper {
 
     // Truncate at word boundary
     const truncated = content.substring(0, this.config.maxContentLength);
-    const lastSpace = truncated.lastIndexOf(' ');
+    const lastSpace = truncated.lastIndexOf(" ");
 
     return lastSpace > this.config.maxContentLength * 0.8
-      ? truncated.substring(0, lastSpace) + '...'
-      : truncated + '...';
+      ? truncated.substring(0, lastSpace) + "..."
+      : truncated + "...";
   }
 }

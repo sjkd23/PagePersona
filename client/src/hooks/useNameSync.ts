@@ -8,8 +8,8 @@
  * @module useNameSync
  */
 
-import { useState, useCallback } from 'react';
-import { useAuth } from './useAuthContext';
+import { useState, useCallback } from "react";
+import { useAuth } from "./useAuthContext";
 
 /**
  * Result interface for name synchronization operations
@@ -60,21 +60,21 @@ export const useNameSync = () => {
       const token = await getAccessToken();
 
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       // Force sync user profile with Auth0 data
 
       return {
         success: true,
-        message: 'Name sync successful',
+        message: "Name sync successful",
         firstName: user?.given_name,
         lastName: user?.family_name,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     } finally {
       setIsLoading(false);
@@ -93,16 +93,16 @@ export const useNameSync = () => {
    * @returns {string} returns.lastName - The user's last name
    */
   const extractNamesFromAuth0 = useCallback(() => {
-    if (!user) return { firstName: '', lastName: '' };
+    if (!user) return { firstName: "", lastName: "" };
 
-    let firstName = user.given_name || '';
-    let lastName = user.family_name || '';
+    let firstName = user.given_name || "";
+    let lastName = user.family_name || "";
 
     // Fallback to parsing full name if given/family names not available
     if (!firstName && !lastName && user.name) {
-      const nameParts = user.name.split(' ');
-      firstName = nameParts[0] || '';
-      lastName = nameParts.slice(1).join(' ') || '';
+      const nameParts = user.name.split(" ");
+      firstName = nameParts[0] || "";
+      lastName = nameParts.slice(1).join(" ") || "";
     }
 
     return { firstName, lastName };

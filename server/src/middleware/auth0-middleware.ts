@@ -47,19 +47,25 @@
  * - optionalAuth0: Optional authentication for public routes
  */
 
-import '../types/loader';
-import { Request, Response, NextFunction } from 'express';
-import mongoose from 'mongoose';
-import { MongoUser } from '../models/mongo-user';
-import { generateUsernameFromAuth0, ensureUniqueUsername } from '../utils/username-generator';
-import { syncAuth0Fields, logSyncResults } from '../utils/auth0-sync';
-import { shouldPerformFullSync, updateSessionOnly } from '../utils/session-tracker';
-import { HttpStatus } from '../constants/http-status';
-import { ProcessedAuth0User, Auth0JwtPayload } from '../types/common';
-import { safeGetAuth0Claims } from '../utils/auth0-claims';
-import { logger } from '../utils/logger';
+import "../types/loader";
+import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
+import { MongoUser } from "../models/mongo-user";
+import {
+  generateUsernameFromAuth0,
+  ensureUniqueUsername,
+} from "../utils/username-generator";
+import { syncAuth0Fields, logSyncResults } from "../utils/auth0-sync";
+import {
+  shouldPerformFullSync,
+  updateSessionOnly,
+} from "../utils/session-tracker";
+import { HttpStatus } from "../constants/http-status";
+import { ProcessedAuth0User, Auth0JwtPayload } from "../types/common";
+import { safeGetAuth0Claims } from "../utils/auth0-claims";
+import { logger } from "../utils/logger";
 
-import jwtAuth from './jwtAuth';
+import jwtAuth from "./jwtAuth";
 
 // Re-export the JWT middleware for backward compatibility
 export const verifyAuth0Token = jwtAuth;
@@ -72,24 +78,27 @@ export const verifyAuth0Token = jwtAuth;
  * @param res Express response object
  * @returns Promise resolving to true if token is valid, false otherwise
  */
-const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean> => {
+const tryVerifyAuth0Token = async (
+  req: Request,
+  res: Response,
+): Promise<boolean> => {
   try {
     return new Promise<boolean>((resolve) => {
       jwtAuth(req, res, (err: unknown) => {
         if (err) {
           const errorMessage = err instanceof Error ? err.message : String(err);
-          logger.debug('Optional Auth0 verification failed', {
+          logger.debug("Optional Auth0 verification failed", {
             error: errorMessage,
           });
           resolve(false);
         } else {
-          logger.debug('Auth0 token verified successfully');
+          logger.debug("Auth0 token verified successfully");
           resolve(true);
         }
       });
     });
   } catch (error) {
-    logger.error('Error during token verification', { error });
+    logger.error("Error during token verification", { error });
     return false;
   }
 };
@@ -105,7 +114,7 @@ const tryVerifyAuth0Token = async (req: Request, res: Response): Promise<boolean
 const trySyncAuth0User = async (req: Request, res: Response): Promise<void> => {
   return new Promise<void>((resolve) => {
     syncAuth0User(req, res, () => {
-      logger.debug('User sync completed');
+      logger.debug("User sync completed");
       resolve();
     });
   });
@@ -133,7 +142,7 @@ export const syncAuth0User = async (
   try {
     // Check database connection
     if (!mongoose.connection.readyState) {
-      logger.error('MongoDB not connected - skipping user sync');
+      logger.error("MongoDB not connected - skipping user sync");
       next();
       return;
     }
@@ -175,15 +184,15 @@ export const syncAuth0User = async (
       // Enhanced name extraction from Auth0/Google authentication data
       const firstName =
         auth0User.givenName ||
-        auth0User.name?.split(' ')[0] ||
-        (auth0User.email ? auth0User.email.split('@')[0] : '') ||
-        '';
+        auth0User.name?.split(" ")[0] ||
+        (auth0User.email ? auth0User.email.split("@")[0] : "") ||
+        "";
       const lastName =
         auth0User.familyName ||
-        (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') ||
-        '';
+        (auth0User.name ? auth0User.name.split(" ").slice(1).join(" ") : "") ||
+        "";
 
-      logger.debug('Creating new user with name data', {
+      logger.debug("Creating new user with name data", {
         auth0Name: auth0User.name,
         givenName: auth0User.givenName,
         familyName: auth0User.familyName,
@@ -197,13 +206,13 @@ export const syncAuth0User = async (
         username: username,
         firstName: firstName,
         lastName: lastName,
-        avatar: auth0User.picture || '',
+        avatar: auth0User.picture || "",
         isEmailVerified: auth0User.emailVerified || false,
-        role: 'user',
-        membership: 'free', // Default membership for new users
+        role: "user",
+        membership: "free", // Default membership for new users
         preferences: {
-          theme: 'light',
-          language: 'en',
+          theme: "light",
+          language: "en",
           notifications: true,
         },
         usage: {
@@ -214,12 +223,12 @@ export const syncAuth0User = async (
       });
 
       await mongoUser.save();
-      logger.debug('New user created with name', { firstName, lastName });
+      logger.debug("New user created with name", { firstName, lastName });
     } else if (needsFullSync) {
       const syncResult = syncAuth0Fields(mongoUser, auth0User);
 
       // Log name synchronization details for debugging
-      logger.debug('Syncing existing user names', {
+      logger.debug("Syncing existing user names", {
         currentFirstName: mongoUser.firstName,
         currentLastName: mongoUser.lastName,
         auth0GivenName: auth0User.givenName,
@@ -235,11 +244,12 @@ export const syncAuth0User = async (
     } else {
       // Check if user has empty names and Auth0 has name data - force sync
       const hasEmptyNames = !mongoUser.firstName || !mongoUser.lastName;
-      const hasAuth0Names = auth0User.givenName || auth0User.familyName || auth0User.name;
+      const hasAuth0Names =
+        auth0User.givenName || auth0User.familyName || auth0User.name;
 
       // Force sync names for users with empty name fields when Auth0 has name data
       if (hasEmptyNames && hasAuth0Names) {
-        logger.debug('Force syncing names for user with empty name fields', {
+        logger.debug("Force syncing names for user with empty name fields", {
           userId: mongoUser._id,
           currentFirstName: mongoUser.firstName,
           currentLastName: mongoUser.lastName,
@@ -251,17 +261,21 @@ export const syncAuth0User = async (
         });
 
         const firstName =
-          auth0User.givenName || (auth0User.name ? auth0User.name.split(' ')[0] : '') || '';
+          auth0User.givenName ||
+          (auth0User.name ? auth0User.name.split(" ")[0] : "") ||
+          "";
         const lastName =
           auth0User.familyName ||
-          (auth0User.name ? auth0User.name.split(' ').slice(1).join(' ') : '') ||
-          '';
+          (auth0User.name
+            ? auth0User.name.split(" ").slice(1).join(" ")
+            : "") ||
+          "";
 
         if (firstName || lastName) {
           mongoUser.firstName = firstName;
           mongoUser.lastName = lastName;
           await mongoUser.save();
-          logger.debug('Names force synced', { firstName, lastName });
+          logger.debug("Names force synced", { firstName, lastName });
         }
       }
 
@@ -277,16 +291,16 @@ export const syncAuth0User = async (
 
     next();
   } catch (error) {
-    logger.error('Error syncing Auth0 user', { error });
+    logger.error("Error syncing Auth0 user", { error });
 
     // For user-facing routes, don't break the entire request chain
-    if (req.path.includes('/api/user/')) {
+    if (req.path.includes("/api/user/")) {
       next();
     } else {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        error: 'Failed to sync user data',
-        details: process.env.NODE_ENV === 'development' ? error : undefined,
+        error: "Failed to sync user data",
+        details: process.env.NODE_ENV === "development" ? error : undefined,
       });
     }
   }
@@ -308,22 +322,22 @@ export const optionalAuth0 = async (
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  logger.debug('optionalAuth0 middleware called for', { path: req.path });
+  logger.debug("optionalAuth0 middleware called for", { path: req.path });
 
   try {
     // Check if Auth0 is properly configured
     if (!process.env.AUTH0_DOMAIN) {
-      logger.debug('AUTH0_DOMAIN not configured, skipping authentication');
+      logger.debug("AUTH0_DOMAIN not configured, skipping authentication");
       next();
       return;
     }
 
     // Check for authorization header
     const authHeader = req.headers.authorization;
-    logger.debug('Auth header present', { hasHeader: !!authHeader });
+    logger.debug("Auth header present", { hasHeader: !!authHeader });
 
     if (!authHeader) {
-      logger.debug('No auth header, proceeding without authentication');
+      logger.debug("No auth header, proceeding without authentication");
       next();
       return;
     }
@@ -333,17 +347,17 @@ export const optionalAuth0 = async (
 
     // Sync user data if token was verified successfully
     if (tokenVerified && req.user) {
-      logger.debug('User found, attempting sync...');
+      logger.debug("User found, attempting sync...");
       await trySyncAuth0User(req, res);
     } else {
-      logger.debug('No user to sync');
+      logger.debug("No user to sync");
     }
 
-    logger.debug('optionalAuth0 middleware completed successfully');
+    logger.debug("optionalAuth0 middleware completed successfully");
     next();
   } catch (error) {
-    logger.error('Optional Auth0 error', { error });
-    logger.debug('Continuing without authentication due to error');
+    logger.error("Optional Auth0 error", { error });
+    logger.debug("Continuing without authentication due to error");
     next(); // Continue without authentication
   }
 };

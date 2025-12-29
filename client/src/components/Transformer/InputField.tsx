@@ -8,12 +8,12 @@
  * @module InputField
  */
 
-import InputModeToggle from './InputModeToggle';
-import ValidationError from './ValidationError';
-import TextInput from './TextInput';
-import TextArea from './TextArea';
-import CharacterCount from './CharacterCount';
-import './styles/InputField.css';
+import InputModeToggle from "./InputModeToggle";
+import ValidationError from "./ValidationError";
+import TextInput from "./TextInput";
+import TextArea from "./TextArea";
+import CharacterCount from "./CharacterCount";
+import "./styles/InputField.css";
 
 /**
  * Props for the InputField component
@@ -31,16 +31,16 @@ import './styles/InputField.css';
  * @property {string} [data-testid] - Test identifier for testing frameworks
  */
 interface InputFieldProps {
-  mode: 'url' | 'text';
+  mode: "url" | "text";
   value: string;
-  onModeChange: (mode: 'url' | 'text') => void;
+  onModeChange: (mode: "url" | "text") => void;
   onChange: (value: string) => void;
   urlError?: string | null;
   textError?: string | null;
   maxLength?: number;
   disabled?: boolean;
   className?: string;
-  'data-testid'?: string;
+  "data-testid"?: string;
 }
 
 /**
@@ -62,18 +62,22 @@ export default function InputField({
   textError,
   maxLength = 10000,
   disabled = false,
-  className = '',
-  'data-testid': testId = 'input-field',
+  className = "",
+  "data-testid": testId = "input-field",
 }: InputFieldProps) {
-  const currentError = mode === 'url' ? urlError || null : textError || null;
+  const currentError = mode === "url" ? urlError || null : textError || null;
   const hasError = Boolean(currentError);
 
   return (
     <div className={`input-field-container ${className}`} data-testid={testId}>
-      <InputModeToggle mode={mode} onModeChange={onModeChange} disabled={disabled} />
+      <InputModeToggle
+        mode={mode}
+        onModeChange={onModeChange}
+        disabled={disabled}
+      />
 
       <div className="input-wrapper">
-        {mode === 'url' ? (
+        {mode === "url" ? (
           <TextInput
             value={value}
             onChange={onChange}
@@ -97,7 +101,11 @@ export default function InputField({
               data-testid="text-input"
             />
             <div className="text-meta">
-              <CharacterCount current={value.length} max={maxLength} hasError={hasError} />
+              <CharacterCount
+                current={value.length}
+                max={maxLength}
+                hasError={hasError}
+              />
             </div>
           </>
         )}

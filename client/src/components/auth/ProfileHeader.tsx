@@ -8,11 +8,11 @@
  * @module ProfileHeader
  */
 
-import React from 'react';
-import type { User } from '@auth0/auth0-react';
-import type { UserProfile } from '../../lib/apiClient';
-import type { LoadingProps } from './types';
-import { hasValidName, formatFullName } from '../../utils/profileUtils';
+import React from "react";
+import type { User } from "@auth0/auth0-react";
+import type { UserProfile } from "../../lib/apiClient";
+import type { LoadingProps } from "./types";
+import { hasValidName, formatFullName } from "../../utils/profileUtils";
 
 /**
  * Props for the ProfileHeader component
@@ -59,7 +59,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     if (hasValidName(profile?.firstName, profile?.lastName)) {
       return formatFullName(profile?.firstName, profile?.lastName);
     }
-    return user.name || user.nickname || 'User';
+    return user.name || user.nickname || "User";
   };
 
   /**
@@ -67,11 +67,11 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
    */
   const getUserInitials = (): string => {
     const displayName = getDisplayName();
-    const nameParts = displayName.split(' ');
+    const nameParts = displayName.split(" ");
     if (nameParts.length >= 2) {
       return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
     }
-    return displayName[0]?.toUpperCase() || 'U';
+    return displayName[0]?.toUpperCase() || "U";
   };
 
   /**
@@ -79,13 +79,13 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
    */
   const getMemberSinceDate = (): string => {
     if (profile?.createdAt) {
-      return new Date(profile.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+      return new Date(profile.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
     }
-    return 'Unknown';
+    return "Unknown";
   };
 
   return (
@@ -101,7 +101,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               loading="lazy"
             />
           ) : (
-            <div className="profile-avatar-placeholder">{getUserInitials()}</div>
+            <div className="profile-avatar-placeholder">
+              {getUserInitials()}
+            </div>
           )}
 
           {/* User Details */}

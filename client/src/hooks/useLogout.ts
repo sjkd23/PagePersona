@@ -8,8 +8,8 @@
  * @module useLogout
  */
 
-import { useCallback } from 'react';
-import { useAuth } from './useAuth';
+import { useCallback } from "react";
+import { useAuth } from "./useAuth";
 
 /**
  * Hook for managing user logout operations

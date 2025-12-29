@@ -7,12 +7,12 @@
  * the application.
  */
 
-import { useTheme } from './useThemeHook';
-import { useCallback, useRef, useEffect } from 'react';
-import ApiService from '../lib/apiClient';
-import type { ThemeOption } from '../components/auth/types';
-import type { UserProfile } from '../lib/apiClient';
-import type { ProfileEditForm } from '../components/auth/types';
+import { useTheme } from "./useThemeHook";
+import { useCallback, useRef, useEffect } from "react";
+import ApiService from "../lib/apiClient";
+import type { ThemeOption } from "../components/auth/types";
+import type { UserProfile } from "../lib/apiClient";
+import type { ProfileEditForm } from "../components/auth/types";
 
 /**
  * Profile theme hook interface
@@ -48,7 +48,7 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
   const isUpdatingRef = useRef(false);
 
   // Convert boolean to theme option
-  const currentTheme: ThemeOption = isDarkMode ? 'dark' : 'light';
+  const currentTheme: ThemeOption = isDarkMode ? "dark" : "light";
 
   // Cleanup on unmount
   useEffect(() => {
@@ -77,7 +77,7 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
 
       try {
         // Only toggle if the theme is actually changing
-        const shouldToggle = (theme === 'dark') !== isDarkMode;
+        const shouldToggle = (theme === "dark") !== isDarkMode;
 
         if (shouldToggle) {
           toggleTheme();
@@ -97,7 +97,10 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
               } as Record<string, unknown>,
             } as Partial<UserProfile>);
           } catch (error) {
-            console.error('Failed to update theme preference in profile:', error);
+            console.error(
+              "Failed to update theme preference in profile:",
+              error,
+            );
             // Note: We don't revert the local theme change as the user might want
             // to retry the save operation later
           } finally {
@@ -127,7 +130,7 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
         return;
       }
 
-      const shouldToggle = (profileTheme === 'dark') !== isDarkMode;
+      const shouldToggle = (profileTheme === "dark") !== isDarkMode;
 
       if (shouldToggle) {
         toggleTheme();
@@ -162,14 +165,16 @@ export const useProfileTheme = (): UseProfileThemeReturn => {
   const updateThemeAndForm = useCallback(
     (
       theme: ThemeOption,
-      setEditForm?: (updater: (prev: ProfileEditForm) => ProfileEditForm) => void,
+      setEditForm?: (
+        updater: (prev: ProfileEditForm) => ProfileEditForm,
+      ) => void,
     ): void => {
       // Prevent circular updates
       if (isUpdatingRef.current) {
         return;
       }
 
-      const shouldToggle = (theme === 'dark') !== isDarkMode;
+      const shouldToggle = (theme === "dark") !== isDarkMode;
 
       if (shouldToggle) {
         toggleTheme();

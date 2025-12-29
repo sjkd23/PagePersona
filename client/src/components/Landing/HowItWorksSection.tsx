@@ -1,8 +1,8 @@
-import HowItWorksStep from './HowItWorksStep';
-import PersonaAvatarsDemo from './PersonaAvatarsDemo';
-import UrlInputDemo from './UrlInputDemo';
-import GenerateButtonDemo from './GenerateButtonDemo';
-import OutputDemo from './OutputDemo';
+import HowItWorksStep from "./HowItWorksStep";
+import PersonaAvatarsDemo from "./PersonaAvatarsDemo";
+import UrlInputDemo from "./UrlInputDemo";
+import GenerateButtonDemo from "./GenerateButtonDemo";
+import OutputDemo from "./OutputDemo";
 
 export default function HowItWorksSection() {
   return (
@@ -31,7 +31,11 @@ export default function HowItWorksSection() {
       {/* Right Section - Step 4 with Output */}
       <div className="step-four-section">
         {/* Removed step-four-divider */}
-        <HowItWorksStep stepNumber={4} title="Read your new site/text!" className="step-four" />
+        <HowItWorksStep
+          stepNumber={4}
+          title="Read your new site/text!"
+          className="step-four"
+        />
         <OutputDemo />
       </div>
     </div>

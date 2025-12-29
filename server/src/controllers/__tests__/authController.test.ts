@@ -1,12 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response } from 'express';
-import { getUser, getUserUsage, getUserSummary } from '../authController';
-import { HttpStatus } from '../../constants/http-status';
-import type { AuthenticatedRequest, AuthenticatedUserContext } from '../../types/common';
-import type { IMongoUser } from '../../models/mongo-user';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Request, Response } from "express";
+import { getUser, getUserUsage, getUserSummary } from "../authController";
+import { HttpStatus } from "../../constants/http-status";
+import type {
+  AuthenticatedRequest,
+  AuthenticatedUserContext,
+} from "../../types/common";
+import type { IMongoUser } from "../../models/mongo-user";
 
 // Mock dependencies
-vi.mock('../../utils/logger', () => ({
+vi.mock("../../utils/logger", () => ({
   logger: {
     auth: {
       error: vi.fn(),
@@ -14,7 +17,7 @@ vi.mock('../../utils/logger', () => ({
   },
 }));
 
-vi.mock('../../utils/userSerializer', () => ({
+vi.mock("../../utils/userSerializer", () => ({
   serializeMongoUser: vi.fn((user) => ({ id: user._id, email: user.email })),
   serializeUserUsage: vi.fn((user) => ({
     totalTransformations: user.usage?.totalTransformations || 0,
@@ -31,18 +34,18 @@ vi.mock('../../utils/userSerializer', () => ({
 
 const createMockUser = (overrides: Partial<IMongoUser> = {}): IMongoUser =>
   ({
-    _id: 'user123',
-    auth0Id: 'auth0|123',
-    email: 'test@example.com',
-    username: 'testuser',
-    firstName: 'Test',
-    lastName: 'User',
+    _id: "user123",
+    auth0Id: "auth0|123",
+    email: "test@example.com",
+    username: "testuser",
+    firstName: "Test",
+    lastName: "User",
     isEmailVerified: true,
-    role: 'user',
-    membership: 'free',
+    role: "user",
+    membership: "free",
     preferences: {
-      theme: 'light',
-      language: 'en',
+      theme: "light",
+      language: "en",
       notifications: true,
     },
     usage: {
@@ -59,29 +62,31 @@ const createMockUser = (overrides: Partial<IMongoUser> = {}): IMongoUser =>
     ...overrides,
   }) as IMongoUser;
 
-const createMockUserContext = (mongoUser: IMongoUser | null): AuthenticatedUserContext => {
+const createMockUserContext = (
+  mongoUser: IMongoUser | null,
+): AuthenticatedUserContext => {
   return {
     jwtPayload: {
-      sub: 'auth0|123',
-      aud: 'test-audience',
-      iss: 'test-issuer',
+      sub: "auth0|123",
+      aud: "test-audience",
+      iss: "test-issuer",
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 3600,
     },
     auth0User: {
-      id: 'auth0|123',
-      sub: 'auth0|123',
-      email: 'test@example.com',
-      name: 'Test User',
-      givenName: 'Test',
-      familyName: 'User',
-      nickname: 'testuser',
+      id: "auth0|123",
+      sub: "auth0|123",
+      email: "test@example.com",
+      name: "Test User",
+      givenName: "Test",
+      familyName: "User",
+      nickname: "testuser",
     },
     mongoUser: mongoUser || undefined,
   };
 };
 
-describe('controllers/authController', () => {
+describe("controllers/authController", () => {
   let mockReq: Partial<AuthenticatedRequest>;
   let mockRes: Partial<Response>;
   let mockJson: ReturnType<typeof vi.fn>;
@@ -99,8 +104,8 @@ describe('controllers/authController', () => {
     };
   });
 
-  describe('getUser', () => {
-    it('should return user data when user exists', async () => {
+  describe("getUser", () => {
+    it("should return user data when user exists", async () => {
       const mockUser = createMockUser();
 
       mockReq = {
@@ -113,14 +118,14 @@ describe('controllers/authController', () => {
         success: true,
         data: {
           user: {
-            id: 'user123',
-            email: 'test@example.com',
+            id: "user123",
+            email: "test@example.com",
           },
         },
       });
     });
 
-    it('should return 404 when user not found', async () => {
+    it("should return 404 when user not found", async () => {
       mockReq = {
         userContext: createMockUserContext(null),
       };
@@ -130,11 +135,11 @@ describe('controllers/authController', () => {
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'User not found',
+        error: "User not found",
       });
     });
 
-    it('should return 404 when userContext is missing', async () => {
+    it("should return 404 when userContext is missing", async () => {
       mockReq = {};
 
       await getUser(mockReq as AuthenticatedRequest, mockRes as Response);
@@ -142,14 +147,14 @@ describe('controllers/authController', () => {
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'User not found',
+        error: "User not found",
       });
     });
 
-    it('should handle errors gracefully', async () => {
-      const { serializeMongoUser } = await import('../../utils/userSerializer');
+    it("should handle errors gracefully", async () => {
+      const { serializeMongoUser } = await import("../../utils/userSerializer");
       vi.mocked(serializeMongoUser).mockImplementation(() => {
-        throw new Error('Serialization error');
+        throw new Error("Serialization error");
       });
 
       mockReq = {
@@ -161,13 +166,13 @@ describe('controllers/authController', () => {
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'Internal server error',
+        error: "Internal server error",
       });
     });
   });
 
-  describe('getUserUsage', () => {
-    it('should return user usage data when user exists', async () => {
+  describe("getUserUsage", () => {
+    it("should return user usage data when user exists", async () => {
       const mockUser = createMockUser({
         usage: {
           totalTransformations: 5,
@@ -191,7 +196,7 @@ describe('controllers/authController', () => {
       });
     });
 
-    it('should return 404 when user not found', async () => {
+    it("should return 404 when user not found", async () => {
       mockReq = {
         userContext: createMockUserContext(null),
       };
@@ -201,14 +206,14 @@ describe('controllers/authController', () => {
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'User not found',
+        error: "User not found",
       });
     });
 
-    it('should handle errors gracefully', async () => {
-      const { serializeUserUsage } = await import('../../utils/userSerializer');
+    it("should handle errors gracefully", async () => {
+      const { serializeUserUsage } = await import("../../utils/userSerializer");
       vi.mocked(serializeUserUsage).mockImplementation(() => {
-        throw new Error('Usage serialization error');
+        throw new Error("Usage serialization error");
       });
 
       mockReq = {
@@ -220,61 +225,72 @@ describe('controllers/authController', () => {
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'Internal server error',
+        error: "Internal server error",
       });
     });
   });
 
-  describe('getUserSummary', () => {
-    it('should return user summary when user exists', async () => {
+  describe("getUserSummary", () => {
+    it("should return user summary when user exists", async () => {
       const mockUser = createMockUser();
 
       mockReq = {
         userContext: createMockUserContext(mockUser),
       };
 
-      await getUserSummary(mockReq as AuthenticatedRequest, mockRes as Response);
+      await getUserSummary(
+        mockReq as AuthenticatedRequest,
+        mockRes as Response,
+      );
 
       expect(mockJson).toHaveBeenCalledWith({
         success: true,
         data: {
-          id: 'user123',
-          email: 'test@example.com',
+          id: "user123",
+          email: "test@example.com",
           isActive: true,
         },
       });
     });
 
-    it('should return 404 when user not found', async () => {
+    it("should return 404 when user not found", async () => {
       mockReq = {
         userContext: createMockUserContext(null),
       };
 
-      await getUserSummary(mockReq as AuthenticatedRequest, mockRes as Response);
+      await getUserSummary(
+        mockReq as AuthenticatedRequest,
+        mockRes as Response,
+      );
 
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'User not found',
+        error: "User not found",
       });
     });
 
-    it('should handle errors gracefully', async () => {
-      const { serializeUserSummary } = await import('../../utils/userSerializer');
+    it("should handle errors gracefully", async () => {
+      const { serializeUserSummary } = await import(
+        "../../utils/userSerializer"
+      );
       vi.mocked(serializeUserSummary).mockImplementation(() => {
-        throw new Error('Summary serialization error');
+        throw new Error("Summary serialization error");
       });
 
       mockReq = {
         userContext: createMockUserContext(createMockUser()),
       };
 
-      await getUserSummary(mockReq as AuthenticatedRequest, mockRes as Response);
+      await getUserSummary(
+        mockReq as AuthenticatedRequest,
+        mockRes as Response,
+      );
 
       expect(mockStatus).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(mockJson).toHaveBeenCalledWith({
         success: false,
-        error: 'Internal server error',
+        error: "Internal server error",
       });
     });
   });

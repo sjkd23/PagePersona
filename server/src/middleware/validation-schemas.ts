@@ -17,8 +17,8 @@
  * to provide a uniform API experience.
  */
 
-import { z } from 'zod';
-import { commonSchemas } from './zod-validation';
+import { z } from "zod";
+import { commonSchemas } from "./zod-validation";
 
 /**
  * Validation schemas for content transformation endpoints
@@ -52,29 +52,35 @@ export const userSchemas = {
   /** Schema for user profile update requests */
   updateProfile: z
     .object({
-      firstName: z.string().max(50, 'First name cannot exceed 50 characters').optional(),
-      lastName: z.string().max(50, 'Last name cannot exceed 50 characters').optional(),
+      firstName: z
+        .string()
+        .max(50, "First name cannot exceed 50 characters")
+        .optional(),
+      lastName: z
+        .string()
+        .max(50, "Last name cannot exceed 50 characters")
+        .optional(),
       displayName: z
         .string()
-        .min(1, 'Display name is required')
-        .max(100, 'Display name cannot exceed 100 characters')
+        .min(1, "Display name is required")
+        .max(100, "Display name cannot exceed 100 characters")
         .optional(),
-      bio: z.string().max(500, 'Bio cannot exceed 500 characters').optional(),
+      bio: z.string().max(500, "Bio cannot exceed 500 characters").optional(),
       preferences: z
         .object({
-          theme: z.enum(['light', 'dark', 'auto']).optional(),
+          theme: z.enum(["light", "dark", "auto"]).optional(),
           language: z.string().min(2).max(5).optional(),
           notifications: z.boolean().optional(),
         })
         .optional(),
     })
     .refine((data) => Object.keys(data).length > 0, {
-      message: 'At least one field must be provided for update',
+      message: "At least one field must be provided for update",
     }),
 
   /** Schema for user profile query parameters */
   profileQuery: z.object({
-    include: z.enum(['stats', 'preferences', 'history']).optional(),
+    include: z.enum(["stats", "preferences", "history"]).optional(),
   }),
 };
 
@@ -89,10 +95,13 @@ export const chatSchemas = {
   chatMessage: z.object({
     message: z
       .string()
-      .min(1, 'Message is required')
-      .max(4000, 'Message cannot exceed 4000 characters'),
-    context: z.string().max(10000, 'Context cannot exceed 10000 characters').optional(),
-    model: z.enum(['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo']).optional(),
+      .min(1, "Message is required")
+      .max(4000, "Message cannot exceed 4000 characters"),
+    context: z
+      .string()
+      .max(10000, "Context cannot exceed 10000 characters")
+      .optional(),
+    model: z.enum(["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"]).optional(),
     temperature: z.number().min(0).max(2).optional(),
     maxTokens: z.number().min(1).max(4000).optional(),
   }),
@@ -111,22 +120,22 @@ export const authSchemas = {
     username: commonSchemas.username,
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .max(128, 'Password cannot exceed 128 characters')
+      .min(8, "Password must be at least 8 characters")
+      .max(128, "Password cannot exceed 128 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Password must contain at least one lowercase letter, one uppercase letter, and one number',
+        "Password must contain at least one lowercase letter, one uppercase letter, and one number",
       ),
     displayName: z
       .string()
-      .min(1, 'Display name is required')
-      .max(100, 'Display name cannot exceed 100 characters'),
+      .min(1, "Display name is required")
+      .max(100, "Display name cannot exceed 100 characters"),
   }),
 
   /** Schema for user login requests */
   login: z.object({
     email: commonSchemas.email,
-    password: z.string().min(1, 'Password is required'),
+    password: z.string().min(1, "Password is required"),
   }),
 
   /** Schema for password reset requests */
@@ -136,14 +145,14 @@ export const authSchemas = {
 
   /** Schema for password change requests */
   changePassword: z.object({
-    currentPassword: z.string().min(1, 'Current password is required'),
+    currentPassword: z.string().min(1, "Current password is required"),
     newPassword: z
       .string()
-      .min(8, 'New password must be at least 8 characters')
-      .max(128, 'New password cannot exceed 128 characters')
+      .min(8, "New password must be at least 8 characters")
+      .max(128, "New password cannot exceed 128 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'New password must contain at least one lowercase letter, one uppercase letter, and one number',
+        "New password must contain at least one lowercase letter, one uppercase letter, and one number",
       ),
   }),
 };
@@ -177,17 +186,17 @@ export const querySchemas = {
   pagination: z.object({
     page: z
       .string()
-      .regex(/^\d+$/, 'Page must be a number')
+      .regex(/^\d+$/, "Page must be a number")
       .transform(Number)
-      .refine((n) => n >= 1, 'Page must be at least 1')
+      .refine((n) => n >= 1, "Page must be at least 1")
       .optional(),
     limit: z
       .string()
-      .regex(/^\d+$/, 'Limit must be a number')
+      .regex(/^\d+$/, "Limit must be a number")
       .transform(Number)
-      .refine((n) => n >= 1 && n <= 100, 'Limit must be between 1 and 100')
+      .refine((n) => n >= 1 && n <= 100, "Limit must be between 1 and 100")
       .optional(),
-    sort: z.enum(['asc', 'desc']).optional(),
+    sort: z.enum(["asc", "desc"]).optional(),
     sortBy: z.string().min(1).max(50).optional(),
   }),
 
@@ -195,20 +204,22 @@ export const querySchemas = {
   search: z.object({
     q: z
       .string()
-      .min(1, 'Search query is required')
-      .max(200, 'Search query cannot exceed 200 characters'),
-    type: z.enum(['user', 'content', 'transformation']).optional(),
+      .min(1, "Search query is required")
+      .max(200, "Search query cannot exceed 200 characters"),
+    type: z.enum(["user", "content", "transformation"]).optional(),
   }),
 
   /** Schema for date range query parameters */
   dateRange: z
     .object({
-      startDate: z.string().datetime('Invalid start date format').optional(),
-      endDate: z.string().datetime('Invalid end date format').optional(),
+      startDate: z.string().datetime("Invalid start date format").optional(),
+      endDate: z.string().datetime("Invalid end date format").optional(),
     })
     .refine(
       (data) =>
-        !data.startDate || !data.endDate || new Date(data.startDate) <= new Date(data.endDate),
-      { message: 'Start date must be before end date' },
+        !data.startDate ||
+        !data.endDate ||
+        new Date(data.startDate) <= new Date(data.endDate),
+      { message: "Start date must be before end date" },
     ),
 };
