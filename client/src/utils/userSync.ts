@@ -74,6 +74,12 @@ export interface UserSyncResponse {
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 /**
+ * Request timeout for user sync operations (15 seconds)
+ * Prevents infinite hanging on slow or unresponsive backends
+ */
+const SYNC_TIMEOUT_MS = 15000;
+
+/**
  * Synchronizes user profile data with the backend service
  *
  * Optimized sync process: tries GET first for existing users, then POST for new users.
@@ -106,52 +112,82 @@ export async function syncUserWithBackend(accessToken: string): Promise<UserProf
       return null;
     }
 
-    logger.sync.info('Starting user sync with backend');
+    logger.sync.info('Starting user sync with backend', { apiUrl: API_URL });
 
-    // 1️⃣ Try GET /user/profile for existing users
-    const profileRes = await fetch(`${API_URL}/user/profile`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Create abort controller for request timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), SYNC_TIMEOUT_MS);
 
-    if (profileRes.ok) {
-      const result: UserSyncResponse = await profileRes.json();
-      logger.sync.info('Profile retrieved', { success: result.success });
-      return result.success ? (result.data ?? null) : null;
-    }
+    try {
+      // 1️⃣ Try GET /user/profile for existing users
+      const profileRes = await fetch(`${API_URL}/user/profile`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        signal: abortController.signal,
+      });
+      clearTimeout(timeoutId);
 
-    // If not found, but not another error
-    if (profileRes.status !== 404) {
-      const errorText = await profileRes.text();
-      logger.sync.error('Profile request failed', undefined, {
-        status: profileRes.status,
-        errorText,
+      if (profileRes.ok) {
+        const result: UserSyncResponse = await profileRes.json();
+        logger.sync.info('Profile retrieved', { success: result.success });
+        return result.success ? (result.data ?? null) : null;
+      }
+
+      // If not found, but not another error
+      if (profileRes.status !== 404) {
+        const errorText = await profileRes.text();
+        logger.sync.error('Profile request failed', undefined, {
+          status: profileRes.status,
+          errorText,
+        });
+        return null;
+      }
+
+      // 2️⃣ POST /user/sync for new users
+      const syncAbortController = new AbortController();
+      const syncTimeoutId = setTimeout(() => syncAbortController.abort(), SYNC_TIMEOUT_MS);
+
+      const syncRes = await fetch(`${API_URL}/user/sync`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        signal: syncAbortController.signal,
+      });
+      clearTimeout(syncTimeoutId);
+      if (!syncRes.ok) {
+        const errorText = await syncRes.text();
+        logger.sync.error('Sync request failed', undefined, {
+          status: syncRes.status,
+          errorText,
+        });
+        return null;
+      }
+
+      const syncResult: UserSyncResponse = await syncRes.json();
+      return syncResult.success ? (syncResult.data ?? null) : null;
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      
+      // Handle timeout specifically
+      if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
+        logger.sync.error('User sync request timed out', undefined, {
+          timeout: SYNC_TIMEOUT_MS,
+          apiUrl: API_URL,
+        });
+        return null;
+      }
+      
+      // Handle other fetch errors
+      logger.sync.error('Network error during user sync', fetchErr, {
+        apiUrl: API_URL,
       });
       return null;
     }
-
-    // 2️⃣ POST /user/sync for new users
-    const syncRes = await fetch(`${API_URL}/user/sync`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!syncRes.ok) {
-      const errorText = await syncRes.text();
-      logger.sync.error('Sync request failed', undefined, {
-        status: syncRes.status,
-        errorText,
-      });
-      return null;
-    }
-
-    const syncResult: UserSyncResponse = await syncRes.json();
-    return syncResult.success ? (syncResult.data ?? null) : null;
   } catch (err) {
     logger.sync.error('Error during user sync', err);
     return null;

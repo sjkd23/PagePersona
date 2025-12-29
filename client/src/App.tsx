@@ -41,6 +41,10 @@ function AppContent() {
   const [showProfile, setShowProfile] = useState(false);
   const [currentPage, setCurrentPage] = useState<'landing' | 'transformer'>('landing');
 
+  // Detect if we're in Auth0 callback processing to prevent redirect loops
+  const isCallback = window.location.search.includes('code=') && 
+                     window.location.search.includes('state=');
+
   /**
    * Extract and format user's full name from Auth0 user object
    *
@@ -129,8 +133,8 @@ function AppContent() {
     }
   }, [currentPage, showProfile, fullName]);
 
-  // Render loading state during authentication initialization
-  if (isLoading) {
+  // Render loading state during authentication initialization OR callback processing
+  if (isLoading || isCallback) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900 flex items-center justify-center">
         <div className="text-center" role="status" aria-live="polite">
@@ -138,7 +142,9 @@ function AppContent() {
             className="w-16 h-16 border-4 border-purple-200 dark:border-purple-400 border-t-purple-600 dark:border-t-purple-300 rounded-full animate-spin mx-auto mb-4"
             aria-hidden="true"
           ></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading PagePersonAI...</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            {isCallback ? 'Completing authentication...' : 'Loading PagePersonAI...'}
+          </p>
         </div>
       </div>
     );

@@ -21,10 +21,12 @@ export function Auth0Provider({ children }: { children: ReactNode }) {
       useRefreshTokens={true}
       cacheLocation="localstorage"
       onRedirectCallback={(appState) => {
+        // Clean up URL after Auth0 callback to prevent reprocessing
+        const targetUrl = appState?.returnTo || window.location.pathname;
         window.history.replaceState(
           {},
           document.title,
-          appState?.returnTo || window.location.pathname,
+          targetUrl,
         );
       }}
     >

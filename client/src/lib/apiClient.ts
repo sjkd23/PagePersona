@@ -21,6 +21,12 @@ import { ErrorCode } from '@pagepersonai/shared';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+/**
+ * Default request timeout in milliseconds (15 seconds)
+ * Prevents requests from hanging indefinitely on slow or unresponsive backends
+ */
+const DEFAULT_TIMEOUT_MS = 15000;
+
 // Global token getter function - configured by Auth0 provider
 let getAccessTokenFunction: (() => Promise<string | undefined>) | null = null;
 
@@ -154,13 +160,19 @@ class HttpClient {
   async request<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    // Create abort controller for timeout
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), DEFAULT_TIMEOUT_MS);
+
     const config: RequestInit = {
       headers: await this.getHeaders(options.headers),
+      signal: abortController.signal,
       ...options,
     };
 
     try {
       const response = await fetch(url, config);
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (!response.ok) {
@@ -185,6 +197,18 @@ class HttpClient {
 
       return { success: true, ...data } as T;
     } catch (error) {
+      clearTimeout(timeoutId);
+      
+      // Handle timeout specifically
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request timed out. Please check your connection and try again.',
+          errorCode: ErrorCode.NETWORK_ERROR,
+          timestamp: new Date(),
+        } as T;
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',
@@ -195,11 +219,16 @@ class HttpClient {
   }
 
   async get<T = unknown>(endpoint: string, customHeaders?: HeadersInit): Promise<ApiResponse<T>> {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), DEFAULT_TIMEOUT_MS);
+    
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'GET',
         headers: await this.getHeaders(customHeaders),
+        signal: abortController.signal,
       });
+      clearTimeout(timeoutId);
 
       const data = await response.json();
       return {
@@ -209,6 +238,15 @@ class HttpClient {
         message: data.message,
       };
     } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request timed out. Please check your connection and try again.',
+        };
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',
@@ -221,12 +259,17 @@ class HttpClient {
     body?: unknown,
     customHeaders?: HeadersInit,
   ): Promise<ApiResponse<T>> {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), DEFAULT_TIMEOUT_MS);
+    
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: await this.getHeaders(customHeaders),
         body: body ? JSON.stringify(body) : undefined,
+        signal: abortController.signal,
       });
+      clearTimeout(timeoutId);
 
       const data = await response.json();
       return {
@@ -236,6 +279,15 @@ class HttpClient {
         message: data.message,
       };
     } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Request timed out. Please check your connection and try again.',
+        };
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',
