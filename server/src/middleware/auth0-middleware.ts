@@ -1,46 +1,17 @@
 /**
- * Auth0 Authentication and User Synchro    return new Promise<boolean>((resolve) => {
-      verifyAuth0Token(req, res, (err: unknown) => {
-        if (err) {
-          const errorMessage = err instanceof Error ? err.message : String(err);
-          logger.debug('Optional Auth0 verification failed', { e    // Sync user data if token was verified successfully
-    if (tokenVerified && req.user) {
-      logger.debug('User found, attempting sync...');
-      await trySyncAuth0User(req, res);
-    } else {
-      logger.debug('No user to sync');
-    }
-
-    logger.debug('optionalAuth0 middleware completed successfully');
-    next();
-  } catch (error) {
-    logger.error('Optional Auth0 error', { error });
-    logger.debug('Continuing without authentication due to error');
-    next();
-  }
-};ge });
-          resolve(false);
-        } else {
-          logger.debug('Auth0 token verified successfully');
-          resolve(true);
-        }
-      });
-    });
-  } catch (error) {
-    logger.error('Error during token verification', { error });
-    return false;ware
- * 
+ * Auth0 Authentication and User Sync Middleware
+ *
  * This module provides comprehensive Auth0 integration middleware for
  * user authentication, token verification, and user data synchronization
  * between Auth0 and MongoDB.
- * 
+ *
  * Key Features:
  * - JWT token verification and validation
  * - Automatic user synchronization between Auth0 and MongoDB
  * - Optional authentication for public routes
  * - User context attachment for authenticated requests
  * - Graceful handling of authentication errors
- * 
+ *
  * Exported Middleware:
  * - verifyAuth0Token: Strict JWT verification for protected routes
  * - syncAuth0User: Synchronizes Auth0 user data with MongoDB
