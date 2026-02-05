@@ -183,12 +183,15 @@ VITE_AUTH0_CLIENT_ID=
 VITE_AUTH0_AUDIENCE=
 
 # Optional
-REDIS_URL=
+# Use rediss:// for managed Redis providers that require TLS (Render/Upstash/etc.)
+REDIS_URL=rediss://<user>:<password>@<host>:<port>
 PORT=5000
 NODE_ENV=development
 ```
 
 *(See `.env.<production/development>.example` for full details.)*
+
+If `REDIS_URL` is missing or Redis is unavailable, the API boots in degraded mode and skips Redis-backed features where possible.
 
 ---
 
