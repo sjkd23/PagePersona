@@ -31,7 +31,8 @@ export function createRateLimiter(
     logger.info("Using Redis store for rate limiting");
     return rateLimit({
       store: new RedisStore({
-        sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+        sendCommand: (...args: string[]) =>
+          redisClient.sendCommand(args) as Promise<any>,
       }),
       windowMs: options.windowMs,
       max: options.max,

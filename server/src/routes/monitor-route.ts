@@ -16,6 +16,7 @@ import { Router } from "express";
 import { parsedEnv } from "../utils/env-validation";
 import { getJwtInfo } from "../middleware/jwtAuth";
 import { getSessionStats } from "../utils/session-tracker";
+import redisClient from "../utils/redis-client";
 
 const router = Router();
 
@@ -36,6 +37,10 @@ router.get("/health", (_req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     version: process.version,
+    redis: {
+      configured: !!parsedEnv.REDIS_URL,
+      status: redisClient.getStatus(),
+    },
   });
 });
 

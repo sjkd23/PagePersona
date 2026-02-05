@@ -14,5 +14,14 @@ dotenv.config({
   override: false,
 });
 
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection", reason);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught exception", error);
+});
+
 // Start Express server (binds to process.env.PORT)
 createServer();
